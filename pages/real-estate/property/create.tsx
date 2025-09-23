@@ -43,9 +43,9 @@ export default function AddPropertyPage() {
         {steps.map((step, index) => (
           <div
             key={step.id}
-            className="grid grid-cols-1 gap-6 md:grid-cols-5 md:gap-5"
+            className="grid grid-cols-1 gap-6 xl:grid-cols-7 md:gap-5"
           >
-            <div className="relative flex items-start md:col-span-1">
+            <div className="relative flex items-start xl:col-span-1">
               <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-500">
                 <step.icon size={18} />
               </div>
@@ -60,7 +60,7 @@ export default function AddPropertyPage() {
             </div>
 
             {/* Form section (right) */}
-            <div className="md:col-span-4">
+            <div className="xl:col-span-6">
               {step.id === 1 && (
                 <div className="panel rounded-lg">
                   <h2 className="mb-4 text-lg font-semibold">Basic Detail</h2>
