@@ -1,6 +1,7 @@
 import React from 'react';
 
-interface CheckboxInputProps {
+interface InputProps {
+    type?: 'checkbox' | 'radio'; // Added type prop
     checked: boolean;
     onChange: (checked: boolean) => void;
     label: string;
@@ -11,18 +12,28 @@ interface CheckboxInputProps {
     disabled?: boolean;
 }
 
-const CheckboxInput: React.FC<CheckboxInputProps> = ({ checked, onChange, label, name, className = '', error, required, disabled }) => {
+const CheckboxInput: React.FC<InputProps> = ({
+    type = 'checkbox', // default is checkbox
+    checked,
+    onChange,
+    label,
+    name,
+    className = '',
+    error,
+    required,
+    disabled,
+}) => {
     return (
         <div className={` ${className}`}>
             <label className="flex cursor-pointer items-center">
                 <input
-                    type="checkbox"
+                    type={type} // can be checkbox or radio
                     checked={checked}
                     onChange={(e) => onChange(e.target.checked)}
                     name={name}
                     required={required}
                     disabled={disabled}
-                    className={`form-checkbox ${error ? 'border-red-500' : ''}`}
+                    className={`form-${type} ${error ? 'border-red-500' : ''}`}
                 />
                 <span className="ml-1 text-sm font-medium text-gray-700">{label}</span>
             </label>

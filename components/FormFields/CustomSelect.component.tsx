@@ -21,6 +21,7 @@ interface SelectProps {
     borderRadius?: number;
     menuOpen?: any;
     disabled?: boolean;
+    isClearable?:boolean;
 }
 
 const CustomSelect = (props: SelectProps) => {

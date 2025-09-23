@@ -43,7 +43,7 @@ export const menuConfig = {
           label: "Property",
           key: "Property",
           children: [
-            { type: "link", label: "List", href: "/apps/invoice/list" },
+            { type: "link", label: "List", href: "real-estate/property/list" },
             { type: "link", label: "Create Property", href: "/real-estate/property/create" },
             { type: "link", label: "Property Catergory", href: "/apps/invoice/add" },
             { type: "link", label: "Amenities List", href: "/apps/invoice/edit" },
@@ -411,3 +411,54 @@ export const menuConfig = {
     
   ],
 };
+
+export const  propertyType = [
+  { value: 1,
+    label:"Appartment"
+  },
+   { value: 2,
+    label:"House"
+  },
+   { value: 3,
+    label:"Office"
+  },
+
+   { value: 4,
+    label:"Loft"
+  }
+]
+
+export const facingDirection = [
+  { value: 1, label: "North" },
+  { value: 2, label: "East" },
+  { value: 3, label: "West" },
+  { value: 4, label: "South" },
+  { value: 5, label: "North-East" },
+  { value: 6, label: "South-East" },
+  { value: 7, label: "South-West" },
+  { value: 8, label: "North-West" },
+  { value: 9, label: "East-Facing Corner" },
+  { value: 10, label: "West-Facing Corner" }
+];
+
+export const amenitiesList = [
+  { value: "parking", label: "Car Parking" },
+  { value: "power_backup", label: "Power Backup" },
+  { value: "lift", label: "Lift / Elevator" },
+  { value: "security", label: "24x7 Security" },
+  { value: "cctv", label: "CCTV Surveillance" },
+  { value: "water_supply", label: "24x7 Water Supply" },
+  { value: "gym", label: "Gym / Fitness Center" },
+  { value: "swimming_pool", label: "Swimming Pool" },
+  { value: "children_play_area", label: "Children's Play Area" },
+  { value: "clubhouse", label: "Clubhouse / Community Hall" },
+  { value: "garden", label: "Park / Garden" },
+  { value: "intercom", label: "Intercom Facility" },
+  { value: "internet", label: "Wi-Fi / Internet" },
+  { value: "fire_safety", label: "Fire Safety" },
+  { value: "rainwater_harvesting", label: "Rainwater Harvesting" },
+  { value: "shopping_center", label: "Shopping Center" },
+  { value: "sports_facilities", label: "Sports Facilities" },
+  { value: "visitor_parking", label: "Visitor Parking" },
+  { value: "community_events", label: "Community Events Area" }
+];

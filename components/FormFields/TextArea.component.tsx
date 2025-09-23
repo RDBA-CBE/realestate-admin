@@ -1,45 +1,79 @@
-import React from 'react';
+import React from "react";
 
-const TextArea = (props: any) => {
-    const {
-        value,
-        onChange,
-        placeholder,
-        title,
-        name,
-        required,
-        className,
-        error,
-        rows = 4,
-        height = 'auto',
-        ...rest
-    } = props;
+interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  title?: string;
+  error?: string;
+  className?: string;
+  icon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  rightIconOnclick?: any;
+  rows?: number;
+}
 
-    return (
-        <div className="w-full">
-            {title && (
-                <label className="block text-sm font-bold text-gray-700">
-                    {title} {required && <span className="text-red-500">*</span>}
-                </label>
-            )}
-            <textarea
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                placeholder={placeholder}
-                name={name}
-                rows={rows}
-                className={`form-textarea ${className} ${error ? 'border-red-500' : ''}`} 
-                required={required}
-                style={{ height }}
-                {...rest}
-            />
-            {error && (
-                <p className="mt-2 text-sm text-red-600" id={`${name}-error`}>
-                    {error}
-                </p>
-            )}
-        </div>
-    );
+const TextArea: React.FC<TextAreaProps> = ({
+  value,
+  onChange,
+  placeholder,
+  title,
+  name,
+  required,
+  className = "",
+  error,
+  icon,
+  rightIcon,
+  rightIconOnclick,
+  rows = 4,
+  ...rest
+}) => {
+  return (
+    <div className="w-full">
+      {title && (
+        <label
+          htmlFor={name}
+          className="block text-sm font-bold text-gray-700 mb-1"
+        >
+          {title} {required && <span className="text-red-500">*</span>}
+        </label>
+      )}
+
+      <div className="relative">
+        {icon && (
+          <span className="absolute left-3 top-3 text-gray-400 pointer-events-none">
+            {icon}
+          </span>
+        )}
+
+        <textarea
+          id={name}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          name={name}
+          required={required}
+          rows={rows}
+          className={`form-textarea w-full rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-primary resize-none ${
+            error ? "border-red-500" : "border-gray-300"
+          } ${icon ? "pl-10" : ""} ${rightIcon ? "pr-10" : ""} ${className}`}
+          {...rest}
+        />
+
+        {rightIcon && (
+          <span
+            className="absolute right-3 top-3 text-gray-400 cursor-pointer"
+            onClick={() => rightIconOnclick?.()}
+          >
+            {rightIcon}
+          </span>
+        )}
+      </div>
+
+      {error && (
+        <p className="mt-1 text-sm text-red-600" id={`${name}-error`}>
+          {error}
+        </p>
+      )}
+    </div>
+  );
 };
 
 export default TextArea;
