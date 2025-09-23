@@ -22,7 +22,7 @@ import TextInput from "@/components/FormFields/TextInput.component";
 import { useSetState } from "@/utils/function.utils";
 import IconEye from "@/components/Icon/IconEye";
 import IconEyeOff from "@/components/Icon/IconEyeOff";
-import CheckboxInput from "@/components/FormFields/CheckBoxInput";
+import CheckboxInput from "@/components/FormFields/CheckBoxInput.component";
 
 const LoginBoxed = () => {
   const dispatch = useDispatch();

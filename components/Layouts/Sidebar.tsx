@@ -33,6 +33,7 @@ import IconMenuPages from '@/components/Icon/Menu/IconMenuPages';
 import IconMenuAuthentication from '@/components/Icon/Menu/IconMenuAuthentication';
 import IconMenuDocumentation from '@/components/Icon/Menu/IconMenuDocumentation';
 import IconMenuApps from '../Icon/Menu/IconMenuApps';
+import {menuConfig} from '@/utils/constant.utils'
 
 const Sidebar = () => {
     const router = useRouter();
@@ -45,6 +46,10 @@ const Sidebar = () => {
             return oldValue === value ? '' : value;
         });
     };
+
+    //  const menus = menuConfig[role] || [];
+
+
 
     useEffect(() => {
         const selector = document.querySelector('.sidebar ul a[href="' + window.location.pathname + '"]');
