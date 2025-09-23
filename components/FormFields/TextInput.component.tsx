@@ -49,7 +49,6 @@ const TextInput: React.FC<TextInputProps> = ({
           onChange={onChange}
           placeholder={placeholder}
           name={name}
-          required={required}
           className={`form-input w-full rounded-md border px-3 py-2 outline-none focus:ring-2 focus:ring-primary ${
             error ? "border-red-500" : "border-gray-300"
           } ${icon ? "pl-10" : ""} ${rightIcon ? "pr-10" : ""} ${className}`}

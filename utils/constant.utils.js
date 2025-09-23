@@ -1,11 +1,9 @@
 export const BASEURL = "https://zenbkad.zenwellnesslounge.com/api";
 
-
 export const CLIENT_ID =
   "625052261407-4p8ihs05c67d778mr5d91lqjvnvpkd8k.apps.googleusercontent.com";
 
-export const BACKEND_URL="http://31.97.206.165/api/"
-
+export const BACKEND_URL = "http://31.97.206.165/api/";
 
 // menuConfig.ts
 export const menuConfig = {
@@ -15,7 +13,6 @@ export const menuConfig = {
       icon: "IconMenuWidgets",
       label: "dashboard",
       href: "/profile",
-      
     },
     {
       type: "section",
@@ -142,13 +139,11 @@ export const menuConfig = {
       icon: "IconMenuWidgets",
       label: "dashboard",
       href: "/profile",
-      
     },
     {
       type: "section",
       label: "Project Management",
       children: [
-      
         {
           type: "submenu",
           icon: "IconMenuApps",
@@ -166,9 +161,21 @@ export const menuConfig = {
           key: "Property",
           children: [
             { type: "link", label: "List", href: "/apps/invoice/list" },
-            { type: "link", label: "Create Property", href: "/real-estate/property/create" },
-            { type: "link", label: "Property Catergory", href: "/apps/invoice/add" },
-            { type: "link", label: "Amenities List", href: "/apps/invoice/edit" },
+            {
+              type: "link",
+              label: "Create Property",
+              href: "/real-estate/property/create",
+            },
+            {
+              type: "link",
+              label: "Property Catergory",
+              href: "/apps/invoice/add",
+            },
+            {
+              type: "link",
+              label: "Amenities List",
+              href: "/apps/invoice/edit",
+            },
             { type: "link", label: "City", href: "/apps/invoice/edit" },
             { type: "link", label: "Media", href: "/apps/invoice/edit" },
             { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
@@ -243,7 +250,6 @@ export const menuConfig = {
         },
       ],
     },
-    
   ],
 
   seller: [
@@ -252,13 +258,11 @@ export const menuConfig = {
       icon: "IconMenuWidgets",
       label: "dashboard",
       href: "/profile",
-      
     },
     {
       type: "section",
       label: "Project Management",
       children: [
-        
         {
           type: "submenu",
           icon: "IconMenuApps",
@@ -276,9 +280,21 @@ export const menuConfig = {
           key: "Property",
           children: [
             { type: "link", label: "List", href: "/apps/invoice/list" },
-            { type: "link", label: "Create Property", href: "/real-estate/property/create" },
-            { type: "link", label: "Property Catergory", href: "/apps/invoice/add" },
-            { type: "link", label: "Amenities List", href: "/apps/invoice/edit" },
+            {
+              type: "link",
+              label: "Create Property",
+              href: "/real-estate/property/create",
+            },
+            {
+              type: "link",
+              label: "Property Catergory",
+              href: "/apps/invoice/add",
+            },
+            {
+              type: "link",
+              label: "Amenities List",
+              href: "/apps/invoice/edit",
+            },
             { type: "link", label: "City", href: "/apps/invoice/edit" },
             { type: "link", label: "Media", href: "/apps/invoice/edit" },
             { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
@@ -311,7 +327,7 @@ export const menuConfig = {
         },
       ],
     },
-   
+
     {
       type: "section",
       label: "Inquiries",
@@ -330,22 +346,19 @@ export const menuConfig = {
         },
       ],
     },
-    
   ],
 
-   developer: [
+  developer: [
     {
       type: "link",
       icon: "IconMenuWidgets",
       label: "dashboard",
       href: "/profile",
-      
     },
     {
       type: "section",
       label: "Project Management",
       children: [
-        
         {
           type: "submenu",
           icon: "IconMenuApps",
@@ -354,15 +367,23 @@ export const menuConfig = {
           children: [
             { type: "link", label: "List", href: "/apps/invoice/list" },
             { type: "link", label: "Create", href: "/apps/invoice/preview" },
-            { type: "link", label: "Property Catergory", href: "/apps/invoice/add" },
-            { type: "link", label: "Amenities List", href: "/apps/invoice/edit" },
+            {
+              type: "link",
+              label: "Property Catergory",
+              href: "/apps/invoice/add",
+            },
+            {
+              type: "link",
+              label: "Amenities List",
+              href: "/apps/invoice/edit",
+            },
             { type: "link", label: "City", href: "/apps/invoice/edit" },
             { type: "link", label: "Media", href: "/apps/invoice/edit" },
             { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
             { type: "link", label: "Reviews", href: "/apps/invoice/edit" },
           ],
         },
-        
+
         {
           type: "link",
           icon: "IconMenuNotes",
@@ -389,7 +410,7 @@ export const menuConfig = {
         },
       ],
     },
-   
+
     {
       type: "section",
       label: "Inquiries",
@@ -408,7 +429,6 @@ export const menuConfig = {
         },
       ],
     },
-    
   ],
 };
 
@@ -462,3 +482,11 @@ export const amenitiesList = [
   { value: "visitor_parking", label: "Visitor Parking" },
   { value: "community_events", label: "Community Events Area" }
 ];
+
+export const ROLES = {
+  ADMIN: "Admin",
+  SELLER: "Sellers",
+  BUYER: "Buyer",
+  DEVELOPER: "Developers",
+  AGENT: "Agents",
+};

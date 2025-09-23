@@ -1,39 +1,47 @@
 import Link from "next/link";
 import { useDispatch } from "react-redux";
-import { useEffect } from "react";
 import { setPageTitle } from "../../store/themeConfigSlice";
+import { useEffect } from "react";
 import { useRouter } from "next/router";
 import BlankLayout from "@/components/Layouts/BlankLayout";
 import IconMail from "@/components/Icon/IconMail";
-import IconLockDots from "@/components/Icon/IconLockDots";
-import IconInstagram from "@/components/Icon/IconInstagram";
-import IconFacebookCircle from "@/components/Icon/IconFacebookCircle";
-import IconTwitter from "@/components/Icon/IconTwitter";
 import IconGoogle from "@/components/Icon/IconGoogle";
 import TextInput from "@/components/FormFields/TextInput.component";
-import { Failure, Success, useSetState } from "@/utils/function.utils";
-import IconEye from "@/components/Icon/IconEye";
-import IconEyeOff from "@/components/Icon/IconEyeOff";
-import Utils from "@/imports/utils.import";
-import * as Yup from "yup";
-import Models from "@/imports/models.import";
 import PrimaryButton from "@/components/FormFields/PrimaryButton.component";
-import { userData } from "@/store/userConfigSlice";
+import {
+  Failure,
+  getPasswordStrength,
+  Success,
+  useSetState,
+} from "@/utils/function.utils";
+import NumberInput from "@/components/FormFields/NumberInputs.component";
+import CustomSelect from "@/components/FormFields/CustomSelect.component";
+import Utils from "@/imports/utils.import";
+import Models from "@/imports/models.import";
+import * as Yup from "yup";
+import IconLockDots from "@/components/Icon/IconLockDots";
+import IconEyeOff from "@/components/Icon/IconEyeOff";
+import IconEye from "@/components/Icon/IconEye";
 
-const LoginBoxed = () => {
+const RegisterBoxed = () => {
   const dispatch = useDispatch();
+
   const router = useRouter();
 
   const [state, setState] = useSetState({
     showPassword: false,
+    assignRole: null,
+    first_name: "",
+    last_name: "",
     email: "",
+    phone: "",
     password: "",
-    error: null,
+    passwordStrength: "",
     btnLoading: false,
   });
 
   useEffect(() => {
-    dispatch(setPageTitle("Login"));
+    dispatch(setPageTitle("Register"));
   });
 
   const submitForm = async (e: any) => {
@@ -42,19 +50,25 @@ const LoginBoxed = () => {
       setState({ btnLoading: true });
       const body = {
         email: state.email.trim(),
+        first_name: state.first_name,
+        last_name: state.last_name,
+        phone: state.phone,
+        user_type: state.assignRole?.value,
         password: state.password,
+        terms_accepted:true
       };
+      console.log("✌️body --->", body);
 
-      await Utils.Validation.login.validate(body, { abortEarly: false });
-      const res: any = await Models.auth.login(body);
-      Success("Login Successfully");
-      localStorage.setItem("token", res.access);
-      localStorage.setItem("refresh", res.refresh);
-      localStorage.setItem("userId", res.user_id);
-      if (res?.groups?.length > 0) {
-        localStorage.setItem("group", res.groups[0]?.name);
-      }
-      router.replace("/");
+      await Utils.Validation.signin.validate(body, { abortEarly: false });
+      const res: any = await Models.auth.singup(body);
+      Success("Register Successfully");
+      // localStorage.setItem("token", res.access);
+      // localStorage.setItem("refresh", res.refresh);
+      // localStorage.setItem("userId", res.user_id);
+      // if (res?.groups?.length > 0) {
+      //   localStorage.setItem("group", res.groups[0]);
+      // }
+      router.replace("/auth/signin");
       setState({ btnLoading: false });
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -70,6 +84,14 @@ const LoginBoxed = () => {
         setState({ btnLoading: false });
       }
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setState({
+      [name]: value,
+      error: { ...state.error, [name]: "" },
+    });
   };
 
   return (
@@ -108,26 +130,117 @@ const LoginBoxed = () => {
             <div className="mx-auto w-full max-w-[440px]">
               <div className="mb-10">
                 <h1 className="text-3xl font-extrabold uppercase !leading-snug text-primary md:text-4xl">
-                  Sign in
+                  Sign Up
                 </h1>
                 <p className="text-base font-bold leading-normal text-white-dark">
-                  Enter your email and password to login
+                  Enter your details to register
                 </p>
               </div>
               <form className="space-y-5 dark:text-white" onSubmit={submitForm}>
+                <TextInput
+                  name="first_name"
+                  type="text"
+                  title="First Name"
+                  placeholder="Enter Email"
+                  value={state.first_name}
+                  onChange={handleInputChange}
+                  error={state.error?.first_name}
+                  icon={<IconMail fill={true} />}
+                  required
+                />
+                <TextInput
+                  name="last_name"
+                  type="text"
+                  title="Last Name"
+                  placeholder="Enter Email"
+                  value={state.last_name}
+                  onChange={handleInputChange}
+                  error={state.error?.last_name}
+                  icon={<IconMail fill={true} />}
+                  required
+                />
                 <TextInput
                   name="email"
                   type="email"
                   title="Email"
                   placeholder="Enter Email"
                   value={state.email}
-                  onChange={(e) => setState({ email: e.target.value })}
+                  onChange={handleInputChange}
                   error={state.error?.email}
                   icon={<IconMail fill={true} />}
+                  required
+                />
+                <NumberInput
+                  name="phone"
+                  title="Phone Number"
+                  value={state.phone}
+                  onChange={handleInputChange}
+                  placeholder={"Phone Number"}
+                  error={state.error?.phone}
+                  required
+                />
+                <CustomSelect
+                  value={state.assignRole}
+                  onChange={(e) =>
+                    setState({
+                      assignRole: e,
+
+                      error: { ...state.error, user_type: "" },
+                    })
+                  }
+                  placeholder={"Select Role"}
+                  title={"Choose Role"}
+                  options={[
+                    { value: "seller", label: "Seller" },
+                    { value: "developer", label: "Developer" },
+                    { value: "agent", label: "Agent" },
+                    { value: "admin", label: "Admin" },
+
+                  ]}
+                  required
+                  error={state.error?.user_type}
                 />
                 <TextInput
                   id="Password"
                   title="Password"
+                  type={state.showPassword ? "text" : "password"}
+                  placeholder="Enter Password"
+                  className="form-input ps-10 placeholder:text-white-dark"
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setState({
+                      password: e.target.value,
+                      error: { ...state.error, password: "" },
+                      passwordStrength: getPasswordStrength(value),
+                    });
+                  }}
+                  value={state.password}
+                  error={state.error?.password}
+                  icon={<IconLockDots fill={true} />}
+                  rightIcon={state.showPassword ? <IconEyeOff /> : <IconEye />}
+                  rightIconOnlick={() =>
+                    setState({ showPassword: !state.showPassword })
+                  }
+                />
+
+                {state.password && (
+                  <p
+                    className={` text-sm ${
+                      state.passwordStrength === "weak"
+                        ? "text-red-500"
+                        : state.passwordStrength === "medium"
+                        ? "text-yellow-500"
+                        : "text-green-600"
+                    }`}
+                  >
+                    {state.passwordStrength === "weak" && "Weak password"}
+                    {state.passwordStrength === "medium" && "Medium strength"}
+                    {state.passwordStrength === "strong" && "Strong password"}
+                  </p>
+                )}
+
+                {/* <TextInput
+                  id="Password"
                   type={state.showPassword ? "text" : "password"}
                   placeholder="Enter Password"
                   className="form-input ps-10 placeholder:text-white-dark"
@@ -139,7 +252,7 @@ const LoginBoxed = () => {
                   rightIconOnlick={() =>
                     setState({ showPassword: !state.showPassword })
                   }
-                />
+                /> */}
 
                 {/* <button
                   type="submit"
@@ -214,12 +327,12 @@ const LoginBoxed = () => {
                 </ul>
               </div>
               <div className="text-center dark:text-white">
-                Don't have an account ?&nbsp;
+                Already have an account ?&nbsp;
                 <Link
-                  href="/auth/signup"
+                  href="/auth/signin"
                   className="uppercase text-primary underline transition hover:text-black dark:hover:text-white"
                 >
-                  SIGN UP
+                  SIGN IN
                 </Link>
               </div>
             </div>
@@ -229,7 +342,7 @@ const LoginBoxed = () => {
     </div>
   );
 };
-LoginBoxed.getLayout = (page: any) => {
+RegisterBoxed.getLayout = (page: any) => {
   return <BlankLayout>{page}</BlankLayout>;
 };
-export default LoginBoxed;
+export default RegisterBoxed;
