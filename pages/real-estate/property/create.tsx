@@ -1,200 +1,247 @@
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { setPageTitle } from "../../../store/themeConfigSlice";
-import IconX from "@/components/Icon/IconX";
-import IconSave from "@/components/Icon/IconSave";
-import IconSend from "@/components/Icon/IconSend";
-import IconEye from "@/components/Icon/IconEye";
-import IconDownload from "@/components/Icon/IconDownload";
+"use client";
 
-const Add = () => {
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(setPageTitle("Invoice Add"));
-  });
-  const currencyList = [
-    "USD - US Dollar",
-    "GBP - British Pound",
-    "IDR - Indonesian Rupiah",
-    "INR - Indian Rupee",
-    "BRL - Brazilian Real",
-    "EUR - Germany (Euro)",
-    "TRY - Turkish Lira",
-  ];
+import { MapPin, Info, DollarSign, Home, Star, Phone } from "lucide-react";
+import TextInput from "@/components/FormFields/TextInput.component";
+import PrimaryButton from "@/components/FormFields/PrimaryButton.component";
+import { useSetState } from "@/utils/function.utils";
 
-  const [items, setItems] = useState<any>([
-    {
-      id: 1,
-      title: "",
-      description: "",
-      rate: 0,
-      quantity: 0,
-      amount: 0,
-    },
-  ]);
+const steps = [
+  { id: 1, title: "Property Location", icon: MapPin },
+  { id: 2, title: "Property Information", icon: Info },
+  { id: 3, title: "Price & Area", icon: DollarSign },
+  { id: 4, title: "Features & Amenities", icon: Home },
+  { id: 5, title: "Extra Facilities", icon: Star },
+  { id: 6, title: "Contact Information", icon: Phone },
+];
 
-  const addItem = () => {
-    let maxId = 0;
-    maxId = items?.length
-      ? items.reduce(
-          (max: number, character: any) =>
-            character.id > max ? character.id : max,
-          items[0].id
-        )
-      : 0;
+export default function AddPropertyPage() {
 
-    setItems([
-      ...items,
-      {
-        id: maxId + 1,
-        title: "",
-        description: "",
-        rate: 0,
-        quantity: 0,
-        amount: 0,
-      },
-    ]);
-  };
-
-  const removeItem = (item: any = null) => {
-    setItems(items.filter((d: any) => d.id !== item.id));
-  };
-
-  const changeQuantityPrice = (type: string, value: string, id: number) => {
-    const list = items;
-    const item = list.find((d: any) => d.id === id);
-    if (type === "quantity") {
-      item.quantity = Number(value);
-    }
-    if (type === "price") {
-      item.amount = Number(value);
-    }
-    setItems([...list]);
-  };
-
+  const [state,setState]=useSetState({
+    
+  })
   return (
-    <>
-      <div className="panel mb-5 flex flex-col gap-5 md:flex-row md:items-center">
-        <h5 className="text-lg font-semibold dark:text-white-light">
-          Add New Property
-        </h5>
-      </div>
-
-      <div className="grid   gap-2.5 xl:grid-cols-10">
-        <div className="relative mt-6 flex w-full flex-col items-center xl:col-span-1 xl:mt-2">
-          <div className="flex">
-            <div className="mt-2 flex flex-col items-center xl:mt-0">
-              <div className="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
-                1
-              </div>
-              <p className="mt-2 text-center font-semibold text-gray-800">
-               Basic Details
-              </p>
-
+    <div className="space-y-12">
+      {steps.map((step, index) => (
+        <div
+          key={step.id}
+          className="grid grid-cols-1 gap-6 md:grid-cols-5 md:gap-12"
+        >
+          <div className="relative flex items-start md:col-span-1">
+            <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-500">
+              <step.icon size={18} />
             </div>
 
-            {/* <div className="relative mt-2 flex flex-col items-center">
-              <div className="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-300 font-bold text-gray-700">
-                2
-              </div>
-              <p className="mt-2 text-center font-semibold text-gray-800">
-                Step 2
-              </p>
-              <p className="text-center text-sm text-gray-500">
-                Description for step 2
-              </p>
-            </div>
+            {index !== steps.length - 1 && (
+              <div className="absolute left-5 top-11 h-full w-0.5 bg-gray-300" />
+            )}
 
-            <div className="h-px w-[50px] bg-gray-300 xl:h-[50px] xl:w-px"></div>
+            <span className="text-md ml-4 mt-2 font-bold text-gray-700">
+              {step.title}
+            </span>
+          </div>
 
-            <div className="relative mt-2 flex flex-col items-center">
-              <div className="z-10 flex h-10 w-10 items-center justify-center rounded-full bg-gray-300 font-bold text-gray-700">
-                3
+          {/* Form section (right) */}
+          <div className="md:col-span-4">
+            {step.id === 1 && (
+              <div className="rounded-md bg-white p-6 shadow">
+                <h2 className="mb-4 text-lg font-semibold">Property Status</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <TextInput
+                    name="propertyType"
+                    title="Property Type"
+                    placeholder="Select"
+                  />
+                  <TextInput
+                    name="propertyCondition"
+                    title="Property Condition"
+                    placeholder="Select"
+                  />
+                  <TextInput
+                    name="builtYear"
+                    title="Built Year"
+                    placeholder="Select"
+                  />
+                  <TextInput
+                    name="dimension"
+                    title="Dimension"
+                    placeholder="Select"
+                  />
+                  <TextInput
+                    name="country"
+                    title="Country"
+                    placeholder="Select"
+                  />
+                  <TextInput
+                    name="city"
+                    title="Property City"
+                    placeholder="Select"
+                  />
+                </div>
+                <div className="mt-4">
+                  <TextInput
+                    name="location"
+                    title="Location"
+                    placeholder="Enter location"
+                  />
+                </div>
+                <div className="mt-4 flex h-40 w-full items-center justify-center bg-gray-100 text-gray-400">
+                  Google Map Here
+                </div>
               </div>
-              <p className="mt-2 text-center font-semibold text-gray-800">
-                Step 3
-              </p>
-              <p className="text-center text-sm text-gray-500">
-                Description for step 3
-              </p>
-            </div> */}
+            )}
+
+            {step.id === 2 && (
+              <div className="rounded-md bg-white p-6 shadow">
+                <h2 className="mb-4 text-lg font-semibold">All Information</h2>
+                <TextInput
+                  name="propertyName"
+                  title="Property Name"
+                  placeholder="Enter name"
+                />
+                <div className="mt-4">
+                  <TextInput
+                    name="description"
+                    title="Description"
+                    placeholder="Write description"
+                  />
+                </div>
+                <div className="mt-6 grid grid-cols-2 gap-4">
+                  <TextInput
+                    name="propertyImage"
+                    title="Upload Property Image"
+                    type="file"
+                  />
+                  <TextInput
+                    name="propertyVideo"
+                    title="Upload Property Video"
+                    type="file"
+                  />
+                  <TextInput
+                    name="floorPlan"
+                    title="Upload Floor Plan"
+                    type="file"
+                  />
+                  <TextInput name="pdf" title="Upload PDF" type="file" />
+                </div>
+              </div>
+            )}
+
+            {step.id === 3 && (
+              <div className="rounded-md bg-white p-6 shadow">
+                <h2 className="mb-4 text-lg font-semibold">Price & Area</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <TextInput
+                    name="areaSize"
+                    title="Area Size"
+                    placeholder="Enter size"
+                  />
+                  <TextInput
+                    name="price"
+                    title="Price"
+                    placeholder="Enter price"
+                  />
+                  <TextInput
+                    name="price"
+                    title="Price"
+                    placeholder="Enter price"
+                  />
+                </div>
+              </div>
+            )}
+
+            {step.id === 4 && (
+              <div className="rounded-md bg-white p-6 shadow">
+                <h2 className="mb-4 text-lg font-semibold">
+                  Features & Amenities
+                </h2>
+                <div className="grid grid-cols-4 gap-4">
+                  <TextInput
+                    name="bedroom"
+                    title="Bedroom"
+                    placeholder="Select"
+                  />
+                  <TextInput
+                    name="dining"
+                    title="Dining Room"
+                    placeholder="Select"
+                  />
+                  <TextInput
+                    name="bathroom"
+                    title="Bathroom"
+                    placeholder="Select"
+                  />
+                  <TextInput
+                    name="balcony"
+                    title="Balcony"
+                    placeholder="Select"
+                  />
+                </div>
+              </div>
+            )}
+
+            {step.id === 5 && (
+              <div className="rounded-md bg-white p-6 shadow">
+                <h2 className="mb-4 text-lg font-semibold">Extra Facilities</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <TextInput
+                    name="cityCenter"
+                    title="City Center"
+                    placeholder="Enter distance"
+                  />
+                  <TextInput
+                    name="hospital"
+                    title="Hospital"
+                    placeholder="Enter distance"
+                  />
+                  <TextInput
+                    name="shop"
+                    title="Shop"
+                    placeholder="Enter distance"
+                  />
+                  <TextInput
+                    name="park"
+                    title="Park"
+                    placeholder="Enter distance"
+                  />
+                </div>
+              </div>
+            )}
+
+            {step.id === 6 && (
+              <div className="rounded-md bg-white p-6 shadow">
+                <h2 className="mb-4 text-lg font-semibold">
+                  Contact Information
+                </h2>
+                <div className="grid grid-cols-2 gap-4">
+                  <TextInput
+                    name="fullName"
+                    title="Full Name"
+                    placeholder="Enter full name"
+                  />
+                  <TextInput
+                    name="designation"
+                    title="Designation"
+                    placeholder="Enter designation"
+                  />
+                  <TextInput
+                    name="email"
+                    title="Email Address"
+                    placeholder="Enter email"
+                  />
+                  <TextInput
+                    name="phone"
+                    title="Phone Number"
+                    placeholder="Enter phone"
+                  />
+                </div>
+                <div className="mt-6 flex justify-end">
+                  <PrimaryButton>Post Property</PrimaryButton>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-        <div className=" px-0 py-0 xl:col-span-9">
-          <div className="panel  flex flex-col gap-5 md:flex-row md:items-center">
-            <h5 className="text-lg font-semibold dark:text-white-light">
-              Basic Details
-            </h5>
-          </div>
-          <div className="panel flex flex-wrap justify-between px-4 mt-3">
-            
-            <div className="w-full lg:w-1/2 lg:max-w-fit">
-              <div className="flex items-center">
-                <label
-                  htmlFor="number"
-                  className="mb-0 flex-1 ltr:mr-2 rtl:ml-2"
-                >
-                  Property Title
-                </label>
-                <input
-                  id="number"
-                  type="text"
-                  name="inv-num"
-                  className="form-input w-2/3 lg:w-[250px]"
-                  placeholder="#8801"
-                />
-              </div>
-              <div className="mt-4 flex items-center">
-                <label
-                  htmlFor="invoiceLabel"
-                  className="mb-0 flex-1 ltr:mr-2 rtl:ml-2"
-                >
-                Description
-                </label>
-                <input
-                  id="invoiceLabel"
-                  type="text"
-                  name="inv-label"
-                  className="form-input w-2/3 lg:w-[250px]"
-                  placeholder="Enter Invoice Label"
-                />
-              </div>
-              <div className="mt-4 flex items-center">
-                <label
-                  htmlFor="startDate"
-                  className="mb-0 flex-1 ltr:mr-2 rtl:ml-2"
-                >
-                  Property Type
-                </label>
-                <input
-                  id="startDate"
-                  type="date"
-                  name="inv-date"
-                  className="form-input w-2/3 lg:w-[250px]"
-                />
-              </div>
-              <div className="mt-4 flex items-center">
-                <label
-                  htmlFor="dueDate"
-                  className="mb-0 flex-1 ltr:mr-2 rtl:ml-2"
-                >
-                 Listing Type
-                </label>
-                <input
-                  id="dueDate"
-                  type="date"
-                  name="due-date"
-                  className="form-input w-2/3 lg:w-[250px]"
-                />
-              </div>
-            </div>
-          </div>
-         
-        </div>
-      </div>
-    </>
+      ))}
+    </div>
   );
-};
-
-export default Add;
+}
