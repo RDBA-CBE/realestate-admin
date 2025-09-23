@@ -9,3 +9,11 @@ export const sessionCreate = Yup.object().shape({
     otherwise: (schema) => schema.notRequired(),
   }),
 });
+
+
+export const login = Yup.object().shape({
+  email: Yup.string().required("Email is required"),
+  password: Yup.string().required("Password is required"),
+
+
+});

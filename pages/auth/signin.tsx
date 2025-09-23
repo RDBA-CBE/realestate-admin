@@ -1,17 +1,9 @@
 import Link from "next/link";
-import { useDispatch, useSelector } from "react-redux";
-import { IRootState } from "../../store";
-import { useEffect, useState } from "react";
-import {
-  setPageTitle,
-  toggleLocale,
-  toggleRTL,
-} from "../../store/themeConfigSlice";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { setPageTitle } from "../../store/themeConfigSlice";
 import { useRouter } from "next/router";
 import BlankLayout from "@/components/Layouts/BlankLayout";
-import Dropdown from "@/components/Dropdown";
-import { useTranslation } from "react-i18next";
-import IconCaretDown from "@/components/Icon/IconCaretDown";
 import IconMail from "@/components/Icon/IconMail";
 import IconLockDots from "@/components/Icon/IconLockDots";
 import IconInstagram from "@/components/Icon/IconInstagram";
@@ -19,10 +11,13 @@ import IconFacebookCircle from "@/components/Icon/IconFacebookCircle";
 import IconTwitter from "@/components/Icon/IconTwitter";
 import IconGoogle from "@/components/Icon/IconGoogle";
 import TextInput from "@/components/FormFields/TextInput.component";
-import { useSetState } from "@/utils/function.utils";
+import { Failure, Success, useSetState } from "@/utils/function.utils";
 import IconEye from "@/components/Icon/IconEye";
 import IconEyeOff from "@/components/Icon/IconEyeOff";
-import CheckboxInput from "@/components/FormFields/CheckBoxInput.component";
+import Utils from "@/imports/utils.import";
+import * as Yup from "yup";
+import Models from "@/imports/models.import";
+import PrimaryButton from "@/components/FormFields/PrimaryButton.component";
 
 const LoginBoxed = () => {
   const dispatch = useDispatch();
@@ -30,16 +25,52 @@ const LoginBoxed = () => {
 
   const [state, setState] = useSetState({
     showPassword: false,
+    email: "",
+    password: "",
+    error: null,
+    btnLoading:false
   });
 
   useEffect(() => {
-    dispatch(setPageTitle("Login Boxed"));
+    dispatch(setPageTitle("Login"));
   });
 
-
-  const submitForm = (e: any) => {
+  const submitForm = async (e: any) => {
     e.preventDefault();
-    router.push("/");
+    try {
+      setState({btnLoading:true})
+      const body = {
+        email: state.email.trim(),
+        password: state.password,
+      };
+
+      await Utils.Validation.login.validate(body, { abortEarly: false });
+      const res: any = await Models.auth.login(body);
+      Success("Login Successfully");
+      localStorage.setItem("token", res.access);
+      localStorage.setItem("refresh", res.refresh);
+      localStorage.setItem("userId", res.user_id);
+      if (res?.groups?.length > 0) {
+        localStorage.setItem("group", res.groups[0]);
+      }
+      router.replace("/");
+      setState({btnLoading:false})
+
+
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err?.message;
+        });
+        console.log("✌️validationErrors --->", validationErrors);
+
+        setState({ error: validationErrors, btnLoading: false });
+      } else {
+        Failure(error?.error)
+        setState({ btnLoading: false });
+      }
+    }
   };
 
   return (
@@ -85,56 +116,44 @@ const LoginBoxed = () => {
                 </p>
               </div>
               <form className="space-y-5 dark:text-white" onSubmit={submitForm}>
-                <div>
-                  <label htmlFor="Email">Email</label>
-                  <div className="relative text-white-dark">
-                    <TextInput
-                      id="Email"
-                      type="email"
-                      placeholder="Enter Email"
-                      className="form-input ps-10 placeholder:text-white-dark"
-                      onChange={(e) => e}
-                    />
+                <TextInput
+                  name="email"
+                  type="email"
+                  title="Email"
+                  placeholder="Enter Email"
+                  value={state.email}
+                  onChange={(e) => setState({ email: e.target.value })}
+                  error={state.error?.email}
+                  icon={<IconMail fill={true} />}
+                />
+                <TextInput
+                  id="Password"
+                  type={state.showPassword ? "text" : "password"}
+                  placeholder="Enter Password"
+                  className="form-input ps-10 placeholder:text-white-dark"
+                  onChange={(e) => setState({ password: e.target.value })}
+                  value={state.password}
+                  error={state.error?.password}
+                  icon={<IconLockDots fill={true} />}
+                  rightIcon={state.showPassword ? <IconEyeOff /> : <IconEye />}
+                  rightIconOnlick={() =>
+                    setState({ showPassword: !state.showPassword })
+                  }
+                />
 
-                    <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                      <IconMail fill={true} />
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <label htmlFor="Password">Password</label>
-                  <div className="relative text-white-dark">
-                    <TextInput
-                      id="Password"
-                      type={state.showPassword ? "text" : "password"}
-                      placeholder="Enter Password"
-                      className="form-input ps-10 placeholder:text-white-dark"
-                      onChange={(e) => e}
-                    />
-
-                    <span className="absolute start-4 top-1/2 -translate-y-1/2">
-                      <IconLockDots fill={true} />
-                    </span>
-
-                    <span
-                      className="absolute end-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-600"
-                      onClick={() =>
-                        setState({
-                          showPassword: !state.showPassword,
-                        })
-                      }
-                    >
-                      {state.showPassword ? <IconEyeOff /> : <IconEye />}
-                    </span>
-                  </div>
-                </div>
-
-                <button
+                {/* <button
                   type="submit"
                   className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
                 >
                   Sign in
-                </button>
+                </button> */}
+                {/* <PrimaryButton text={"Sign In"} /> */}
+                <PrimaryButton
+                 type="submit"
+                  text="Search"
+                  className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
+                  loading={state.btnLoading}
+                />
               </form>
               <div className="relative my-7 text-center md:mb-9">
                 <span className="absolute inset-x-0 top-1/2 h-px w-full -translate-y-1/2 bg-white-light dark:bg-white-dark"></span>
@@ -144,7 +163,7 @@ const LoginBoxed = () => {
               </div>
               <div className="mb-10 md:mb-[60px]">
                 <ul className="flex justify-center gap-3.5 text-white">
-                  <li>
+                  {/* <li>
                     <Link
                       href="#"
                       className="inline-flex h-8 w-8 items-center justify-center rounded-full p-0 transition hover:scale-110"
@@ -179,7 +198,7 @@ const LoginBoxed = () => {
                     >
                       <IconTwitter fill={true} />
                     </Link>
-                  </li>
+                  </li> */}
                   <li>
                     <Link
                       href="#"
@@ -194,7 +213,7 @@ const LoginBoxed = () => {
                   </li>
                 </ul>
               </div>
-              <div className="text-center dark:text-white">
+              {/* <div className="text-center dark:text-white">
                 Don't have an account ?&nbsp;
                 <Link
                   href="/auth/boxed-signup"
@@ -202,7 +221,7 @@ const LoginBoxed = () => {
                 >
                   SIGN UP
                 </Link>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

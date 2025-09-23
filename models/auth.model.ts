@@ -1,24 +1,17 @@
 import instance from "@/utils/axios.utils";
 
 const auth = {
-  userList: (page: any, body: any) => {
+  login: (body: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `auth/users/?page=${page}`;
-      if (body.search) {
-        url += `&search=${encodeURIComponent(body.search)}`;
-      }
-
-      if (body?.group_name) {
-        url += `&group_name=${encodeURIComponent(body?.group_name)}`;
-      }
+      let url = `authentication/login/`;
       instance()
-        .get(url)
+        .post(url,body)
         .then((res) => {
           resolve(res.data);
         })
         .catch((error) => {
           if (error.response) {
-            reject(error.response.message);
+            reject(error.response?.data);
           } else {
             reject(error);
           }
