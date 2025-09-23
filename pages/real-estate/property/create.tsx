@@ -15,16 +15,13 @@ const steps = [
 ];
 
 export default function AddPropertyPage() {
-
-  const [state,setState]=useSetState({
-    
-  })
+  const [state, setState] = useSetState({});
   return (
     <div className="space-y-12">
       {steps.map((step, index) => (
         <div
           key={step.id}
-          className="grid grid-cols-1 gap-6 md:grid-cols-5 md:gap-12"
+          className="grid grid-cols-1 gap-6 md:grid-cols-5 md:gap-5"
         >
           <div className="relative flex items-start md:col-span-1">
             <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-500">
@@ -43,7 +40,7 @@ export default function AddPropertyPage() {
           {/* Form section (right) */}
           <div className="md:col-span-4">
             {step.id === 1 && (
-              <div className="rounded-md bg-white p-6 shadow">
+              <div className="panel rounded-lg">
                 <h2 className="mb-4 text-lg font-semibold">Property Status</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <TextInput
@@ -91,7 +88,7 @@ export default function AddPropertyPage() {
             )}
 
             {step.id === 2 && (
-              <div className="rounded-md bg-white p-6 shadow">
+              <div className="panel rounded-lg">
                 <h2 className="mb-4 text-lg font-semibold">All Information</h2>
                 <TextInput
                   name="propertyName"
@@ -127,7 +124,7 @@ export default function AddPropertyPage() {
             )}
 
             {step.id === 3 && (
-              <div className="rounded-md bg-white p-6 shadow">
+              <div className="panel rounded-lg">
                 <h2 className="mb-4 text-lg font-semibold">Price & Area</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <TextInput
@@ -150,7 +147,7 @@ export default function AddPropertyPage() {
             )}
 
             {step.id === 4 && (
-              <div className="rounded-md bg-white p-6 shadow">
+              <div className="panel rounded-lg">
                 <h2 className="mb-4 text-lg font-semibold">
                   Features & Amenities
                 </h2>
@@ -180,7 +177,7 @@ export default function AddPropertyPage() {
             )}
 
             {step.id === 5 && (
-              <div className="rounded-md bg-white p-6 shadow">
+              <div className="panel rounded-lg">
                 <h2 className="mb-4 text-lg font-semibold">Extra Facilities</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <TextInput
@@ -208,7 +205,7 @@ export default function AddPropertyPage() {
             )}
 
             {step.id === 6 && (
-              <div className="rounded-md bg-white p-6 shadow">
+              <div className="panel rounded-lg">
                 <h2 className="mb-4 text-lg font-semibold">
                   Contact Information
                 </h2>
