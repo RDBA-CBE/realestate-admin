@@ -17,7 +17,13 @@ const steps = [
 export default function AddPropertyPage() {
   const [state, setState] = useSetState({});
   return (
-    <div className="space-y-12">
+    <div className="space-y-5">
+          <div className="panel p-5">
+            <h5 className="text-lg font-semibold dark:text-white-light">
+            Add New Property
+          </h5>
+          </div>
+
       {steps.map((step, index) => (
         <div
           key={step.id}
