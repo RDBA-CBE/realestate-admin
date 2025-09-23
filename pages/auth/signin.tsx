@@ -18,6 +18,7 @@ import Utils from "@/imports/utils.import";
 import * as Yup from "yup";
 import Models from "@/imports/models.import";
 import PrimaryButton from "@/components/FormFields/PrimaryButton.component";
+import { userData } from "@/store/userConfigSlice";
 
 const LoginBoxed = () => {
   const dispatch = useDispatch();
@@ -28,7 +29,7 @@ const LoginBoxed = () => {
     email: "",
     password: "",
     error: null,
-    btnLoading:false
+    btnLoading: false,
   });
 
   useEffect(() => {
@@ -38,7 +39,7 @@ const LoginBoxed = () => {
   const submitForm = async (e: any) => {
     e.preventDefault();
     try {
-      setState({btnLoading:true})
+      setState({ btnLoading: true });
       const body = {
         email: state.email.trim(),
         password: state.password,
@@ -54,9 +55,7 @@ const LoginBoxed = () => {
         localStorage.setItem("group", res.groups[0]?.name);
       }
       router.replace("/");
-      setState({btnLoading:false})
-
-
+      setState({ btnLoading: false });
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors = {};
@@ -67,7 +66,7 @@ const LoginBoxed = () => {
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
-        Failure(error?.error)
+        Failure(error?.error);
         setState({ btnLoading: false });
       }
     }
@@ -150,7 +149,7 @@ const LoginBoxed = () => {
                 </button> */}
                 {/* <PrimaryButton text={"Sign In"} /> */}
                 <PrimaryButton
-                 type="submit"
+                  type="submit"
                   text="Submit"
                   className="btn btn-gradient !mt-6 w-full border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
                   loading={state.btnLoading}

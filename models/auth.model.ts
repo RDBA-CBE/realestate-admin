@@ -5,7 +5,7 @@ const auth = {
     let promise = new Promise((resolve, reject) => {
       let url = `authentication/login/`;
       instance()
-        .post(url,body)
+        .post(url, body)
         .then((res) => {
           resolve(res.data);
         })
@@ -24,7 +24,7 @@ const auth = {
     let promise = new Promise((resolve, reject) => {
       let url = `register/`;
       instance()
-        .post(url,body)
+        .post(url, body)
         .then((res) => {
           resolve(res.data);
         })
@@ -39,20 +39,17 @@ const auth = {
     return promise;
   },
 
-  dropdownUserserList: (page: number, body = null) => {
+  change_password: (body: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `auth/users/?page=${page}`;
-      if (body?.search) {
-        url += `&search=${encodeURIComponent(body?.search)}`;
-      }
+      let url = `register/`;
       instance()
-        .get(url)
+        .post(url, body)
         .then((res) => {
           resolve(res.data);
         })
         .catch((error) => {
           if (error.response) {
-            reject(error.response.message);
+            reject(error.response?.data);
           } else {
             reject(error);
           }
@@ -61,17 +58,17 @@ const auth = {
     return promise;
   },
 
-  updateUser: (data: any, id: any) => {
+  forget_password: (body: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `auth/users/${id}/`;
+      let url = `register/`;
       instance()
-        .patch(url, data)
+        .post(url, body)
         .then((res) => {
           resolve(res.data);
         })
         .catch((error) => {
           if (error.response) {
-            reject(error.response.data);
+            reject(error.response?.data);
           } else {
             reject(error);
           }
@@ -80,93 +77,17 @@ const auth = {
     return promise;
   },
 
-  updateUserRole: (data: any, id: any) => {
+  logout: (body: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `auth/user-groups/add/`;
+      let url = `authentication/logout/`;
       instance()
-        .post(url, data)
+        .post(url, body)
         .then((res) => {
           resolve(res.data);
         })
         .catch((error) => {
           if (error.response) {
-            reject(error.response.data);
-          } else {
-            reject(error);
-          }
-        });
-    });
-    return promise;
-  },
-
-  romoveUserRole: (data: any, id: any) => {
-    let promise = new Promise((resolve, reject) => {
-      let url = `auth/user-groups/remove/`;
-      instance()
-        .post(url, data)
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          if (error.response) {
-            reject(error.response.data);
-          } else {
-            reject(error);
-          }
-        });
-    });
-    return promise;
-  },
-
-  addUser: (data: any) => {
-    let promise = new Promise((resolve, reject) => {
-      let url = "auth/users/";
-      instance()
-        .post(url, data)
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          if (error.response) {
-            reject(error.response.data);
-          } else {
-            reject(error);
-          }
-        });
-    });
-    return promise;
-  },
-
-  getUserId: (id: any) => {
-    let promise = new Promise((resolve, reject) => {
-      let url = `auth/users/${id}/`;
-      instance()
-        .get(url)
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          if (error.response) {
-            reject(error.response.data.message);
-          } else {
-            reject(error);
-          }
-        });
-    });
-    return promise;
-  },
-
-  delete: (id: any) => {
-    let promise = new Promise((resolve, reject) => {
-      let url = `auth/users/${id}/`;
-      instance()
-        .delete(url)
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          if (error.response) {
-            reject(error.response.data.message);
+            reject(error.response?.data);
           } else {
             reject(error);
           }
