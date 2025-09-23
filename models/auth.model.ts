@@ -19,6 +19,26 @@ const auth = {
     });
     return promise;
   },
+
+  singup: (body: any) => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `register/`;
+      instance()
+        .post(url,body)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response?.data);
+          } else {
+            reject(error);
+          }
+        });
+    });
+    return promise;
+  },
+
   dropdownUserserList: (page: number, body = null) => {
     let promise = new Promise((resolve, reject) => {
       let url = `auth/users/?page=${page}`;

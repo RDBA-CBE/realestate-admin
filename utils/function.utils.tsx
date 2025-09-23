@@ -42,6 +42,41 @@ export const Failure = (message: string) => {
   });
 };
 
+export const getPasswordStrength = (password: string) => {
+  if (!password) return "";
+
+  // Weak: <6 chars
+  if (password.length < 6) return "weak";
+
+  // Medium: >=6 chars but missing complexity
+  const hasNumber = /\d/.test(password);
+  const hasLetter = /[a-zA-Z]/.test(password);
+  const hasSpecial = /[^a-zA-Z0-9]/.test(password);
+
+  if (hasLetter && hasNumber && hasSpecial && password.length >= 8) {
+    return "strong";
+  }
+
+  return "medium";
+};
+
+export const handlePasswordChange = (value: string) => {
+  const hints = {
+    length: value.length >= 8,
+    number: /\d/.test(value),
+    special: /[^a-zA-Z0-9]/.test(value),
+  };
+
+  const strength = !value
+    ? ""
+    : hints.length && hints.number && hints.special
+    ? "strong"
+    : value.length >= 6
+    ? "medium"
+    : "weak";
+  return strength;
+};
+
 export const objIsEmpty = (obj: object) => {
   for (let key in obj) {
     if (obj.hasOwnProperty(key)) return false;
