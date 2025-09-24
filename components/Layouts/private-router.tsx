@@ -1,22 +1,40 @@
-import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { ROLES } from "@/utils/constant.utils";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
-const PrivateRouter = (WrappedComponent) => {
+const PrivateRouter = (WrappedComponent, allowedRoles = []) => {
   const PrivateRouteComponent = (props) => {
     const router = useRouter();
+    const [authorized, setAuthorized] = useState(false);
+    const [checked, setChecked] = useState(false);
 
     useEffect(() => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        router.replace("/login"); // Redirect to login if no token is found
-      }
-    }, []);
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("group"); // 👈 assuming you store role in localStorage
 
-    return <WrappedComponent {...props} />;
+      if (!token) {
+        router.replace("/auth/signin");
+        return;
+      }
+
+      if (allowedRoles?.length == 0) {
+      } else if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
+        router.replace("/error404"); // or any "Not Found" page
+        return;
+      }
+
+      setAuthorized(true);
+      setChecked(true);
+    }, [router]);
+
+    if (!checked) return null; // Avoid flicker while checking
+
+    return authorized ? <WrappedComponent {...props} /> : null;
   };
 
-  // Add display name for debugging
-  PrivateRouteComponent.displayName = `PrivateRouter(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
+  PrivateRouteComponent.displayName = `PrivateRouter(${
+    WrappedComponent.displayName || WrappedComponent.name || "Component"
+  })`;
 
   return PrivateRouteComponent;
 };
