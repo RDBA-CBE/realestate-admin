@@ -120,7 +120,7 @@ const Header = () => {
   const getUserData = async () => {
     try {
       const userString = localStorage.getItem("userId");
-      const res = await Models.user.list();
+      const res = await Models.user.details(userString);
       console.log("✌️res --->", res);
 
       //   dispatch(userData(res));

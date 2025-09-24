@@ -390,7 +390,7 @@ export default function AddPropertyPage() {
                     />
                     <NumberInput
                       name="price_per_sqft"
-                      title="Price per Sq.Ft (auto-calc or manual input)"
+                      title="Price per Sq.Ft "
                       placeholder="Enter price per Sq.Ft"
                       value={state.price_per_sqft}
                       onChange={(e) =>

@@ -56,7 +56,7 @@ export const instance = (): AxiosInstance => {
         const refreshToken = localStorage.getItem("refresh");
 
         if (!refreshToken) {
-          window.location.href = "/signin";
+          window.location.href = "/auth/signin";
           localStorage.clear();
 
           return Promise.reject(error);
@@ -79,7 +79,7 @@ export const instance = (): AxiosInstance => {
         return new Promise(async (resolve, reject) => {
           try {
             const response = await axios.post(
-              `${process.env.BASE_URL}auth/authentication/refresh/`,
+              `${BACKEND_URL}authentication/refresh-token/`,
               {
                 refresh: refreshToken,
               }
@@ -97,7 +97,7 @@ export const instance = (): AxiosInstance => {
           } catch (err) {
             processQueue(err, null);
             localStorage.clear();
-            window.location.href = "/signin";
+            window.location.href = "/auth/signin";
             reject(err);
           } finally {
             isRefreshing = false;
