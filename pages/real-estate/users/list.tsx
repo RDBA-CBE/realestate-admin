@@ -13,7 +13,7 @@ import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
 import { useSetState } from "@mantine/hooks";
 import CustomSelect from "@/components/FormFields/CustomSelect.component";
-import PrivateRouter from "@/components/Layouts/private-router";
+import PrivateRouter from "@/hook/privateRouter";
 import { ROLES } from "@/utils/constant.utils";
 
 const List = () => {

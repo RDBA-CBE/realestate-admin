@@ -5,6 +5,7 @@ export const CLIENT_ID =
 
 export const BACKEND_URL = "http://31.97.206.165/api/";
 
+
 // menuConfig.ts
 export const menuConfig = {
   admin: [
@@ -174,8 +175,8 @@ export const menuConfig = {
           label: "Projects",
           key: "Projects",
           children: [
-            { type: "link", label: "List", href: "/apps/invoice/list" },
-            { type: "link", label: "Create", href: "/apps/invoice/preview" },
+            { type: "link", label: "List", href: "/real-estate/project/list" },
+            // { type: "link", label: "Create", href: "/apps/invoice/preview" },
           ],
         },
         {
@@ -184,7 +185,7 @@ export const menuConfig = {
           label: "Property",
           key: "Property",
           children: [
-            { type: "link", label: "List", href: "/apps/invoice/list" },
+            { type: "link", label: "List", href: "/real-estate/property/list" },
             {
               type: "link",
               label: "Create Property",
@@ -192,25 +193,25 @@ export const menuConfig = {
             },
             {
               type: "link",
-              label: "Property Catergory",
-              href: "/apps/invoice/add",
+              label: "Catergories",
+              href: "/real-estate/property/categories",
             },
             {
               type: "link",
-              label: "Amenities List",
-              href: "/apps/invoice/edit",
+              label: "Amenities",
+              href: "/real-estate/property/amenities",
             },
-            { type: "link", label: "City", href: "/apps/invoice/edit" },
-            { type: "link", label: "Media", href: "/apps/invoice/edit" },
-            { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
-            { type: "link", label: "Reviews", href: "/apps/invoice/edit" },
+            // { type: "link", label: "City", href: "/apps/invoice/edit" },
+            // { type: "link", label: "Media", href: "/apps/invoice/edit" },
+            // { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
+            // { type: "link", label: "Reviews", href: "/apps/invoice/edit" },
           ],
         },
         {
           type: "link",
           icon: "IconMenuNotes",
           label: "My Properties",
-          href: "/apps/mailbox",
+          href: "/real-estate/property/myProperty",
         },
       ],
     },
@@ -218,6 +219,7 @@ export const menuConfig = {
       type: "section",
       label: "User Management",
       children: [
+       
         {
           type: "link",
           icon: "IconMenuUsers",
@@ -228,7 +230,7 @@ export const menuConfig = {
           type: "link",
           icon: "IconMenuScrumboard",
           label: "Create",
-          href: "/charts",
+          href: "/real-estate/users/create",
         },
       ],
     },
@@ -240,19 +242,19 @@ export const menuConfig = {
           type: "link",
           icon: "IconMenuTables",
           label: "List",
-          href: "/leads",
+          href: "/real-estate/lead/list",
         },
         {
           type: "link",
           icon: "IconMenuForms",
           label: "Assign Leads",
-          href: "/leads",
+          href: "/real-estate/lead/assignLead",
         },
         {
           type: "link",
           icon: "IconMenuScrumboard",
           label: "Create Leads",
-          href: "/leads",
+          href: "/real-estate/lead/create",
         },
       ],
     },
@@ -263,14 +265,33 @@ export const menuConfig = {
         {
           type: "link",
           icon: "IconMenuChat",
-          label: "Inquiries List",
-          href: "/users/profile",
+          label: "Inquiries",
+          href: "/real-estate/inquiry/list",
         },
         {
           type: "link",
           icon: "IconMenuPages",
-          label: "Booking List",
-          href: "/profile",
+          label: "Bookings",
+          href: "/real-estate/inquiry/bookingList",
+        },
+
+        {
+          type: "link",
+          icon: "IconMenuPages",
+          label: "Create Booking",
+          href: "/real-estate/inquiry/createBooking",
+        },
+      ],
+    },
+    {
+      type: "section",
+      label: "Reports",
+      children: [
+        {
+          type: "link",
+          icon: "IconMenuCharts",
+          label: "Reports",
+          href: "/real-estate/report",
         },
       ],
     },
@@ -293,8 +314,8 @@ export const menuConfig = {
           label: "Projects",
           key: "Projects",
           children: [
-            { type: "link", label: "List", href: "/apps/invoice/list" },
-            { type: "link", label: "Create", href: "/apps/invoice/preview" },
+            { type: "link", label: "List", href: "/real-estate/project/list" },
+            // { type: "link", label: "Create", href: "/apps/invoice/preview" },
           ],
         },
         {
@@ -303,7 +324,7 @@ export const menuConfig = {
           label: "Property",
           key: "Property",
           children: [
-            { type: "link", label: "List", href: "/apps/invoice/list" },
+            { type: "link", label: "List", href: "/real-estate/property/list" },
             {
               type: "link",
               label: "Create Property",
@@ -311,25 +332,25 @@ export const menuConfig = {
             },
             {
               type: "link",
-              label: "Property Catergory",
-              href: "/apps/invoice/add",
+              label: "Catergories",
+              href: "/real-estate/property/categories",
             },
             {
               type: "link",
-              label: "Amenities List",
-              href: "/apps/invoice/edit",
+              label: "Amenities",
+              href: "/real-estate/property/amenities",
             },
-            { type: "link", label: "City", href: "/apps/invoice/edit" },
-            { type: "link", label: "Media", href: "/apps/invoice/edit" },
-            { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
-            { type: "link", label: "Reviews", href: "/apps/invoice/edit" },
+            // { type: "link", label: "City", href: "/apps/invoice/edit" },
+            // { type: "link", label: "Media", href: "/apps/invoice/edit" },
+            // { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
+            // { type: "link", label: "Reviews", href: "/apps/invoice/edit" },
           ],
         },
         {
           type: "link",
           icon: "IconMenuNotes",
           label: "My Properties",
-          href: "/apps/mailbox",
+          href: "/real-estate/property/myProperty",
         },
       ],
     },
@@ -337,6 +358,7 @@ export const menuConfig = {
       type: "section",
       label: "User Management",
       children: [
+       
         {
           type: "link",
           icon: "IconMenuUsers",
@@ -347,11 +369,34 @@ export const menuConfig = {
           type: "link",
           icon: "IconMenuScrumboard",
           label: "Create",
-          href: "/charts",
+          href: "/real-estate/users/create",
         },
       ],
     },
-
+    {
+      type: "section",
+      label: "Leads",
+      children: [
+        {
+          type: "link",
+          icon: "IconMenuTables",
+          label: "List",
+          href: "/real-estate/lead/list",
+        },
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Assign Leads",
+          href: "/real-estate/lead/assignLead",
+        },
+        {
+          type: "link",
+          icon: "IconMenuScrumboard",
+          label: "Create Leads",
+          href: "/real-estate/lead/create",
+        },
+      ],
+    },
     {
       type: "section",
       label: "Inquiries",
@@ -359,20 +404,39 @@ export const menuConfig = {
         {
           type: "link",
           icon: "IconMenuChat",
-          label: "Inquiries List",
-          href: "/users/profile",
+          label: "Inquiries",
+          href: "/real-estate/inquiry/list",
         },
         {
           type: "link",
           icon: "IconMenuPages",
-          label: "Booking List",
-          href: "/profile",
+          label: "Bookings",
+          href: "/real-estate/inquiry/bookingList",
+        },
+
+        {
+          type: "link",
+          icon: "IconMenuPages",
+          label: "Create Booking",
+          href: "/real-estate/inquiry/createBooking",
+        },
+      ],
+    },
+    {
+      type: "section",
+      label: "Reports",
+      children: [
+        {
+          type: "link",
+          icon: "IconMenuCharts",
+          label: "Reports",
+          href: "/real-estate/report",
         },
       ],
     },
   ],
 
-  developer: [
+  developer:[
     {
       type: "link",
       icon: "IconMenuWidgets",
@@ -389,30 +453,43 @@ export const menuConfig = {
           label: "Projects",
           key: "Projects",
           children: [
-            { type: "link", label: "List", href: "/apps/invoice/list" },
-            { type: "link", label: "Create", href: "/apps/invoice/preview" },
-            {
-              type: "link",
-              label: "Property Catergory",
-              href: "/apps/invoice/add",
-            },
-            {
-              type: "link",
-              label: "Amenities List",
-              href: "/apps/invoice/edit",
-            },
-            { type: "link", label: "City", href: "/apps/invoice/edit" },
-            { type: "link", label: "Media", href: "/apps/invoice/edit" },
-            { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
-            { type: "link", label: "Reviews", href: "/apps/invoice/edit" },
+            { type: "link", label: "List", href: "/real-estate/project/list" },
+            // { type: "link", label: "Create", href: "/apps/invoice/preview" },
           ],
         },
-
+        {
+          type: "submenu",
+          icon: "IconMenuDashboard",
+          label: "Property",
+          key: "Property",
+          children: [
+            { type: "link", label: "List", href: "/real-estate/property/list" },
+            {
+              type: "link",
+              label: "Create Property",
+              href: "/real-estate/property/create",
+            },
+            {
+              type: "link",
+              label: "Catergories",
+              href: "/real-estate/property/categories",
+            },
+            {
+              type: "link",
+              label: "Amenities",
+              href: "/real-estate/property/amenities",
+            },
+            // { type: "link", label: "City", href: "/apps/invoice/edit" },
+            // { type: "link", label: "Media", href: "/apps/invoice/edit" },
+            // { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
+            // { type: "link", label: "Reviews", href: "/apps/invoice/edit" },
+          ],
+        },
         {
           type: "link",
           icon: "IconMenuNotes",
-          label: "My Projects",
-          href: "/apps/mailbox",
+          label: "My Properties",
+          href: "/real-estate/property/myProperty",
         },
       ],
     },
@@ -420,6 +497,7 @@ export const menuConfig = {
       type: "section",
       label: "User Management",
       children: [
+       
         {
           type: "link",
           icon: "IconMenuUsers",
@@ -430,11 +508,34 @@ export const menuConfig = {
           type: "link",
           icon: "IconMenuScrumboard",
           label: "Create",
-          href: "/charts",
+          href: "/real-estate/users/create",
         },
       ],
     },
-
+    {
+      type: "section",
+      label: "Leads",
+      children: [
+        {
+          type: "link",
+          icon: "IconMenuTables",
+          label: "List",
+          href: "/real-estate/lead/list",
+        },
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Assign Leads",
+          href: "/real-estate/lead/assignLead",
+        },
+        {
+          type: "link",
+          icon: "IconMenuScrumboard",
+          label: "Create Leads",
+          href: "/real-estate/lead/create",
+        },
+      ],
+    },
     {
       type: "section",
       label: "Inquiries",
@@ -442,14 +543,33 @@ export const menuConfig = {
         {
           type: "link",
           icon: "IconMenuChat",
-          label: "Inquiries List",
-          href: "/users/profile",
+          label: "Inquiries",
+          href: "/real-estate/inquiry/list",
         },
         {
           type: "link",
           icon: "IconMenuPages",
-          label: "Booking List",
-          href: "/profile",
+          label: "Bookings",
+          href: "/real-estate/inquiry/bookingList",
+        },
+
+        {
+          type: "link",
+          icon: "IconMenuPages",
+          label: "Create Booking",
+          href: "/real-estate/inquiry/createBooking",
+        },
+      ],
+    },
+    {
+      type: "section",
+      label: "Reports",
+      children: [
+        {
+          type: "link",
+          icon: "IconMenuCharts",
+          label: "Reports",
+          href: "/real-estate/report",
         },
       ],
     },
@@ -526,3 +646,5 @@ export const ROLES = {
   AGENT: "Agents",
   ALL: "All",
 };
+
+

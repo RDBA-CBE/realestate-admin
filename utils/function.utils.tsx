@@ -17,6 +17,9 @@ export const Success = (message: string) => {
     position: "top-end",
     showConfirmButton: false,
     timer: 3000,
+    customClass: {
+      title: "small-font-toast", // Add custom class for font size
+    },
   });
 
   toast.fire({
@@ -40,6 +43,36 @@ export const Failure = (message: string) => {
     title: message,
     padding: "10px 20px",
   });
+};
+
+export const showDeleteAlert = (onConfirm, onCancel, title) => {
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: 'btn confirm', // Add a custom class for the confirm button
+            cancelButton: 'btn cancel-btn', // Add a custom class for the cancel button
+            popup: 'sweet-alerts',
+        },
+        buttonsStyling: false,
+    });
+
+    swalWithBootstrapButtons
+        .fire({
+            title: title ? title : 'Are you sure to cancel order?',
+            // text: "You won't be able to Delete this!",
+            icon: 'warning',
+            showCancelButton: true,
+            // confirmButtonText: 'Yes, delete it!',
+            // cancelButtonText: 'No, cancel!',
+            reverseButtons: true,
+            padding: '2em',
+        })
+        .then((result) => {
+            if (result.isConfirmed) {
+                onConfirm();
+            } else if (result.dismiss === Swal.DismissReason.cancel) {
+                onCancel();
+            }
+        });
 };
 
 export const getPasswordStrength = (password: string) => {

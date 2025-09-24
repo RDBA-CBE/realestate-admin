@@ -1,128 +1,132 @@
-import instance from '@/utils/axios.utils';
+import instance from "@/utils/axios.utils";
 
 const project = {
-    list: () => {
-        let promise = new Promise((resolve, reject) => {
-            let url = 'filter/leads';
-            instance()
-                .get(url)
-                .then((res) => {
-                    resolve(res.data);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        reject(error.response.message);
-                    } else {
-                        reject(error);
-                    }
-                });
+  list: (page, body) => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `projects?page=${page}`;
+
+      if (body?.search) {
+        url += `&name=${encodeURIComponent(body.search)}`;
+      }
+      instance()
+        .get(url, body)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.message);
+          } else {
+            reject(error);
+          }
         });
-        return promise;
-    },
+    });
+    return promise;
+  },
 
-    create: (data: any) => {
-        let promise = new Promise((resolve, reject) => {
-            let url = `lead/create/`;
-            instance()
-                .post(url, data)
-                .then((res) => {
-                    resolve(res.data);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        reject(error.response.data.message);
-                    } else {
-                        reject(error);
-                    }
-                });
+  create: (data: any) => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `projects/`;
+      instance()
+        .post(url, data)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.data.message);
+          } else {
+            reject(error);
+          }
         });
-        return promise;
-    },
+    });
+    return promise;
+  },
 
-    update: (data: any, id: any) => {
-        let promise = new Promise((resolve, reject) => {
-            let url = `lead/update/${id}`;
+  update: (data: any, id: any) => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `projects/${id}/`;
 
-            instance()
-                .post(url, data)
-                .then((res) => {
-                    resolve(res.data);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        reject(error.response.data.message);
-                    } else {
-                        reject(error);
-                    }
-                });
+      instance()
+        .patch(url, data)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.data.message);
+          } else {
+            reject(error);
+          }
         });
-        return promise;
-    },
+    });
+    return promise;
+  },
 
-    delete: (id: any) => {
-        let promise = new Promise((resolve, reject) => {
-            let url = `lead/delete/${id}`;
+  delete: (id: any) => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `projects/${id}/`;
 
-            instance()
-                .post(url)
-                .then((res) => {
-                    resolve(res.data);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        reject(error.response.data.message);
-                    } else {
-                        reject(error);
-                    }
-                });
+      instance()
+        .delete(url)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.data.message);
+          } else {
+            reject(error);
+          }
         });
-        return promise;
-    },
+    });
+    return promise;
+  },
 
-    details: (id: any) => {
-        let promise = new Promise((resolve, reject) => {
-            let url = `auth/view_user/${id}`;
-            instance()
-                .post(url)
-                .then((res) => {
-                    resolve(res.data);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        reject(error.response.data.message);
-                    } else {
-                        reject(error);
-                    }
-                });
+  details: (id: any) => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `auth/view_user/${id}`;
+      instance()
+        .post(url)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.data.message);
+          } else {
+            reject(error);
+          }
         });
-        return promise;
-    },
+    });
+    return promise;
+  },
 
-    uploadFile: (file: any) => {
-        let promise = new Promise((resolve, reject) => {
-            const formData = new FormData();
-            formData.append('file', file);
-            let url = '/hdd/upload_file';
-            const config = {
-                headers: {
-                    'Content-Type': 'multipart/form-data; charset=utf-8;',
-                },
-            };
-            instance()
-                .post(url, formData, config)
-                .then((res) => {
-                    resolve(res.data);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        reject(error.response.data.message);
-                    } else {
-                        reject(error);
-                    }
-                });
+  uploadFile: (file: any) => {
+    let promise = new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      let url = "/hdd/upload_file";
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data; charset=utf-8;",
+        },
+      };
+      instance()
+        .post(url, formData, config)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.data.message);
+          } else {
+            reject(error);
+          }
         });
-        return promise;
-    },
+    });
+    return promise;
+  },
 };
 
 export default project;
