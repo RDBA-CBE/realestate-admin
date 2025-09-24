@@ -18,6 +18,8 @@ const SidebarDynamic = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const [currentMenu, setCurrentMenu] = useState<string>("");
+  const [group, setGroup] = useState<string>("");
+
   const themeConfig = useSelector((state: IRootState) => state.themeConfig);
   const semidark = useSelector(
     (state: IRootState) => state.themeConfig.semidark
@@ -43,6 +45,15 @@ const SidebarDynamic = () => {
       dispatch(toggleSidebar());
     }
   }, [router.pathname]);
+
+  useEffect(() => {
+    role();
+  }, []);
+
+  const role = () => {
+    const group = localStorage.getItem("group");
+    setGroup(group);
+  };
 
   // Recursive render function
   const renderMenu = (menu) =>
@@ -75,7 +86,7 @@ const SidebarDynamic = () => {
                 {Icon && (
                   <Icon className="shrink-0 group-hover:!text-primary" />
                 )}
-                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
+                <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">
                   {t(item.label)}
                 </span>
               </div>
@@ -98,7 +109,7 @@ const SidebarDynamic = () => {
                 {Icon && (
                   <Icon className="shrink-0 group-hover:!text-primary" />
                 )}
-                <span className="text-black ltr:pl-3 rtl:pr-3 dark:text-[#506690] dark:group-hover:text-white-dark">
+                <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">
                   {t(item.label)}
                 </span>
               </div>
@@ -130,6 +141,11 @@ const SidebarDynamic = () => {
       return null;
     });
 
+  const getUserMenu = () => {
+    if (!group) return menuConfig.admin;
+    return menuConfig[group] || menuConfig.default;
+  };
+
   return (
     <div className={semidark ? "dark" : ""}>
       <nav
@@ -146,13 +162,13 @@ const SidebarDynamic = () => {
                 src="/assets/images/logo.svg"
                 alt="logo"
               />
-              <span className="align-middle text-2xl font-semibold ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light lg:inline">
+              <span className="align-middle text-2xl font-semibold dark:text-white-light lg:inline ltr:ml-1.5 rtl:mr-1.5">
                 {t("VRISTO")}
               </span>
             </Link>
             <button
               type="button"
-              className="collapse-icon flex h-8 w-8 items-center rounded-full transition duration-300 hover:bg-gray-500/10 rtl:rotate-180 dark:text-white-light dark:hover:bg-dark-light/10"
+              className="collapse-icon flex h-8 w-8 items-center rounded-full transition duration-300 hover:bg-gray-500/10 dark:text-white-light dark:hover:bg-dark-light/10 rtl:rotate-180"
               onClick={() => dispatch(toggleSidebar())}
             >
               <IconCaretsDown className="m-auto rotate-90" />
@@ -162,7 +178,7 @@ const SidebarDynamic = () => {
           {/* Menu */}
           <PerfectScrollbar className="relative h-[calc(100vh-80px)]">
             <ul className="relative space-y-0.5 p-4 py-0 font-semibold">
-              {renderMenu(menuConfig.admin)}
+              {getUserMenu()?.length > 0 && renderMenu(getUserMenu())}
             </ul>
           </PerfectScrollbar>
         </div>

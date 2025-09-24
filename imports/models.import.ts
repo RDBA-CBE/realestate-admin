@@ -1,6 +1,8 @@
 // import test from 'models/test.model';
 
+import amenity from "@/models/amenity.model";
 import auth from "@/models/auth.model";
+import category from "@/models/category.model";
 import master from "@/models/master.model";
 import profile from "@/models/profile.model";
 import project from "@/models/project.model";
@@ -16,7 +18,9 @@ export const Models = {
   project,
   user,
   master,
-  profile
+  profile,
+  category,
+  amenity
   
 };
 

@@ -3,7 +3,12 @@
 import { MapPin, Info, DollarSign, Home, Star, Phone } from "lucide-react";
 import TextInput from "@/components/FormFields/TextInput.component";
 import PrimaryButton from "@/components/FormFields/PrimaryButton.component";
-import { Failure, Success, useSetState } from "@/utils/function.utils";
+import {
+  Dropdown,
+  Failure,
+  Success,
+  useSetState,
+} from "@/utils/function.utils";
 import {
   amenitiesList,
   commemrcialType,
@@ -20,15 +25,20 @@ import { useEffect } from "react";
 import Utils from "@/imports/utils.import";
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
+import Models from "@/imports/models.import";
+import Modal from "@/components/modal/modal.component";
+import IconLoader from "@/components/Icon/IconLoader";
 
 export default function AddPropertyPage() {
-
-
-  const router = useRouter()
+  const router = useRouter();
   const [state, setState] = useSetState({
     propertyTypeList: propertyType,
     group: null,
     btnLoading: false,
+    isOpenAmenit: false,
+    amenityLoading: false,
+    listing_type: { value: 2, label: "Plot" },
+    plot: true,
   });
 
   useEffect(() => {
@@ -37,7 +47,62 @@ export default function AddPropertyPage() {
     setState({ group: group });
   }, [state.group]);
 
-  console.log("group", state.group);
+  useEffect(() => {
+    amenityList(1);
+  }, []);
+
+  const amenityList = async (page) => {
+    try {
+      const body = {
+        pagination: true,
+      };
+      const res: any = await Models.amenity.list(page, body);
+      const dropdown = Dropdown(res?.results, "name");
+      setState({
+        amenityList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const createAmenity = async () => {
+    try {
+      setState({ amenityLoading: true });
+
+      const body = {
+        name: state.name,
+        location: state.location,
+        description: state.description,
+        developer: 3,
+      };
+      await Utils.Validation.amenity.validate(body, { abortEarly: false });
+
+      const res = await Models.amenity.create(body);
+
+      setState({
+        isOpenAmenit: false,
+        name: "",
+        description: "",
+        amenityLoading: false,
+      });
+      amenityList(1);
+      Success("Amenity created succssfully");
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err?.message;
+        });
+        console.log("✌️validationErrors --->", validationErrors);
+
+        setState({ error: validationErrors, amenityLoading: false });
+      } else {
+        Failure(error?.error);
+        setState({ amenityLoading: false });
+      }
+    }
+  };
 
   const onSubmit = async () => {
     try {
@@ -169,9 +234,9 @@ export default function AddPropertyPage() {
         {steps.map((step, index) => (
           <div
             key={step.id}
-            className="grid grid-cols-1 gap-6 md:gap-5 xl:grid-cols-7"
+            className="grid grid-cols-1 gap-6 md:gap-5 xl:grid-cols-10"
           >
-            <div className="relative flex items-start xl:col-span-1">
+            <div className="relative flex items-start xl:col-span-2">
               <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-500">
                 <step.icon size={18} />
               </div>
@@ -186,61 +251,21 @@ export default function AddPropertyPage() {
             </div>
 
             {/* Form section (right) */}
-            <div className="xl:col-span-6">
+            <div className="xl:col-span-8">
               {/* Step 1: Basic Detail */}
               {step.id === 1 && (
                 <div className="panel rounded-lg">
                   <h2 className="mb-4 text-lg font-semibold">Basic Detail</h2>
-                  <div className="grid grid-cols-2 gap-4">
-                    <TextInput
-                      name="title"
-                      title="Property Name"
-                      placeholder="Enter Property Name"
-                      value={state.title}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.title}
-                    />
-                    <CustomSelect
-                      title="Property Type"
-                      placeholder="Enter Property Type"
-                      options={state.propertyTypeList}
-                      value={state.property_type}
-                      onChange={(selectedOption) =>
-                        setState({
-                          property_type: selectedOption,
-                          error: {
-                            ...state.error,
-                            property_type: null,
-                          },
-                        })
-                      }
-                      isClearable
-                      required
-                      error={state.error?.property_type}
-                    />
-                  </div>
-
-                  <div className="mt-4 flex w-full">
-                    <TextArea
-                      name="description"
-                      title="Description"
-                      placeholder="Enter Description"
-                      value={state.description}
-                      onChange={(e) =>
-                        setState({ description: e.target.value })
-                      }
-                    />
-                  </div>
-
                   <div
                     className={`${
-                      state.commercial ? "mt-4 grid grid-cols-2 gap-4" : "mt-4"
+                      state.commercial
+                        ? "mt-4 grid grid-cols-2 gap-4"
+                        : "mb-4 mt-4"
                     }`}
                   >
                     <CustomSelect
-                      title="List Type"
-                      placeholder="Enter List Type"
+                      title="Property Type"
+                      placeholder="Enter Property Type"
                       options={listType}
                       value={state.listing_type}
                       onChange={(selectedOption) =>
@@ -288,6 +313,47 @@ export default function AddPropertyPage() {
                         error={state.error?.commercial_type}
                       />
                     )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <TextInput
+                      name="title"
+                      title="Property Name"
+                      placeholder="Enter Property Name"
+                      value={state.title}
+                      onChange={handleInputChange}
+                      required
+                      error={state.error?.title}
+                    />
+                    <CustomSelect
+                      title="Property Type"
+                      placeholder="Enter Property Type"
+                      options={state.propertyTypeList}
+                      value={state.property_type}
+                      onChange={(selectedOption) =>
+                        setState({
+                          property_type: selectedOption,
+                          error: {
+                            ...state.error,
+                            property_type: null,
+                          },
+                        })
+                      }
+                      isClearable
+                      required
+                      error={state.error?.property_type}
+                    />
+                  </div>
+
+                  <div className="mt-4 flex w-full">
+                    <TextArea
+                      name="description"
+                      title="Description"
+                      placeholder="Enter Description"
+                      value={state.description}
+                      onChange={(e) =>
+                        setState({ description: e.target.value })
+                      }
+                    />
                   </div>
                 </div>
               )}
@@ -625,7 +691,7 @@ export default function AddPropertyPage() {
                     Features & Amenities
                   </h2>
                   <div className="grid grid-cols-4 gap-4">
-                    {amenitiesList.map((amenity) => (
+                    {state.amenityList?.map((amenity) => (
                       <CheckboxInput
                         key={amenity.value}
                         type="checkbox"
@@ -640,10 +706,25 @@ export default function AddPropertyPage() {
                                 (item) => item !== amenity.value
                               )
                             : [...(state.amenities || []), amenity.value];
-                          setState({ ...state, amenities: updatedAmenities });
+                          setState({ amenities: updatedAmenities });
                         }}
                       />
                     ))}
+                  </div>
+                  <div className="mt-6 flex justify-end">
+                    <PrimaryButton
+                      type="button"
+                      text="New Amenities"
+                      className="!mt-6 border-0 shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
+                      onClick={() =>
+                        setState({
+                          isOpenAmenit: true,
+                          name: "",
+                          description: "",
+                          amenityLoading: false,
+                        })
+                      }
+                    />
                   </div>
                 </div>
               )}
@@ -744,6 +825,68 @@ export default function AddPropertyPage() {
           </div>
         ))}
       </div>
+
+      <Modal
+        addHeader={"Create Amenity"}
+        open={state.isOpenAmenit}
+        close={() => {
+          setState({ isOpenAmenit: false, name: "", description: "" });
+        }}
+        renderComponent={() => (
+          <div className=" pb-7">
+            <form className="flex flex-col gap-3">
+              <div className=" w-full space-y-5">
+                <TextInput
+                  name="name"
+                  title="Amenity Name"
+                  placeholder="Enter amenity name"
+                  value={state.name}
+                  onChange={(e) => {
+                    setState({
+                      name: e.target.value,
+                      error: { ...state.error, name: "" },
+                    });
+                  }}
+                  error={state.error?.name}
+                  required
+                />
+
+                <TextArea
+                  name="description"
+                  title="Description"
+                  placeholder="Enter Description"
+                  value={state.description}
+                  onChange={(e) => setState({ description: e.target.value })}
+                />
+              </div>
+
+              <div className="mt-8 flex items-center justify-end">
+                <button
+                  type="button"
+                  className="btn btn-outline-primary gap-2"
+                  onClick={() => {
+                    setState({
+                      isOpenAmenit: false,
+                      name: "",
+                      description: "",
+                      amenityLoading: false,
+                    });
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => createAmenity()}
+                  className="btn btn-primary ltr:ml-4 rtl:mr-4"
+                >
+                  {state.amenityLoading ? <IconLoader /> : "Confirm"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      />
     </>
   );
 }

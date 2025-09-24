@@ -8,7 +8,7 @@ export const BACKEND_URL = "http://31.97.206.165/api/";
 
 // menuConfig.ts
 export const menuConfig = {
-  admin: [
+  Admin: [
     {
       type: "link",
       icon: "IconMenuWidgets",
@@ -158,7 +158,7 @@ export const menuConfig = {
     },
   ],
 
-  agent: [
+  Agents: [
     {
       type: "link",
       icon: "IconMenuWidgets",
@@ -297,7 +297,7 @@ export const menuConfig = {
     },
   ],
 
-  seller: [
+  Sellers: [
     {
       type: "link",
       icon: "IconMenuWidgets",
@@ -436,7 +436,7 @@ export const menuConfig = {
     },
   ],
 
-  developer:[
+  Developers:[
     {
       type: "link",
       icon: "IconMenuWidgets",

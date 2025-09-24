@@ -60,3 +60,20 @@ export const propertyCreate = Yup.object().shape({
   email: Yup.string().email("Invalid email").required("Email is required"),
   phone: Yup.string().required("Phone Number is required"),
 });
+
+
+export const category = Yup.object().shape({
+  name: Yup.string().required("Category Name is required"),
+});
+
+export const project = Yup.object().shape({
+  name: Yup.string().required("Project Name is required"),
+  location: Yup.string().required("Location is required"),
+
+});
+
+export const amenity = Yup.object().shape({
+  name: Yup.string().required("Amenity Name is required"),
+});
+
+

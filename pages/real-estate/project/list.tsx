@@ -3,7 +3,12 @@ import { DataTable, DataTableSortStatus } from "mantine-datatable";
 import Tippy from "@tippyjs/react";
 import IconEye from "@/components/Icon/IconEye";
 import IconEdit from "@/components/Icon/IconEdit";
-import { showDeleteAlert, Success, useSetState } from "@/utils/function.utils";
+import {
+  Failure,
+  showDeleteAlert,
+  Success,
+  useSetState,
+} from "@/utils/function.utils";
 import CustomSelect from "@/components/FormFields/CustomSelect.component";
 import IconLoader from "@/components/Icon/IconLoader";
 import Modal from "@/components/modal/modal.component";
@@ -13,6 +18,10 @@ import TextArea from "@/components/FormFields/TextArea.component";
 import IconTrash from "@/components/Icon/IconTrash";
 import Swal from "sweetalert2";
 import useDebounce from "@/hook/useDebounce";
+import Utils from "@/imports/utils.import";
+import * as Yup from "yup";
+import IconArrowBackward from "@/components/Icon/IconArrowBackward";
+import IconArrowForward from "@/components/Icon/IconArrowForward";
 
 export default function list() {
   const [state, setState] = useSetState({
@@ -25,6 +34,7 @@ export default function list() {
     location: "",
     description: "",
     search: "",
+    error: {},
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -49,7 +59,14 @@ export default function list() {
         id: item?.id,
       }));
 
-      setState({ tableList: data, total: res?.count, page: page });
+      setState({
+        tableList: data,
+        total: res?.count,
+        page: page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+      });
     } catch (error) {
       console.log("✌️error --->", error);
     }
@@ -58,22 +75,32 @@ export default function list() {
   const createProject = async () => {
     try {
       setState({ btnLoading: true });
-
       const body = {
         name: state.name,
         location: state.location,
         description: state.description,
         developer: 3,
       };
+      await Utils.Validation.project.validate(body, { abortEarly: false });
+
       const res = await Models.project.create(body);
       clearData();
       setState({ btnLoading: false });
       projectList(1);
       Success("Preject created succssfully");
     } catch (error) {
-      setState({ btnLoading: false });
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err?.message;
+        });
+        console.log("✌️validationErrors --->", validationErrors);
 
-      console.log("✌️error --->", error);
+        setState({ error: validationErrors, btnLoading: false });
+      } else {
+        Failure(error?.error);
+        setState({ btnLoading: false });
+      }
     }
   };
 
@@ -86,6 +113,8 @@ export default function list() {
         description: state.description,
         developer: 3,
       };
+      await Utils.Validation.project.validate(body, { abortEarly: false });
+
       const res = await Models.project.update(body, state.editId);
       console.log("createProject --->", res);
       clearData();
@@ -94,9 +123,18 @@ export default function list() {
 
       Success("Preject updated succssfully");
     } catch (error) {
-      setState({ btnLoading: false });
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err?.message;
+        });
+        console.log("✌️validationErrors --->", validationErrors);
 
-      console.log("✌️error --->", error);
+        setState({ error: validationErrors, btnLoading: false });
+      } else {
+        Failure(error?.error);
+        setState({ btnLoading: false });
+      }
     }
   };
 
@@ -110,11 +148,7 @@ export default function list() {
       projectList(state.page);
 
       Success("Preject deleted succssfully");
-    } catch (error) {
-      setState({ btnLoading: false });
-
-      console.log("✌️error --->", error);
-    }
+    } catch (error) {}
   };
 
   const handleDelete = (row) => {
@@ -158,7 +192,22 @@ export default function list() {
       location: "",
       description: "",
       isOpen: false,
+      error: {},
     });
+  };
+
+  const handleNextPage = () => {
+    if (state.next) {
+      const newPage = state.page + 1;
+      projectList(newPage);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (state.previous) {
+      const newPage = state.page - 1;
+      projectList(newPage);
+    }
   };
 
   return (
@@ -269,6 +318,24 @@ export default function list() {
             `Showing  ${from} to ${to} of ${totalRecords} entries`
           }
         />
+        <div className="mt-5 flex justify-end gap-3">
+          <button
+            disabled={!state.previous}
+            onClick={handlePreviousPage}
+            className={`btn ${
+              !state.previous ? "btn-disabled" : "btn-primary"
+            }`}
+          >
+            <IconArrowBackward />
+          </button>
+          <button
+            disabled={!state.next}
+            onClick={handleNextPage}
+            className={`btn ${!state.next ? "btn-disabled" : "btn-primary"}`}
+          >
+            <IconArrowForward />
+          </button>
+        </div>
       </div>
 
       <Modal
@@ -287,6 +354,8 @@ export default function list() {
                   placeholder="Enter project name"
                   value={state.name}
                   onChange={(e) => setState({ name: e.target.value })}
+                  error={state.error?.name}
+                  required
                 />
 
                 <TextInput
@@ -295,6 +364,8 @@ export default function list() {
                   placeholder="Enter location"
                   value={state.location}
                   onChange={(e) => setState({ location: e.target.value })}
+                  error={state.error?.location}
+                  required
                 />
 
                 <TextArea
