@@ -3,34 +3,160 @@
 import { MapPin, Info, DollarSign, Home, Star, Phone } from "lucide-react";
 import TextInput from "@/components/FormFields/TextInput.component";
 import PrimaryButton from "@/components/FormFields/PrimaryButton.component";
-import { useSetState } from "@/utils/function.utils";
+import { Failure, Success, useSetState } from "@/utils/function.utils";
 import {
   amenitiesList,
+  commemrcialType,
   facingDirection,
+  listType,
   propertyType,
+  ROLES,
 } from "@/utils/constant.utils";
 import CustomSelect from "@/components/FormFields/CustomSelect.component";
 import CheckboxInput from "@/components/FormFields/CheckBoxInput.component";
 import TextArea from "@/components/FormFields/TextArea.component";
 import NumberInput from "@/components/FormFields/NumberInputs.component";
-
-const steps = [
-  { id: 1, title: "Basic Detail", icon: MapPin },
-  { id: 2, title: "Property Information", icon: Info },
-  { id: 3, title: "Price & Area", icon: DollarSign },
-  { id: 4, title: "Features & Amenities", icon: Home },
-  { id: 5, title: "Extra Facilities", icon: Star },
-  { id: 6, title: "Contact Information", icon: Phone },
-];
+import { useEffect } from "react";
+import Utils from "@/imports/utils.import";
+import * as Yup from "yup";
+import { useRouter } from "next/navigation";
 
 export default function AddPropertyPage() {
+
+
+  const router = useRouter()
   const [state, setState] = useSetState({
     propertyTypeList: propertyType,
-    property_name: "",
-    description: "",
-    propertyType: null,
-    listType: null,
+    group: null,
+    btnLoading: false,
   });
+
+  useEffect(() => {
+    const group = localStorage.getItem("group") || "";
+
+    setState({ group: group });
+  }, [state.group]);
+
+  console.log("group", state.group);
+
+  const onSubmit = async () => {
+    try {
+      setState({ btnLoading: true });
+
+      const body = bodyData();
+
+      console.log("body", body);
+
+      const validateBody = {
+        title: state.title,
+        property_type: state.property_type,
+        listing_type: state.listing_type,
+        address: state.address,
+        city: state.city,
+        state: state.state,
+        country: state.country,
+        postal_code: state.postal_code,
+        full_name: state.full_name,
+        email: state.email,
+        phone: state.phone,
+        plot_area: state.plot ? state.plot_area : undefined,
+        built_up_area:
+          state.commercial && (state.buy || state.lease)
+            ? state.built_up_area
+            : undefined,
+        buy_price: state.commercial && state.buy ? state.buy_price : undefined,
+        lease_rent:
+          state.commercial && state.lease ? state.lease_rent : undefined,
+        lease_duration:
+          state.commercial && state.lease ? state.lease_duration : undefined,
+        plot_price: state.plot ? state.plot_price : undefined,
+      };
+
+      await Utils.Validation.propertyCreate.validate(validateBody, {
+        abortEarly: false,
+      });
+
+      // const res: any = await Models.auth.login(body);
+      Success("Property Created Successfully");
+      router.push("/real-estate/property/list/");
+      setState({ btnLoading: false });
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors: any = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err?.message;
+        });
+        console.log("✌️validationErrors --->", validationErrors);
+
+        setState({ error: validationErrors, btnLoading: false });
+      } else {
+        Failure(error?.error);
+        setState({ btnLoading: false });
+      }
+    }
+  };
+
+  const bodyData = () => ({
+    title: state.title || null,
+    property_type: state.property_type?.value || null,
+    description: state.description || null,
+    listing_type: state.listing_type?.value || null,
+    commercial_type: state.commercial_type?.value || null,
+    plot_area: state.plot_area || null,
+    land_type: state.land_type?.value || null,
+    built_up_area: state.built_up_area || null,
+    carpet_area: state.carpet_area || null,
+    bedrooms: state.bedrooms || null,
+    bathrooms: state.bathrooms || null,
+    balconies: state.balconies || null,
+    floor_number: state.floor_number || null,
+    total_floors: state.total_floors || null,
+    built_year: state.built_year || null,
+    facing: state.facing?.value || null,
+    furnishing: state.furnishing?.value || null,
+    address: state.address || null,
+    city: state.city?.value || null,
+    state: state.state?.value || null,
+    country: state.country?.value || null,
+    postal_code: state.postal_code || null,
+    latitude: state.latitude || null,
+    longitude: state.longitude || null,
+    more_details: state.more_details || null,
+    buy_price: state.buy_price || null,
+    price_per_sqft: state.price_per_sqft || null,
+    lease_rent: state.lease_rent || null,
+    lease_duration: state.lease_duration || null,
+    plot_price: state.plot_price || null,
+    amenities: state.amenities || [],
+    city_center: state.city_center || null,
+    hospital: state.hospital || null,
+    shop: state.shop || null,
+    park: state.park || null,
+    full_name: state.full_name || null,
+    designation: state.designation || null,
+    email: state.email || null,
+    phone: state.phone || null,
+  });
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setState({
+      [name]: value,
+      error: { ...state.error, [name]: "" },
+    });
+  };
+
+  const steps = [
+    { id: 1, title: "Basic Detail", icon: MapPin },
+    { id: 2, title: "Property Information", icon: Info },
+    { id: 3, title: "Price", icon: DollarSign },
+    { id: 4, title: "Features & Amenities", icon: Home },
+    { id: 5, title: "Extra Facilities", icon: Star },
+    { id: 6, title: "Contact Information", icon: Phone },
+  ];
+
+  console.log("listing_type", state.listing_type);
+
   return (
     <>
       <div className="panel mb-5 flex flex-col gap-5 md:flex-row md:items-center">
@@ -43,7 +169,7 @@ export default function AddPropertyPage() {
         {steps.map((step, index) => (
           <div
             key={step.id}
-            className="grid grid-cols-1 gap-6 xl:grid-cols-7 md:gap-5"
+            className="grid grid-cols-1 gap-6 md:gap-5 xl:grid-cols-7"
           >
             <div className="relative flex items-start xl:col-span-1">
               <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-500">
@@ -61,6 +187,7 @@ export default function AddPropertyPage() {
 
             {/* Form section (right) */}
             <div className="xl:col-span-6">
+              {/* Step 1: Basic Detail */}
               {step.id === 1 && (
                 <div className="panel rounded-lg">
                   <h2 className="mb-4 text-lg font-semibold">Basic Detail</h2>
@@ -70,7 +197,9 @@ export default function AddPropertyPage() {
                       title="Property Name"
                       placeholder="Enter Property Name"
                       value={state.title}
-                      onChange={(e) => setState({ title: e.target.value })}
+                      onChange={handleInputChange}
+                      required
+                      error={state.error?.title}
                     />
                     <CustomSelect
                       title="Property Type"
@@ -78,9 +207,17 @@ export default function AddPropertyPage() {
                       options={state.propertyTypeList}
                       value={state.property_type}
                       onChange={(selectedOption) =>
-                        setState({ property_type: selectedOption })
+                        setState({
+                          property_type: selectedOption,
+                          error: {
+                            ...state.error,
+                            property_type: null,
+                          },
+                        })
                       }
-                      isClearable={true}
+                      isClearable
+                      required
+                      error={state.error?.property_type}
                     />
                   </div>
 
@@ -96,44 +233,206 @@ export default function AddPropertyPage() {
                     />
                   </div>
 
-                  <div className="mt-4 ">
-                    <label htmlFor="listType" className="mb-3 ">
-                      List Type
-                    </label>
-
-                    <div className="flex items-center gap-6">
-                      <CheckboxInput
-                        type="radio"
-                        name="listType"
-                        label="Sale"
-                        checked={state.listing_type === "sale"}
-                        onChange={() =>
-                          setState({ ...state, listing_type: "sale" })
+                  <div
+                    className={`${
+                      state.commercial ? "mt-4 grid grid-cols-2 gap-4" : "mt-4"
+                    }`}
+                  >
+                    <CustomSelect
+                      title="List Type"
+                      placeholder="Enter List Type"
+                      options={listType}
+                      value={state.listing_type}
+                      onChange={(selectedOption) =>
+                        setState({
+                          listing_type: selectedOption,
+                          commercial: selectedOption?.label === "Commercial",
+                          plot: selectedOption?.label === "Plot",
+                          commercial_type: !selectedOption
+                            ? null
+                            : state.commercial_type,
+                          buy: false,
+                          lease: false,
+                          error: {
+                            ...state.error,
+                            listing_type: null,
+                          },
+                        })
+                      }
+                      isClearable
+                      required
+                      error={state.error?.listing_type}
+                    />
+                    {state.commercial && (
+                      <CustomSelect
+                        title="Commercial Type"
+                        placeholder="Enter Commercial Type"
+                        options={commemrcialType}
+                        value={state.commercial_type}
+                        onChange={(selectedOption) =>
+                          setState({
+                            commercial_type:
+                              state.listing_type === "plot"
+                                ? null
+                                : selectedOption,
+                            buy: selectedOption?.label === "Buy",
+                            lease: selectedOption?.label === "Lease",
+                            error: {
+                              ...state.error,
+                              commercial_type: null,
+                            },
+                          })
                         }
+                        isClearable
+                        required
+                        error={state.error?.commercial_type}
                       />
-
-                      <CheckboxInput
-                        type="radio"
-                        name="listType"
-                        label="Lease"
-                        checked={state.listing_type === "lease"}
-                        onChange={() =>
-                          setState({ ...state, listing_type: "lease" })
-                        }
-                      />
-
-                      <CheckboxInput
-                        type="radio"
-                        name="listType"
-                        label="Rent"
-                        checked={state.listing_type === "rent"}
-                        onChange={() =>
-                          setState({ ...state, listing_type: "rent" })
-                        }
-                      />
-                    </div>
+                    )}
                   </div>
+                </div>
+              )}
 
+              {/* Step 2: Property Information */}
+              {step.id === 2 && (
+                <div className="panel rounded-lg p-6">
+                  <h2 className="text-lg font-semibold">
+                    Property Information
+                  </h2>
+
+                  {(state.plot || state.buy || state.lease) && (
+                    <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                      {/* Plot Fields */}
+                      {state.plot && (
+                        <>
+                          <NumberInput
+                            name="plot_area"
+                            title="Plot Area (sq.ft.)"
+                            placeholder="Enter total plot area"
+                            value={state.plot_area}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.plot_area}
+                          />
+                          <CustomSelect
+                            title="Land Type / Zone"
+                            placeholder="Select Land Type / Zone"
+                            options={[
+                              { value: "residential", label: "Residential" },
+                              { value: "commercial", label: "Commercial" },
+                              { value: "agricultural", label: "Agricultural" },
+                              { value: "industrial", label: "Industrial" },
+                            ]}
+                            value={state.land_type}
+                            onChange={(selectedOption) =>
+                              setState({
+                                land_type: selectedOption,
+                                error: {
+                                  ...state.error,
+                                  land_type: null,
+                                },
+                              })
+                            }
+                            isClearable
+                            required
+                            error={state.error?.land_type}
+                          />
+                        </>
+                      )}
+
+                      {/* Commercial Buy / Lease Fields */}
+                      {state.commercial && (state.buy || state.lease) && (
+                        <>
+                          <NumberInput
+                            name="built_up_area"
+                            title="Built-up Area (sq.ft.)"
+                            placeholder="Enter total built-up area"
+                            value={state.built_up_area}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.built_up_area}
+                          />
+                          <NumberInput
+                            name="carpet_area"
+                            title="Carpet Area (sq.ft.)"
+                            placeholder="Enter total carpet area"
+                            value={state.carpet_area}
+                            onChange={handleInputChange}
+                          />
+                          <TextInput
+                            name="bedrooms"
+                            title="Bedrooms (Number Only)"
+                            placeholder="Enter number of bedrooms"
+                            value={state.bedrooms}
+                            onChange={handleInputChange}
+                          />
+                          <TextInput
+                            name="bathrooms"
+                            title="Bathrooms (Number Only)"
+                            placeholder="Enter number of bathrooms"
+                            value={state.bathrooms}
+                            onChange={handleInputChange}
+                          />
+                          <TextInput
+                            name="balconies"
+                            title="Balconies (Number Only)"
+                            placeholder="Enter number of balconies"
+                            value={state.balconies}
+                            onChange={handleInputChange}
+                          />
+                          <TextInput
+                            name="floor_number"
+                            title="Floor No (Number Only)"
+                            placeholder="Enter floor number"
+                            value={state.floor_number}
+                            onChange={handleInputChange}
+                          />
+                          <TextInput
+                            name="total_floors"
+                            title="Total Floors (Number Only)"
+                            placeholder="Enter total number of floors"
+                            value={state.total_floors}
+                            onChange={handleInputChange}
+                          />
+                          <NumberInput
+                            name="built_year"
+                            title="Built Year"
+                            placeholder="Enter the built year"
+                            value={state.built_year}
+                            onChange={handleInputChange}
+                          />
+                          <CustomSelect
+                            title="Property Facing Direction"
+                            placeholder="Select facing direction"
+                            options={facingDirection}
+                            value={state.facing}
+                            onChange={(selectedOption) =>
+                              setState({ facing: selectedOption })
+                            }
+                            isClearable
+                          />
+                          <CustomSelect
+                            title="Furnishing Type"
+                            placeholder="Select furnishing type"
+                            options={[
+                              { value: "furnished", label: "Furnished" },
+                              {
+                                value: "semi_furnished",
+                                label: "Semi-Furnished",
+                              },
+                              { value: "unfurnished", label: "Unfurnished" },
+                            ]}
+                            value={state.furnishing}
+                            onChange={(selectedOption) =>
+                              setState({ furnishing: selectedOption })
+                            }
+                            isClearable
+                          />
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Common Fields */}
                   <div className="mt-4 flex w-full">
                     <TextArea
                       name="address"
@@ -141,6 +440,8 @@ export default function AddPropertyPage() {
                       placeholder="Enter address"
                       value={state.address}
                       onChange={(e) => setState({ address: e.target.value })}
+                      required
+                      error={state.error?.address}
                     />
                   </div>
 
@@ -151,218 +452,85 @@ export default function AddPropertyPage() {
                       options={state.propertyTypeList}
                       value={state.city}
                       onChange={(selectedOption) =>
-                        setState({ city: selectedOption })
+                        setState({
+                          city: selectedOption,
+                          error: {
+                            ...state.error,
+                            city: null,
+                          },
+                        })
                       }
-                      isClearable={true}
+                      isClearable
+                      required
+                      error={state.error?.city}
                     />
-
                     <CustomSelect
                       title="State"
                       placeholder="Enter State"
                       options={state.propertyTypeList}
                       value={state.state}
                       onChange={(selectedOption) =>
-                        setState({ state: selectedOption })
+                        setState({
+                          state: selectedOption,
+                          error: {
+                            ...state.error,
+                            state: null,
+                          },
+                        })
                       }
-                      isClearable={true}
+                      isClearable
+                      required
+                      error={state.error?.state}
                     />
-
                     <CustomSelect
                       title="Country"
                       placeholder="Enter Country"
                       options={state.propertyTypeList}
                       value={state.country}
                       onChange={(selectedOption) =>
-                        setState({ country: selectedOption })
+                        setState({
+                          country: selectedOption,
+                          error: {
+                            ...state.error,
+                            country: null,
+                          },
+                        })
                       }
-                      isClearable={true}
+                      isClearable
+                      required
+                      error={state.error?.country}
                     />
-
                     <TextInput
                       name="postal_code"
                       title="Zip Code"
                       placeholder="Enter Zip Code"
                       value={state.postal_code}
-                      onChange={(e) =>
-                        setState({ postal_code: e.target.value })
-                      }
+                      onChange={handleInputChange}
+                      required
+                      error={state.error?.postal_code}
                     />
-
-                    <TextInput
+                    <NumberInput
                       name="latitude"
-                      title="Latitute of the Location"
+                      title="Latitude of the Location"
                       placeholder="Enter location"
                       value={state.latitude}
-                      onChange={(e) => setState({ latitude: e.target.value })}
+                      onChange={handleInputChange}
                     />
-
-                    <TextInput
-                      name="logitude"
+                    <NumberInput
+                      name="longitude"
                       title="Longitude of the Location"
                       placeholder="Enter location"
-                      value={state.logitude}
-                      onChange={(e) => setState({ logitude: e.target.value })}
+                      value={state.longitude}
+                      onChange={handleInputChange}
                     />
                   </div>
 
-                  <div className="mt-4 flex h-40 w-full items-center justify-center bg-gray-100 text-gray-400">
-                    Google Map Here
-                  </div>
-                </div>
-              )}
+                  {state.latitude && state.longitude && (
+                    <div className="mt-4 flex h-40 w-full items-center justify-center bg-gray-100 text-gray-400">
+                      Google Map Here
+                    </div>
+                  )}
 
-              {step.id === 2 && (
-                <div className="panel rounded-lg p-6">
-                  <h2 className="mb-4 text-lg font-semibold">
-                    Property Information
-                  </h2>
-
-                  <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-                    {/* --- Area Group --- */}
-                    <NumberInput
-                      name="plot_area"
-                      title="Plot Area (sq.ft.)"
-                      placeholder="Enter total plot area"
-                      value={state.plot_area}
-                      onChange={(e) => setState({ plot_area: e.target.value })}
-                    />
-                    <NumberInput
-                      name="built_up_area"
-                      title="Built-up Area (sq.ft.)"
-                      placeholder="Enter total built-up area"
-                      value={state.built_up_area}
-                      onChange={(e) =>
-                        setState({ built_up_area: e.target.value })
-                      }
-                    />
-                    <NumberInput
-                      name="carpet_area"
-                      title="Carpet Area (sq.ft.)"
-                      placeholder="Enter total carpet area"
-                      value={state.carpet_area}
-                      onChange={(e) =>
-                        setState({ carpet_area: e.target.value })
-                      }
-                    />
-
-                    {/* --- Rooms Group --- */}
-                    <TextInput
-                      name="bedrooms"
-                      title="Bedrooms (Number Only)"
-                      placeholder="Enter number of bedrooms"
-                      value={state.bedrooms}
-                      onChange={(e) => setState({ bedrooms: e.target.value })}
-                    />
-                    <TextInput
-                      name="bathrooms"
-                      title="Bathrooms (Number Only)"
-                      placeholder="Enter number of bathrooms"
-                      value={state.bathrooms}
-                      onChange={(e) => setState({ bathrooms: e.target.value })}
-                    />
-                    <TextInput
-                      name="balconies"
-                      title="Balconies (Number Only)"
-                      placeholder="Enter number of balconies"
-                      value={state.balconies}
-                      onChange={(e) => setState({ balconies: e.target.value })}
-                    />
-
-                    {/* --- Floor Info --- */}
-                    <TextInput
-                      name="floor_number"
-                      title="Floor No (Number Only)"
-                      placeholder="Enter floor number"
-                      value={state.floor_number}
-                      onChange={(e) =>
-                        setState({ floor_number: e.target.value })
-                      }
-                    />
-                    <TextInput
-                      name="total_floors"
-                      title="Total Floors (Number Only)"
-                      placeholder="Enter total number of floors"
-                      value={state.total_floors}
-                      onChange={(e) =>
-                        setState({ total_floors: e.target.value })
-                      }
-                    />
-
-                    {/* --- Building Info --- */}
-                    <NumberInput
-                      name="built_year"
-                      title="Built Year"
-                      placeholder="Enter the built year"
-                      value={state.built_year}
-                      onChange={(e) => setState({ built_year: e.target.value })}
-                    />
-                    <CustomSelect
-                      title="Property Facing Direction"
-                      placeholder="Select facing direction"
-                      options={facingDirection}
-                      value={state.facing}
-                      onChange={(selectedOption) =>
-                        setState({ facing: selectedOption })
-                      }
-                      isClearable={true}
-                    />
-
-                    {/* --- Optional Fields --- */}
-                    <CustomSelect
-                      title="Property Status"
-                      placeholder="Select property status"
-                      options={[
-                        { value: "ready", label: "Ready to Move" },
-                        {
-                          value: "under_construction",
-                          label: "Under Construction",
-                        },
-                      ]}
-                      value={state.status}
-                      onChange={(selectedOption) =>
-                        setState({ status: selectedOption })
-                      }
-                      isClearable={true}
-                    />
-                    <CustomSelect
-                      title="Furnishing Type"
-                      placeholder="Select furnishing type"
-                      options={[
-                        { value: "furnished", label: "Furnished" },
-                        { value: "semi_furnished", label: "Semi-Furnished" },
-                        { value: "unfurnished", label: "Unfurnished" },
-                      ]}
-                      value={state.furnishing}
-                      onChange={(selectedOption) =>
-                        setState({ furnishing: selectedOption })
-                      }
-                      isClearable={true}
-                    />
-                    {/* <NumberInput
-                      name="parking"
-                      title="Parking Slots (Optional)"
-                      placeholder="Enter number of parking slots"
-                      value={state.parking}
-                      onChange={(e) => setState({ parking: e.target.value })}
-                    />
-                    <CustomSelect
-                      title="Amenities (Optional)"
-                      placeholder="Select amenities"
-                      options={[
-                        { value: "gym", label: "Gym" },
-                        { value: "lift", label: "Lift" },
-                        { value: "garden", label: "Garden" },
-                        { value: "security", label: "Security" },
-                      ]}
-                      value={state.amenities}
-                      onChange={(selectedOption) =>
-                        setState({ amenities: selectedOption })
-                      }
-                      isMulti
-                    /> */}
-                  </div>
-
-                  {/* --- More Details --- */}
                   <div className="mt-4">
                     <TextArea
                       name="more_details"
@@ -377,39 +545,80 @@ export default function AddPropertyPage() {
                 </div>
               )}
 
+              {/* Step 3: Price */}
               {step.id === 3 && (
-                <div className="panel rounded-lg">
-                  <h2 className="mb-4 text-lg font-semibold">Price </h2>
+                <div className="panel rounded-lg p-6">
+                  <h2 className="mb-4 text-lg font-semibold">Price</h2>
                   <div className="grid grid-cols-2 gap-4">
-                    <NumberInput
-                      name="price"
-                      title="Price"
-                      placeholder="Enter price"
-                      value={state.price}
-                      onChange={(e) => setState({ price: e.target.value })}
-                    />
-                    <NumberInput
-                      name="price_per_sqft"
-                      title="Price per Sq.Ft (auto-calc or manual input)"
-                      placeholder="Enter price per Sq.Ft"
-                      value={state.price_per_sqft}
-                      onChange={(e) =>
-                        setState({ price_per_sqft: e.target.value })
-                      }
-                    />
-                    {/* <NumberInput
-                      name="maintenance_charges"
-                      title="Maintenance Charge"
-                      placeholder="Enter Maintenance Charge"
-                       value={state.maintenance_charges}
-                      onChange={(e) =>
-                        setState({ maintenance_charges: e.target.value })
-                      }
-                    /> */}
+                    {state.commercial && state.buy && (
+                      <>
+                        <NumberInput
+                          name="buy_price"
+                          title="Buy Price"
+                          placeholder="Enter Buy Price"
+                          value={state.buy_price}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.buy_price}
+                        />
+                        <NumberInput
+                          name="price_per_sqft"
+                          title="Price Per Sq.ft."
+                          placeholder="Auto-calculated or enter manually"
+                          value={state.price_per_sqft}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.price_per_sqft}
+                        />
+                      </>
+                    )}
+                    {state.commercial && state.lease && (
+                      <>
+                        <NumberInput
+                          name="lease_rent"
+                          title="Monthly Rent"
+                          placeholder="Enter Monthly Rent"
+                          value={state.lease_rent}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.lease_rent}
+                        />
+                        <TextInput
+                          name="lease_duration"
+                          title="Lease Duration (Months)"
+                          placeholder="Enter lease duration in months"
+                          value={state.lease_duration}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.lease_duration}
+                        />
+                      </>
+                    )}
+                    {state.plot && (
+                      <>
+                        <NumberInput
+                          name="plot_price"
+                          title="Plot Price"
+                          placeholder="Enter Plot Price"
+                          value={state.plot_price}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.plot_price}
+                        />
+                        <NumberInput
+                          name="price_per_sqft"
+                          title="Price Per Sq.ft."
+                          placeholder="Auto-calculated or enter manually"
+                          value={state.price_per_sqft}
+                          onChange={handleInputChange}
+                        />
+                      </>
+                    )}
                   </div>
                 </div>
               )}
 
+              {/* Step 4: Features & Amenities */}
               {step.id === 4 && (
                 <div className="panel rounded-lg">
                   <h2 className="mb-4 text-lg font-semibold">
@@ -431,7 +640,6 @@ export default function AddPropertyPage() {
                                 (item) => item !== amenity.value
                               )
                             : [...(state.amenities || []), amenity.value];
-
                           setState({ ...state, amenities: updatedAmenities });
                         }}
                       />
@@ -440,6 +648,7 @@ export default function AddPropertyPage() {
                 </div>
               )}
 
+              {/* Step 5: Extra Facilities */}
               {step.id === 5 && (
                 <div className="panel rounded-lg">
                   <h2 className="mb-4 text-lg font-semibold">
@@ -447,41 +656,38 @@ export default function AddPropertyPage() {
                   </h2>
                   <div className="grid grid-cols-2 gap-4">
                     <TextInput
-                      name="cityCenter"
+                      name="city_center"
                       title="City Center"
                       placeholder="Enter distance from the city center"
                       value={state.city_center}
-                      onChange={(e) =>
-                        setState({ city_center: e.target.value })
-                      }
+                      onChange={handleInputChange}
                     />
-
                     <TextInput
                       name="hospital"
                       title="Hospital"
                       placeholder="Enter distance from the Hospital"
                       value={state.hospital}
-                      onChange={(e) => setState({ hospital: e.target.value })}
+                      onChange={handleInputChange}
                     />
-
                     <TextInput
                       name="shop"
                       title="Shop"
                       placeholder="Enter distance from the Shop"
                       value={state.shop}
-                      onChange={(e) => setState({ shop: e.target.value })}
+                      onChange={handleInputChange}
                     />
                     <TextInput
                       name="park"
                       title="Park"
                       placeholder="Enter distance from the Park"
                       value={state.park}
-                      onChange={(e) => setState({ park: e.target.value })}
+                      onChange={handleInputChange}
                     />
                   </div>
                 </div>
               )}
 
+              {/* Step 6: Contact Information */}
               {step.id === 6 && (
                 <div className="panel rounded-lg">
                   <h2 className="mb-4 text-lg font-semibold">
@@ -493,36 +699,44 @@ export default function AddPropertyPage() {
                       title="Full Name"
                       placeholder="Enter contact person's name"
                       value={state.full_name}
-                      onChange={(e) => setState({ full_name: e.target.value })}
+                      onChange={handleInputChange}
+                      required
+                      error={state.error?.full_name}
                     />
                     <TextInput
                       name="designation"
                       title="Designation"
                       placeholder="Enter contact person's designation"
                       value={state.designation}
-                      onChange={(e) =>
-                        setState({ designation: e.target.value })
-                      }
+                      onChange={handleInputChange}
+                      error={state.error?.designation}
                     />
-
                     <TextInput
                       name="email"
                       title="Email"
                       placeholder="Enter contact person's email"
                       value={state.email}
-                      onChange={(e) => setState({ email: e.target.value })}
+                      onChange={handleInputChange}
+                      required
+                      error={state.error?.email}
                     />
-
                     <TextInput
                       name="phone"
                       title="Phone Number"
                       placeholder="Enter contact person's Phone Number"
                       value={state.phone}
-                      onChange={(e) => setState({ phone: e.target.value })}
+                      onChange={handleInputChange}
+                      required
+                      error={state.error?.phone}
                     />
                   </div>
                   <div className="mt-6 flex justify-end">
-                    <PrimaryButton>Post Property</PrimaryButton>
+                    <PrimaryButton
+                      type="submit"
+                      text="Post Property"
+                      className="!mt-6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
+                      onClick={onSubmit}
+                    />
                   </div>
                 </div>
               )}

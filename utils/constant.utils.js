@@ -41,9 +41,21 @@ export const menuConfig = {
           key: "Property",
           children: [
             { type: "link", label: "List", href: "real-estate/property/list" },
-            { type: "link", label: "Create Property", href: "/real-estate/property/create" },
-            { type: "link", label: "Property Catergory", href: "/apps/invoice/add" },
-            { type: "link", label: "Amenities List", href: "/apps/invoice/edit" },
+            {
+              type: "link",
+              label: "Create Property",
+              href: "/real-estate/property/create",
+            },
+            {
+              type: "link",
+              label: "Property Catergory",
+              href: "/apps/invoice/add",
+            },
+            {
+              type: "link",
+              label: "Amenities List",
+              href: "/apps/invoice/edit",
+            },
             { type: "link", label: "City", href: "/apps/invoice/edit" },
             { type: "link", label: "Media", href: "/apps/invoice/edit" },
             { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
@@ -432,21 +444,23 @@ export const menuConfig = {
   ],
 };
 
-export const  propertyType = [
-  { value: 1,
-    label:"Appartment"
-  },
-   { value: 2,
-    label:"House"
-  },
-   { value: 3,
-    label:"Office"
-  },
+export const propertyType = [
+  { value: 1, label: "Appartment" },
+  { value: 2, label: "House" },
+  { value: 3, label: "Office" },
 
-   { value: 4,
-    label:"Loft"
-  }
-]
+  { value: 4, label: "Loft" },
+];
+
+export const listType = [
+  { value: 1, label: "Commercial" },
+  { value: 2, label: "Plot" },
+];
+
+export const commemrcialType = [
+  { value: 1, label: "Buy" },
+  { value: 2, label: "Lease" },
+];
 
 export const facingDirection = [
   { value: 1, label: "North" },
@@ -458,7 +472,7 @@ export const facingDirection = [
   { value: 7, label: "South-West" },
   { value: 8, label: "North-West" },
   { value: 9, label: "East-Facing Corner" },
-  { value: 10, label: "West-Facing Corner" }
+  { value: 10, label: "West-Facing Corner" },
 ];
 
 export const amenitiesList = [
@@ -480,7 +494,16 @@ export const amenitiesList = [
   { value: "shopping_center", label: "Shopping Center" },
   { value: "sports_facilities", label: "Sports Facilities" },
   { value: "visitor_parking", label: "Visitor Parking" },
-  { value: "community_events", label: "Community Events Area" }
+  { value: "community_events", label: "Community Events Area" },
+];
+
+export const Furnishing = [
+  { value: 1, label: "Furnished" },
+  {
+    value: 2,
+    label: "Semi-Furnished",
+  },
+  { value: 3, label: "Unfurnished" },
 ];
 
 export const ROLES = {
