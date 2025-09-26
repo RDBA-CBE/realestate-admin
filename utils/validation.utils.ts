@@ -26,41 +26,50 @@ export const signin = Yup.object().shape({
 
 export const propertyCreate = Yup.object().shape({
   // Step 1: Basic Details
-  title: Yup.string().required("Property Name is required"),
-  property_type: Yup.object().required("Property Type is required"),
-  listing_type: Yup.object().required("Listing Type is required"),
-  commercial_type: Yup.object().required("Commercial Type is required"),
+  title: Yup.string().required("Property Name is required").nullable(),
+  property_type: Yup.string().required("Property Type is required").nullable(),
+  listing_type: Yup.object().required("Listing Type is required").nullable(),
+  commercial_type: Yup.object()
+    .required("Commercial Type is required")
+    .nullable(),
 
   // Step 2: Property Information
-  address: Yup.string().required("Address is required"),
-  city: Yup.object().required("City is required"),
-  state: Yup.object().required("State is required"),
-  country: Yup.object().required("Country is required"),
-  postal_code: Yup.string().required("Zip Code is required"),
+  address: Yup.string().required("Address is required").nullable(),
+  city: Yup.object().required("City is required").nullable(),
+  state: Yup.object().required("State is required").nullable(),
+  country: Yup.object().required("Country is required").nullable(),
+  postal_code: Yup.string().required("Zip Code is required").nullable(),
 
   // Conditional fields
-  plot_area: Yup.number().required("Plot Area is required"),
+  plot_area: Yup.string().required("Plot Area is required").nullable(),
 
-  land_type: Yup.number().required("Land Type is required"),
+  land_type: Yup.string().required("Land Type is required").nullable(),
 
-  built_up_area: Yup.number().required("Built-up Area is required"),
+  built_up_area: Yup.string().required("Built-up Area is required").nullable(),
 
-  buy_price: Yup.number().required("Buy Price is required"),
+  buy_price: Yup.string().required("Buy Price is required").nullable(),
 
-  price_per_sqft: Yup.number().required("Price Per Sq.ft is required"),
+  price_per_sqft: Yup.string()
+    .required("Price Per Sq.ft is required")
+    .nullable(),
 
-  lease_rent: Yup.number().required("Monthly Rent is required"),
+  price: Yup.string().required("Price is required").nullable(),
+  developer: Yup.string().required("Developer is required").nullable(),
 
-  lease_duration: Yup.number().required("Lease Duration is required"),
+  longitude: Yup.string().required("Longitude is required").nullable(),
 
-  plot_price: Yup.number().required("Plot Price is required"),
+  latitude: Yup.string().required("Latitude is required").nullable(),
 
-  // Step 6: Contact Information
-  full_name: Yup.string().required("Full Name is required"),
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  phone: Yup.string().required("Phone Number is required"),
+
+  images: Yup.array()
+    .required("Property image is required")
+    .min(1, "At least one image is required")
+    .max(7, "Maximum 7 images allowed"),
+
+  amenities: Yup.array()
+    .required("Amenities is required")
+    .min(1, "At least one amenities is required")
 });
-
 
 export const category = Yup.object().shape({
   name: Yup.string().required("Category Name is required"),
@@ -69,11 +78,8 @@ export const category = Yup.object().shape({
 export const project = Yup.object().shape({
   name: Yup.string().required("Project Name is required"),
   location: Yup.string().required("Location is required"),
-
 });
 
 export const amenity = Yup.object().shape({
   name: Yup.string().required("Amenity Name is required"),
 });
-
-

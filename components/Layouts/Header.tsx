@@ -125,10 +125,10 @@ const Header = () => {
 
       //   dispatch(userData(res));
 
-      //   const token = localStorage.getItem("token");
+        const token = localStorage.getItem("token");
 
       //   const user = userString ? JSON.parse(userString) : null;
-      //   setState({ userInfo: user, token });
+        setState({  token });
     } catch (error) {
       console.log("error: ", error);
     }

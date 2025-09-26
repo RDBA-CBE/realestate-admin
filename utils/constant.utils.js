@@ -648,3 +648,12 @@ export const ROLES = {
 };
 
 
+export const PROPERTY_TYPE = {
+  LEASE: "Lease",
+  BUY: "Buy",
+  RENT: "Rent",
+  PLOT: "Plot",
+
+};
+
+

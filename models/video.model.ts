@@ -1,9 +1,9 @@
 import instance from "@/utils/axios.utils";
 
-const properties = {
+const video = {
   list: (page) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `properties?page=${page}`;
+      let url = `property-videos?page=${page}`;
       instance()
         .get(url)
         .then((res) => {
@@ -22,7 +22,7 @@ const properties = {
 
   create: (data: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `properties/`;
+      let url = `property-videos/`;
       const config = {
         headers: {
           "Content-Type": "multipart/form-data; charset=utf-8;",
@@ -46,7 +46,7 @@ const properties = {
 
   update: (data: any, id: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `properties/${id}/`;
+      let url = `property-videos/${id}/`;
       const config = {
         headers: {
           "Content-Type": "multipart/form-data; charset=utf-8;",
@@ -70,7 +70,7 @@ const properties = {
 
   delete: (id: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `properties/${id}/`;
+      let url = `property-videos/${id}/`;
 
       instance()
         .delete(url)
@@ -90,7 +90,7 @@ const properties = {
 
   details: (id: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `properties/${id}/`;
+      let url = `property-videos/${id}/`;
 
       instance()
         .get(url)
@@ -108,31 +108,7 @@ const properties = {
     return promise;
   },
 
-  uploadFile: (file: any) => {
-    let promise = new Promise((resolve, reject) => {
-      const formData = new FormData();
-      formData.append("file", file);
-      let url = "/hdd/upload_file";
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data; charset=utf-8;",
-        },
-      };
-      instance()
-        .post(url, formData, config)
-        .then((res) => {
-          resolve(res.data);
-        })
-        .catch((error) => {
-          if (error.response) {
-            reject(error.response.data.message);
-          } else {
-            reject(error);
-          }
-        });
-    });
-    return promise;
-  },
+  
 };
 
-export default properties;
+export default video;
