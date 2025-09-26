@@ -29,8 +29,9 @@ import Modal from "@/components/modal/modal.component";
 import IconLoader from "@/components/Icon/IconLoader";
 import ImageUploadWithPreview from "@/components/ImageUploadWithPreview/ImageUploadWithPreview.component";
 import VideoUpload from "@/components/videoUpload/videoUpload.compoent";
+import PrivateRouter from "@/hook/privateRouter";
 
-export default function AddPropertyPage() {
+const AddPropertyPage=()=> {
   const router = useRouter();
   const [state, setState] = useSetState({
     propertyTypeList: propertyType,
@@ -521,12 +522,12 @@ export default function AddPropertyPage() {
         <h5 className="text-lg font-semibold dark:text-white-light ">
           Add New Property
         </h5>
-        <PrimaryButton
+        {/* <PrimaryButton
           type="submit"
           text="Post Property"
           className="border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
           onClick={onSubmit}
-        />
+        /> */}
       </div>
 
       <div className="space-y-5">
@@ -1110,7 +1111,7 @@ export default function AddPropertyPage() {
                       />
                       {state.assignAgent && (
                         <CustomSelect
-                          title="Assign Agent"
+                         title="Authorize Agent"
                           placeholder="Select Agent"
                           options={state.agentList}
                           value={state.agent}
@@ -1209,3 +1210,4 @@ export default function AddPropertyPage() {
     </>
   );
 }
+export default  PrivateRouter(AddPropertyPage)
