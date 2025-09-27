@@ -7,6 +7,9 @@ const user = {
       if (body?.group) {
         url += `&group=${encodeURIComponent(body.group)}`;
       }
+       if (body?.search) {
+        url += `&search=${encodeURIComponent(body.search)}`;
+      }
       instance()
         .get(url)
         .then((res) => {
@@ -25,7 +28,7 @@ const user = {
 
   create: (data: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `lead/create/`;
+      let url = `users/`;
       instance()
         .post(url, data)
         .then((res) => {
@@ -33,7 +36,7 @@ const user = {
         })
         .catch((error) => {
           if (error.response) {
-            reject(error.response.data.message);
+            reject(error.response.data);
           } else {
             reject(error);
           }
@@ -44,16 +47,16 @@ const user = {
 
   update: (data: any, id: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `lead/update/${id}`;
+      let url = `users/${id}/`;
 
       instance()
-        .post(url, data)
+        .patch(url, data)
         .then((res) => {
           resolve(res.data);
         })
         .catch((error) => {
           if (error.response) {
-            reject(error.response.data.message);
+            reject(error.response.data);
           } else {
             reject(error);
           }
@@ -64,10 +67,10 @@ const user = {
 
   delete: (id: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `lead/delete/${id}`;
+      let url = `users/${id}/`;
 
       instance()
-        .post(url)
+        .delete(url)
         .then((res) => {
           resolve(res.data);
         })

@@ -87,12 +87,12 @@ export const menuConfig = {
           label: "All Users",
           href: "/real-estate/users/list",
         },
-        {
-          type: "link",
-          icon: "IconMenuScrumboard",
-          label: "Create",
-          href: "/real-estate/users/create",
-        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuScrumboard",
+        //   label: "Create",
+        //   href: "/real-estate/users/create",
+        // },
       ],
     },
     {
@@ -655,5 +655,12 @@ export const PROPERTY_TYPE = {
   PLOT: "Plot",
 
 };
+
+export const roleList = [
+    { value: 1, label: "Agent" },
+    { value: 2, label: "Developer" },
+    { value: 3, label: "Seller" },
+    { value: 4, label: "Buyer" },
+  ];
 
 

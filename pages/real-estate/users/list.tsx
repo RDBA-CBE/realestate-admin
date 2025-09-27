@@ -1,12 +1,8 @@
 import Link from "next/link";
-import { DataTable, DataTableSortStatus } from "mantine-datatable";
-import { useState, useEffect } from "react";
-import sortBy from "lodash/sortBy";
-import { useDispatch, useSelector } from "react-redux";
-import { IRootState } from "../../../store";
-import { setPageTitle } from "../../../store/themeConfigSlice";
+import { DataTable } from "mantine-datatable";
+import { useEffect } from "react";
+
 import IconTrashLines from "@/components/Icon/IconTrashLines";
-import IconPlus from "@/components/Icon/IconPlus";
 import IconEdit from "@/components/Icon/IconEdit";
 import IconEye from "@/components/Icon/IconEye";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
@@ -14,234 +10,267 @@ import IconArrowForward from "@/components/Icon/IconArrowForward";
 import { useSetState } from "@mantine/hooks";
 import CustomSelect from "@/components/FormFields/CustomSelect.component";
 import PrivateRouter from "@/hook/privateRouter";
-import { ROLES } from "@/utils/constant.utils";
+
+import Models from "@/imports/models.import";
+import { Failure, formatDate, showDeleteAlert, Success } from "@/utils/function.utils";
+import moment from "moment";
+import Swal from "sweetalert2";
+import useDebounce from "@/hook/useDebounce";
+import TextInput from "@/components/FormFields/TextInput.component";
+import Modal from "@/components/modal/modal.component";
+import TextArea from "@/components/FormFields/TextArea.component";
+import IconLoader from "@/components/Icon/IconLoader";
+import Utils from "@/imports/utils.import";
+import * as Yup from "yup";
+import { roleList } from "@/utils/constant.utils";
 
 const List = () => {
-  const dispatch = useDispatch();
-
-  const [state, setState] = useSetState({
+  const [state, setState] = useSetState<any>({
     previousPage: false,
     nextPage: false,
     currentPage: 1,
     role: null,
+    page: 1,
+    btnLoading: false,
+    tableList: [],
+    editId: null,
+    search: "",
+    total: null,
+    next: null,
+    previous: null,
+    totalRecords: null,
+    userList: [],
+    first_name: "",
+    last_name: "",
+    phone: "",
+    email: "",
+    password: "",
+    date: "",
+    address: "",
+    isOpen: false,
+    error: {},
   });
 
-  useEffect(() => {
-    dispatch(setPageTitle("User List"));
-  });
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      invoice: "081451",
-      name: "Laurie Fox",
-      email: "lauriefox@company.com",
-      date: "15 Dec 2020",
-      amount: "2275.45",
-      status: { tooltip: "Customer", color: "success" },
-      profile: "profile-1.jpeg",
-    },
-    {
-      id: 2,
-      invoice: "081452",
-      name: "Alexander Gray",
-      email: "alexGray3188@gmail.com",
-      date: "20 Dec 2020",
-      amount: "1044.00",
-      status: { tooltip: "Developer", color: "secondary" },
-      profile: "profile-1.jpeg",
-    },
-    {
-      id: 3,
-      invoice: "081681",
-      name: "James Taylor",
-      email: "jamestaylor468@gmail.com",
-      date: "27 Dec 2020",
-      amount: "20.00",
-      status: { tooltip: "Agent", color: "info" },
-      profile: "profile-1.jpeg",
-    },
-    {
-      id: 4,
-      invoice: "082693",
-      name: "Grace Roberts",
-      email: "graceRoberts@company.com",
-      date: "31 Dec 2020",
-      amount: "344.00",
-      status: { tooltip: "Customer", color: "success" },
-      profile: "profile-1.jpeg",
-    },
-    {
-      id: 5,
-      invoice: "084743",
-      name: "Donna Rogers",
-      email: "donnaRogers@hotmail.com",
-      date: "03 Jan 2021",
-      amount: "405.15",
-      status: { tooltip: "Customer", color: "success" },
-      profile: "profile-1.jpeg",
-    },
-    {
-      id: 6,
-      invoice: "086643",
-      name: "Amy Diaz",
-      email: "amy968@gmail.com",
-      date: "14 Jan 2020",
-      amount: "100.00",
-      status: { tooltip: "Seller", color: "warning" },
-      profile: "profile-1.jpeg",
-    },
-    {
-      id: 7,
-      invoice: "086773",
-      name: "Nia Hillyer",
-      email: "niahillyer666@comapny.com",
-      date: "20 Jan 2021",
-      amount: "59.21",
-      status: { tooltip: "Agent", color: "info" },
-      profile: "profile-1.jpeg",
-    },
-    {
-      id: 8,
-      invoice: "087916",
-      name: "Mary McDonald",
-      email: "maryDonald007@gamil.com",
-      date: "25 Jan 2021",
-      amount: "79.00",
-      status: { tooltip: "Agent", color: "info" },
-      profile: "profile-1.jpeg",
-    },
-    {
-      id: 9,
-      invoice: "089472",
-      name: "Andy King",
-      email: "kingandy07@company.com",
-      date: "28 Jan 2021",
-      amount: "149.00",
-      status: { tooltip: "Customer", color: "success" },
-      profile: "profile-1.jpeg",
-    },
-    {
-      id: 10,
-      invoice: "091768",
-      name: "Vincent Carpenter",
-      email: "vincentcarpenter@gmail.com",
-      date: "30 Jan 2021",
-      amount: "400",
-      status: { tooltip: "Customer", color: "success" },
-      profile: "profile-1.jpeg",
-    },
-    {
-      id: 11,
-      invoice: "095841",
-      name: "Kelly Young",
-      email: "youngkelly@hotmail.com",
-      date: "06 Feb 2021",
-      amount: "49.00",
-      status: { tooltip: "Agent", color: "info" },
-      profile: "profile-1.jpeg",
-    },
-    {
-      id: 12,
-      invoice: "098424",
-      name: "Alma Clarke",
-      email: "alma.clarke@gmail.com",
-      date: "10 Feb 2021",
-      amount: "234.40",
-      status: { tooltip: "Customer", color: "success" },
-      profile: "profile-1.jpeg",
-    },
-  ]);
-
-  const [page, setPage] = useState(1);
-  const PAGE_SIZES = [10, 20, 30, 50, 100];
-  const [pageSize, setPageSize] = useState(PAGE_SIZES[0]);
-  const [initialRecords, setInitialRecords] = useState(
-    sortBy(items, "invoice")
-  );
-  const [records, setRecords] = useState(initialRecords);
-  const [selectedRecords, setSelectedRecords] = useState<any>([]);
-
-  const [search, setSearch] = useState("");
-  const [sortStatus, setSortStatus] = useState<DataTableSortStatus>({
-    columnAccessor: "firstName",
-    direction: "asc",
-  });
+  const debouncedSearch = useDebounce(state.search, 500);
+  console.log("✌️state.search --->", state.search);
 
   useEffect(() => {
-    setPage(1);
-  }, [pageSize]);
+    usersList(1);
+  }, []);
 
   useEffect(() => {
-    const from = (page - 1) * pageSize;
-    const to = from + pageSize;
-    setRecords([...initialRecords.slice(from, to)]);
-  }, [page, pageSize, initialRecords]);
+    usersList(1);
+  }, [debouncedSearch]);
 
-  useEffect(() => {
-    setInitialRecords(() => {
-      return items.filter((item) => {
-        return (
-          item.invoice.toLowerCase().includes(search.toLowerCase()) ||
-          item.name.toLowerCase().includes(search.toLowerCase()) ||
-          item.email.toLowerCase().includes(search.toLowerCase()) ||
-          item.date.toLowerCase().includes(search.toLowerCase()) ||
-          item.amount.toLowerCase().includes(search.toLowerCase()) ||
-          item.status.tooltip.toLowerCase().includes(search.toLowerCase())
-        );
+  const usersList = async (page: any) => {
+    try {
+      const body = bodyData();
+      console.log("body", body);
+
+      const res: any = await Models.user.list(page, body);
+      const data = res?.results?.map((item: any) => ({
+        id: item?.id,
+        first_name: item?.first_name,
+        last_name: item?.last_name,
+        email: item.email,
+        // date: moment(item.created_at).format("DD/MM/YYYY HH:mm"),
+        date: formatDate(item.created_at, 'DD/MM/YYYY'),
+        role: {
+          role: item.user_type,
+          color:
+            item.user_type == "buyer"
+              ? "success"
+              : item.user_type == "developer"
+              ? "secondary"
+              : item.user_type == "agent"
+              ? "info"
+              : item.user_type == "seller"
+              ? "warning"
+              : "success",
+        },
+        ...item,
+      }));
+
+      setState({
+        userList: res.results,
+        tableList: data,
+        total: res?.count,
+        page: page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
       });
-    });
-  }, [search]);
+    } catch (error: any) {
+      console.log("✌️error --->", error);
+    }
+  };
 
-  useEffect(() => {
-    const data2 = sortBy(initialRecords, sortStatus.columnAccessor);
-    setRecords(sortStatus.direction === "desc" ? data2.reverse() : data2);
-    setPage(1);
-  }, [sortStatus]);
+  const createUser = async () => {
+    try {
+      setState({ btnLoading: true });
+      const body = {
+        first_name: state?.first_name,
+        last_name: state?.last_name,
+        email: state?.email,
+        password: state?.password,
+        phone: state?.phone,
 
-  const deleteRow = (id: any = null) => {
-    if (window.confirm("Are you sure want to delete selected row ?")) {
-      if (id) {
-        setRecords(items.filter((user) => user.id !== id));
-        setInitialRecords(items.filter((user) => user.id !== id));
-        setItems(items.filter((user) => user.id !== id));
-        setSelectedRecords([]);
-        setSearch("");
-      } else {
-        let selectedRows = selectedRecords || [];
-        const ids = selectedRows.map((d: any) => {
-          return d.id;
+        groups: state?.role?.map((item) => item?.value),
+        address: state?.address,
+      };
+
+      console.log("create body", body);
+
+      await Utils.Validation.user.validate(body, { abortEarly: false });
+
+      const res = await Models.user.create(body);
+      clearData();
+      setState({ btnLoading: false });
+      usersList(1);
+      Success("User created succssfully");
+    } catch (error: any) {
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err?.message;
         });
-        const result = items.filter((d) => !ids.includes(d.id as never));
-        setRecords(result);
-        setInitialRecords(result);
-        setItems(result);
-        setSelectedRecords([]);
-        setSearch("");
-        setPage(1);
+        console.log("✌️validationErrors --->", validationErrors);
+       
+
+        setState({ error: validationErrors, btnLoading: false });
+      } else {
+        console.log("error", error);
+        Failure(error);
+        setState({ btnLoading: false });
       }
     }
   };
 
+  const updateUsers = async () => {
+    try {
+      setState({ btnLoading: true });
+      const body = {
+        first_name: state?.first_name,
+        last_name: state?.last_name,
+        email: state?.email,
+        phone: state?.phone,
+        role: state?.role?.value,
+        address: state?.address,
+      };
+
+      const res = await Models.user.update(body, state.editId);
+
+      clearData();
+      setState({ btnLoading: false });
+      usersList(state.page);
+
+      Success("User updated succssfully");
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err?.message;
+        });
+        console.log("✌️validationErrors --->", validationErrors);
+
+        setState({ error: validationErrors, btnLoading: false });
+      } else {
+        console.log("errors --->", error);
+        Failure(error);
+        setState({ btnLoading: false });
+      }
+    }
+  };
+
+  const bodyData = () => {
+    let body: any = {};
+
+    if (state.search) {
+      body.search = state.search;
+    }
+    if (state.role) {
+      body.group = state.role.value;
+    }
+
+    return body;
+  };
+
+  const clearData = () => {
+    setState({
+      first_name: "",
+      last_name: "",
+      email: "",
+      password: "",
+      phone: "",
+      address: "",
+      role: "",
+      editId: "",
+      isOpen: false,
+      error: {},
+    });
+  };
+
+  const clearFilter = () => {
+    setState({
+      search: "",
+      role: "",
+    });
+  };
+
+  const handleEdit = (row) => {
+    setState({
+      first_name: row?.first_name,
+      last_name: row?.last_name,
+      email: row?.email,
+      phone: row?.phone,
+      role: row?.role?.role,
+      address: row?.address,
+      editId: row?.id,
+      isOpen: true,
+    });
+   
+  };
+
+  const deleteDecord = async (row) => {
+
+    try {
+      setState({ btnLoading: true });
+
+      const res = await Models.user.delete(row?.id);
+      clearData();
+      setState({ btnLoading: false });
+      usersList(state.page);
+
+      Success("User deleted succssfully");
+    } catch (error) {}
+  };
+
+  const handleDelete = (row) => {
+    showDeleteAlert(
+      () => {
+        deleteDecord(row);
+      },
+      () => {
+        Swal.fire("Cancelled", "Your Record is safe :)", "info");
+      },
+      "Are you sure want to delete project?"
+    );
+  };
+
   const handleNextPage = () => {
-    if (state?.nextPage) {
-      const newPage = state.currentPage + 1;
-      // filterData(newPage);
+    if (state?.next) {
+      const newPage = state.page + 1;
+      usersList(newPage);
     }
   };
 
   const handlePreviousPage = () => {
-    if (state?.previousPage) {
-      const newPage = state.currentPage - 1;
-      // filterData(newPage);
+    if (state?.previous) {
+      const newPage = state.page - 1;
+      usersList(newPage);
     }
   };
 
-  const roleList: any = [
-    { value: 1, label: "Agent" },
-    { value: 2, label: "Developer" },
-    { value: 3, label: "Seller" },
-    { value: 4, label: "Buyer" },
-  ];
 
   return (
     <>
@@ -255,7 +284,7 @@ const List = () => {
           <button
             type="button"
             className="btn btn-primary  w-full md:mb-0 md:w-auto"
-            onClick={() => window.open("/apps/product/add", "_blank")}
+            onClick={() => setState({ isOpen: true })}
           >
             + Create
           </button>
@@ -269,8 +298,8 @@ const List = () => {
             type="text"
             className="w-100 form-input"
             placeholder="Search..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            value={state.search}
+            onChange={(e) => setState({ search: e.target.value })}
           />
         </div>
 
@@ -281,28 +310,29 @@ const List = () => {
             value={state.role}
             onChange={(e) => setState({ role: e })}
             options={roleList}
-            // error={state.errors?.tags}
           />
         </div>
 
-        <div className="flex-1">
-          <CustomSelect
-            placeholder="Select Role"
-            value={state.role}
-            onChange={(e) => setState({ role: e })}
-            options={roleList}
-            // error={state.errors?.tags}
-          />
-        </div>
         {/* Status Dropdown */}
 
         {/* Bulk Actions Dropdown */}
 
-        <div>
-          <button type="button" className="btn btn-primary">
-            Clear Filter
-          </button>
-        </div>
+        {/* <div > */}
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => usersList(1)}
+        >
+          Apply Filter
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => clearFilter()}
+        >
+          Clear Filter
+        </button>
+        {/* </div> */}
       </div>
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
@@ -311,32 +341,39 @@ const List = () => {
         <div className="datatables pagination-padding">
           <DataTable
             className="table-hover whitespace-nowrap"
-            records={records}
+            records={state?.tableList || []}
             columns={[
               {
                 accessor: "name",
+                title: "Name",
 
-                render: ({ name, id }) => (
+                render: (row) => (
                   <div className="flex items-center font-semibold">
                     <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
                       <img
-                        className="h-8 w-8 rounded-full object-cover"
-                        src={`/assets/images/profile-${id}.jpeg`}
+                        className="h-8 w-8 cursor-pointer rounded-full object-cover"
+                        src={`/assets/images/profile-${row.id}.jpeg`}
                         alt=""
                       />
                     </div>
-                    <div>{name}</div>
+                    <Link
+                      className="cursor-pointer"
+                      href={`/real-estate/profile/${row.id}/`}
+                    >
+                      {row.first_name} {row.last_name}
+                    </Link>
                   </div>
                 ),
               },
-              { accessor: "email" },
-              { accessor: "date" },
+              { accessor: "email", title: "Email" },
+              { accessor: "date", title: "Date" },
 
               {
-                accessor: "Role",
-                render: ({ status }) => (
-                  <span className={`badge badge-outline-${status.color} `}>
-                    {status.tooltip}
+                accessor: "role",
+                title: "Role",
+                render: (row: any) => (
+                  <span className={`badge badge-outline-${row?.role?.color} `}>
+                    {row?.role?.role}
                   </span>
                 ),
               },
@@ -345,16 +382,18 @@ const List = () => {
                 title: "Actions",
                 sortable: false,
                 textAlignment: "center",
-                render: ({ id }) => (
+                render: (row: any) => (
                   <div className="mx-auto flex w-max items-center gap-4">
-                    <Link
-                      href="/apps/invoice/edit"
+                    <button
                       className="flex hover:text-info"
+                      onClick={(e) => {
+                        handleEdit(row);
+                      }}
                     >
                       <IconEdit className="h-4.5 w-4.5" />
-                    </Link>
+                    </button>
                     <Link
-                      href="/apps/invoice/preview"
+                      href="/real-estate/profile"
                       className="flex hover:text-primary"
                     >
                       <IconEye />
@@ -362,7 +401,7 @@ const List = () => {
                     <button
                       type="button"
                       className="flex hover:text-danger"
-                      onClick={(e) => deleteRow(id)}
+                      onClick={(e) => handleDelete(row)}
                     >
                       <IconTrashLines />
                     </button>
@@ -371,40 +410,143 @@ const List = () => {
               },
             ]}
             highlightOnHover
-            totalRecords={initialRecords.length}
-            recordsPerPage={pageSize}
+            totalRecords={state?.initialRecords?.length}
+            recordsPerPage={state?.pageSize}
             page={null}
             onPageChange={(p) => {}}
-            // recordsPerPageOptions={PAGE_SIZES}
-            // onRecordsPerPageChange={setPageSize}
-            sortStatus={sortStatus}
-            onSortStatusChange={setSortStatus}
-            selectedRecords={selectedRecords}
-            onSelectedRecordsChange={setSelectedRecords}
+            paginationText={({ from, to, totalRecords }) =>
+              `Showing  ${from} to ${to} of ${totalRecords} entries`
+            }
           />
         </div>
 
         <div className="me-2 mt-5 flex justify-end gap-3">
           <button
-            disabled={!state?.previousPage}
+            disabled={!state?.previous}
             onClick={handlePreviousPage}
             className={`btn ${
-              !state?.previousPage ? "btn-disabled" : "btn-primary"
+              !state?.previous ? "btn-disabled" : "btn-primary"
             }`}
           >
             <IconArrowBackward />
           </button>
           <button
-            disabled={!state?.nextPage}
+            disabled={!state?.next}
             onClick={handleNextPage}
-            className={`btn ${
-              !state?.nextPage ? "btn-disabled" : "btn-primary"
-            }`}
+            className={`btn ${!state?.next ? "btn-disabled" : "btn-primary"}`}
           >
             <IconArrowForward />
           </button>
         </div>
       </div>
+
+      <Modal
+        addHeader={state.editId ? "Update User" : "Create User"}
+        open={state.isOpen}
+        close={() => {
+          clearData();
+        }}
+        renderComponent={() => (
+          <div className=" pb-7">
+            <form className="flex flex-col gap-3">
+              <div className=" w-full space-y-5">
+                <TextInput
+                  name="first_name"
+                  type="text"
+                  title="First Name"
+                  placeholder="Enter First Name"
+                  value={state.first_name}
+                  onChange={(e) => setState({ first_name: e.target.value })}
+                  // error={state.error?.first_name}
+                  // required
+                />
+
+                <TextInput
+                  name="last_name"
+                  type="text"
+                  title="Last Name"
+                  placeholder="Enter First Name"
+                  value={state.last_name}
+                  onChange={(e) => setState({ last_name: e.target.value })}
+                  // error={state.error?.last_name}
+                  // required
+                />
+
+                <TextInput
+                  name="email"
+                  type="email"
+                  title="Email"
+                  placeholder="Enter Email"
+                  value={state.email}
+                  onChange={(e) => setState({ email: e.target.value })}
+                  error={state?.error?.email}
+                  required
+                />
+
+                {!state.editId && (
+                  <TextInput
+                    name="password"
+                    type="password"
+                    title="Password"
+                    placeholder="Enter password"
+                    value={state.password}
+                    onChange={(e) => setState({ password: e.target.value })}
+                    error={state?.error?.password}
+                    required
+                  />
+                )}
+
+                <TextInput
+                  name="name"
+                  type="phone"
+                  title="Phone Number"
+                  placeholder="Enter Phone Number"
+                  value={state.phone}
+                  onChange={(e) => setState({ phone: e.target.value })}
+                  // error={state.error?.phone}
+                  // required
+                />
+
+                <CustomSelect
+                  title="Role"
+                  placeholder="Select Role"
+                  value={state.role}
+                  onChange={(e) => setState({ role: e })}
+                  options={roleList}
+                  isMulti={true}
+                />
+
+                <TextArea
+                  name="address"
+                  title="Address"
+                  placeholder="Enter Address"
+                  value={state.address}
+                  onChange={(e) => setState({ address: e.target.value })}
+                />
+              </div>
+
+              <div className="mt-8 flex items-center justify-end">
+                <button
+                  type="button"
+                  className="btn btn-outline-primary gap-2"
+                  onClick={() => {
+                    clearData();
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => (state.editId ? updateUsers() : createUser())}
+                  className="btn btn-primary ltr:ml-4 rtl:mr-4"
+                >
+                  {state.btnLoading ? <IconLoader /> : "Confirm"}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+      />
       {/* </div> */}
     </>
   );

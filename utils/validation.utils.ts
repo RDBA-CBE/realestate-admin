@@ -83,3 +83,8 @@ export const project = Yup.object().shape({
 export const amenity = Yup.object().shape({
   name: Yup.string().required("Amenity Name is required"),
 });
+
+export const user = Yup.object().shape({
+  email: Yup.string().required("Email is required"),
+  password: Yup.string().required("Password is required"),
+});

@@ -213,15 +213,20 @@ export const generateCalendar = (currentMonth) => {
   return days;
 };
 
-export const formatDate = (date) => {
-  if (!date) return "";
-  const options = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  };
-  return date.toLocaleDateString("en-US", options);
+// export const formatDate = (date) => {
+//   if (!date) return "";
+//   const options = {
+//     weekday: "long",
+//     year: "numeric",
+//     month: "long",
+//     day: "numeric",
+//   };
+//   return date.toLocaleDateString("en-US", options);
+// };
+
+export const formatDate = (date: string | Date, pattern: string) => {
+  if (!date) return '';
+  return moment(date).format(pattern);
 };
 
 export const formatNumber = (num) => {
