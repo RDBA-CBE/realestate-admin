@@ -645,10 +645,16 @@ export const ROLES = {
 };
 
 export const PROPERTY_TYPE = {
-  LEASE: "Lease",
-  BUY: "Buy",
+  COMMERCIAL: "Commercial",
+  RESIDENTIAL: "Residential",
+  INDUSTRY: "Industry",
+  AGRICULTURAL: "Agricultural",
+};
+
+export const LISTING_TYPE = {
+  SALE: "Sale",
   RENT: "Rent",
-  PLOT: "Plot",
+  LEASE: "Lease",
 };
 
 export const LISTING_TYPE = {

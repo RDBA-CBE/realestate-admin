@@ -27,57 +27,10 @@ export const signin = Yup.object().shape({
 export const property_type = Yup.object().shape({
   listing_type: Yup.string().required("Offer Type is required").nullable(),
   property_type: Yup.string().required("Property Type is required").nullable(),
-
-
 });
 
-// export const propertyCreate = Yup.object().shape({
-//   // Step 1: Basic Details
-//   title: Yup.string().required("Property Name is required").nullable(),
-//   property_type: Yup.string().required("Property Type is required").nullable(),
-//   listing_type: Yup.object().required("Listing Type is required").nullable(),
-//   commercial_type: Yup.object()
-//     .required("Commercial Type is required")
-//     .nullable(),
 
-//   // Step 2: Property Information
-//   address: Yup.string().required("Address is required").nullable(),
-//   city: Yup.object().required("City is required").nullable(),
-//   state: Yup.object().required("State is required").nullable(),
-//   country: Yup.object().required("Country is required").nullable(),
-//   postal_code: Yup.string().required("Zip Code is required").nullable(),
-
-//   // Conditional fields
-//   plot_area: Yup.string().required("Plot Area is required").nullable(),
-
-//   land_type: Yup.string().required("Land Type is required").nullable(),
-
-//   built_up_area: Yup.string().required("Built-up Area is required").nullable(),
-
-//   buy_price: Yup.string().required("Buy Price is required").nullable(),
-
-//   price_per_sqft: Yup.string()
-//     .required("Price Per Sq.ft is required")
-//     .nullable(),
-
-//   price: Yup.string().required("Price is required").nullable(),
-//   developer: Yup.string().required("Developer is required").nullable(),
-
-//   longitude: Yup.string().required("Longitude is required").nullable(),
-
-//   latitude: Yup.string().required("Latitude is required").nullable(),
-
-//   images: Yup.array()
-//     .required("Property image is required")
-//     .min(1, "At least one image is required")
-//     .max(7, "Maximum 7 images allowed"),
-
-//   amenities: Yup.array()
-//     .required("Amenities is required")
-//     .min(1, "At least one amenities is required")
-// });
-
-export const propertyBuyCreate = Yup.object().shape({
+export const propertySaleCreate = Yup.object().shape({
   title: Yup.string().required("Property Name is required").nullable(),
   description: Yup.string().required("Description is required").nullable(),
   listing_type: Yup.string().required("Property Type is required").nullable(),
@@ -107,6 +60,73 @@ export const propertyBuyCreate = Yup.object().shape({
   amenities: Yup.array()
     .required("Amenities is required")
     .min(1, "At least one amenities is required"),
+});
+
+export const propertyLeaseCreate = Yup.object().shape({
+  title: Yup.string().required("Property Name is required").nullable(),
+  description: Yup.string().required("Description is required").nullable(),
+  listing_type: Yup.string().required("Property Type is required").nullable(),
+  city: Yup.string().required("City is required").nullable(),
+  state: Yup.string().required("State is required").nullable(),
+  country: Yup.string().required("Country is required").nullable(),
+  postal_code: Yup.string().required("Zip Code is required").nullable(),
+  total_area: Yup.string().required("Total Area is required").nullable(),
+  furnishing: Yup.string().required("Furnishing is required").nullable(),
+  project: Yup.string().required("Project is required").nullable(),
+  built_up_area: Yup.string().required("Built-up Area is required").nullable(),
+  price_per_sqft: Yup.string()
+    .required("Price Per Sq.ft is required")
+    .nullable(),
+  developer: Yup.string().required("Developer is required").nullable(),
+  longitude: Yup.string().required("Longitude is required").nullable(),
+  latitude: Yup.string().required("Latitude is required").nullable(),
+  address: Yup.string().required("Address is required").nullable(),
+  images: Yup.array()
+    .required("Property image is required")
+    .min(1, "At least one image is required")
+    .max(7, "Maximum 7 images allowed"),
+
+  amenities: Yup.array()
+    .required("Amenities is required")
+    .min(1, "At least one amenities is required"),
+  lease_total_amount: Yup.string()
+    .required("Lease Price is required")
+    .nullable(),
+  lease_duration: Yup.string()
+    .required("Lease Duration is required")
+    .nullable(),
+});
+
+
+export const propertyRentCreate = Yup.object().shape({
+  title: Yup.string().required("Property Name is required").nullable(),
+  description: Yup.string().required("Description is required").nullable(),
+  listing_type: Yup.string().required("Property Type is required").nullable(),
+  city: Yup.string().required("City is required").nullable(),
+  state: Yup.string().required("State is required").nullable(),
+  country: Yup.string().required("Country is required").nullable(),
+  postal_code: Yup.string().required("Zip Code is required").nullable(),
+  total_area: Yup.string().required("Total Area is required").nullable(),
+  furnishing: Yup.string().required("Furnishing is required").nullable(),
+  project: Yup.string().required("Project is required").nullable(),
+  built_up_area: Yup.string().required("Built-up Area is required").nullable(),
+  developer: Yup.string().required("Developer is required").nullable(),
+  longitude: Yup.string().required("Longitude is required").nullable(),
+  latitude: Yup.string().required("Latitude is required").nullable(),
+  address: Yup.string().required("Address is required").nullable(),
+  images: Yup.array()
+    .required("Property image is required")
+    .min(1, "At least one image is required")
+    .max(7, "Maximum 7 images allowed"),
+
+  amenities: Yup.array()
+    .required("Amenities is required")
+    .min(1, "At least one amenities is required"),
+  monthly_rent: Yup.string().required("Monthly rent is required").nullable(),
+  rent_duration: Yup.string().required("Rent duration is required").nullable(),
+
+
+   
 });
 
 export const category = Yup.object().shape({

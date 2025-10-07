@@ -12,6 +12,7 @@ import {
 } from "@/utils/function.utils";
 import {
   facingDirection,
+  LISTING_TYPE,
   ListType,
   PROPERTY_IMG,
   PROPERTY_TYPE,
@@ -249,12 +250,12 @@ const AddPropertyPage = () => {
         listing_type: state.listing_type?.value,
       };
 
-      if (state.property_type?.label == PROPERTY_TYPE.BUY) {
-        createBuyProperty();
-      } else if (state.property_type?.label == PROPERTY_TYPE.LEASE) {
+      if (state.listing_type?.label == LISTING_TYPE.SALE) {
+        createSaleProperty();
+      } else if (state.listing_type?.label == LISTING_TYPE.LEASE) {
         createLeaseProperty();
-      } else if (state.property_type?.label == PROPERTY_TYPE.PLOT) {
-        createPlotProperty();
+      } else if (state.listing_type?.label == LISTING_TYPE.RENT) {
+        createRentProperty();
       }
 
       // const body = bodyData();
@@ -424,16 +425,15 @@ const AddPropertyPage = () => {
     }
   };
 
-  const createBuyProperty = async () => {
+  const createSaleProperty = async () => {
     try {
       setState({ btnLoading: true });
 
-      const buyBody: any = {
+      const saleBody: any = {
         title: state.title,
         description: state.description,
-        // listing_type: state.property_type?.label?.toLowerCase(),
-        listing_type: "rent",
-
+        property_type: state.property_type?.value,
+        listing_type: "sale",
         price: state.price,
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
@@ -460,13 +460,15 @@ const AddPropertyPage = () => {
         developer: state.developer?.value,
         address: state.address,
       };
-      await Utils.Validation.propertyBuyCreate.validate(buyBody, {
+      console.log("✌️buyBody --->", saleBody);
+
+      await Utils.Validation.propertySaleCreate.validate(saleBody, {
         abortEarly: false,
       });
-      delete buyBody.images;
-      console.log("✌️buyBody --->", buyBody);
+      delete saleBody.images;
+      console.log("✌️buyBody --->", saleBody);
 
-      const formData = buildFormData(buyBody);
+      const formData = buildFormData(saleBody);
 
       const res: any = await Models.property.create(formData);
       if (state.images?.length > 0) {
@@ -480,7 +482,7 @@ const AddPropertyPage = () => {
       }
 
       Success("Property Created Successfully");
-      router.push("/real-estate/property/list/");
+      // router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
       // const address: any = await createAddress();
       // // console.log("✌️address --->", address);
@@ -511,9 +513,12 @@ const AddPropertyPage = () => {
       const buyBody: any = {
         title: state.title,
         description: state.description,
-        listing_type: "lease",
-        lease_total_amount: state.lease_price,
+        property_type: state.property_type?.value,
 
+        listing_type: "lease",
+        lease_total_amount: state.lease_total_amount,
+        price: state.lease_total_amount,
+        lease_duration: state.lease_duration,
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
         developers: [state.developer?.value],
@@ -539,7 +544,7 @@ const AddPropertyPage = () => {
         developer: state.developer?.value,
         address: state.address,
       };
-      await Utils.Validation.propertyBuyCreate.validate(buyBody, {
+      await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
         abortEarly: false,
       });
       delete buyBody.images;
@@ -558,8 +563,8 @@ const AddPropertyPage = () => {
         const video: any = await createVideo(res?.id);
       }
 
-      Success("Property Created Successfully");
-      router.push("/real-estate/property/list/");
+      // Success("Property Created Successfully");
+      // router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
       // const address: any = await createAddress();
       // // console.log("✌️address --->", address);
@@ -583,29 +588,85 @@ const AddPropertyPage = () => {
     }
   };
 
-  const createPlotProperty = async () => {
+  const createRentProperty = async () => {
     try {
-    } catch (error) {
-      console.log("✌️error --->", error);
-    }
-  };
+      setState({ btnLoading: true });
 
-  const createAddress = async () => {
-    try {
-      const userId = localStorage.getItem("userId");
-      const body = {
-        street: state.city,
+      const buyBody: any = {
+        title: state.title,
+        description: state.description,
+        property_type: state.property_type?.value,
+        listing_type: "rent",
+        project: state.project?.value,
+        developers: [state.developer?.value],
+        amenities: state.amenities,
+        furnishing: state.furnishing?.value,
+        built_up_area: state.built_up_area,
+        total_area: state.total_area,
+        carpet_area: state.carpet_area,
+        bedrooms: state.bedrooms,
+        bathrooms: state.bathrooms,
+        total_floors: state.total_floors,
+        balconies: state.balconies,
+        floor_number: state.floor_number,
+        built_year: state.built_year,
+        facing_direction: state.facing?.value,
         city: state.city,
         state: state.state,
         country: state.country,
-        user: userId,
         postal_code: state.postal_code,
+        images: state.images,
+        longitude: state.longitude,
+        latitude: state.latitude,
+        developer: state.developer?.value,
+        address: state.address,
+        monthly_rent: state.monthly_rent,
+        price: state.monthly_rent,
+        rent_duration: state.rent_duration,
       };
+      await Utils.Validation.propertyRentCreate.validate(buyBody, {
+        abortEarly: false,
+      });
+      delete buyBody.images;
+      console.log("✌️buyBody --->", buyBody);
 
-      const res = await Models.address.create(body);
-      return res;
+      // const formData = buildFormData(buyBody);
+
+      // const res: any = await Models.property.create(formData);
+      // if (state.images?.length > 0) {
+      //   state.images?.map((item) => createImage(res?.id, item));
+      // }
+      // if (state.virtual_tour) {
+      //   const VirtualTour: any = await createVirtualTour(res?.id);
+      // }
+      console.log("✌️state.video --->", state.video);
+
+      if (state.video) {
+        const video: any = await createVideo();
+      }
+
+      // Success("Property Created Successfully");
+      // router.push("/real-estate/property/list/");
+      setState({ btnLoading: false });
+      // const address: any = await createAddress();
+      // // console.log("✌️address --->", address);
+
+      // if (address) {
+      //   plotBody.address = address.id;
+      // }
     } catch (error) {
-      console.log("✌️error --->", error);
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors: any = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err?.message;
+        });
+        console.log("✌️validationErrors --->", validationErrors);
+
+        setState({ error: validationErrors, btnLoading: false });
+      } else {
+        Failure(error?.error);
+        setState({ btnLoading: false });
+      }
     }
   };
 
@@ -624,11 +685,10 @@ const AddPropertyPage = () => {
     }
   };
 
-  const createVideo = async (property) => {
+  const createVideo = async () => {
     try {
       const body = {
-        property: property,
-
+        property: 11,
         video: state.video,
       };
       const formData = buildFormData(body);
@@ -644,11 +704,10 @@ const AddPropertyPage = () => {
     try {
       const body = {
         property: property,
-
         tour_url: state.virtual_tour,
       };
 
-      const res = await Models.video.create(body);
+      const res = await Models.virtualTour.create(body);
       return res;
     } catch (error) {
       console.log("✌️error --->", error);
@@ -803,7 +862,10 @@ const AddPropertyPage = () => {
                       placeholder="Enter Description"
                       value={state.description}
                       onChange={(e) =>
-                        setState({ description: e.target.value })
+                        setState({
+                          description: e.target.value,
+                          error: { ...state.error, description: "" },
+                        })
                       }
                       required
                       error={state.error?.description}
@@ -959,13 +1021,16 @@ const AddPropertyPage = () => {
                           ]}
                           value={state.furnishing}
                           onChange={(selectedOption) =>
-                            setState({ furnishing: selectedOption })
+                            setState({
+                              furnishing: selectedOption,
+                              error: { ...state.error, furnishing: "" },
+                            })
                           }
                           required
                           isClearable
                           error={state.error?.furnishing}
                         />
-                        {state.property_type?.label == PROPERTY_TYPE.RENT ? (
+                        {state.listing_type?.label == LISTING_TYPE.RENT ? (
                           <>
                             <NumberInput
                               name="monthly_rent"
@@ -974,7 +1039,7 @@ const AddPropertyPage = () => {
                               value={state.monthly_rent}
                               onChange={handleInputChange}
                               required
-                              error={state.error?.plot_price}
+                              error={state.error?.monthly_rent}
                             />
                             <NumberInput
                               name="rent_duration"
@@ -982,9 +1047,11 @@ const AddPropertyPage = () => {
                               placeholder="Enter rent duration"
                               value={state.rent_duration}
                               onChange={handleInputChange}
+                              required
+                              error={state.error?.rent_duration}
                             />
                           </>
-                        ) : state.property_type?.label == PROPERTY_TYPE.BUY ? (
+                        ) : state.listing_type?.label == LISTING_TYPE.SALE ? (
                           <>
                             <NumberInput
                               name="price"
@@ -1005,25 +1072,25 @@ const AddPropertyPage = () => {
                               error={state.error?.price_per_sqft}
                             />
                           </>
-                        ) : state.property_type?.label ==
-                          PROPERTY_TYPE.LEASE ? (
+                        ) : state.listing_type?.label == LISTING_TYPE.LEASE ? (
                           <>
                             <NumberInput
-                              name="lease_price"
+                              name="lease_total_amount"
                               title="Lease Price"
                               placeholder="Enter Lease Price"
-                              value={state.lease_price}
+                              value={state.lease_total_amount}
                               onChange={handleInputChange}
                               required
-                              error={state.error?.lease_price}
+                              error={state.error?.lease_total_amount}
                             />
                             <NumberInput
                               name="lease_duration"
-                              title="Lease Duration"
+                              title="Lease Duration (Year)"
                               placeholder="Enter lease duration"
                               value={state.lease_duration}
                               onChange={handleInputChange}
                               required
+                              error={state.error?.lease_duration}
                             />
                           </>
                         ) : null}
@@ -1061,12 +1128,14 @@ const AddPropertyPage = () => {
                     </div>
                     <div className="">
                       <VideoUpload
-                        onVideoChange={(file) => setState({ videoData: file })}
+                        onVideoChange={(file) => {
+                          setState({ video: file });
+                        }}
                       />
                     </div>
                   </div>
 
-                  <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="mt-4 ">
                     <TextInput
                       name="virtual_tour"
                       title="Virtual Tour"

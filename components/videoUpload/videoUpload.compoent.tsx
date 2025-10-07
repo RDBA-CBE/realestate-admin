@@ -9,8 +9,8 @@ interface VideoUploadProps {
 
 const VideoUploadWithPreview: React.FC<VideoUploadProps> = ({
   onVideoChange,
-  acceptedFormats = ["mp4", "webm", "ogg"],
-  maxSizeMB = 10,
+  acceptedFormats = ["mp4", "webm", "ogg", "mov", "avi", "mkv", "mpeg", "mpg", "wmv", "flv", "3gp", "m4v"],
+  maxSizeMB = 50, // Increased default since videos are larger
 }) => {
   const [video, setVideo] = useState<{ file: File; preview: string } | null>(
     null
@@ -19,16 +19,25 @@ const VideoUploadWithPreview: React.FC<VideoUploadProps> = ({
   const [error, setError] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const getFileExtension = (filename: string): string => {
+    return filename.slice((filename.lastIndexOf('.') - 1 >>> 0) + 2).toLowerCase();
+  };
+
   const processFile = (file: File) => {
     setError("");
 
-    if (!acceptedFormats.includes(file.type)) {
+    // Get file extension
+    const fileExtension = getFileExtension(file.name);
+    
+    // Check if file extension is in accepted formats
+    if (!acceptedFormats.includes(fileExtension)) {
       setError(
-        `Invalid file format: ${file.name}. Please upload MP4, WEBM, or OGG video.`
+        `Invalid file format: ${file.name}. Please upload ${acceptedFormats.join(", ")} videos.`
       );
       return;
     }
 
+    // Only check size restriction
     if (file.size > maxSizeMB * 1024 * 1024) {
       setError(`File too large: ${file.name}. Maximum size is ${maxSizeMB}MB.`);
       return;
@@ -66,6 +75,9 @@ const VideoUploadWithPreview: React.FC<VideoUploadProps> = ({
     fileInputRef.current?.click();
   };
 
+  // Create accept attribute for file input
+  const acceptAttribute = acceptedFormats.map(format => `.${format}`).join(',');
+
   return (
     <div className="w-full">
       {/* Drag and Drop Area */}
@@ -96,7 +108,7 @@ const VideoUploadWithPreview: React.FC<VideoUploadProps> = ({
           <input
             ref={fileInputRef}
             type="file"
-            accept={acceptedFormats.join(",")}
+            accept={acceptAttribute}
             onChange={handleFileInput}
             className="hidden"
           />
@@ -149,6 +161,10 @@ const VideoUploadWithPreview: React.FC<VideoUploadProps> = ({
             >
               <X className="h-4 w-4" />
             </button>
+          </div>
+          <div className="mt-2 text-sm text-gray-600">
+            <p>File: {video.file.name}</p>
+            <p>Size: {(video.file.size / (1024 * 1024)).toFixed(2)} MB</p>
           </div>
         </div>
       )}
