@@ -657,6 +657,12 @@ export const LISTING_TYPE = {
   LEASE: "Lease",
 };
 
+export const LISTING_TYPE = {
+  LEASE: "lease",
+  SALE: "sale",
+  RENT: "rent",
+}
+
 export const roleList = [
   { value: 1, label: "Agent" },
   { value: 2, label: "Developer" },

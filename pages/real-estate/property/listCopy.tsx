@@ -4,9 +4,7 @@ import Tippy from "@tippyjs/react";
 import IconEye from "@/components/Icon/IconEye";
 import IconEdit from "@/components/Icon/IconEdit";
 import {
-  capitalizeFLetter,
   Failure,
-  formatToINR,
   showDeleteAlert,
   Success,
   useSetState,
@@ -28,13 +26,9 @@ import { useRouter } from "next/navigation";
 import IconMapPin from "@/components/Icon/IconMapPin";
 import Link from "next/link";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
-import {
-  LISTING_TYPE,
-  PROPERTY_TYPE,
-  propertyType,
-} from "@/utils/constant.utils";
+import { propertyType } from "@/utils/constant.utils";
 import { FaHome } from "react-icons/fa";
-import { RotatingLines } from "react-loader-spinner";
+
 
 export default function list() {
   const router = useRouter();
@@ -50,48 +44,28 @@ export default function list() {
     description: "",
     search: "",
     error: {},
-    loading: false,
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
   console.log("✌️state.search --->", state.search);
 
   useEffect(() => {
-    propertyList(1);
+    projectList(1);
   }, []);
 
   useEffect(() => {
-    propertyList(1);
+    projectList(1);
   }, [debouncedSearch]);
 
-  const propertyList = async (page) => {
+  const projectList = async (page) => {
     try {
-      setState({ loading: true });
       const body = bodyData();
-      const res: any = await Models.property.list(page, body);
+      const res: any = await Models.project.list(page, body);
       const data = res?.results?.map((item) => ({
-        title: capitalizeFLetter(item?.title),
-        status: capitalizeFLetter(item?.status),
+        name: item?.name,
+        location: item?.location,
+        status: item?.status,
         id: item?.id,
-        total_area: item?.total_area,
-        listing_type: {
-          type: capitalizeFLetter(item?.listing_type),
-          color:
-            item?.listing_type == LISTING_TYPE.RENT
-              ? "warning"
-              : item?.listing_type == LISTING_TYPE.SALE
-              ? "secondary"
-              : item?.listing_type == LISTING_TYPE.LEASE
-              ? "info"
-              : "success",
-        },
-
-        location: capitalizeFLetter(item?.city),
-        price: formatToINR(item?.price),
-
-        image:
-          item?.primary_image ??
-          "/assets/images/real-estate/property-info-img1.png",
       }));
 
       setState({
@@ -101,24 +75,88 @@ export default function list() {
         next: res.next,
         previous: res.previous,
         totalRecords: res.count,
-        loading: false,
       });
     } catch (error) {
       console.log("✌️error --->", error);
-      setState({ loading: false });
     }
   };
 
-  const deleteDecord = async (row: any) => {
+  const createProject = async () => {
+    try {
+      setState({ btnLoading: true });
+      const body = {
+        name: state.name,
+        location: state.location,
+        description: state.description,
+        developer: 3,
+      };
+      await Utils.Validation.project.validate(body, { abortEarly: false });
+
+      const res = await Models.project.create(body);
+      clearData();
+      setState({ btnLoading: false });
+      projectList(1);
+      Success("Preject created succssfully");
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err?.message;
+        });
+        console.log("✌️validationErrors --->", validationErrors);
+
+        setState({ error: validationErrors, btnLoading: false });
+      } else {
+        Failure(error?.error);
+        setState({ btnLoading: false });
+      }
+    }
+  };
+
+  const updateProject = async () => {
+    try {
+      setState({ btnLoading: true });
+      const body = {
+        name: state.name,
+        location: state.location,
+        description: state.description,
+        developer: 3,
+      };
+      await Utils.Validation.project.validate(body, { abortEarly: false });
+
+      const res = await Models.project.update(body, state.editId);
+      console.log("createProject --->", res);
+      clearData();
+      setState({ btnLoading: false });
+      projectList(state.page);
+
+      Success("Preject updated succssfully");
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err?.message;
+        });
+        console.log("✌️validationErrors --->", validationErrors);
+
+        setState({ error: validationErrors, btnLoading: false });
+      } else {
+        Failure(error?.error);
+        setState({ btnLoading: false });
+      }
+    }
+  };
+
+  const deleteDecord = async (row) => {
     try {
       setState({ btnLoading: true });
 
-      const res = await Models.property.delete(row?.id);
+      const res = await Models.project.delete(row?.id);
       clearData();
       setState({ btnLoading: false });
-      propertyList(state.page);
+      projectList(state.page);
 
-      Success("Property deleted succssfully");
+      Success("Preject deleted succssfully");
     } catch (error) {}
   };
 
@@ -145,17 +183,14 @@ export default function list() {
     return body;
   };
 
-  const handleEdit = async(row) => {
-    const res=await Models.property.details(row?.id)
-console.log('✌️res --->', res);
-    // setState({
-    //   name: row.name,
-    //   location: row.location,
-    //   description: row.description,
-    //   isOpen: true,
-    //   editId: row?.id,
-    // });
-    router.push("/real-estate/property/edit");
+  const handleEdit = (row) => {
+    setState({
+      name: row.name,
+      location: row.location,
+      description: row.description,
+      isOpen: true,
+      editId: row?.id,
+    });
     console.log("✌️row --->", row);
   };
 
@@ -173,28 +208,30 @@ console.log('✌️res --->', res);
   const handleNextPage = () => {
     if (state.next) {
       const newPage = state.page + 1;
-      propertyList(newPage);
+      projectList(newPage);
     }
   };
 
   const handlePreviousPage = () => {
     if (state.previous) {
       const newPage = state.page - 1;
-      propertyList(newPage);
+      projectList(newPage);
     }
   };
 
-  const properties = [
+    const properties = [
     {
       id: 1,
       city: "Panama City",
       title: "Willow Creek Residence",
       date: "04 April, 2023",
       price: "$34,542.000",
-      propertyType: { type: "Plot", color: "warning" },
+      propertyType:{type: "Plot",
+        color:"warning"
+      },
       area: "34,542 sq.ft",
       status: "Active",
-      image: "/assets/images/real-estate/property-info-img1.png",
+      image: "/assets/images/real-estate/property-info-img1.png", 
     },
     {
       id: 2,
@@ -202,8 +239,10 @@ console.log('✌️res --->', res);
       title: "Harmony House",
       date: "04 April, 2023",
       price: "$34,542.000",
-      propertyType: { type: "Rent", color: "secondary" },
-
+      propertyType:{type: "Rent",
+        color:"secondary"
+      },
+      
       area: "34,542 sq.ft",
       status: "Active",
       image: "/assets/images/real-estate/property-info-img2.png",
@@ -214,7 +253,9 @@ console.log('✌️res --->', res);
       title: "Sunflower Cottage",
       date: "04 April, 2023",
       price: "$34,542.000",
-      propertyType: { type: "Sale", color: "success" },
+     propertyType:{type: "Sale",
+        color:"success"
+      },
       area: "34,542 sq.ft",
       status: "Active",
       image: "/assets/images/real-estate/property-info-img3.png",
@@ -225,17 +266,21 @@ console.log('✌️res --->', res);
       title: "Sunset Retreat",
       date: "04 April, 2023",
       price: "$34,542.000",
-      propertyType: { type: "Lease", color: "info" },
+       propertyType:{type: "Lease",
+        color:"info"
+      },
       area: "34,542 sq.ft",
       status: "Active",
       image: "/assets/images/real-estate/property-info-img4.png",
     },
+  
+    
   ];
 
   const propertStatus = [
-    { value: 1, label: "Active" },
-    { value: 2, label: "In Active" },
-  ];
+    {value:1, label:"Active"},
+    {value:2, label:"In Active"}
+  ]
 
   return (
     <>
@@ -313,124 +358,103 @@ console.log('✌️res --->', res);
         {/* <div className="invoice-table"> */}
 
         <div className="datatables pagination-padding">
-          {state?.loading ? (
-            <div className="h-[400px] flex justify-center items-center">
-              <RotatingLines
-              visible={true}
-              strokeColor="gray"
-              strokeWidth="5"
-              animationDuration="0.75"
-              width="40"
-              ariaLabel="rotating-lines-loading"
-            />
-            </div>
-            
-          ) : (
-            state.tableList.length > 0 ? 
-            (<DataTable
-              className="table-hover whitespace-nowrap"
-              records={state.tableList || []}
-              columns={[
-                {
-                  accessor: "name",
-                  title: "Property Info",
+          <DataTable
+            className="table-hover whitespace-nowrap"
+            records={properties || []}
+            columns={[
+              {
+                accessor: "name",
+                title: "Property Info",
 
-                  render: (row) => (
-                    <div className="flex gap-3 font-semibold">
-                      <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
-                        <img
-                          className="h-50 w-50 cursor-pointer rounded-md object-cover"
-                          src={row.image}
-                          alt=""
-                        />
+                render: (row) => (
+                  <div className="flex gap-3 font-semibold">
+                    <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
+                      <img
+                        className="h-50 w-50 cursor-pointer rounded-md object-cover"
+                        src={row.image}
+                        alt=""
+                      />
+                    </div>
+                    <div className="flex flex-col justify-between py-2">
+                      <div>
+                        <div className="flex gap-1">
+                          {" "}
+                          <IconMapPin className="h-4 w-4" />
+                          {row.city}
+                        </div>
+                        <Link
+                          className="cursor-pointer text-lg font-bold"
+                          href={`/real-estate/profile/${row.id}/`}
+                        >
+                          {row.title}
+                        </Link>
                       </div>
-                      <div className="flex flex-col justify-between py-2">
-                        <div>
-                          <div className="flex gap-1">
-                            {" "}
-                            <IconMapPin className="h-4 w-4" />
-                            {row.location}
-                          </div>
-                          <Link
-                            className="cursor-pointer text-lg font-bold"
-                            href={`/real-estate/profile/${row.id}/`}
-                          >
-                            {row.title}
-                          </Link>
-                        </div>
-                        <div>
-                          <Link
-                            className="flex gap-1 text-primary"
-                            href={"/detail"}
-                          >
-                            <FaHome className="text-black" /> View Details
-                          </Link>
-                        </div>
+                      <div>
+                        <Link className="flex gap-1 text-primary" href={"#"}>
+                          <FaHome className="text-black" /> View Details
+                        </Link>
                       </div>
                     </div>
-                  ),
-                },
-                { accessor: "date", title: "Listed Date	" },
+                  </div>
+                ),
+              },
+              { accessor: "date", title: "Listed Date	" },
 
-                { accessor: "price", title: "Price Range	" },
+              { accessor: "price", title: "Price Range	" },
 
-                {
-                  accessor: "role",
-                  title: "Property Type",
-                  render: (row: any) => (
-                    <span
-                      className={`badge badge-outline-${row?.listing_type?.color} `}
+              {
+                accessor: "role",
+                title: "Property Type",
+                render: (row: any) => (
+                  <span
+                    className={`badge badge-outline-${row?.propertyType?.color} `}
+                  >
+                    {row?.propertyType?.type}
+                  </span>
+                ),
+              },
+              { accessor: "status", title: "Status" },
+              {
+                accessor: "action",
+                title: "Actions",
+                sortable: false,
+                textAlignment: "center",
+                render: (row: any) => (
+                  <div className="mx-auto flex w-max items-center gap-4">
+                    <button
+                      className="flex hover:text-info"
+                      onClick={(e) => {
+                        handleEdit(row);
+                      }}
                     >
-                      {row?.listing_type?.type}
-                    </span>
-                  ),
-                },
-                { accessor: "status", title: "Status" },
-                {
-                  accessor: "action",
-                  title: "Actions",
-                  sortable: false,
-                  textAlignment: "center",
-                  render: (row: any) => (
-                    <div className="mx-auto flex w-max items-center gap-4">
-                      <button
-                        className="flex hover:text-info"
-                        onClick={(e) => {
-                          handleEdit(row);
-                        }}
-                      >
-                        <IconEdit className="h-4.5 w-4.5" />
-                      </button>
-                      {/* <Link
+                      <IconEdit className="h-4.5 w-4.5" />
+                    </button>
+                    {/* <Link
                       href="/real-estate/profile"
                       className="flex hover:text-primary"
                     >
                       <IconEye />
                     </Link> */}
-                      <button
-                        type="button"
-                        className="flex hover:text-danger"
-                        onClick={(e) => handleDelete(row)}
-                      >
-                        <IconTrashLines />
-                      </button>
-                    </div>
-                  ),
-                },
-              ]}
-              highlightOnHover
-              totalRecords={state?.initialRecords?.length}
-              recordsPerPage={state?.pageSize}
-              page={null}
-              onPageChange={(p) => {}}
-              paginationText={({ from, to, totalRecords }) =>
-                `Showing  ${from} to ${to} of ${totalRecords} entries`
-              }
-            />) :
-             <div className="h-[400px] flex justify-center items-center">
-              <p>No Records Found</p>
-            </div>
-          )}
+                    <button
+                      type="button"
+                      className="flex hover:text-danger"
+                      onClick={(e) => handleDelete(row)}
+                    >
+                      <IconTrashLines />
+                    </button>
+                  </div>
+                ),
+              },
+            ]}
+            highlightOnHover
+            totalRecords={state?.initialRecords?.length}
+            recordsPerPage={state?.pageSize}
+            page={null}
+            onPageChange={(p) => {}}
+            paginationText={({ from, to, totalRecords }) =>
+              `Showing  ${from} to ${to} of ${totalRecords} entries`
+            }
+          />
         </div>
 
         <div className="me-2 mt-5 flex justify-end gap-3">
@@ -453,7 +477,7 @@ console.log('✌️res --->', res);
         </div>
       </div>
 
-      {/* <Modal
+      <Modal
         addHeader={state.editId ? "Update Project" : "Create Project"}
         open={state.isOpen}
         close={() => {
@@ -515,7 +539,7 @@ console.log('✌️res --->', res);
             </form>
           </div>
         )}
-      /> */}
+      />
     </>
   );
 }
