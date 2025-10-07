@@ -226,12 +226,12 @@ export const menuConfig = {
           label: "All Users",
           href: "/real-estate/users/list",
         },
-        {
-          type: "link",
-          icon: "IconMenuScrumboard",
-          label: "Create",
-          href: "/real-estate/users/create",
-        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuScrumboard",
+        //   label: "Create",
+        //   href: "/real-estate/users/create",
+        // },
       ],
     },
     {
@@ -365,12 +365,12 @@ export const menuConfig = {
           label: "All Users",
           href: "/real-estate/users/list",
         },
-        {
-          type: "link",
-          icon: "IconMenuScrumboard",
-          label: "Create",
-          href: "/real-estate/users/create",
-        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuScrumboard",
+        //   label: "Create",
+        //   href: "/real-estate/users/create",
+        // },
       ],
     },
     {
@@ -504,12 +504,12 @@ export const menuConfig = {
           label: "All Users",
           href: "/real-estate/users/list",
         },
-        {
-          type: "link",
-          icon: "IconMenuScrumboard",
-          label: "Create",
-          href: "/real-estate/users/create",
-        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuScrumboard",
+        //   label: "Create",
+        //   href: "/real-estate/users/create",
+        // },
       ],
     },
     {
@@ -577,11 +577,11 @@ export const menuConfig = {
 };
 
 export const propertyType = [
-  { value: 1, label: "Appartment" },
-  { value: 2, label: "House" },
-  { value: 3, label: "Office" },
+  { value: 1, label: "Sale" },
+  { value: 2, label: "Rent" },
+  { value: 3, label: "Lease" },
 
-  { value: 4, label: "Loft" },
+  { value: 4, label: "Plot" },
 ];
 
 export const listType = [

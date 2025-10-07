@@ -23,9 +23,15 @@ import * as Yup from "yup";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
 import { useRouter } from "next/navigation";
+import IconMapPin from "@/components/Icon/IconMapPin";
+import Link from "next/link";
+import IconTrashLines from "@/components/Icon/IconTrashLines";
+import { propertyType } from "@/utils/constant.utils";
+import { FaHome } from "react-icons/fa";
+
 
 export default function list() {
-  const router=useRouter()
+  const router = useRouter();
 
   const [state, setState] = useSetState({
     isOpen: false,
@@ -213,6 +219,69 @@ export default function list() {
     }
   };
 
+    const properties = [
+    {
+      id: 1,
+      city: "Panama City",
+      title: "Willow Creek Residence",
+      date: "04 April, 2023",
+      price: "$34,542.000",
+      propertyType:{type: "Plot",
+        color:"warning"
+      },
+      area: "34,542 sq.ft",
+      status: "Active",
+      image: "/assets/images/real-estate/property-info-img1.png", 
+    },
+    {
+      id: 2,
+      city: "Panama City",
+      title: "Harmony House",
+      date: "04 April, 2023",
+      price: "$34,542.000",
+      propertyType:{type: "Rent",
+        color:"secondary"
+      },
+      
+      area: "34,542 sq.ft",
+      status: "Active",
+      image: "/assets/images/real-estate/property-info-img2.png",
+    },
+    {
+      id: 3,
+      city: "Panama City",
+      title: "Sunflower Cottage",
+      date: "04 April, 2023",
+      price: "$34,542.000",
+     propertyType:{type: "Sale",
+        color:"success"
+      },
+      area: "34,542 sq.ft",
+      status: "Active",
+      image: "/assets/images/real-estate/property-info-img3.png",
+    },
+    {
+      id: 4,
+      city: "Panama City",
+      title: "Sunset Retreat",
+      date: "04 April, 2023",
+      price: "$34,542.000",
+       propertyType:{type: "Lease",
+        color:"info"
+      },
+      area: "34,542 sq.ft",
+      status: "Active",
+      image: "/assets/images/real-estate/property-info-img4.png",
+    },
+  
+    
+  ];
+  
+  const propertStatus = [
+    {value:1, label:"Active"},
+    {value:2, label:"In Active"}
+  ]
+
   return (
     <>
       <div className="panel mb-5 flex items-center justify-between gap-5">
@@ -225,7 +294,7 @@ export default function list() {
           <button
             type="button"
             className="btn btn-primary  w-full md:mb-0 md:w-auto"
-            onClick={() => router.push('/real-estate/property/create')}
+            onClick={() => router.push("/real-estate/property/create")}
           >
             + Create
           </button>
@@ -247,94 +316,161 @@ export default function list() {
         {/* Category Dropdown */}
         <div className="flex-1">
           <CustomSelect
-            placeholder="Select Role"
-            value={state.role}
-            onChange={(e) => setState({ role: e })}
-            options={state.roleList}
-            // error={state.errors?.tags}
+            placeholder="Select Property Type"
+            value={state.property_type}
+            onChange={(e) => setState({ property_type: e })}
+            options={propertyType}
           />
         </div>
 
         <div className="flex-1">
           <CustomSelect
-            placeholder="Select Role"
-            value={state.role}
-            onChange={(e) => setState({ role: e })}
-            options={state.roleList}
-            // error={state.errors?.tags}
+            placeholder="Select Property Status"
+            value={state.status}
+            onChange={(e) => setState({ status: e })}
+            options={propertStatus}
           />
         </div>
+
         {/* Status Dropdown */}
 
         {/* Bulk Actions Dropdown */}
 
-        <div>
-          <button type="button" className="btn btn-primary">
-            Clear Filter
-          </button>
-        </div>
+        {/* <div > */}
+        <button
+          type="button"
+          className="btn btn-primary"
+          // onClick={() => usersList(1)}
+        >
+          Apply Filter
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          // onClick={() => clearFilter()}
+        >
+          Clear Filter
+        </button>
+        {/* </div> */}
       </div>
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
         {/* <div className="invoice-table"> */}
 
-        <div className="datatables pagination-padding"></div>
-        <DataTable
-          className="table-responsive"
-          records={state.tableList || []}
-          columns={[
-            { accessor: "name", title: "Project Name" },
-            { accessor: "location", title: "Location" },
-            { accessor: "status", title: "status" },
+        <div className="datatables pagination-padding">
+          <DataTable
+            className="table-hover whitespace-nowrap"
+            records={properties || []}
+            columns={[
+              {
+                accessor: "name",
+                title: "Property Info",
 
-            {
-              accessor: "actions",
-              title: "Actions",
-              render: (row: any) => (
-                <div className="mx-auto flex w-max items-center gap-4">
-                  <button
-                    className="flex hover:text-primary"
-                    onClick={(e) => {
-                      handleEdit(row);
-                    }}
+                render: (row) => (
+                  <div className="flex gap-3 font-semibold">
+                    <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
+                      <img
+                        className="h-50 w-50 cursor-pointer rounded-md object-cover"
+                        src={row.image}
+                        alt=""
+                      />
+                    </div>
+                    <div className="flex flex-col justify-between py-2">
+                      <div>
+                        <div className="flex gap-1">
+                          {" "}
+                          <IconMapPin className="h-4 w-4" />
+                          {row.city}
+                        </div>
+                        <Link
+                          className="cursor-pointer text-lg font-bold"
+                          href={`/real-estate/profile/${row.id}/`}
+                        >
+                          {row.title}
+                        </Link>
+                      </div>
+                      <div>
+                        <Link className="flex gap-1 text-primary" href={"#"}>
+                          <FaHome className="text-black" /> View Details
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ),
+              },
+              { accessor: "date", title: "Listed Date	" },
+
+              { accessor: "price", title: "Price Range	" },
+
+              {
+                accessor: "role",
+                title: "Property Type",
+                render: (row: any) => (
+                  <span
+                    className={`badge badge-outline-${row?.propertyType?.color} `}
                   >
-                    <IconEdit className="h-4.5 w-4.5" />
-                  </button>
-                  <button
-                    className="flex text-danger hover:text-primary"
-                    onClick={() => handleDelete(row)}
-                  >
-                    <IconTrash />
-                  </button>
-                </div>
-              ),
-            },
-          ]}
-          highlightOnHover
-          totalRecords={state.taskList?.length}
-          recordsPerPage={state.pageSize}
-          minHeight={200}
-          page={null}
-          onPageChange={(p) => {}}
-          withBorder={true}
-          paginationText={({ from, to, totalRecords }) =>
-            `Showing  ${from} to ${to} of ${totalRecords} entries`
-          }
-        />
-        <div className="mt-5 flex justify-end gap-3">
+                    {row?.propertyType?.type}
+                  </span>
+                ),
+              },
+              { accessor: "status", title: "Status" },
+              {
+                accessor: "action",
+                title: "Actions",
+                sortable: false,
+                textAlignment: "center",
+                render: (row: any) => (
+                  <div className="mx-auto flex w-max items-center gap-4">
+                    <button
+                      className="flex hover:text-info"
+                      onClick={(e) => {
+                        handleEdit(row);
+                      }}
+                    >
+                      <IconEdit className="h-4.5 w-4.5" />
+                    </button>
+                    {/* <Link
+                      href="/real-estate/profile"
+                      className="flex hover:text-primary"
+                    >
+                      <IconEye />
+                    </Link> */}
+                    <button
+                      type="button"
+                      className="flex hover:text-danger"
+                      onClick={(e) => handleDelete(row)}
+                    >
+                      <IconTrashLines />
+                    </button>
+                  </div>
+                ),
+              },
+            ]}
+            highlightOnHover
+            totalRecords={state?.initialRecords?.length}
+            recordsPerPage={state?.pageSize}
+            page={null}
+            onPageChange={(p) => {}}
+            paginationText={({ from, to, totalRecords }) =>
+              `Showing  ${from} to ${to} of ${totalRecords} entries`
+            }
+          />
+        </div>
+
+        <div className="me-2 mt-5 flex justify-end gap-3">
           <button
-            disabled={!state.previous}
+            disabled={!state?.previous}
             onClick={handlePreviousPage}
             className={`btn ${
-              !state.previous ? "btn-disabled" : "btn-primary"
+              !state?.previous ? "btn-disabled" : "btn-primary"
             }`}
           >
             <IconArrowBackward />
           </button>
           <button
-            disabled={!state.next}
+            disabled={!state?.next}
             onClick={handleNextPage}
-            className={`btn ${!state.next ? "btn-disabled" : "btn-primary"}`}
+            className={`btn ${!state?.next ? "btn-disabled" : "btn-primary"}`}
           >
             <IconArrowForward />
           </button>
