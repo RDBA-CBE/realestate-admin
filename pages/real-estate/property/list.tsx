@@ -30,6 +30,7 @@ import Link from "next/link";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
 import {
   LISTING_TYPE,
+  LISTING_TYPE_LIST,
   PROPERTY_TYPE,
   propertyType,
 } from "@/utils/constant.utils";
@@ -77,11 +78,11 @@ export default function list() {
         listing_type: {
           type: capitalizeFLetter(item?.listing_type),
           color:
-            item?.listing_type == LISTING_TYPE.RENT
+            item?.listing_type == LISTING_TYPE_LIST.RENT
               ? "warning"
-              : item?.listing_type == LISTING_TYPE.SALE
+              : item?.listing_type == LISTING_TYPE_LIST.SALE
               ? "secondary"
-              : item?.listing_type == LISTING_TYPE.LEASE
+              : item?.listing_type == LISTING_TYPE_LIST.LEASE
               ? "info"
               : "success",
         },

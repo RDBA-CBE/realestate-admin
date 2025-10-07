@@ -657,7 +657,7 @@ export const LISTING_TYPE = {
   LEASE: "Lease",
 };
 
-export const LISTING_TYPE = {
+export const LISTING_TYPE_LIST = {
   LEASE: "lease",
   SALE: "sale",
   RENT: "rent",
