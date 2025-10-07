@@ -34,8 +34,8 @@ import {
   PROPERTY_TYPE,
   propertyType,
 } from "@/utils/constant.utils";
-import { FaHome } from "react-icons/fa";
 import { RotatingLines } from "react-loader-spinner";
+import { House } from "lucide-react";
 
 export default function list() {
   const router = useRouter();
@@ -146,9 +146,9 @@ export default function list() {
     return body;
   };
 
-  const handleEdit = async(row) => {
-    const res=await Models.property.details(row?.id)
-console.log('✌️res --->', res);
+  const handleEdit = async (row) => {
+    const res = await Models.property.details(row?.id);
+    console.log("✌️res --->", res);
     // setState({
     //   name: row.name,
     //   location: row.location,
@@ -156,7 +156,10 @@ console.log('✌️res --->', res);
     //   isOpen: true,
     //   editId: row?.id,
     // });
-    router.push("/real-estate/property/edit");
+    router.push(`/real-estate/property/update/${row?.id}`);
+
+
+   
     console.log("✌️row --->", row);
   };
 
@@ -315,20 +318,18 @@ console.log('✌️res --->', res);
 
         <div className="datatables pagination-padding">
           {state?.loading ? (
-            <div className="h-[400px] flex justify-center items-center">
+            <div className="flex h-[400px] items-center justify-center">
               <RotatingLines
-              visible={true}
-              strokeColor="gray"
-              strokeWidth="5"
-              animationDuration="0.75"
-              width="40"
-              ariaLabel="rotating-lines-loading"
-            />
+                visible={true}
+                strokeColor="gray"
+                strokeWidth="5"
+                animationDuration="0.75"
+                width="40"
+                ariaLabel="rotating-lines-loading"
+              />
             </div>
-            
-          ) : (
-            state.tableList.length > 0 ? 
-            (<DataTable
+          ) : state.tableList.length > 0 ? (
+            <DataTable
               className="table-hover whitespace-nowrap"
               records={state.tableList || []}
               columns={[
@@ -340,7 +341,7 @@ console.log('✌️res --->', res);
                     <div className="flex gap-3 font-semibold">
                       <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
                         <img
-                          className="h-50 w-50 cursor-pointer rounded-md object-cover"
+                          className="h-32 w-32 cursor-pointer overflow-hidden rounded-md object-cover"
                           src={row.image}
                           alt=""
                         />
@@ -364,13 +365,19 @@ console.log('✌️res --->', res);
                             className="flex gap-1 text-primary"
                             href={"/detail"}
                           >
-                            <FaHome className="text-black" /> View Details
+                            <House
+                              className="text-black"
+                              height={15}
+                              width={15}
+                            />{" "}
+                            View Details
                           </Link>
                         </div>
                       </div>
                     </div>
                   ),
                 },
+
                 { accessor: "date", title: "Listed Date	" },
 
                 { accessor: "price", title: "Price Range	" },
@@ -427,8 +434,9 @@ console.log('✌️res --->', res);
               paginationText={({ from, to, totalRecords }) =>
                 `Showing  ${from} to ${to} of ${totalRecords} entries`
               }
-            />) :
-             <div className="h-[400px] flex justify-center items-center">
+            />
+          ) : (
+            <div className="flex h-[400px] items-center justify-center">
               <p>No Records Found</p>
             </div>
           )}
