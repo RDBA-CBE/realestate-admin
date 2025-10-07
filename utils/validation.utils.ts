@@ -77,7 +77,7 @@ export const property_type = Yup.object().shape({
 //     .min(1, "At least one amenities is required")
 // });
 
-export const propertyBuyCreate = Yup.object().shape({
+export const propertySaleCreate = Yup.object().shape({
   title: Yup.string().required("Property Name is required").nullable(),
   description: Yup.string().required("Description is required").nullable(),
   listing_type: Yup.string().required("Property Type is required").nullable(),

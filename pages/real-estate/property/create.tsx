@@ -12,6 +12,7 @@ import {
 } from "@/utils/function.utils";
 import {
   facingDirection,
+  LISTING_TYPE,
   ListType,
   PROPERTY_IMG,
   PROPERTY_TYPE,
@@ -249,12 +250,12 @@ const AddPropertyPage = () => {
         listing_type: state.listing_type?.value,
       };
 
-      if (state.property_type?.label == PROPERTY_TYPE.BUY) {
-        createBuyProperty();
-      } else if (state.property_type?.label == PROPERTY_TYPE.LEASE) {
+      if (state.listing_type?.label == LISTING_TYPE.SALE) {
+        createSaleProperty();
+      } else if (state.listing_type?.label == LISTING_TYPE.LEASE) {
         createLeaseProperty();
-      } else if (state.property_type?.label == PROPERTY_TYPE.PLOT) {
-        createPlotProperty();
+      } else if (state.listing_type?.label == LISTING_TYPE.RENT) {
+        createRentProperty();
       }
 
       // const body = bodyData();
@@ -424,16 +425,15 @@ const AddPropertyPage = () => {
     }
   };
 
-  const createBuyProperty = async () => {
+  const createSaleProperty = async () => {
     try {
       setState({ btnLoading: true });
 
-      const buyBody: any = {
+      const saleBody: any = {
         title: state.title,
         description: state.description,
-        // listing_type: state.property_type?.label?.toLowerCase(),
-        listing_type: "rent",
-
+        property_type: state.property_type?.value,
+        listing_type: "sale",
         price: state.price,
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
@@ -460,13 +460,15 @@ const AddPropertyPage = () => {
         developer: state.developer?.value,
         address: state.address,
       };
-      await Utils.Validation.propertyBuyCreate.validate(buyBody, {
+      console.log("✌️buyBody --->", saleBody);
+
+      await Utils.Validation.propertySaleCreate.validate(saleBody, {
         abortEarly: false,
       });
-      delete buyBody.images;
-      console.log("✌️buyBody --->", buyBody);
+      delete saleBody.images;
+      console.log("✌️buyBody --->", saleBody);
 
-      const formData = buildFormData(buyBody);
+      const formData = buildFormData(saleBody);
 
       const res: any = await Models.property.create(formData);
       if (state.images?.length > 0) {
@@ -480,7 +482,7 @@ const AddPropertyPage = () => {
       }
 
       Success("Property Created Successfully");
-      router.push("/real-estate/property/list/");
+      // router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
       // const address: any = await createAddress();
       // // console.log("✌️address --->", address);
@@ -539,9 +541,9 @@ const AddPropertyPage = () => {
         developer: state.developer?.value,
         address: state.address,
       };
-      await Utils.Validation.propertyBuyCreate.validate(buyBody, {
-        abortEarly: false,
-      });
+      // await Utils.Validation.propertyBuyCreate.validate(buyBody, {
+      //   abortEarly: false,
+      // });
       delete buyBody.images;
       console.log("✌️buyBody --->", buyBody);
 
@@ -583,31 +585,13 @@ const AddPropertyPage = () => {
     }
   };
 
-  const createPlotProperty = async () => {
+  const createRentProperty = async () => {
     try {
     } catch (error) {
       console.log("✌️error --->", error);
     }
   };
 
-  const createAddress = async () => {
-    try {
-      const userId = localStorage.getItem("userId");
-      const body = {
-        street: state.city,
-        city: state.city,
-        state: state.state,
-        country: state.country,
-        user: userId,
-        postal_code: state.postal_code,
-      };
-
-      const res = await Models.address.create(body);
-      return res;
-    } catch (error) {
-      console.log("✌️error --->", error);
-    }
-  };
 
   const createImage = async (property, img) => {
     try {
@@ -644,11 +628,10 @@ const AddPropertyPage = () => {
     try {
       const body = {
         property: property,
-
         tour_url: state.virtual_tour,
       };
 
-      const res = await Models.video.create(body);
+      const res = await Models.virtualTour.create(body);
       return res;
     } catch (error) {
       console.log("✌️error --->", error);
@@ -803,7 +786,10 @@ const AddPropertyPage = () => {
                       placeholder="Enter Description"
                       value={state.description}
                       onChange={(e) =>
-                        setState({ description: e.target.value })
+                        setState({
+                          description: e.target.value,
+                          error: { ...state.error, description: "" },
+                        })
                       }
                       required
                       error={state.error?.description}
@@ -959,13 +945,13 @@ const AddPropertyPage = () => {
                           ]}
                           value={state.furnishing}
                           onChange={(selectedOption) =>
-                            setState({ furnishing: selectedOption })
+                            setState({ furnishing: selectedOption,error:{...state.error,furnishing:""} })
                           }
                           required
                           isClearable
                           error={state.error?.furnishing}
                         />
-                        {state.property_type?.label == PROPERTY_TYPE.RENT ? (
+                        {state.listing_type?.label == LISTING_TYPE.RENT ? (
                           <>
                             <NumberInput
                               name="monthly_rent"
@@ -984,7 +970,7 @@ const AddPropertyPage = () => {
                               onChange={handleInputChange}
                             />
                           </>
-                        ) : state.property_type?.label == PROPERTY_TYPE.BUY ? (
+                        ) : state.listing_type?.label == LISTING_TYPE.SALE ? (
                           <>
                             <NumberInput
                               name="price"
@@ -1005,8 +991,7 @@ const AddPropertyPage = () => {
                               error={state.error?.price_per_sqft}
                             />
                           </>
-                        ) : state.property_type?.label ==
-                          PROPERTY_TYPE.LEASE ? (
+                        ) : state.listing_type?.label == LISTING_TYPE.LEASE ? (
                           <>
                             <NumberInput
                               name="lease_price"
