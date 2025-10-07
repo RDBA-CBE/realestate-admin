@@ -427,7 +427,7 @@ const AddPropertyPage = () => {
 
   const createSaleProperty = async () => {
     try {
-      setState({ btnLoading: true });
+      // setState({ btnLoading: true });
 
       const saleBody: any = {
         title: state.title,
@@ -460,7 +460,6 @@ const AddPropertyPage = () => {
         developer: state.developer?.value,
         address: state.address,
       };
-      console.log("✌️buyBody --->", saleBody);
 
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
         abortEarly: false,
@@ -472,24 +471,18 @@ const AddPropertyPage = () => {
 
       const res: any = await Models.property.create(formData);
       if (state.images?.length > 0) {
-        state.images?.map((item) => createImage(res?.id, item));
+        state.images?.map((item, index) => createImage(res?.id, item, index));
       }
       if (state.virtual_tour) {
-        const VirtualTour: any = await createVirtualTour(res?.id);
+        await createVirtualTour(res?.id);
       }
       if (state.video) {
-        const video: any = await createVideo(res?.id);
+        await createVideo(res?.id);
       }
 
       Success("Property Created Successfully");
-      // router.push("/real-estate/property/list/");
+      router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
-      // const address: any = await createAddress();
-      // // console.log("✌️address --->", address);
-
-      // if (address) {
-      //   plotBody.address = address.id;
-      // }
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -508,7 +501,7 @@ const AddPropertyPage = () => {
 
   const createLeaseProperty = async () => {
     try {
-      setState({ btnLoading: true });
+      // setState({ btnLoading: true });
 
       const buyBody: any = {
         title: state.title,
@@ -554,24 +547,18 @@ const AddPropertyPage = () => {
 
       const res: any = await Models.property.create(formData);
       if (state.images?.length > 0) {
-        state.images?.map((item) => createImage(res?.id, item));
+        state.images?.map((item, i) => createImage(res?.id, item, i));
       }
       if (state.virtual_tour) {
-        const VirtualTour: any = await createVirtualTour(res?.id);
+        await createVirtualTour(res?.id);
       }
       if (state.video) {
-        const video: any = await createVideo(res?.id);
+        await createVideo(res?.id);
       }
 
-      // Success("Property Created Successfully");
-      // router.push("/real-estate/property/list/");
+      Success("Property Created Successfully");
+      router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
-      // const address: any = await createAddress();
-      // // console.log("✌️address --->", address);
-
-      // if (address) {
-      //   plotBody.address = address.id;
-      // }
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -590,7 +577,7 @@ const AddPropertyPage = () => {
 
   const createRentProperty = async () => {
     try {
-      setState({ btnLoading: true });
+      // setState({ btnLoading: true });
 
       const buyBody: any = {
         title: state.title,
@@ -630,30 +617,25 @@ const AddPropertyPage = () => {
       delete buyBody.images;
       console.log("✌️buyBody --->", buyBody);
 
-      // const formData = buildFormData(buyBody);
+      const formData = buildFormData(buyBody);
 
-      // const res: any = await Models.property.create(formData);
-      // if (state.images?.length > 0) {
-      //   state.images?.map((item) => createImage(res?.id, item));
-      // }
-      // if (state.virtual_tour) {
-      //   const VirtualTour: any = await createVirtualTour(res?.id);
-      // }
+      const res: any = await Models.property.create(formData);
+      if (state.images?.length > 0) {
+        state.images?.map((item, i) => createImage(res?.id, item, i));
+      }
+      if (state.virtual_tour) {
+        await createVirtualTour(res?.id);
+      }
       console.log("✌️state.video --->", state.video);
 
       if (state.video) {
-        const video: any = await createVideo();
+        await createVideo(res?.id);
       }
 
-      // Success("Property Created Successfully");
-      // router.push("/real-estate/property/list/");
+      Success("Property Created Successfully");
+      router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
-      // const address: any = await createAddress();
-      // // console.log("✌️address --->", address);
-
-      // if (address) {
-      //   plotBody.address = address.id;
-      // }
+   
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -670,11 +652,12 @@ const AddPropertyPage = () => {
     }
   };
 
-  const createImage = async (property, img) => {
+  const createImage = async (property, img, index) => {
     try {
       const body = {
         property: property,
         image: img,
+        order: index,
       };
       const formData = buildFormData(body);
 
@@ -685,10 +668,10 @@ const AddPropertyPage = () => {
     }
   };
 
-  const createVideo = async () => {
+  const createVideo = async (property) => {
     try {
       const body = {
-        property: 11,
+        property: property,
         video: state.video,
       };
       const formData = buildFormData(body);
@@ -772,12 +755,12 @@ const AddPropertyPage = () => {
         <h5 className="text-lg font-semibold dark:text-white-light ">
           Add New Property
         </h5>
-        <PrimaryButton
+        {/* <PrimaryButton
           type="submit"
           text="Post Property"
           className="border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
           onClick={onSubmit}
-        />
+        /> */}
       </div>
 
       <div className="space-y-5">
@@ -1438,6 +1421,7 @@ const AddPropertyPage = () => {
                       text="Post Property"
                       className="!mt-6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
                       onClick={onSubmit}
+                      loading={state.btnLoading}
                     />
                   </div>
                 </div>

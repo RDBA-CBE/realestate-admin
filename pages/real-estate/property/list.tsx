@@ -187,7 +187,9 @@ export default function list() {
     return body;
   };
 
-  const handleEdit = (row) => {
+  const handleEdit = async(row) => {
+    const res=await Models.property.details(row?.id)
+console.log('✌️res --->', res);
     setState({
       name: row.name,
       location: row.location,
