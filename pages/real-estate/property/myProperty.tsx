@@ -1,253 +1,121 @@
-import Link from "next/link";
-import { DataTable } from "mantine-datatable";
-import { useEffect } from "react";
-
-import IconTrashLines from "@/components/Icon/IconTrashLines";
-import IconEdit from "@/components/Icon/IconEdit";
+import React, { useEffect, useState } from "react";
+import { DataTable, DataTableSortStatus } from "mantine-datatable";
+import Tippy from "@tippyjs/react";
 import IconEye from "@/components/Icon/IconEye";
-import IconArrowBackward from "@/components/Icon/IconArrowBackward";
-import IconArrowForward from "@/components/Icon/IconArrowForward";
-import { useSetState } from "@mantine/hooks";
-import CustomSelect from "@/components/FormFields/CustomSelect.component";
-import PrivateRouter from "@/hook/privateRouter";
-
-import Models from "@/imports/models.import";
+import IconEdit from "@/components/Icon/IconEdit";
 import {
+  capitalizeFLetter,
   Failure,
-  formatDate,
+  formatToINR,
   showDeleteAlert,
   Success,
+  useSetState,
 } from "@/utils/function.utils";
-import moment from "moment";
+import CustomSelect from "@/components/FormFields/CustomSelect.component";
+import IconLoader from "@/components/Icon/IconLoader";
+import Modal from "@/components/modal/modal.component";
+import Models from "@/imports/models.import";
+import TextInput from "@/components/FormFields/TextInput.component";
+import TextArea from "@/components/FormFields/TextArea.component";
+import IconTrash from "@/components/Icon/IconTrash";
 import Swal from "sweetalert2";
 import useDebounce from "@/hook/useDebounce";
-import TextInput from "@/components/FormFields/TextInput.component";
-import Modal from "@/components/modal/modal.component";
-import TextArea from "@/components/FormFields/TextArea.component";
-import IconLoader from "@/components/Icon/IconLoader";
 import Utils from "@/imports/utils.import";
 import * as Yup from "yup";
-import { propertyType, roleList } from "@/utils/constant.utils";
-import { MapPin } from "lucide-react";
+import IconArrowBackward from "@/components/Icon/IconArrowBackward";
+import IconArrowForward from "@/components/Icon/IconArrowForward";
+import { useRouter } from "next/navigation";
 import IconMapPin from "@/components/Icon/IconMapPin";
-import IconHome from "@/components/Icon/IconHome";
+import Link from "next/link";
+import IconTrashLines from "@/components/Icon/IconTrashLines";
+import { LISTING_TYPE_LIST, propertyType } from "@/utils/constant.utils";
 import { FaHome } from "react-icons/fa";
+import { RotatingLines } from "react-loader-spinner";
+import { LucideHome } from "lucide-react";
 
-const List = () => {
-  const [state, setState] = useSetState<any>({
-    previousPage: false,
-    nextPage: false,
-    currentPage: 1,
-    role: null,
-    page: 1,
+export default function list() {
+  const router = useRouter();
+
+  const [state, setState] = useSetState({
+    isOpen: false,
     btnLoading: false,
+    page: 1,
     tableList: [],
     editId: null,
+    name: "",
+    location: "",
+    description: "",
     search: "",
-    total: null,
-    next: null,
-    previous: null,
-    totalRecords: null,
-    userList: [],
-    first_name: "",
-    last_name: "",
-    phone: "",
-    email: "",
-    password: "",
-    date: "",
-    address: "",
-    isOpen: false,
     error: {},
+    loading: false,
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
   console.log("✌️state.search --->", state.search);
 
   useEffect(() => {
-    usersList(1);
+    propertyList(1);
   }, []);
 
   useEffect(() => {
-    usersList(1);
+    propertyList(1);
   }, [debouncedSearch]);
 
-  const usersList = async (page: any) => {
+  const propertyList = async (page) => {
     try {
+      setState({ loading: true });
       const body = bodyData();
-      console.log("body", body);
-
-      const res: any = await Models.user.list(page, body);
-      const data = res?.results?.map((item: any) => ({
+      const res: any = await Models.property.list(page, body);
+      const data = res?.results?.map((item) => ({
+        title: capitalizeFLetter(item?.title),
+        status: capitalizeFLetter(item?.status),
         id: item?.id,
-        first_name: item?.first_name,
-        last_name: item?.last_name,
-        email: item.email,
-        // date: moment(item.created_at).format("DD/MM/YYYY HH:mm"),
-        date: formatDate(item.created_at, "DD/MM/YYYY"),
-        role: {
-          role: item.user_type,
+        total_area: item?.total_area,
+        listing_type: {
+          type: capitalizeFLetter(item?.listing_type),
           color:
-            item.user_type == "buyer"
-              ? "success"
-              : item.user_type == "developer"
-              ? "secondary"
-              : item.user_type == "agent"
-              ? "info"
-              : item.user_type == "seller"
+            item?.listing_type == LISTING_TYPE_LIST.RENT
               ? "warning"
+              : item?.listing_type == LISTING_TYPE_LIST.SALE
+              ? "secondary"
+              : item?.listing_type == LISTING_TYPE_LIST.LEASE
+              ? "info"
               : "success",
         },
-        ...item,
+
+        location: capitalizeFLetter(item?.city),
+        price: formatToINR(item?.price),
+
+        image:
+          item?.primary_image ??
+          "/assets/images/real-estate/property-info-img1.png",
       }));
 
       setState({
-        userList: res.results,
         tableList: data,
         total: res?.count,
         page: page,
         next: res.next,
         previous: res.previous,
         totalRecords: res.count,
+        loading: false,
       });
-    } catch (error: any) {
-      console.log("✌️error --->", error);
-    }
-  };
-
-  const createUser = async () => {
-    try {
-      setState({ btnLoading: true });
-      const body = {
-        first_name: state?.first_name,
-        last_name: state?.last_name,
-        email: state?.email,
-        password: state?.password,
-        phone: state?.phone,
-
-        groups: state?.role?.map((item) => item?.value),
-        address: state?.address,
-      };
-
-      console.log("create body", body);
-
-      await Utils.Validation.user.validate(body, { abortEarly: false });
-
-      const res = await Models.user.create(body);
-      clearData();
-      setState({ btnLoading: false });
-      usersList(1);
-      Success("User created succssfully");
-    } catch (error: any) {
-      if (error instanceof Yup.ValidationError) {
-        const validationErrors = {};
-        error.inner.forEach((err) => {
-          validationErrors[err.path] = err?.message;
-        });
-        console.log("✌️validationErrors --->", validationErrors);
-
-        setState({ error: validationErrors, btnLoading: false });
-      } else {
-        console.log("error", error);
-        Failure(error);
-        setState({ btnLoading: false });
-      }
-    }
-  };
-
-  const updateUsers = async () => {
-    try {
-      setState({ btnLoading: true });
-      const body = {
-        first_name: state?.first_name,
-        last_name: state?.last_name,
-        email: state?.email,
-        phone: state?.phone,
-        role: state?.role?.value,
-        address: state?.address,
-      };
-
-      const res = await Models.user.update(body, state.editId);
-
-      clearData();
-      setState({ btnLoading: false });
-      usersList(state.page);
-
-      Success("User updated succssfully");
     } catch (error) {
-      if (error instanceof Yup.ValidationError) {
-        const validationErrors = {};
-        error.inner.forEach((err) => {
-          validationErrors[err.path] = err?.message;
-        });
-        console.log("✌️validationErrors --->", validationErrors);
-
-        setState({ error: validationErrors, btnLoading: false });
-      } else {
-        console.log("errors --->", error);
-        Failure(error);
-        setState({ btnLoading: false });
-      }
+      console.log("✌️error --->", error);
+      setState({ loading: false });
     }
   };
 
-  const bodyData = () => {
-    let body: any = {};
-
-    if (state.search) {
-      body.search = state.search;
-    }
-    if (state.role) {
-      body.group = state.role.value;
-    }
-
-    return body;
-  };
-
-  const clearData = () => {
-    setState({
-      first_name: "",
-      last_name: "",
-      email: "",
-      password: "",
-      phone: "",
-      address: "",
-      role: "",
-      editId: "",
-      isOpen: false,
-      error: {},
-    });
-  };
-
-  const clearFilter = () => {
-    setState({
-      search: "",
-      role: "",
-    });
-  };
-
-  const handleEdit = (row) => {
-    setState({
-      first_name: row?.first_name,
-      last_name: row?.last_name,
-      email: row?.email,
-      phone: row?.phone,
-      role: row?.role?.role,
-      address: row?.address,
-      editId: row?.id,
-      isOpen: true,
-    });
-  };
-
-  const deleteDecord = async (row) => {
+  const deleteDecord = async (row: any) => {
     try {
       setState({ btnLoading: true });
 
-      const res = await Models.user.delete(row?.id);
+      const res = await Models.property.delete(row?.id);
       clearData();
       setState({ btnLoading: false });
-      usersList(state.page);
+      propertyList(state.page);
 
-      Success("User deleted succssfully");
+      Success("Property deleted succssfully");
     } catch (error) {}
   };
 
@@ -263,97 +131,113 @@ const List = () => {
     );
   };
 
+  const bodyData = () => {
+    let body: any = {}; // start with empty object
+
+    if (state.search) {
+      body.search = state.search;
+    }
+
+    console.log("✌️body --->", body);
+    return body;
+  };
+
+  const handleEdit = (row) => {
+    router.push("/real-estate/property/edit");
+    console.log("✌️row --->", row);
+  };
+
+  const clearData = () => {
+    setState({
+      editId: null,
+      name: "",
+      location: "",
+      description: "",
+      isOpen: false,
+      error: {},
+    });
+  };
+
   const handleNextPage = () => {
-    if (state?.next) {
+    if (state.next) {
       const newPage = state.page + 1;
-      usersList(newPage);
+      propertyList(newPage);
     }
   };
 
   const handlePreviousPage = () => {
-    if (state?.previous) {
+    if (state.previous) {
       const newPage = state.page - 1;
-      usersList(newPage);
+      propertyList(newPage);
     }
   };
 
   const properties = [
-  {
-    id: 1,
-    city: "Panama City",
-    title: "Willow Creek Residence",
-    date: "04 April, 2023",
-    price: "$34,542.000",
-    propertyType:{type: "Plot",
-      color:"warning"
+    {
+      id: 1,
+      city: "Panama City",
+      title: "Willow Creek Residence",
+      date: "04 April, 2023",
+      price: "$34,542.000",
+      propertyType: { type: "Plot", color: "warning" },
+      area: "34,542 sq.ft",
+      status: "Active",
+      image: "/assets/images/real-estate/property-info-img1.png",
     },
-    area: "34,542 sq.ft",
-    status: "Active",
-    image: "/assets/images/real-estate/property-info-img1.png", 
-  },
-  {
-    id: 2,
-    city: "Panama City",
-    title: "Harmony House",
-    date: "04 April, 2023",
-    price: "$34,542.000",
-    propertyType:{type: "Rent",
-      color:"secondary"
-    },
-    
-    area: "34,542 sq.ft",
-    status: "Active",
-    image: "/assets/images/real-estate/property-info-img2.png",
-  },
-  {
-    id: 3,
-    city: "Panama City",
-    title: "Sunflower Cottage",
-    date: "04 April, 2023",
-    price: "$34,542.000",
-   propertyType:{type: "Sale",
-      color:"success"
-    },
-    area: "34,542 sq.ft",
-    status: "Active",
-    image: "/assets/images/real-estate/property-info-img3.png",
-  },
-  {
-    id: 4,
-    city: "Panama City",
-    title: "Sunset Retreat",
-    date: "04 April, 2023",
-    price: "$34,542.000",
-     propertyType:{type: "Lease",
-      color:"info"
-    },
-    area: "34,542 sq.ft",
-    status: "Active",
-    image: "/assets/images/real-estate/property-info-img4.png",
-  },
+    {
+      id: 2,
+      city: "Panama City",
+      title: "Harmony House",
+      date: "04 April, 2023",
+      price: "$34,542.000",
+      propertyType: { type: "Rent", color: "secondary" },
 
-  
-];
+      area: "34,542 sq.ft",
+      status: "Active",
+      image: "/assets/images/real-estate/property-info-img2.png",
+    },
+    {
+      id: 3,
+      city: "Panama City",
+      title: "Sunflower Cottage",
+      date: "04 April, 2023",
+      price: "$34,542.000",
+      propertyType: { type: "Sale", color: "success" },
+      area: "34,542 sq.ft",
+      status: "Active",
+      image: "/assets/images/real-estate/property-info-img3.png",
+    },
+    {
+      id: 4,
+      city: "Panama City",
+      title: "Sunset Retreat",
+      date: "04 April, 2023",
+      price: "$34,542.000",
+      propertyType: { type: "Lease", color: "info" },
+      area: "34,542 sq.ft",
+      status: "Active",
+      image: "/assets/images/real-estate/property-info-img4.png",
+    },
+  ];
 
-const propertStatus = [
-  {value:1, label:"Active"},
-  {value:2, label:"In Active"}
-]
-
+  const propertStatus = [
+    { value: 1, label: "Active" },
+    { value: 2, label: "In Active" },
+  ];
 
   return (
     <>
       <div className="panel mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
-            My Property List
+            Property List
           </h5>
         </div>
         <div className="flex gap-5">
           <button
             type="button"
             className="btn btn-primary  w-full md:mb-0 md:w-auto"
-            onClick={() => setState({ isOpen: true })}
+            onClick={() => router.push("/real-estate/property/create")}
           >
             + Create
           </button>
@@ -382,7 +266,7 @@ const propertStatus = [
           />
         </div>
 
-         <div className="flex-1">
+        <div className="flex-1">
           <CustomSelect
             placeholder="Select Property Status"
             value={state.status}
@@ -399,14 +283,14 @@ const propertStatus = [
         <button
           type="button"
           className="btn btn-primary"
-          onClick={() => usersList(1)}
+          // onClick={() => usersList(1)}
         >
           Apply Filter
         </button>
         <button
           type="button"
           className="btn btn-primary"
-          onClick={() => clearFilter()}
+          // onClick={() => clearFilter()}
         >
           Clear Filter
         </button>
@@ -417,103 +301,123 @@ const propertStatus = [
         {/* <div className="invoice-table"> */}
 
         <div className="datatables pagination-padding">
-          <DataTable
-            className="table-hover whitespace-nowrap"
-            records={properties || []}
-            columns={[
-              {
-                accessor: "name",
-                title: "Property Info",
+          {state?.loading ? (
+            <div className="flex h-[400px] items-center justify-center">
+              <RotatingLines
+                visible={true}
+                strokeColor="gray"
+                strokeWidth="5"
+                animationDuration="0.75"
+                width="40"
+                ariaLabel="rotating-lines-loading"
+              />
+            </div>
+          ) : state.tableList.length > 0 ? (
+            <DataTable
+              className="table-hover whitespace-nowrap"
+              records={state.tableList || []}
+              columns={[
+                {
+                  accessor: "name",
+                  title: "Property Info",
 
-                render: (row) => (
-                  <div className="flex gap-3 font-semibold">
-                    <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
-                      <img
-                        className="h-50 w-50 cursor-pointer rounded-md object-cover"
-                        src={row.image}
-                        alt=""
-                      />
-                    </div>
-                    <div className="flex flex-col justify-between py-2">
-                      <div>
-                        <div className="flex gap-1">
-                          {" "}
-
+                  render: (row) => (
+                    <div className="flex gap-3 font-semibold">
+                      <div className="h-28 w-44 rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
+                        <img
+                          className="h-full w-full cursor-pointer rounded-md object-cover"
+                          src={row.image}
+                          alt=""
+                        />
+                      </div>
+                      <div className="flex flex-col justify-between py-2">
+                        <div>
+                          <div className="flex gap-1">
+                            {" "}
                             <IconMapPin className="h-4 w-4" />
-                         
-                          {row.city}
+                            {row.location}
+                          </div>
+                          <Link
+                            className="cursor-pointer text-lg font-bold"
+                            href={`/real-estate/profile/${row.id}/`}
+                          >
+                            {row.title}
+                          </Link>
                         </div>
-                        <Link
-                          className="cursor-pointer text-lg font-bold"
-                          href={`/real-estate/profile/${row.id}/`}
-                        >
-                         {row.title}
-                        </Link>
-                      </div>
-                      <div>
-                        <Link className="flex gap-1 text-primary" href={"#"}>
-                          <FaHome className="text-black" /> View Details
-                        </Link>
+                        <div>
+                          <Link
+                            className="flex gap-1 text-primary"
+                            href={"/detail"}
+                          >
+                            <LucideHome className="text-black w-4 h-4 " /> View Details
+                          </Link>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ),
-              },
-              { accessor: "date", title: "Listed Date	" },
+                  ),
+                },
+                { accessor: "date", title: "Listed Date	" },
 
-              { accessor: "price", title: "Price Range	" },
+                { accessor: "price", title: "Price Range	" },
 
-              {
-                accessor: "role",
-                title: "Property Type",
-                render: (row: any) => (
-                  <span className={`badge badge-outline-${row?.propertyType?.color} `}>
-                    {row?.propertyType?.type}
-                  </span>
-                ),
-              },
-              { accessor: "status", title: "Status" },
-              {
-                accessor: "action",
-                title: "Actions",
-                sortable: false,
-                textAlignment: "center",
-                render: (row: any) => (
-                  <div className="mx-auto flex w-max items-center gap-4">
-                    <button
-                      className="flex hover:text-info"
-                      onClick={(e) => {
-                        handleEdit(row);
-                      }}
+                {
+                  accessor: "role",
+                  title: "Property Type",
+                  render: (row: any) => (
+                    <span
+                      className={`badge badge-outline-${row?.listing_type?.color} `}
                     >
-                      <IconEdit className="h-4.5 w-4.5" />
-                    </button>
-                    {/* <Link
+                      {row?.listing_type?.type}
+                    </span>
+                  ),
+                },
+                { accessor: "status", title: "Status" },
+                {
+                  accessor: "action",
+                  title: "Actions",
+                  sortable: false,
+                  textAlignment: "center",
+                  render: (row: any) => (
+                    <div className="mx-auto flex w-max items-center gap-4">
+                      <button
+                        className="flex hover:text-info"
+                        onClick={(e) => {
+                          handleEdit(row);
+                        }}
+                      >
+                        <IconEdit className="h-4.5 w-4.5" />
+                      </button>
+                      {/* <Link
                       href="/real-estate/profile"
                       className="flex hover:text-primary"
                     >
                       <IconEye />
                     </Link> */}
-                    <button
-                      type="button"
-                      className="flex hover:text-danger"
-                      onClick={(e) => handleDelete(row)}
-                    >
-                      <IconTrashLines />
-                    </button>
-                  </div>
-                ),
-              },
-            ]}
-            highlightOnHover
-            totalRecords={state?.initialRecords?.length}
-            recordsPerPage={state?.pageSize}
-            page={null}
-            onPageChange={(p) => {}}
-            paginationText={({ from, to, totalRecords }) =>
-              `Showing  ${from} to ${to} of ${totalRecords} entries`
-            }
-          />
+                      <button
+                        type="button"
+                        className="flex hover:text-danger"
+                        onClick={(e) => handleDelete(row)}
+                      >
+                        <IconTrashLines />
+                      </button>
+                    </div>
+                  ),
+                },
+              ]}
+              highlightOnHover
+              totalRecords={state?.initialRecords?.length}
+              recordsPerPage={state?.pageSize}
+              page={null}
+              onPageChange={(p) => {}}
+              paginationText={({ from, to, totalRecords }) =>
+                `Showing  ${from} to ${to} of ${totalRecords} entries`
+              }
+            />
+          ) : (
+            <div className="flex h-[400px] items-center justify-center">
+              <p>No Records Found</p>
+            </div>
+          )}
         </div>
 
         <div className="me-2 mt-5 flex justify-end gap-3">
@@ -536,8 +440,8 @@ const propertStatus = [
         </div>
       </div>
 
-      <Modal
-        addHeader={state.editId ? "Update User" : "Create User"}
+      {/* <Modal
+        addHeader={state.editId ? "Update Project" : "Create Project"}
         open={state.isOpen}
         close={() => {
           clearData();
@@ -547,77 +451,31 @@ const propertStatus = [
             <form className="flex flex-col gap-3">
               <div className=" w-full space-y-5">
                 <TextInput
-                  name="first_name"
-                  type="text"
-                  title="First Name"
-                  placeholder="Enter First Name"
-                  value={state.first_name}
-                  onChange={(e) => setState({ first_name: e.target.value })}
-                  // error={state.error?.first_name}
-                  // required
-                />
-
-                <TextInput
-                  name="last_name"
-                  type="text"
-                  title="Last Name"
-                  placeholder="Enter First Name"
-                  value={state.last_name}
-                  onChange={(e) => setState({ last_name: e.target.value })}
-                  // error={state.error?.last_name}
-                  // required
-                />
-
-                <TextInput
-                  name="email"
-                  type="email"
-                  title="Email"
-                  placeholder="Enter Email"
-                  value={state.email}
-                  onChange={(e) => setState({ email: e.target.value })}
-                  error={state?.error?.email}
+                  name="name"
+                  title="Project Name"
+                  placeholder="Enter project name"
+                  value={state.name}
+                  onChange={(e) => setState({ name: e.target.value })}
+                  error={state.error?.name}
                   required
                 />
 
-                {!state.editId && (
-                  <TextInput
-                    name="password"
-                    type="password"
-                    title="Password"
-                    placeholder="Enter password"
-                    value={state.password}
-                    onChange={(e) => setState({ password: e.target.value })}
-                    error={state?.error?.password}
-                    required
-                  />
-                )}
-
                 <TextInput
                   name="name"
-                  type="phone"
-                  title="Phone Number"
-                  placeholder="Enter Phone Number"
-                  value={state.phone}
-                  onChange={(e) => setState({ phone: e.target.value })}
-                  // error={state.error?.phone}
-                  // required
-                />
-
-                <CustomSelect
-                  title="Role"
-                  placeholder="Select Role"
-                  value={state.role}
-                  onChange={(e) => setState({ role: e })}
-                  options={roleList}
-                  isMulti={true}
+                  title="Location"
+                  placeholder="Enter location"
+                  value={state.location}
+                  onChange={(e) => setState({ location: e.target.value })}
+                  error={state.error?.location}
+                  required
                 />
 
                 <TextArea
-                  name="address"
-                  title="Address"
-                  placeholder="Enter Address"
-                  value={state.address}
-                  onChange={(e) => setState({ address: e.target.value })}
+                  name="description"
+                  title="Description"
+                  placeholder="Enter Description"
+                  value={state.description}
+                  onChange={(e) => setState({ description: e.target.value })}
                 />
               </div>
 
@@ -633,7 +491,9 @@ const propertStatus = [
                 </button>
                 <button
                   type="button"
-                  onClick={() => (state.editId ? updateUsers() : createUser())}
+                  onClick={() =>
+                    state.editId ? updateProject() : createProject()
+                  }
                   className="btn btn-primary ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
@@ -642,10 +502,7 @@ const propertStatus = [
             </form>
           </div>
         )}
-      />
-      {/* </div> */}
+      /> */}
     </>
   );
-};
-
-export default PrivateRouter(List);
+}

@@ -35,7 +35,7 @@ import {
   propertyType,
 } from "@/utils/constant.utils";
 import { RotatingLines } from "react-loader-spinner";
-import { House } from "lucide-react";
+import { LucideHome } from "lucide-react";
 
 export default function list() {
   const router = useRouter();
@@ -339,9 +339,9 @@ export default function list() {
 
                   render: (row) => (
                     <div className="flex gap-3 font-semibold">
-                      <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
+                      <div className="h-28 w-44 rounded-md bg-white-dark/30  ltr:mr-2 rtl:ml-2">
                         <img
-                          className="h-32 w-32 cursor-pointer overflow-hidden rounded-md object-cover"
+                          className="h-full w-full cursor-pointer rounded-md object-cover"
                           src={row.image}
                           alt=""
                         />
@@ -365,12 +365,7 @@ export default function list() {
                             className="flex gap-1 text-primary"
                             href={"/detail"}
                           >
-                            <House
-                              className="text-black"
-                              height={15}
-                              width={15}
-                            />{" "}
-                            View Details
+                            <LucideHome className="text-black w-4 h-4 " /> View Details
                           </Link>
                         </div>
                       </div>

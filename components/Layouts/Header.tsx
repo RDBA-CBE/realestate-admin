@@ -57,6 +57,8 @@ const Header = () => {
 
   const users = useSelector((state: any) => state.userData);
 
+  console.log("users", users);
+
   const [search, setSearch] = useState(false);
 
   const [flag, setFlag] = useState("");
@@ -120,15 +122,17 @@ const Header = () => {
   const getUserData = async () => {
     try {
       const userString = localStorage.getItem("userId");
-      const res = await Models.user.details(userString);
-      console.log("✌️res --->", res);
+      // const res = await Models.user.details(userString);
+      // console.log("✌️res --->", res);
 
       //   dispatch(userData(res));
 
-        const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token");
+
+      console.log("token", token);
 
       //   const user = userString ? JSON.parse(userString) : null;
-        setState({  token });
+      setState({ token: token });
     } catch (error) {
       console.log("error: ", error);
     }
