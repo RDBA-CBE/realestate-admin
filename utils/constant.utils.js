@@ -5,7 +5,6 @@ export const CLIENT_ID =
 
 export const BACKEND_URL = "http://31.97.206.165/api/";
 
-
 // menuConfig.ts
 export const menuConfig = {
   Admin: [
@@ -219,7 +218,6 @@ export const menuConfig = {
       type: "section",
       label: "User Management",
       children: [
-       
         {
           type: "link",
           icon: "IconMenuUsers",
@@ -358,7 +356,6 @@ export const menuConfig = {
       type: "section",
       label: "User Management",
       children: [
-       
         {
           type: "link",
           icon: "IconMenuUsers",
@@ -436,7 +433,7 @@ export const menuConfig = {
     },
   ],
 
-  Developers:[
+  Developers: [
     {
       type: "link",
       icon: "IconMenuWidgets",
@@ -497,7 +494,6 @@ export const menuConfig = {
       type: "section",
       label: "User Management",
       children: [
-       
         {
           type: "link",
           icon: "IconMenuUsers",
@@ -584,9 +580,10 @@ export const propertyType = [
   { value: 4, label: "Plot" },
 ];
 
-export const listType = [
-  { value: 1, label: "Commercial" },
-  { value: 2, label: "Plot" },
+export const ListType = [
+  { value: "sale", label: "Sale" },
+  { value: "rent", label: "Rent" },
+  { value: "lease", label: "Lease" },
 ];
 
 export const commemrcialType = [
@@ -647,20 +644,23 @@ export const ROLES = {
   ALL: "All",
 };
 
-
 export const PROPERTY_TYPE = {
   LEASE: "Lease",
   BUY: "Buy",
   RENT: "Rent",
   PLOT: "Plot",
-
 };
 
 export const roleList = [
-    { value: 1, label: "Agent" },
-    { value: 2, label: "Developer" },
-    { value: 3, label: "Seller" },
-    { value: 4, label: "Buyer" },
-  ];
+  { value: 1, label: "Agent" },
+  { value: 2, label: "Developer" },
+  { value: 3, label: "Seller" },
+  { value: 4, label: "Buyer" },
+];
 
-
+export const PROPERTY_IMG = [
+  "https://www.pexels.com/photo/sun-piercing-of-brown-concrete-house-near-sea-1732414/",
+  "https://www.pexels.com/photo/high-angle-photography-of-village-280221/",
+  "https://www.pexels.com/photo/white-and-gray-wooden-house-near-grass-field-and-trees-280222/",
+  "https://www.pexels.com/photo/lighted-beige-house-1396132/",
+];

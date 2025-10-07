@@ -4,7 +4,9 @@ import Tippy from "@tippyjs/react";
 import IconEye from "@/components/Icon/IconEye";
 import IconEdit from "@/components/Icon/IconEdit";
 import {
+  capitalizeFLetter,
   Failure,
+  formatToINR,
   showDeleteAlert,
   Success,
   useSetState,
@@ -28,7 +30,6 @@ import Link from "next/link";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
 import { propertyType } from "@/utils/constant.utils";
 import { FaHome } from "react-icons/fa";
-
 
 export default function list() {
   const router = useRouter();
@@ -60,12 +61,15 @@ export default function list() {
   const projectList = async (page) => {
     try {
       const body = bodyData();
-      const res: any = await Models.project.list(page, body);
+      const res: any = await Models.property.list(page, body);
       const data = res?.results?.map((item) => ({
-        name: item?.name,
-        location: item?.location,
-        status: item?.status,
+        title: capitalizeFLetter(item?.title),
+        status: capitalizeFLetter(item?.status),
         id: item?.id,
+        total_area: item?.total_area,
+        property_type: capitalizeFLetter(item?.listing_type),
+        location: capitalizeFLetter(item?.city),
+        price: formatToINR(item?.price),
       }));
 
       setState({
@@ -219,19 +223,17 @@ export default function list() {
     }
   };
 
-    const properties = [
+  const properties = [
     {
       id: 1,
       city: "Panama City",
       title: "Willow Creek Residence",
       date: "04 April, 2023",
       price: "$34,542.000",
-      propertyType:{type: "Plot",
-        color:"warning"
-      },
+      propertyType: { type: "Plot", color: "warning" },
       area: "34,542 sq.ft",
       status: "Active",
-      image: "/assets/images/real-estate/property-info-img1.png", 
+      image: "/assets/images/real-estate/property-info-img1.png",
     },
     {
       id: 2,
@@ -239,10 +241,8 @@ export default function list() {
       title: "Harmony House",
       date: "04 April, 2023",
       price: "$34,542.000",
-      propertyType:{type: "Rent",
-        color:"secondary"
-      },
-      
+      propertyType: { type: "Rent", color: "secondary" },
+
       area: "34,542 sq.ft",
       status: "Active",
       image: "/assets/images/real-estate/property-info-img2.png",
@@ -253,9 +253,7 @@ export default function list() {
       title: "Sunflower Cottage",
       date: "04 April, 2023",
       price: "$34,542.000",
-     propertyType:{type: "Sale",
-        color:"success"
-      },
+      propertyType: { type: "Sale", color: "success" },
       area: "34,542 sq.ft",
       status: "Active",
       image: "/assets/images/real-estate/property-info-img3.png",
@@ -266,21 +264,17 @@ export default function list() {
       title: "Sunset Retreat",
       date: "04 April, 2023",
       price: "$34,542.000",
-       propertyType:{type: "Lease",
-        color:"info"
-      },
+      propertyType: { type: "Lease", color: "info" },
       area: "34,542 sq.ft",
       status: "Active",
       image: "/assets/images/real-estate/property-info-img4.png",
     },
-  
-    
   ];
-  
+
   const propertStatus = [
-    {value:1, label:"Active"},
-    {value:2, label:"In Active"}
-  ]
+    { value: 1, label: "Active" },
+    { value: 2, label: "In Active" },
+  ];
 
   return (
     <>
@@ -360,7 +354,7 @@ export default function list() {
         <div className="datatables pagination-padding">
           <DataTable
             className="table-hover whitespace-nowrap"
-            records={properties || []}
+            records={state.tableList || []}
             columns={[
               {
                 accessor: "name",
@@ -390,9 +384,9 @@ export default function list() {
                         </Link>
                       </div>
                       <div>
-                        <Link className="flex gap-1 text-primary" href={"#"}>
+                        {/* <Link className="flex gap-1 text-primary" href={"#"}>
                           <FaHome className="text-black" /> View Details
-                        </Link>
+                        </Link> */}
                       </div>
                     </div>
                   </div>

@@ -423,3 +423,12 @@ export const extractTimeFromDateTime = (dateTimeString) => {
 
   return null;
 };
+
+
+export const formatToINR = (amount) => {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0, // Remove decimal places
+  }).format(amount);
+};

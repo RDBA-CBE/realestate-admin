@@ -12,6 +12,8 @@ import {
 } from "@/utils/function.utils";
 import {
   facingDirection,
+  ListType,
+  PROPERTY_IMG,
   PROPERTY_TYPE,
   propertyType,
   ROLES,
@@ -31,7 +33,7 @@ import ImageUploadWithPreview from "@/components/ImageUploadWithPreview/ImageUpl
 import VideoUpload from "@/components/videoUpload/videoUpload.compoent";
 import PrivateRouter from "@/hook/privateRouter";
 
-const AddPropertyPage=()=> {
+const AddPropertyPage = () => {
   const router = useRouter();
   const [state, setState] = useSetState({
     propertyTypeList: propertyType,
@@ -113,6 +115,7 @@ const AddPropertyPage=()=> {
   const categoryList = async (page) => {
     try {
       const res: any = await Models.category.list(page, {});
+      console.log("✌️res --->", res);
 
       const droprdown = Dropdown(res?.results, "name");
 
@@ -241,10 +244,22 @@ const AddPropertyPage=()=> {
   const onSubmit = async () => {
     try {
       setState({ btnLoading: true });
+      const body = {
+        property_type: state.property_type?.value,
+        listing_type: state.listing_type?.value,
+      };
 
-      const body = bodyData();
+      if (state.property_type?.label == PROPERTY_TYPE.BUY) {
+        createBuyProperty();
+      } else if (state.property_type?.label == PROPERTY_TYPE.LEASE) {
+        createLeaseProperty();
+      } else if (state.property_type?.label == PROPERTY_TYPE.PLOT) {
+        createPlotProperty();
+      }
 
-      console.log("body", body);
+      // const body = bodyData();
+
+      // console.log("body", body);
 
       const validateBody = {
         title: state.title,
@@ -276,6 +291,7 @@ const AddPropertyPage=()=> {
         amenities: state.amenities,
         developer: state.developer?.value,
       };
+
       const plotBody: any = {
         title: state.title,
         description: state.description,
@@ -292,7 +308,9 @@ const AddPropertyPage=()=> {
       const buyBody: any = {
         title: state.title,
         description: state.description,
-        property_type: state.property_type?.value,
+        listing_type: state.property_type?.label?.toLowerCase(),
+        // listing_type: "sale",
+
         price: state.price,
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
@@ -300,6 +318,7 @@ const AddPropertyPage=()=> {
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
+        total_area: state.total_area,
         carpet_area: state.carpet_area,
         bedrooms: state.bedrooms,
         bathrooms: state.bathrooms,
@@ -308,6 +327,15 @@ const AddPropertyPage=()=> {
         floor_number: state.floor_number,
         built_year: state.built_year,
         facing_direction: state.facing?.value,
+        city: state.city,
+        state: state.state,
+        country: state.country,
+        postal_code: state.postal_code,
+        // images: state.images,
+        longitude: state.longitude,
+        latitude: state.latitude,
+        developer: state.developer?.value,
+        address: state.address,
       };
 
       const leaseBody: any = {
@@ -354,18 +382,18 @@ const AddPropertyPage=()=> {
         monthly_rent: state.monthly_rent,
         rent_duration: state.rent_duration,
       };
-      // console.log("✌️buyBody --->", buyBody);
+      console.log("✌️buyBody --->", buyBody);
 
       // status: "available",
       // console.log("✌️leaseBody --->", leaseBody);
 
       // console.log("✌️rentBody --->", rentBody);
 
-      console.log("✌️plotBody --->", plotBody);
+      // console.log("✌️plotBody --->", plotBody);
 
-      // await Utils.Validation.propertyCreate.validate(validateBody, {
-      //   abortEarly: false,
-      // });
+      await Utils.Validation.property_type.validate(body, {
+        abortEarly: false,
+      });
 
       // const address: any = await createAddress();
       // console.log("✌️address --->", address);
@@ -374,17 +402,92 @@ const AddPropertyPage=()=> {
       //   plotBody.address = address.id;
       // }
 
-      // const formData = buildFormData(plotBody);
+      // const formData = buildFormData(buyBody);
 
       // const res: any = await Models.property.create(formData);
       // console.log("✌️res --->", res);
-      // const images: any = await createImage(res?.id);
-      // const video: any = await createVideo(res?.id);
+      // PROPERTY_IMG?.map((item) => createImage(res?.id, item));
+      // // const video: any = await createVideo(res?.id);
       // const VirtualTour: any = await createVirtualTour(res?.id);
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors: any = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err?.message;
+        });
+        console.log("✌️validationErrors --->", validationErrors);
+        setState({ error: validationErrors, btnLoading: false });
+      } else {
+        Failure(error?.error);
+        setState({ btnLoading: false });
+      }
+    }
+  };
 
-      // Success("Property Created Successfully");
-      // router.push("/real-estate/property/list/");
+  const createBuyProperty = async () => {
+    try {
+      setState({ btnLoading: true });
+
+      const buyBody: any = {
+        title: state.title,
+        description: state.description,
+        // listing_type: state.property_type?.label?.toLowerCase(),
+        listing_type: "rent",
+
+        price: state.price,
+        price_per_sqft: state.price_per_sqft,
+        project: state.project?.value,
+        developers: [state.developer?.value],
+        amenities: state.amenities,
+        furnishing: state.furnishing?.value,
+        built_up_area: state.built_up_area,
+        total_area: state.total_area,
+        carpet_area: state.carpet_area,
+        bedrooms: state.bedrooms,
+        bathrooms: state.bathrooms,
+        total_floors: state.total_floors,
+        balconies: state.balconies,
+        floor_number: state.floor_number,
+        built_year: state.built_year,
+        facing_direction: state.facing?.value,
+        city: state.city,
+        state: state.state,
+        country: state.country,
+        postal_code: state.postal_code,
+        images: state.images,
+        longitude: state.longitude,
+        latitude: state.latitude,
+        developer: state.developer?.value,
+        address: state.address,
+      };
+      await Utils.Validation.propertyBuyCreate.validate(buyBody, {
+        abortEarly: false,
+      });
+      delete buyBody.images;
+      console.log("✌️buyBody --->", buyBody);
+
+      const formData = buildFormData(buyBody);
+
+      const res: any = await Models.property.create(formData);
+      if (state.images?.length > 0) {
+        state.images?.map((item) => createImage(res?.id, item));
+      }
+      if (state.virtual_tour) {
+        const VirtualTour: any = await createVirtualTour(res?.id);
+      }
+      if (state.video) {
+        const video: any = await createVideo(res?.id);
+      }
+
+      Success("Property Created Successfully");
+      router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
+      // const address: any = await createAddress();
+      // // console.log("✌️address --->", address);
+
+      // if (address) {
+      //   plotBody.address = address.id;
+      // }
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -398,6 +501,92 @@ const AddPropertyPage=()=> {
         Failure(error?.error);
         setState({ btnLoading: false });
       }
+    }
+  };
+
+  const createLeaseProperty = async () => {
+    try {
+      setState({ btnLoading: true });
+
+      const buyBody: any = {
+        title: state.title,
+        description: state.description,
+        listing_type: "lease",
+        lease_total_amount: state.lease_price,
+
+        price_per_sqft: state.price_per_sqft,
+        project: state.project?.value,
+        developers: [state.developer?.value],
+        amenities: state.amenities,
+        furnishing: state.furnishing?.value,
+        built_up_area: state.built_up_area,
+        total_area: state.total_area,
+        carpet_area: state.carpet_area,
+        bedrooms: state.bedrooms,
+        bathrooms: state.bathrooms,
+        total_floors: state.total_floors,
+        balconies: state.balconies,
+        floor_number: state.floor_number,
+        built_year: state.built_year,
+        facing_direction: state.facing?.value,
+        city: state.city,
+        state: state.state,
+        country: state.country,
+        postal_code: state.postal_code,
+        images: state.images,
+        longitude: state.longitude,
+        latitude: state.latitude,
+        developer: state.developer?.value,
+        address: state.address,
+      };
+      await Utils.Validation.propertyBuyCreate.validate(buyBody, {
+        abortEarly: false,
+      });
+      delete buyBody.images;
+      console.log("✌️buyBody --->", buyBody);
+
+      const formData = buildFormData(buyBody);
+
+      const res: any = await Models.property.create(formData);
+      if (state.images?.length > 0) {
+        state.images?.map((item) => createImage(res?.id, item));
+      }
+      if (state.virtual_tour) {
+        const VirtualTour: any = await createVirtualTour(res?.id);
+      }
+      if (state.video) {
+        const video: any = await createVideo(res?.id);
+      }
+
+      Success("Property Created Successfully");
+      router.push("/real-estate/property/list/");
+      setState({ btnLoading: false });
+      // const address: any = await createAddress();
+      // // console.log("✌️address --->", address);
+
+      // if (address) {
+      //   plotBody.address = address.id;
+      // }
+    } catch (error) {
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors: any = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err?.message;
+        });
+        console.log("✌️validationErrors --->", validationErrors);
+
+        setState({ error: validationErrors, btnLoading: false });
+      } else {
+        Failure(error?.error);
+        setState({ btnLoading: false });
+      }
+    }
+  };
+
+  const createPlotProperty = async () => {
+    try {
+    } catch (error) {
+      console.log("✌️error --->", error);
     }
   };
 
@@ -420,14 +609,15 @@ const AddPropertyPage=()=> {
     }
   };
 
-  const createImage = async (property) => {
+  const createImage = async (property, img) => {
     try {
       const body = {
         property: property,
-        image: state.city,
+        image: img,
       };
+      const formData = buildFormData(body);
 
-      const res = await Models.image.create(body);
+      const res = await Models.image.create(formData);
       return res;
     } catch (error) {
       console.log("✌️error --->", error);
@@ -441,8 +631,9 @@ const AddPropertyPage=()=> {
 
         video: state.video,
       };
+      const formData = buildFormData(body);
 
-      const res = await Models.video.create(body);
+      const res = await Models.video.create(formData);
       return res;
     } catch (error) {
       console.log("✌️error --->", error);
@@ -454,7 +645,7 @@ const AddPropertyPage=()=> {
       const body = {
         property: property,
 
-        tour_url: state.video,
+        tour_url: state.virtual_tour,
       };
 
       const res = await Models.video.create(body);
@@ -522,12 +713,12 @@ const AddPropertyPage=()=> {
         <h5 className="text-lg font-semibold dark:text-white-light ">
           Add New Property
         </h5>
-        {/* <PrimaryButton
+        <PrimaryButton
           type="submit"
           text="Post Property"
           className="border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
           onClick={onSubmit}
-        /> */}
+        />
       </div>
 
       <div className="space-y-5">
@@ -561,7 +752,11 @@ const AddPropertyPage=()=> {
                       title="Property type"
                       value={state.property_type}
                       onChange={(e) => {
-                        setState({ property_type: e, contact: "" });
+                        setState({
+                          property_type: e,
+                          contact: "",
+                          error: { ...state.error, property_type: "" },
+                        });
                       }}
                       placeholder={"Select Property type "}
                       options={state.categoryList}
@@ -570,6 +765,26 @@ const AddPropertyPage=()=> {
                       isClearable={false}
                       loadMore={() => catListLoadMore()}
                     />
+
+                    <CustomSelect
+                      title="Offer type"
+                      value={state.listing_type}
+                      onChange={(e) => {
+                        setState({
+                          listing_type: e,
+                          contact: "",
+                          error: { ...state.error, listing_type: "" },
+                        });
+                      }}
+                      placeholder={"Select Offer type "}
+                      options={ListType}
+                      error={state.error?.listing_type}
+                      required
+                      isClearable={false}
+                      // loadMore={() => catListLoadMore()}
+                    />
+                  </div>
+                  <div className="mt-4 flex w-full">
                     <TextInput
                       name="title"
                       title="Property Name"
@@ -590,6 +805,8 @@ const AddPropertyPage=()=> {
                       onChange={(e) =>
                         setState({ description: e.target.value })
                       }
+                      required
+                      error={state.error?.description}
                     />
                   </div>
                 </div>
@@ -659,6 +876,15 @@ const AddPropertyPage=()=> {
                     ) : (
                       <>
                         <NumberInput
+                          name="total_area"
+                          title="Total Area (sq.ft.)"
+                          placeholder="Enter total area"
+                          value={state.total_area}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.total_area}
+                        />
+                        <NumberInput
                           name="built_up_area"
                           title="Built-up Area (sq.ft.)"
                           placeholder="Enter total built-up area"
@@ -667,13 +893,7 @@ const AddPropertyPage=()=> {
                           required
                           error={state.error?.built_up_area}
                         />
-                        <NumberInput
-                          name="carpet_area"
-                          title="Carpet Area (sq.ft.)"
-                          placeholder="Enter total carpet area"
-                          value={state.carpet_area}
-                          onChange={handleInputChange}
-                        />
+
                         <TextInput
                           name="bedrooms"
                           title="Bedrooms (Number Only)"
@@ -741,7 +961,9 @@ const AddPropertyPage=()=> {
                           onChange={(selectedOption) =>
                             setState({ furnishing: selectedOption })
                           }
+                          required
                           isClearable
+                          error={state.error?.furnishing}
                         />
                         {state.property_type?.label == PROPERTY_TYPE.RENT ? (
                           <>
@@ -780,6 +1002,7 @@ const AddPropertyPage=()=> {
                               value={state.price_per_sqft}
                               onChange={handleInputChange}
                               required
+                              error={state.error?.price_per_sqft}
                             />
                           </>
                         ) : state.property_type?.label ==
@@ -846,8 +1069,8 @@ const AddPropertyPage=()=> {
                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <TextInput
                       name="virtual_tour"
-                      title="Virual Tour"
-                      placeholder="Enter virual tour url"
+                      title="Virtual Tour"
+                      placeholder="Enter virtual tour url"
                       value={state.virtual_tour}
                       onChange={handleInputChange}
                     />
@@ -859,7 +1082,16 @@ const AddPropertyPage=()=> {
               {step.id === 3 && (
                 <div className="panel rounded-lg p-6">
                   <h2 className="mb-4 text-lg font-semibold">Location</h2>
-                  <CustomSelect
+                  <TextArea
+                    name="Address"
+                    title="Address"
+                    placeholder="Enter Address"
+                    value={state.address}
+                    onChange={(e) => setState({ address: e.target.value })}
+                    required
+                    error={state.error?.address}
+                  />
+                  {/* <CustomSelect
                     title="Address"
                     placeholder="Search Address"
                     options={state.propertyTypeList}
@@ -874,7 +1106,7 @@ const AddPropertyPage=()=> {
                       })
                     }
                     isClearable
-                  />
+                  /> */}
                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <NumberInput
                       name="latitude"
@@ -1111,7 +1343,7 @@ const AddPropertyPage=()=> {
                       />
                       {state.assignAgent && (
                         <CustomSelect
-                         title="Authorize Agent"
+                          title="Authorize Agent"
                           placeholder="Select Agent"
                           options={state.agentList}
                           value={state.agent}
@@ -1209,5 +1441,5 @@ const AddPropertyPage=()=> {
       />
     </>
   );
-}
-export default  PrivateRouter(AddPropertyPage)
+};
+export default PrivateRouter(AddPropertyPage);

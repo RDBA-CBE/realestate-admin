@@ -1,11 +1,11 @@
 import instance from "@/utils/axios.utils";
 
 const properties = {
-  list: (page) => {
+  list: (page,body) => {
     let promise = new Promise((resolve, reject) => {
       let url = `properties?page=${page}`;
       instance()
-        .get(url)
+        .get(url,body)
         .then((res) => {
           resolve(res.data);
         })
