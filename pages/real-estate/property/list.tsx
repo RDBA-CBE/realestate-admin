@@ -147,19 +147,9 @@ export default function list() {
   };
 
   const handleEdit = async (row) => {
-    const res = await Models.property.details(row?.id);
-    console.log("✌️res --->", res);
-    // setState({
-    //   name: row.name,
-    //   location: row.location,
-    //   description: row.description,
-    //   isOpen: true,
-    //   editId: row?.id,
-    // });
+    // const res = await Models.property.details(row?.id);
+    // console.log("✌️res --->", res);
     router.push(`/real-estate/property/update/${row?.id}`);
-
-
-   
     console.log("✌️row --->", row);
   };
 

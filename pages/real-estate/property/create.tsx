@@ -12,6 +12,7 @@ import {
 } from "@/utils/function.utils";
 import {
   facingDirection,
+  FURNISHING_TYPE,
   LISTING_TYPE,
   ListType,
   PROPERTY_IMG,

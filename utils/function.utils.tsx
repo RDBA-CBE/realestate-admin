@@ -46,33 +46,33 @@ export const Failure = (message: string) => {
 };
 
 export const showDeleteAlert = (onConfirm, onCancel, title) => {
-    const swalWithBootstrapButtons = Swal.mixin({
-        customClass: {
-            confirmButton: 'btn confirm', // Add a custom class for the confirm button
-            cancelButton: 'btn cancel-btn', // Add a custom class for the cancel button
-            popup: 'sweet-alerts',
-        },
-        buttonsStyling: false,
-    });
+  const swalWithBootstrapButtons = Swal.mixin({
+    customClass: {
+      confirmButton: "btn confirm", // Add a custom class for the confirm button
+      cancelButton: "btn cancel-btn", // Add a custom class for the cancel button
+      popup: "sweet-alerts",
+    },
+    buttonsStyling: false,
+  });
 
-    swalWithBootstrapButtons
-        .fire({
-            title: title ? title : 'Are you sure to cancel order?',
-            // text: "You won't be able to Delete this!",
-            icon: 'warning',
-            showCancelButton: true,
-            // confirmButtonText: 'Yes, delete it!',
-            // cancelButtonText: 'No, cancel!',
-            reverseButtons: true,
-            padding: '2em',
-        })
-        .then((result) => {
-            if (result.isConfirmed) {
-                onConfirm();
-            } else if (result.dismiss === Swal.DismissReason.cancel) {
-                onCancel();
-            }
-        });
+  swalWithBootstrapButtons
+    .fire({
+      title: title ? title : "Are you sure to cancel order?",
+      // text: "You won't be able to Delete this!",
+      icon: "warning",
+      showCancelButton: true,
+      // confirmButtonText: 'Yes, delete it!',
+      // cancelButtonText: 'No, cancel!',
+      reverseButtons: true,
+      padding: "2em",
+    })
+    .then((result) => {
+      if (result.isConfirmed) {
+        onConfirm();
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        onCancel();
+      }
+    });
 };
 
 export const getPasswordStrength = (password: string) => {
@@ -117,6 +117,10 @@ export const objIsEmpty = (obj: object) => {
   return true;
 };
 
+export const getDropdownObject = (apiValue: string, optionsArray: any[]) => {
+  return optionsArray.find(option => option.value === apiValue) || null;
+};
+
 export const capitalizeFLetter = (string = "") => {
   if (string.length > 0) {
     return string.charAt(0).toUpperCase() + string.slice(1);
@@ -130,6 +134,12 @@ export const Dropdown = (arr: any, label: string) => {
     label: item[label],
   }));
   return array;
+};
+
+export const StringDropdown = (label: string) => {
+  const data = { value: label, label: capitalizeFLetter(label) };
+
+  return data;
 };
 
 export const MultiDropdown = (arr: any, label: string) => {
@@ -225,7 +235,7 @@ export const generateCalendar = (currentMonth) => {
 // };
 
 export const formatDate = (date: string | Date, pattern: string) => {
-  if (!date) return '';
+  if (!date) return "";
   return moment(date).format(pattern);
 };
 
@@ -424,11 +434,10 @@ export const extractTimeFromDateTime = (dateTimeString) => {
   return null;
 };
 
-
 export const formatToINR = (amount) => {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
     maximumFractionDigits: 0, // Remove decimal places
   }).format(amount);
 };

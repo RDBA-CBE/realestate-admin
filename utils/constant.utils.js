@@ -580,6 +580,17 @@ export const propertyType = [
   { value: 4, label: "Plot" },
 ];
 
+
+export const FURNISHING_TYPE=[
+  { value: "furnished", label: "Furnished" },
+  {
+    value: "semi_furnished",
+    label: "Semi-Furnished",
+  },
+  { value: "unfurnished", label: "Unfurnished" },
+]
+
+
 export const ListType = [
   { value: "sale", label: "Sale" },
   { value: "rent", label: "Rent" },
