@@ -99,6 +99,7 @@ const AddPropertyPage = () => {
     currentPageAamenities: 1,
     newImages: [],
     existingImages: [],
+    imageList: [],
   });
 
   useEffect(() => {
@@ -110,6 +111,7 @@ const AddPropertyPage = () => {
   useEffect(() => {
     if (id) {
       propertyDetails();
+      imageList();
     }
   }, [id]);
 
@@ -124,10 +126,10 @@ const AddPropertyPage = () => {
   const propertyDetails = async () => {
     try {
       const res: any = await Models.property.details(id);
+      console.log("✌️res --->", res);
 
       const amenity: any = await Models.amenity.list(1, {});
       const dropdown = Dropdown(amenity?.results, "name");
-      console.log("✌️dropdown --->", dropdown);
       // if (res?.amenities?.length > 0) {
       //   const existingAmenities = Dropdown(res?.amenities, "name");
 
@@ -224,11 +226,11 @@ const AddPropertyPage = () => {
         });
       }
 
-      if (res?.images?.length > 0) {
-        setState({
-          images: res?.images?.map((item) => item?.image),
-        });
-      }
+      // if (res?.images?.length > 0) {
+      //   setState({
+      //     images: res?.images,
+      //   });
+      // }
 
       if (res?.virtual_tours?.length > 0) {
         // setState({
@@ -256,6 +258,20 @@ const AddPropertyPage = () => {
         amenityList: dropdown,
         hasNext: res?.next,
         currentPageAamenities: page + 1,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const imageList = async () => {
+    try {
+      const body = {
+        property: id,
+      };
+      const res: any = await Models.image.list(1, body);
+      setState({
+        imageList: res?.results,
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -493,8 +509,6 @@ const AddPropertyPage = () => {
         abortEarly: false,
       });
       delete saleBody.images;
-      console.log("✌️buyBody --->", saleBody);
-      console.log("✌️state.newImages --->", state.newImages);
 
       const formData = buildFormData(saleBody);
 
@@ -505,11 +519,11 @@ const AddPropertyPage = () => {
       } else {
         imageLength = state.images?.length;
       }
-      if (state.newImages?.length > 0) {
-        state.newImages?.map((item, index) =>
-          createImage(id, item, imageLength + index + 1)
-        );
-      }
+      // if (state.newImages?.length > 0) {
+      //   state.newImages?.map((item, index) =>
+      //     createImage(id, item, imageLength + index + 1)
+      //   );
+      // }
       if (state.virtual_tour) {
         await createVirtualTour(res?.id);
       }
@@ -688,19 +702,53 @@ const AddPropertyPage = () => {
     }
   };
 
-  const createImage = async (property, img, index) => {
+  const createImage = async (
+    propertyId: number,
+    imageFile: File,
+    order: number
+  ) => {
     try {
       const body = {
-        property: property,
-        image: img,
-        order: index,
+        property: propertyId,
+        image: imageFile,
+        order: order,
       };
       const formData = buildFormData(body);
 
-      const res = await Models.image.create(formData);
-      return res;
+      await Models.image.create(formData);
+      await imageList();
     } catch (error) {
       console.log("✌️error --->", error);
+      throw error; // Re-throw to handle in component
+    }
+  };
+
+  const deleteImage = async (imageId: number) => {
+    try {
+      await Models.image.delete(imageId);
+      await imageList();
+    } catch (error) {
+      console.log("✌️error --->", error);
+      throw error; // Re-throw to handle in component
+    }
+  };
+
+  const updateImageOrders = async (images: any) => {
+console.log('✌️images --->', images);
+    try {
+      // Update each image's order
+      await Promise.all(
+        images.map(async (item) => {
+          const body = {
+            order: item.order,
+          };
+          await Models.image.update(item.id, body);
+        })
+      );
+      await imageList();
+    } catch (error) {
+      console.log("✌️error --->", error);
+      throw error;
     }
   };
 
@@ -1092,16 +1140,12 @@ const AddPropertyPage = () => {
                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                       <UpdatePropertyImagePreview
-                        onImagesChange={(image) => {
-                          setState({
-                            // images: image,
-                            newImages: image?.new,
-                            existingImages: image?.existing,
-                            error: { ...state.error, images: "" },
-                          });
-                          console.log("onImageUrlsChange", image);
-                        }}
-                        existingImages={state.images}
+                        existingImages={state.imageList}
+                        onImageCreate={createImage}
+                        onImageDelete={deleteImage}
+                        maxFiles={10}
+                        propertyId={id}
+                        onImageReorder={updateImageOrders}
                       />
 
                       {state.error?.images && (
@@ -1184,7 +1228,11 @@ const AddPropertyPage = () => {
                     />
                   </div>
                   <div className="mt-4 flex h-60 w-full items-center justify-center rounded rounded-md bg-gray-100 text-gray-400">
-                    Google Map Here
+                  <iframe
+                      className="h-64 w-full rounded-2xl"
+                      src={`https://maps.google.com/maps?q=${state?.latitude},${state?.longitude}&z=13&ie=UTF8&iwloc=&output=embed`
+                      }
+                    />
                   </div>
                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <TextInput
@@ -1315,21 +1363,7 @@ const AddPropertyPage = () => {
                       />
                     ))}
                   </div>
-                  {state.hasNext ? (
-                    <div
-                      className="flex w-full cursor-pointer items-center justify-center font-bold "
-                      onClick={() => loadMoreAmenities()}
-                    >
-                      Show More
-                    </div>
-                  ) : state.amenityList?.length > 10 ? (
-                    <div
-                      className="flex w-full cursor-pointer items-center justify-center font-bold "
-                      onClick={() => amenityList(1)}
-                    >
-                      Show Less
-                    </div>
-                  ) : null}
+
                   {state.error?.amenities && (
                     <p
                       className="mt-1 text-sm text-red-600"

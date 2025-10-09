@@ -1,9 +1,12 @@
 import instance from "@/utils/axios.utils";
 
 const image = {
-  list: (page) => {
+  list: (page,body) => {
     let promise = new Promise((resolve, reject) => {
       let url = `property-images?page=${page}`;
+      if (body?.property) {
+        url += `&property=${encodeURIComponent(body.property)}`;
+      }
       instance()
         .get(url)
         .then((res) => {
@@ -44,7 +47,7 @@ const image = {
     return promise;
   },
 
-  update: (data: any, id: any) => {
+  update: ( id: any,data: any) => {
     let promise = new Promise((resolve, reject) => {
       let url = `property-images/${id}/`;
       const config = {
