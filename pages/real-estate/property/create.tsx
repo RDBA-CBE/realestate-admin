@@ -268,6 +268,7 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
+        Failure("Please Fill all the required fields");
         console.log("✌️validationErrors --->", validationErrors);
         setState({ error: validationErrors, btnLoading: false });
       } else {
@@ -317,6 +318,7 @@ const AddPropertyPage = () => {
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
         abortEarly: false,
       });
+      
       delete saleBody.images;
       delete saleBody.validatePropertyType
       console.log("✌️buyBody --->", saleBody);
@@ -343,6 +345,7 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
+         Failure("Please Fill all the required fields");
         console.log("✌️validationErrors --->", validationErrors);
 
         setState({ error: validationErrors, btnLoading: false });
@@ -422,6 +425,7 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
+         Failure("Please Fill all the required fields");
         console.log("✌️validationErrors --->", validationErrors);
 
         setState({ error: validationErrors, btnLoading: false });
@@ -501,6 +505,7 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
+         Failure("Please Fill all the required fields");
         console.log("✌️validationErrors --->", validationErrors);
 
         setState({ error: validationErrors, btnLoading: false });

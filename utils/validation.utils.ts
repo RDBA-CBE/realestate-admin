@@ -62,8 +62,16 @@ export const propertySaleCreate = Yup.object().shape({
     .nullable(),
   price: Yup.string().required("Price is required").nullable(),
   developer: Yup.string().required("Developer is required").nullable(),
-  longitude: Yup.string().required("Longitude is required").nullable(),
-  latitude: Yup.string().required("Latitude is required").nullable(),
+  longitude: Yup.string()
+  .required("Longitude is required")
+  .matches(/^-?\d{1,2}(\.\d+)?$/, "Longitude must have at most 2 digits before the decimal point")
+  .nullable(),
+
+latitude: Yup.string()
+  .required("Latitude is required")
+  .matches(/^-?\d{1,2}(\.\d+)?$/, "Latitude must have at most 2 digits before the decimal point")
+  .nullable(),
+
   address: Yup.string().required("Address is required").nullable(),
   images: Yup.array()
     .required("Property image is required")
