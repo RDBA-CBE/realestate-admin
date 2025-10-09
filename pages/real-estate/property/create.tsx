@@ -259,13 +259,9 @@ const AddPropertyPage = () => {
         createRentProperty();
       }
 
-     
-
       await Utils.Validation.property_type.validate(body, {
         abortEarly: false,
       });
-
-      
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -315,15 +311,14 @@ const AddPropertyPage = () => {
         latitude: state.latitude,
         developer: state.developer?.value,
         address: state.address,
-        validatePropertyType: state.property_type
+        validatePropertyType: state.property_type,
       };
-
-      
 
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
         abortEarly: false,
       });
       delete saleBody.images;
+      delete saleBody.validatePropertyType
       console.log("✌️buyBody --->", saleBody);
 
       const formData = buildFormData(saleBody);
@@ -395,12 +390,14 @@ const AddPropertyPage = () => {
         latitude: state.latitude,
         developer: state.developer?.value,
         address: state.address,
-        validatePropertyType: state.property_type
+        validatePropertyType: state.property_type,
       };
       await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
         abortEarly: false,
       });
       delete buyBody.images;
+      delete buyBody.validatePropertyType
+
       console.log("✌️buyBody --->", buyBody);
 
       const formData = buildFormData(buyBody);
@@ -470,12 +467,14 @@ const AddPropertyPage = () => {
         monthly_rent: state.monthly_rent,
         price: state.monthly_rent,
         rent_duration: state.rent_duration,
-        validatePropertyType: state.property_type
+        validatePropertyType: state.property_type,
       };
       await Utils.Validation.propertyRentCreate.validate(buyBody, {
         abortEarly: false,
       });
       delete buyBody.images;
+      delete buyBody.validatePropertyType
+
       console.log("✌️buyBody --->", buyBody);
 
       const formData = buildFormData(buyBody);
@@ -1060,7 +1059,11 @@ const AddPropertyPage = () => {
                     />
                   </div>
                   <div className="mt-4 flex h-60 w-full items-center justify-center rounded rounded-md bg-gray-100 text-gray-400">
-                    Google Map Here
+                    <iframe
+                      className="h-64 w-full rounded-2xl"
+                      src={`https://maps.google.com/maps?q=${state?.latitude},${state?.longitude}&z=13&ie=UTF8&iwloc=&output=embed`
+                      }
+                    />
                   </div>
                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <TextInput

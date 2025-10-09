@@ -131,7 +131,7 @@ export default function list() {
       () => {
         Swal.fire("Cancelled", "Your Record is safe :)", "info");
       },
-      "Are you sure want to delete project?"
+      "Are you sure want to delete property?"
     );
   };
 

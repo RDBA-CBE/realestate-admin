@@ -100,9 +100,9 @@ export const propertyLeaseCreate = Yup.object().shape({
       otherwise: (schema) => schema.nullable(),
     }),
   project: Yup.string().required("Project is required").nullable(),
-  price_per_sqft: Yup.string()
-    .required("Price Per Sq.ft is required")
-    .nullable(),
+  // price_per_sqft: Yup.string()
+  //   .required("Price Per Sq.ft is required")
+  //   .nullable(),
   developer: Yup.string().required("Developer is required").nullable(),
   longitude: Yup.string().required("Longitude is required").nullable(),
   latitude: Yup.string().required("Latitude is required").nullable(),
