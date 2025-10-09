@@ -5,6 +5,7 @@ import IconEye from "@/components/Icon/IconEye";
 import IconEdit from "@/components/Icon/IconEdit";
 import {
   capitalizeFLetter,
+  Dropdown,
   Failure,
   formatToINR,
   showDeleteAlert,
@@ -31,6 +32,7 @@ import IconTrashLines from "@/components/Icon/IconTrashLines";
 import {
   LISTING_TYPE,
   LISTING_TYPE_LIST,
+  ListType,
   PROPERTY_TYPE,
   propertyType,
 } from "@/utils/constant.utils";
@@ -44,6 +46,7 @@ export default function list() {
     isOpen: false,
     btnLoading: false,
     page: 1,
+    categoryList:[],
     tableList: [],
     editId: null,
     name: "",
@@ -59,11 +62,14 @@ export default function list() {
 
   useEffect(() => {
     propertyList(1);
+    categoryList(1)
   }, []);
 
   useEffect(() => {
     propertyList(1);
   }, [debouncedSearch]);
+
+  
 
   const propertyList = async (page) => {
     try {
@@ -75,6 +81,7 @@ export default function list() {
         status: capitalizeFLetter(item?.status),
         id: item?.id,
         total_area: item?.total_area,
+        property_type:item?.property_type,
         listing_type: {
           type: capitalizeFLetter(item?.listing_type),
           color:
@@ -109,6 +116,43 @@ export default function list() {
       setState({ loading: false });
     }
   };
+
+  const categoryList = async (page) => {
+      try {
+        const res: any = await Models.category.list(page, {});
+        console.log("✌️res --->", res);
+  
+        const droprdown = Dropdown(res?.results, "name");
+  
+        setState({
+          categoryList: droprdown,
+          categoryPage: page,
+          categoryNext: res.next,
+        });
+      } catch (error) {
+        console.log("✌️error --->", error);
+      }
+    };
+
+    const catListLoadMore = async () => {
+        try {
+          if (state.categoryNext) {
+            const res: any = await Models.category.list(state.categoryPage + 1, {});
+            const newOptions = Dropdown(res?.results, "name");
+            setState({
+              categoryList: [...state.categoryList, ...newOptions],
+              categoryNext: res.next,
+              categoryPage: state.categoryPage + 1,
+            });
+          } else {
+            setState({
+              categoryList: state.categoryList,
+            });
+          }
+        } catch (error) {
+          console.log("error: ", error);
+        }
+      };
 
   const deleteDecord = async (row: any) => {
     try {
@@ -227,8 +271,8 @@ export default function list() {
   ];
 
   const propertStatus = [
-    { value: 1, label: "Active" },
-    { value: 2, label: "In Active" },
+    { value: 1, label: "Available" },
+    { value: 2, label: "Unavailable" },
   ];
 
   return (
@@ -268,7 +312,18 @@ export default function list() {
             placeholder="Select Property Type"
             value={state.property_type}
             onChange={(e) => setState({ property_type: e })}
-            options={propertyType}
+            options={state?.categoryList}
+            isClearable={false}
+             loadMore={() => catListLoadMore()}
+          />
+        </div>
+
+         <div className="flex-1">
+          <CustomSelect
+            placeholder="Select Offer Type"
+            value={state.offer_type}
+            onChange={(e) => setState({ offer_type: e })}
+            options={ListType}
           />
         </div>
 
@@ -363,13 +418,16 @@ export default function list() {
                   ),
                 },
 
-                { accessor: "date", title: "Listed Date	" },
+                { accessor: "date", title: "Listed Date" },
 
-                { accessor: "price", title: "Price Range	" },
+                { accessor: "price", title: "Price Range" },
+
+                { accessor: "property_type", title: "Property Type" },
+
 
                 {
                   accessor: "role",
-                  title: "Property Type",
+                  title: "Offer Type",
                   render: (row: any) => (
                     <span
                       className={`badge badge-outline-${row?.listing_type?.color} `}
