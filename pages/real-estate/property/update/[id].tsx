@@ -44,7 +44,6 @@ const AddPropertyPage = () => {
   const router = useRouter();
   const params = useSearchParams();
   const id = params.get("id");
-  console.log("✌️params --->", id);
   const [state, setState] = useSetState({
     propertyTypeList: propertyType,
     group: null,
@@ -100,6 +99,7 @@ const AddPropertyPage = () => {
     newImages: [],
     existingImages: [],
     imageList: [],
+    videoLoading: false,
   });
 
   useEffect(() => {
@@ -126,31 +126,14 @@ const AddPropertyPage = () => {
   const propertyDetails = async () => {
     try {
       const res: any = await Models.property.details(id);
-      console.log("✌️res --->", res);
 
       const amenity: any = await Models.amenity.list(1, {});
-      const dropdown = Dropdown(amenity?.results, "name");
-      // if (res?.amenities?.length > 0) {
-      //   const existingAmenities = Dropdown(res?.amenities, "name");
-
-      //   const notMatched = dropdown.filter(
-      //     (amenity) =>
-      //       !existingAmenities.some(
-      //         (selected) => selected.value === amenity.value
-      //       )
-      //   );
-      //   setState({
-      //     amenityList: notMatched,
-      //     hasNext: amenity?.next,
-      //     currentPageAamenities: 2,
-      //   });
-      // }else{
+      const dropdown = Dropdown(amenity, "name");
       setState({
         amenityList: dropdown,
         hasNext: amenity?.next,
         currentPageAamenities: 2,
       });
-      // }
 
       if (res?.amenities?.length > 0) {
         const existingAmenities = Dropdown(res?.amenities, "name");
@@ -179,7 +162,7 @@ const AddPropertyPage = () => {
         monthly_rent: formatNumber(res?.monthly_rent),
         rent_duration: formatNumber(res?.rent_duration),
         lease_total_amount: formatNumber(res?.lease_total_amount),
-        lease_duration: formatNumber(res?.lease_duration)
+        lease_duration: formatNumber(res?.lease_duration),
       });
 
       if (res?.property_type) {
@@ -200,11 +183,11 @@ const AddPropertyPage = () => {
         });
       }
 
-      if (res?.developers?.length > 0) {
+      if (res?.developer) {
         setState({
           developer: {
-            value: res?.developers?.[0]?.id,
-            label: `${res?.developers?.[0]?.first_name} ${res?.developers?.[0]?.last_name}`,
+            value: res?.developer?.id,
+            label: `${res?.developer?.first_name} ${res?.developer?.last_name}`,
           },
         });
       }
@@ -230,12 +213,6 @@ const AddPropertyPage = () => {
         });
       }
 
-      // if (res?.images?.length > 0) {
-      //   setState({
-      //     images: res?.images,
-      //   });
-      // }
-
       if (res?.virtual_tours?.length > 0) {
         // setState({
         //   price: formatNumber(res?.price),
@@ -244,10 +221,9 @@ const AddPropertyPage = () => {
       }
 
       if (res?.videos?.length > 0) {
-        // setState({
-        //   price: formatNumber(res?.price),
-        //   price_per_sqft: formatNumber(res?.price_per_sqft),
-        // });
+        setState({
+          existingVideo: res?.videos?.[0],
+        });
       }
     } catch (error) {
       console.log("✌️error --->", error);
@@ -257,7 +233,7 @@ const AddPropertyPage = () => {
   const amenityList = async (page) => {
     try {
       const res: any = await Models.amenity.list(page, {});
-      const dropdown = Dropdown(res?.results, "name");
+      const dropdown = Dropdown(res, "name");
       setState({
         amenityList: dropdown,
         hasNext: res?.next,
@@ -372,29 +348,6 @@ const AddPropertyPage = () => {
     }
   };
 
-  const loadMoreAmenities = async () => {
-    try {
-      if (state.hasNext) {
-        const res: any = await Models.amenity.list(
-          state.currentPageAamenities,
-          {}
-        );
-        const dropdown = Dropdown(res?.results, "name");
-        setState({
-          amenityList: [...state.amenityList, ...dropdown],
-          hasNext: res.next,
-          currentPageAamenities: state.currentPageAamenities + 1,
-        });
-      } else {
-        setState({
-          amenityList: state.amenityList,
-        });
-      }
-    } catch (error) {
-      console.log("error: ", error);
-    }
-  };
-
   const createAmenity = async () => {
     try {
       setState({ amenityLoading: true });
@@ -407,9 +360,13 @@ const AddPropertyPage = () => {
       };
       await Utils.Validation.amenity.validate(body, { abortEarly: false });
 
-      const res = await Models.amenity.create(body);
+      const res: any = await Models.amenity.create(body);
+      console.log("createAmenity --->", res);
+
+      // state.amenities
 
       setState({
+        amenities: [...state.amenities, res?.id],
         isOpenAmenit: false,
         name: "",
         description: "",
@@ -427,7 +384,13 @@ const AddPropertyPage = () => {
 
         setState({ error: validationErrors, amenityLoading: false });
       } else {
+        if (Array.isArray(error.name)) {
+          if (error.name.length > 0) {
+            Failure(error.name?.[0]);
+          }
+        }else{
         Failure(error?.error);
+      }
         setState({ amenityLoading: false });
       }
     }
@@ -477,7 +440,7 @@ const AddPropertyPage = () => {
         price: state.price,
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
-        developers: [state.developer?.value],
+        developer: state.developer?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -497,7 +460,6 @@ const AddPropertyPage = () => {
         images: state.imageList,
         longitude: state.longitude,
         latitude: state.latitude,
-        developer: state.developer?.value,
         address: state.address,
         validatePropertyType: state.property_type,
       };
@@ -506,7 +468,7 @@ const AddPropertyPage = () => {
         abortEarly: false,
       });
       delete saleBody.images;
-      delete saleBody.validatePropertyType
+      delete saleBody.validatePropertyType;
 
       const formData = buildFormData(saleBody);
 
@@ -524,8 +486,8 @@ const AddPropertyPage = () => {
         await createVideo(res?.id);
       }
 
-      Success("Property updated Successfully");
-      // router.push("/real-estate/property/list/");
+      Success("Property Updated Successfully");
+      router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -559,7 +521,7 @@ const AddPropertyPage = () => {
         lease_duration: state.lease_duration,
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
-        developers: [state.developer?.value],
+        developer: state.developer?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -579,7 +541,6 @@ const AddPropertyPage = () => {
         images: state.imageList,
         longitude: state.longitude,
         latitude: state.latitude,
-        developer: state.developer?.value,
         address: state.address,
         validatePropertyType: state.property_type,
       };
@@ -587,7 +548,7 @@ const AddPropertyPage = () => {
         abortEarly: false,
       });
       delete buyBody.images;
-       delete buyBody.validatePropertyType
+      delete buyBody.validatePropertyType;
 
       console.log("✌️buyBody --->", buyBody);
 
@@ -602,7 +563,7 @@ const AddPropertyPage = () => {
         await createVideo(res?.id);
       }
 
-      Success("Property Created Successfully");
+      Success("Property Updated Successfully");
       router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
     } catch (error) {
@@ -632,7 +593,7 @@ const AddPropertyPage = () => {
         property_type: state.property_type?.value,
         listing_type: "rent",
         project: state.project?.value,
-        developers: [state.developer?.value],
+        developer: state.developer?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -652,7 +613,6 @@ const AddPropertyPage = () => {
         images: state.imageList,
         longitude: state.longitude,
         latitude: state.latitude,
-        developer: state.developer?.value,
         address: state.address,
         monthly_rent: state.monthly_rent,
         price: state.monthly_rent,
@@ -679,7 +639,7 @@ const AddPropertyPage = () => {
         await createVideo(res?.id);
       }
 
-      Success("Property Created Successfully");
+      Success("Property Updated Successfully");
       router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
     } catch (error) {
@@ -726,14 +686,12 @@ const AddPropertyPage = () => {
       await imageList();
     } catch (error) {
       console.log("✌️error --->", error);
-      throw error; // Re-throw to handle in component
+      throw error;
     }
   };
 
   const updateImageOrders = async (images: any) => {
-    console.log("✌️images --->", images);
     try {
-      // Update each image's order
       await Promise.all(
         images.map(async (item) => {
           const body = {
@@ -746,6 +704,41 @@ const AddPropertyPage = () => {
     } catch (error) {
       console.log("✌️error --->", error);
       throw error;
+    }
+  };
+
+  const handleVideoChange = async (videoFile: any) => {
+    if (!videoFile) return;
+    try {
+      setState({ videoLoading: true });
+
+      if (state.existingVideo) {
+        await Models.video.delete(state.existingVideo?.id);
+      }
+      const formData = new FormData();
+      formData.append("property", id);
+      formData.append("video", videoFile);
+
+      const response = await Models.video.create(formData);
+      setState({ existingVideo: response, videoLoading: true });
+    } catch (error) {
+    } finally {
+      setState({ videoLoading: false });
+    }
+  };
+
+  const handleVideoRemove = async () => {
+    try {
+      setState({ videoLoading: true });
+
+      await Models.video.delete(state.existingVideo?.id);
+      setState({ existingVideo: null });
+      setState({ videoLoading: false });
+    } catch (error) {
+      console.error("Error removing video:", error);
+      throw error;
+    } finally {
+      setState({ videoLoading: false });
     }
   };
 
@@ -1174,9 +1167,12 @@ const AddPropertyPage = () => {
                     </div>
                     <div className="">
                       <VideoUpload
-                        onVideoChange={(file) => {
-                          setState({ video: file });
-                        }}
+                        onVideoChange={handleVideoChange}
+                        onVideoRemove={handleVideoRemove}
+                        existingVideo={state.existingVideo}
+                        isLoading={state.videoLoading}
+                        maxSizeMB={20}
+                        acceptedFormats={["mp4", "mov", "avi"]}
                       />
                     </div>
                   </div>
@@ -1485,7 +1481,7 @@ const AddPropertyPage = () => {
                   <div className="mt-6 flex justify-end">
                     <PrimaryButton
                       type="submit"
-                      text="Post Property"
+                      text="Update Property"
                       className="!mt-6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
                       onClick={onSubmit}
                       loading={state.btnLoading}

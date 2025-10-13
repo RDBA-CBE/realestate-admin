@@ -118,7 +118,7 @@ export const objIsEmpty = (obj: object) => {
 };
 
 export const getDropdownObject = (apiValue: string, optionsArray: any[]) => {
-  return optionsArray.find(option => option.value === apiValue) || null;
+  return optionsArray.find((option) => option.value === apiValue) || null;
 };
 
 export const capitalizeFLetter = (string = "") => {
@@ -440,4 +440,12 @@ export const formatToINR = (amount) => {
     currency: "INR",
     maximumFractionDigits: 0, // Remove decimal places
   }).format(amount);
+};
+
+export const commonDateFormat = (date) => {
+  if (date) {
+    return moment(date).format("DD-MM-YYYY");
+  } else {
+    return "";
+  }
 };

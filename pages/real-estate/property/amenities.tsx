@@ -47,7 +47,7 @@ export default function list() {
     try {
       const body = bodyData();
       const res: any = await Models.amenity.list(page, body);
-      const data = res?.results?.map((item) => ({
+      const data = res?.map((item) => ({
         name: item?.name,
         location: item?.location,
         status: item?.status,
@@ -95,7 +95,13 @@ export default function list() {
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
+        if (Array.isArray(error.name)) {
+          if (error.name.length > 0) {
+            Failure(error.name?.[0]);
+          }
+        }else{
         Failure(error?.error);
+      }
         setState({ btnLoading: false });
       }
     }

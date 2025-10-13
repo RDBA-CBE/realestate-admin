@@ -1,6 +1,17 @@
 "use client";
 
-import { MapPin, Info, Home, Star, Phone, File } from "lucide-react";
+import {
+  MapPin,
+  Info,
+  Home,
+  Star,
+  Phone,
+  File,
+  Trash2,
+  ChevronDown,
+  Plus,
+  Camera,
+} from "lucide-react";
 import TextInput from "@/components/FormFields/TextInput.component";
 import PrimaryButton from "@/components/FormFields/PrimaryButton.component";
 import {
@@ -87,6 +98,15 @@ const AddPropertyPage = () => {
     //Rent
     monthly_rent: null,
     rent_duration: null,
+    floorPlans: [
+      {
+        category: null,
+        squareFeet: "",
+        price: "",
+        reraId: "",
+        image: null,
+      },
+    ],
   });
 
   useEffect(() => {
@@ -105,7 +125,7 @@ const AddPropertyPage = () => {
   const amenityList = async (page) => {
     try {
       const res: any = await Models.amenity.list(page, {});
-      const dropdown = Dropdown(res?.results, "name");
+      const dropdown = Dropdown(res, "name");
       setState({
         amenityList: dropdown,
       });
@@ -290,7 +310,7 @@ const AddPropertyPage = () => {
         price: state.price,
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
-        developers: [state.developer?.value],
+        developer: state.developer?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -310,7 +330,6 @@ const AddPropertyPage = () => {
         images: state.images,
         longitude: state.longitude,
         latitude: state.latitude,
-        developer: state.developer?.value,
         address: state.address,
         validatePropertyType: state.property_type,
       };
@@ -318,9 +337,9 @@ const AddPropertyPage = () => {
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
         abortEarly: false,
       });
-      
+
       delete saleBody.images;
-      delete saleBody.validatePropertyType
+      delete saleBody.validatePropertyType;
       console.log("✌️buyBody --->", saleBody);
 
       const formData = buildFormData(saleBody);
@@ -345,7 +364,7 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
-         Failure("Please Fill all the required fields");
+        Failure("Please Fill all the required fields");
         console.log("✌️validationErrors --->", validationErrors);
 
         setState({ error: validationErrors, btnLoading: false });
@@ -371,7 +390,7 @@ const AddPropertyPage = () => {
         lease_duration: state.lease_duration,
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
-        developers: [state.developer?.value],
+        developer: state.developer?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -391,7 +410,6 @@ const AddPropertyPage = () => {
         images: state.images,
         longitude: state.longitude,
         latitude: state.latitude,
-        developer: state.developer?.value,
         address: state.address,
         validatePropertyType: state.property_type,
       };
@@ -399,7 +417,7 @@ const AddPropertyPage = () => {
         abortEarly: false,
       });
       delete buyBody.images;
-      delete buyBody.validatePropertyType
+      delete buyBody.validatePropertyType;
 
       console.log("✌️buyBody --->", buyBody);
 
@@ -425,7 +443,7 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
-         Failure("Please Fill all the required fields");
+        Failure("Please Fill all the required fields");
         console.log("✌️validationErrors --->", validationErrors);
 
         setState({ error: validationErrors, btnLoading: false });
@@ -446,7 +464,7 @@ const AddPropertyPage = () => {
         property_type: state.property_type?.value,
         listing_type: "rent",
         project: state.project?.value,
-        developers: [state.developer?.value],
+        developer: state.developer?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -466,7 +484,6 @@ const AddPropertyPage = () => {
         images: state.images,
         longitude: state.longitude,
         latitude: state.latitude,
-        developer: state.developer?.value,
         address: state.address,
         monthly_rent: state.monthly_rent,
         price: state.monthly_rent,
@@ -477,7 +494,7 @@ const AddPropertyPage = () => {
         abortEarly: false,
       });
       delete buyBody.images;
-      delete buyBody.validatePropertyType
+      delete buyBody.validatePropertyType;
 
       console.log("✌️buyBody --->", buyBody);
 
@@ -505,7 +522,7 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
-         Failure("Please Fill all the required fields");
+        Failure("Please Fill all the required fields");
         console.log("✌️validationErrors --->", validationErrors);
 
         setState({ error: validationErrors, btnLoading: false });
@@ -606,14 +623,58 @@ const AddPropertyPage = () => {
   const steps = [
     { id: 1, title: "Basic Detail", icon: MapPin },
     { id: 2, title: "Property Information", icon: Info },
+    { id: 5, title: "Floor Plans", icon: Star },
+
     { id: 7, title: "Media", icon: File },
     { id: 3, title: "Location", icon: MapPin },
     { id: 4, title: "Amenities", icon: Home },
     // { id: 5, title: "Extra Facilities", icon: Star },
     { id: 6, title: "Contact Information", icon: Phone },
   ];
+console.log('✌️state.floorPlans --->', state.floorPlans);
 
-  console.log("state.property_type", state.property_type);
+
+  const addFloorPlan = () => {
+    setState({
+      floorPlans: [
+        ...state.floorPlans,
+        {
+          category: null,
+          squareFeet: "",
+          price: "",
+          reraId: "",
+          image: null,
+        },
+      ],
+    });
+  };
+
+  const removeFloorPlan = (index) => {
+    if (state.floorPlans.length > 1) {
+      // Clean up object URLs if any
+      const plan = state.floorPlans[index];
+      if (plan.image && typeof plan.image !== "string") {
+        URL.revokeObjectURL(plan.image);
+      }
+      setState({ floorPlans: state.floorPlans.filter((_, i) => i !== index) });
+    }
+  };
+
+  const updateFloorPlan = (index, field, value) => {
+    setState({
+      floorPlans: state.floorPlans.map((plan, i) =>
+        i === index ? { ...plan, [field]: value } : plan
+      ),
+    });
+  };
+
+  const toggleAccordion = (index) => {
+    if (state.openAccordions?.includes(index)) {
+      setState({ openAccordions: [] });
+    } else {
+      setState({ openAccordions: [index] });
+    }
+  };
 
   return (
     <>
@@ -649,9 +710,7 @@ const AddPropertyPage = () => {
               </span>
             </div>
 
-            {/* Form section (right) */}
             <div className="xl:col-span-8">
-              {/* Step 1: Basic Detail */}
               {step.id === 1 && (
                 <div className="panel rounded-lg">
                   <h2 className="mb-4 text-lg font-semibold">Basic Detail</h2>
@@ -723,7 +782,6 @@ const AddPropertyPage = () => {
                 </div>
               )}
 
-              {/* Step 2: Property Information */}
               {step.id === 2 && (
                 <div className="panel rounded-lg p-6">
                   <h2 className="text-lg font-semibold">
@@ -967,6 +1025,227 @@ const AddPropertyPage = () => {
                 </div>
               )}
 
+              {step.id === 5 && (
+                <div className="panel rounded-lg p-6">
+                  <h2 className="text-lg font-semibold">Floor Plans</h2>
+
+                  <div className="mt-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                      {state.floorPlans?.map((plan, index) => (
+                        <div key={index} className="rounded-lg border">
+                          <div
+                            className="flex cursor-pointer items-center justify-between bg-gray-50 p-4"
+                            onClick={() => toggleAccordion(index)}
+                          >
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-medium">
+                                {plan.category?.label ||
+                                  `Floor Plan ${index + 1}`}
+                              </h3>
+                              {plan.squareFeet && (
+                                <span className="text-sm text-gray-500">
+                                  ({plan.squareFeet} sq.ft)
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {state.floorPlans.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeFloorPlan(index);
+                                  }}
+                                  className="rounded p-1 text-red-500 hover:bg-red-50"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              )}
+                              <ChevronDown className="h-4 w-4" />
+                            </div>
+                          </div>
+
+                          <div className="border-t p-4">
+                            <div className="grid grid-cols-1 gap-4">
+                              <CustomSelect
+                                title="Category"
+                                value={plan.category}
+                                onChange={(e) =>
+                                  updateFloorPlan(index, "category", e)
+                                }
+                                placeholder="Select Category"
+                                options={[
+                                  { value: "plots", label: "Plots" },
+                                  { value: "1bhk", label: "1 BHK" },
+                                  { value: "2bhk", label: "2 BHK" },
+                                  { value: "3bhk", label: "3 BHK" },
+                                  { value: "4bhk", label: "4 BHK" },
+                                ]}
+                                required
+                              />
+
+                              <TextInput
+                                name={`squareFeet-${index}`}
+                                title="Square Feet"
+                                placeholder="Enter Square Feet"
+                                type="number"
+                                value={plan.squareFeet}
+                                onChange={(e) =>
+                                  updateFloorPlan(
+                                    index,
+                                    "squareFeet",
+                                    e.target.value
+                                  )
+                                }
+                                required
+                              />
+
+                              <TextInput
+                                name={`price-${index}`}
+                                title="Price"
+                                placeholder="Enter Price"
+                                type="number"
+                                value={plan.price}
+                                onChange={(e) =>
+                                  updateFloorPlan(
+                                    index,
+                                    "price",
+                                    e.target.value
+                                  )
+                                }
+                                required
+                              />
+
+                              <TextInput
+                                name={`reraId-${index}`}
+                                title="RERA ID"
+                                placeholder="Enter RERA ID"
+                                value={plan.reraId}
+                                onChange={(e) =>
+                                  updateFloorPlan(
+                                    index,
+                                    "reraId",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                              <div
+                                className={`flex h-40 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
+                                  plan.image
+                                    ? "border-green-300 bg-green-50"
+                                    : "border-gray-300 hover:border-gray-400"
+                                } relative`}
+                                onDragOver={(e) => {
+                                  e.preventDefault();
+                                  e.currentTarget.classList.add(
+                                    "border-blue-400",
+                                    "bg-blue-50"
+                                  );
+                                }}
+                                onDragLeave={(e) => {
+                                  e.preventDefault();
+                                  e.currentTarget.classList.remove(
+                                    "border-blue-400",
+                                    "bg-blue-50"
+                                  );
+                                }}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  e.currentTarget.classList.remove(
+                                    "border-blue-400",
+                                    "bg-blue-50"
+                                  );
+
+                                  const files = e.dataTransfer.files;
+                                  if (files.length > 0) {
+                                    const file = files[0];
+                                    if (file.type.startsWith("image/")) {
+                                      updateFloorPlan(index, "image", file);
+                                    }
+                                  }
+                                }}
+                                onClick={() =>
+                                  document
+                                    .getElementById(`file-input-${index}`)
+                                    ?.click()
+                                }
+                              >
+                                {plan.image ? (
+                                  <>
+                                    <img
+                                      src={
+                                        typeof plan.image === "string"
+                                          ? plan.image
+                                          : URL.createObjectURL(plan.image)
+                                      }
+                                      alt="Floor plan"
+                                      className="h-full w-full rounded-lg object-cover"
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-0 transition-all duration-200 hover:bg-opacity-30">
+                                      <div className="text-center text-white opacity-0 transition-opacity duration-200 hover:opacity-100">
+                                        <Camera className="mx-auto mb-1 h-6 w-6" />
+                                        <span className="text-xs">
+                                          Change Image
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        updateFloorPlan(index, "image", null);
+                                      }}
+                                      className="absolute -right-2 -top-2 z-10 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Plus className="h-8 w-8 text-gray-400" />
+                                    <span className="mt-2 text-sm text-gray-500">
+                                      Drag & drop or click to upload
+                                    </span>
+                                    <span className="mt-1 text-xs text-gray-400">
+                                      PNG, JPG, WEBP up to 5MB
+                                    </span>
+                                  </>
+                                )}
+
+                                <input
+                                  id={`file-input-${index}`}
+                                  type="file"
+                                  className="hidden"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                      updateFloorPlan(index, "image", file);
+                                    }
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Add New Floor Plan Button */}
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        onClick={addFloorPlan}
+                        className="flex items-center gap-2 rounded-lg border border-blue-600 px-4 py-2 text-blue-600 transition-colors hover:bg-blue-50"
+                      >
+                        <Plus className="h-5 w-5" />
+                        Add Floor Plan
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {step.id === 7 && (
                 <div className="panel rounded-lg p-6">
                   <h2 className="text-lg font-semibold">
@@ -1066,8 +1345,7 @@ const AddPropertyPage = () => {
                   <div className="mt-4 flex h-60 w-full items-center justify-center rounded rounded-md bg-gray-100 text-gray-400">
                     <iframe
                       className="h-64 w-full rounded-2xl"
-                      src={`https://maps.google.com/maps?q=${state?.latitude},${state?.longitude}&z=13&ie=UTF8&iwloc=&output=embed`
-                      }
+                      src={`https://maps.google.com/maps?q=${state?.latitude},${state?.longitude}&z=13&ie=UTF8&iwloc=&output=embed`}
                     />
                   </div>
                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">

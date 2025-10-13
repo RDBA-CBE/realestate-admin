@@ -57,6 +57,10 @@ export default function list() {
         location: item?.location,
         status: item?.status,
         id: item?.id,
+        properties: item?.property_count,
+        project:item?.project?.name,
+      
+
       }));
 
       setState({
@@ -281,8 +285,10 @@ export default function list() {
           records={state.tableList || []}
           columns={[
             { accessor: "name", title: "Project Name" },
-            { accessor: "location", title: "Location" },
-            { accessor: "status", title: "status" },
+            { accessor: "properties" },
+
+            { accessor: "location" },
+            { accessor: "status" },
 
             {
               accessor: "actions",
