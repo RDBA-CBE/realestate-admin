@@ -1,15 +1,11 @@
 import instance from "@/utils/axios.utils";
 
-const user = {
+const lead = {
   list: (page, body) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `users/?page=${page}`;
+      let url = `leads/?page=${page}`;
       if (body?.group) {
         url += `&group=${encodeURIComponent(body.group)}`;
-      }
-
-      if (body?.user_type) {
-        url += `&user_type=${encodeURIComponent(body.user_type)}`;
       }
        if (body?.search) {
         url += `&search=${encodeURIComponent(body.search)}`;
@@ -32,7 +28,7 @@ const user = {
 
   create: (data: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `users/`;
+      let url = `leads/`;
       instance()
         .post(url, data)
         .then((res) => {
@@ -51,7 +47,7 @@ const user = {
 
   update: (data: any, id: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `users/${id}/`;
+      let url = `leads/${id}/`;
 
       instance()
         .patch(url, data)
@@ -71,7 +67,7 @@ const user = {
 
   delete: (id: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `users/${id}/`;
+      let url = `leads/${id}/`;
 
       instance()
         .delete(url)
@@ -91,7 +87,7 @@ const user = {
 
   details: (id: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `users/${id}/`;
+      let url = `leads/${id}/`;
       instance()
         .get(url)
         .then((res) => {
@@ -135,4 +131,4 @@ const user = {
   },
 };
 
-export default user;
+export default lead;

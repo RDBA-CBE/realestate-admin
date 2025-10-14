@@ -4,6 +4,8 @@ import Tippy from "@tippyjs/react";
 import IconEye from "@/components/Icon/IconEye";
 import IconEdit from "@/components/Icon/IconEdit";
 import {
+  capitalizeFLetter,
+  commonDateFormat,
   Failure,
   showDeleteAlert,
   Success,
@@ -24,6 +26,10 @@ import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
 import { useRouter } from "next/navigation";
 import PrivateRouter from "@/hook/privateRouter";
+import IconTrashLines from "@/components/Icon/IconTrashLines";
+import Link from "next/link";
+import { Calendar, Columns, Eye, EyeOff, Table } from "lucide-react";
+import { Checkbox, Popover, Text } from "@mantine/core";
 
 const List = () => {
   const router = useRouter();
@@ -38,27 +44,37 @@ const List = () => {
     description: "",
     search: "",
     error: {},
+    visibleColumns: [],
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
 
   useEffect(() => {
-    projectList(1);
+    leadList(1);
+    setState({ visibleColumns: columns });
   }, []);
 
   useEffect(() => {
-    projectList(1);
+    leadList(1);
   }, [debouncedSearch]);
 
-  const projectList = async (page) => {
+  const leadList = async (page) => {
     try {
       const body = bodyData();
-      const res: any = await Models.project.list(page, body);
+      const res: any = await Models.lead.list(page, body);
       const data = res?.results?.map((item) => ({
-        name: item?.name,
-        location: item?.location,
-        status: item?.status,
+        full_name: item?.full_name,
+        lead_source: capitalizeFLetter(item?.lead_source),
+        status: capitalizeFLetter(item?.status),
         id: item?.id,
+        date: commonDateFormat(item?.created_at),
+        email: item?.email,
+        property: item?.property_details?.title,
+        property_type: item?.property_details?.property_type?.name,
+        requirements: item?.requirements,
+        assigned_to: item?.assigned_to_details
+          ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
+          : "",
       }));
 
       setState({
@@ -88,7 +104,7 @@ const List = () => {
       const res = await Models.project.create(body);
       clearData();
       setState({ btnLoading: false });
-      projectList(1);
+      leadList(1);
       Success("Preject created succssfully");
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -121,7 +137,7 @@ const List = () => {
       console.log("createProject --->", res);
       clearData();
       setState({ btnLoading: false });
-      projectList(state.page);
+      leadList(state.page);
 
       Success("Preject updated succssfully");
     } catch (error) {
@@ -144,10 +160,10 @@ const List = () => {
     try {
       setState({ btnLoading: true });
 
-      const res = await Models.project.delete(row?.id);
+      const res = await Models.lead.delete(row?.id);
       clearData();
       setState({ btnLoading: false });
-      projectList(state.page);
+      leadList(state.page);
 
       Success("Preject deleted succssfully");
     } catch (error) {}
@@ -166,7 +182,7 @@ const List = () => {
   };
 
   const bodyData = () => {
-    let body: any = {}; // start with empty object
+    let body: any = {};
 
     if (state.search) {
       body.search = state.search;
@@ -177,13 +193,7 @@ const List = () => {
   };
 
   const handleEdit = (row) => {
-    setState({
-      name: row.name,
-      location: row.location,
-      description: row.description,
-      isOpen: true,
-      editId: row?.id,
-    });
+    router.push(`/real-estate/lead/update/${row?.id}`);
     console.log("✌️row --->", row);
   };
 
@@ -201,16 +211,155 @@ const List = () => {
   const handleNextPage = () => {
     if (state.next) {
       const newPage = state.page + 1;
-      projectList(newPage);
+      leadList(newPage);
     }
   };
 
   const handlePreviousPage = () => {
     if (state.previous) {
       const newPage = state.page - 1;
-      projectList(newPage);
+      leadList(newPage);
     }
   };
+
+  const toggleColumn = (accessor: string) => {
+    const updatedColumns = state.visibleColumns?.map((col) =>
+      col.accessor === accessor ? { ...col, visible: !col.visible } : col
+    );
+    setState({ visibleColumns: updatedColumns });
+  };
+
+  const toggleAllColumns = (visible: boolean) => {
+    const updatedColumns = state.visibleColumns?.map((col) => ({
+      ...col,
+      visible: col.toggleable === false ? col.visible : visible,
+    }));
+    setState({ visibleColumns: updatedColumns });
+  };
+
+  const filteredColumns = state.visibleColumns
+    ?.filter((col) => col.visible !== false)
+    ?.map(({ visible, toggleable, ...col }) => col);
+
+  const columns = [
+    {
+      accessor: "date",
+      title: "Date",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "property",
+      title: "Property",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "property_type",
+      title: "Property Type",
+      visible: true,
+      toggleable: true,
+    },
+
+    {
+      accessor: "full_name",
+      title: "Customer Name",
+      visible: true,
+      toggleable: true,
+    },
+
+    {
+      accessor: "email",
+      title: "Email",
+
+      visible: true,
+      toggleable: true,
+    },
+
+    {
+      accessor: "assigned_to",
+      title: "Assigned To",
+
+      visible: true,
+      toggleable: true,
+    },
+
+    {
+      accessor: "lead_source",
+      title: "Lead Source",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "status",
+      title: "Status",
+
+      visible: true,
+      toggleable: true,
+    },
+
+    {
+      accessor: "requirements",
+      sortable: false,
+      render: (row) => (
+        <Tippy
+          content={row?.requirements}
+          placement="top"
+          className="rounded-lg bg-black p-1 text-sm text-white"
+        >
+          <div>
+            {row?.requirements?.length > 20
+              ? `${row.requirements.slice(0, 20)}...`
+              : row?.requirements}
+          </div>
+        </Tippy>
+      ),
+    },
+
+    {
+      accessor: "action",
+      title: "Actions",
+      visible: true,
+      toggleable: false,
+      sortable: false,
+      textAlignment: "center",
+      render: (row: any) => (
+        <div className="mx-auto flex w-max items-center gap-4">
+          <button
+            className="flex hover:text-info"
+            onClick={(e) => {
+              handleEdit(row);
+            }}
+          >
+            <IconEdit className="h-4.5 w-4.5" />
+          </button>
+
+          <button
+            className="flex hover:text-info"
+            onClick={(e) => {
+              router.push(`/real-estate/lead/view/${row?.id}`);
+            }}
+          >
+            <Eye className="h-4.5 w-4.5" />
+          </button>
+          <button
+            type="button"
+            className="flex hover:text-danger"
+            onClick={(e) => handleDelete(row)}
+          >
+            <IconTrashLines />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  const visibleCount = state.visibleColumns?.filter(
+    (col) => col.visible
+  ).length;
+  const totalToggleable = state.visibleColumns?.filter(
+    (col) => col?.toggleable !== false
+  ).length;
 
   return (
     <>
@@ -224,7 +373,7 @@ const List = () => {
           <button
             type="button"
             className="btn btn-primary  w-full md:mb-0 md:w-auto"
-            onClick={() => router.push("/real-estate/property/create")}
+            onClick={() => router.push("/real-estate/lead/create")}
           >
             + Create
           </button>
@@ -232,7 +381,6 @@ const List = () => {
       </div>
 
       <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
-        {/* Search Input */}
         <div className="flex-1">
           <input
             type="text"
@@ -243,7 +391,6 @@ const List = () => {
           />
         </div>
 
-        {/* Category Dropdown */}
         <div className="flex-1">
           <CustomSelect
             placeholder="Select Role"
@@ -260,12 +407,8 @@ const List = () => {
             value={state.role}
             onChange={(e) => setState({ role: e })}
             options={state.roleList}
-            // error={state.errors?.tags}
           />
         </div>
-        {/* Status Dropdown */}
-
-        {/* Bulk Actions Dropdown */}
 
         <div>
           <button type="button" className="btn btn-primary">
@@ -275,51 +418,207 @@ const List = () => {
       </div>
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
-        {/* <div className="invoice-table"> */}
-
-        <div className="datatables pagination-padding"></div>
-        <DataTable
-          className="table-responsive"
-          records={state.tableList || []}
-          columns={[
-            { accessor: "name", title: "Project Name" },
-            { accessor: "location", title: "Location" },
-            { accessor: "status", title: "status" },
-
-            {
-              accessor: "actions",
-              title: "Actions",
-              render: (row: any) => (
-                <div className="mx-auto flex w-max items-center gap-4">
-                  <button
-                    className="flex hover:text-primary"
-                    onClick={(e) => {
-                      handleEdit(row);
+        <div className="datatables pagination-padding">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "end",
+              alignItems: "center",
+              marginBottom: "16px",
+              gap: "10px",
+            }}
+          >
+            <Popover position="bottom-end" withArrow shadow="md" width={220}>
+              <Popover.Target>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "8px 16px",
+                    backgroundColor: "white",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "6px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    color: "#475569",
+                    transition: "all 0.2s ease",
+                    boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+                  }}
+                  className="hover:border-gray-400 hover:shadow-sm"
+                >
+                  <Columns size={16} color="#64748b" />
+                  <span>Show Columns</span>
+                  <div
+                    style={{
+                      width: "20px",
+                      height: "20px",
+                      backgroundColor: "#3b82f6",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                      color: "white",
                     }}
                   >
-                    <IconEdit className="h-4.5 w-4.5" />
-                  </button>
-                  <button
-                    className="flex text-danger hover:text-primary"
-                    onClick={() => handleDelete(row)}
-                  >
-                    <IconTrash />
-                  </button>
+                    {visibleCount}
+                  </div>
                 </div>
-              ),
-            },
-          ]}
-          highlightOnHover
-          totalRecords={state.taskList?.length}
-          recordsPerPage={state.pageSize}
-          minHeight={200}
-          page={null}
-          onPageChange={(p) => {}}
-          withBorder={true}
-          paginationText={({ from, to, totalRecords }) =>
-            `Showing  ${from} to ${to} of ${totalRecords} entries`
-          }
-        />
+              </Popover.Target>
+
+              <Popover.Dropdown
+                style={{
+                  padding: "16px",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "8px",
+                }}
+              >
+                <div style={{ marginBottom: "16px" }}>
+                  <Text
+                    size="sm"
+                    fw={600}
+                    style={{ color: "#1e293b", marginBottom: "12px" }}
+                  >
+                    Show Columns
+                  </Text>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "8px",
+                      marginBottom: "16px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        padding: "6px 12px",
+                        backgroundColor: "#f8fafc",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontSize: "13px",
+                        color: "#475569",
+                        transition: "all 0.2s ease",
+                      }}
+                      className="hover:border-gray-300 hover:bg-gray-50"
+                      onClick={() => toggleAllColumns(true)}
+                    >
+                      <Eye size={14} color="#475569" />
+                      <span>All</span>
+                    </div>
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        padding: "6px 12px",
+                        backgroundColor: "#f8fafc",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontSize: "13px",
+                        color: "#475569",
+                        transition: "all 0.2s ease",
+                      }}
+                      className="hover:border-gray-300 hover:bg-gray-50"
+                      onClick={() => toggleAllColumns(false)}
+                    >
+                      <EyeOff size={14} color="#475569" />
+                      <span>None</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    maxHeight: "200px",
+                    overflowY: "auto",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "12px",
+                    }}
+                  >
+                    {state.visibleColumns?.map((column) => (
+                      <div
+                        key={column.accessor}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <Checkbox
+                          checked={column.visible ?? true}
+                          onChange={() => toggleColumn(column.accessor)}
+                          disabled={column.toggleable === false}
+                          size="sm"
+                          style={{ flexShrink: 0 }}
+                        />
+                        <Text
+                          size="sm"
+                          style={{
+                            color:
+                              column.toggleable === false
+                                ? "#94a3b8"
+                                : "#475569",
+                            cursor:
+                              column.toggleable === false
+                                ? "not-allowed"
+                                : "pointer",
+                          }}
+                          onClick={() =>
+                            column.toggleable !== false &&
+                            toggleColumn(column.accessor)
+                          }
+                        >
+                          {column.title}
+                        </Text>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    borderTop: "1px solid #f1f5f9",
+                    paddingTop: "12px",
+                    fontSize: "12px",
+                    color: "#64748b",
+                    textAlign: "center",
+                  }}
+                >
+                  {visibleCount} of {totalToggleable} columns visible
+                </div>
+              </Popover.Dropdown>
+            </Popover>
+          </div>
+          <DataTable
+            className="table-responsive"
+            records={state.tableList || []}
+            columns={filteredColumns}
+            highlightOnHover
+            totalRecords={state.taskList?.length}
+            recordsPerPage={state.pageSize}
+            minHeight={200}
+            page={null}
+            onPageChange={(p) => {}}
+            withBorder={true}
+            paginationText={({ from, to, totalRecords }) =>
+              `Showing  ${from} to ${to} of ${totalRecords} entries`
+            }
+          />
+        </div>
         <div className="mt-5 flex justify-end gap-3">
           <button
             disabled={!state.previous}

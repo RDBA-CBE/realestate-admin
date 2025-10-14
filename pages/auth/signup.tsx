@@ -191,10 +191,10 @@ const RegisterBoxed = () => {
                   placeholder={"Select Role"}
                   title={"Choose Role"}
                   options={[
+                    { value: "buyer", label: "Buyer" },
                     { value: "seller", label: "Seller" },
                     { value: "developer", label: "Developer" },
                     { value: "agent", label: "Agent" },
-                    { value: "admin", label: "Admin" },
 
                   ]}
                   required

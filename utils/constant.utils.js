@@ -18,20 +18,24 @@ export const menuConfig = {
       type: "section",
       label: "Project Management",
       children: [
-        {
-          type: "link",
-          icon: "IconMenuMailbox",
-          label: "Waiting For Approval",
-          href: "/real-estate/project/approval",
-        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuMailbox",
+        //   label: "Waiting For Approval",
+        //   href: "/real-estate/project/approval",
+        // },
         {
           type: "submenu",
           icon: "IconMenuApps",
           label: "Projects",
           key: "Projects",
           children: [
+            {
+              type: "link",
+              label: "Waiting For Approval",
+              href: "/real-estate/project/approval",
+            },
             { type: "link", label: "List", href: "/real-estate/project/list" },
-            // { type: "link", label: "Create", href: "/apps/invoice/preview" },
           ],
         },
         {
@@ -40,6 +44,12 @@ export const menuConfig = {
           label: "Property",
           key: "Property",
           children: [
+            {
+              type: "link",
+              label: "Waiting For Approval",
+              href: "/real-estate/property/approval",
+            },
+
             { type: "link", label: "List", href: "/real-estate/property/list" },
             {
               type: "link",
@@ -580,16 +590,14 @@ export const propertyType = [
   { value: 4, label: "Plot" },
 ];
 
-
-export const FURNISHING_TYPE=[
+export const FURNISHING_TYPE = [
   { value: "furnished", label: "Furnished" },
   {
     value: "semi_furnished",
     label: "Semi-Furnished",
   },
   { value: "unfurnished", label: "Unfurnished" },
-]
-
+];
 
 export const ListType = [
   { value: "sale", label: "Sale" },
@@ -647,11 +655,11 @@ export const Furnishing = [
 ];
 
 export const ROLES = {
-  ADMIN: "Admin",
-  SELLER: "Sellers",
-  BUYER: "Buyer",
-  DEVELOPER: "Developers",
-  AGENT: "Agents",
+  ADMIN: "admin",
+  SELLER: "seller",
+  BUYER: "buyer",
+  DEVELOPER: "developer",
+  AGENT: "agent",
   ALL: "All",
 };
 
@@ -672,7 +680,7 @@ export const LISTING_TYPE_LIST = {
   LEASE: "lease",
   SALE: "sale",
   RENT: "rent",
-}
+};
 
 export const roleList = [
   { value: 1, label: "Agent" },
@@ -686,4 +694,34 @@ export const PROPERTY_IMG = [
   "https://www.pexels.com/photo/high-angle-photography-of-village-280221/",
   "https://www.pexels.com/photo/white-and-gray-wooden-house-near-grass-field-and-trees-280222/",
   "https://www.pexels.com/photo/lighted-beige-house-1396132/",
+];
+
+
+export const LEAD_SOURCE_OPTIONS = [
+  { value: "website", label: "Website" },
+  { value: "referral", label: "Referral" },
+  { value: "social_media", label: "Social Media" },
+  { value: "advertisement", label: "Advertisement" },
+  { value: "cold_call", label: "Cold Call" },
+  { value: "email_campaign", label: "Email Campaign" },
+  { value: "walk_in", label: "Walk In" },
+  // { value: "other", label: "Other" }
+];
+
+export const STATUS_OPTIONS = [
+  { value: "new", label: "New" },
+  { value: "contacted", label: "Contacted" },
+  { value: "qualified", label: "Qualified" },
+  { value: "proposal_sent", label: "Proposal Sent" },
+  { value: "negotiation", label: "Negotiation" },
+  { value: "won", label: "Won" },
+  { value: "lost", label: "Lost" },
+  { value: "cancelled", label: "Cancelled" }
+];
+
+export const PRIORITY_OPTIONS = [
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+  { value: "urgent", label: "Urgent" }
 ];

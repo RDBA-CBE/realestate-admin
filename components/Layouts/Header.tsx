@@ -149,6 +149,8 @@ const Header = () => {
         router.replace("/auth/signin");
       });
     } catch (error) {
+      localStorage.clear();
+      router.replace("/auth/signin");
       console.log("error: ", error);
     }
   };

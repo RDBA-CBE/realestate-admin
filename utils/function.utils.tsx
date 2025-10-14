@@ -449,3 +449,19 @@ export const commonDateFormat = (date) => {
     return "";
   }
 };
+
+export const formatPhoneNumber = (phone) => {
+  if (!phone) return "";
+
+  const cleaned = phone.toString().replace(/\D/g, "");
+
+  if (cleaned.startsWith("91") && cleaned.length === 12) {
+    return `+91 ${cleaned.slice(2, 7)} ${cleaned.slice(7)}`;
+  }
+
+  if (cleaned.length === 10) {
+    return `+91 ${cleaned.slice(0, 5)} ${cleaned.slice(5)}`;
+  }
+
+  return phone;
+};

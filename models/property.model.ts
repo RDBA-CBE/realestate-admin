@@ -4,6 +4,11 @@ const properties = {
   list: (page,body) => {
     let promise = new Promise((resolve, reject) => {
       let url = `properties?page=${page}`;
+
+      if (body?.is_approved == "No") {
+        url += `&is_approved=${encodeURIComponent(false)}`;
+      }
+      
       instance()
         .get(url,body)
         .then((res) => {

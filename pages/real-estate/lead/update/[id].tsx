@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setPageTitle } from "../../../store/themeConfigSlice";
+import { setPageTitle } from "../../../../store/themeConfigSlice";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
-import { useRouter } from "next/router";
 import IconUser from "@/components/Icon/IconUser";
 import {
   Dropdown,
@@ -13,7 +12,7 @@ import {
   formatToINR,
   objIsEmpty,
   useSetState,
-} from "../../../utils/function.utils";
+} from "../../../..//utils/function.utils";
 import TextInput from "@/components/FormFields/TextInput.component";
 
 import NumberInput from "@/components/FormFields/NumberInputs.component";
@@ -41,15 +40,18 @@ import CustomeDatePicker from "@/components/datePicker";
 import CustomPhoneInput from "@/components/phoneInput";
 import Link from "next/link";
 import IconMapPin from "@/components/Icon/IconMapPin";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const CreateOpportunities = () => {
   const dispatch = useDispatch();
+
+  const router = useRouter();
+  const params = useSearchParams();
+  const id = params.get("id");
+
   useEffect(() => {
     dispatch(setPageTitle("Create Opportunity"));
   });
-  const router = useRouter();
-
-  const id = router.query.leadid;
 
   const [state, setState] = useSetState({
     loading: false,
@@ -60,8 +62,95 @@ const CreateOpportunities = () => {
   });
 
   useEffect(() => {
-    propertyList(1);
-  }, []);
+    if (id) {
+      leadDetails();
+      propertyList(1);
+    }
+  }, [id]);
+
+  const leadDetails = async () => {
+    try {
+      setState({ loading: true });
+
+      const res: any = await Models.lead.details(id);
+      setState({
+        first_name: res?.first_name,
+        last_name: res?.last_name,
+        company_name: res?.company_name,
+        email: res?.email,
+        phone: res?.phone,
+        next_follow_up: res?.next_follow_up,
+        requirements: res?.requirements,
+      });
+      if (res?.assigned_to) {
+        setState({
+          assignRole: {
+            value: res?.assigned_to_details?.user_type,
+            label: capitalizeFLetter(res?.assigned_to_details?.user_type),
+          },
+          assigned_to: {
+            value: res?.assigned_to_details?.id,
+            label: `${capitalizeFLetter(
+              res?.assigned_to_details?.first_name
+            )} ${capitalizeFLetter(res?.assigned_to_details?.last_name)} `,
+          },
+        });
+        getInitialRoleList(res?.assigned_to_details?.user_type);
+      }
+
+      if (!objIsEmpty(res?.property_details)) {
+        handleGetProperty({
+          value: res?.property_details?.id,
+          label: capitalizeFLetter(res?.property_details?.title),
+        });
+      }
+      if (res?.status) {
+        setState({
+          status: {
+            value: res?.status,
+            label: capitalizeFLetter(res?.status),
+          },
+        });
+      }
+
+      if (res?.lead_source) {
+        setState({
+          lead_source: {
+            value: res?.lead_source,
+            label: capitalizeFLetter(res?.lead_source),
+          },
+        });
+      }
+
+      console.log("leadDetails --->", res);
+    } catch (error) {
+      setState({ loading: false });
+
+      console.log("error: ", error);
+    }
+  };
+
+  const getInitialRoleList = async (e) => {
+    try {
+      if (e) {
+        const body = {
+          user_type: e == ROLES.DEVELOPER ? ROLES.DEVELOPER : ROLES.AGENT,
+        };
+        const res: any = await Models.user.list(1, body);
+        const dropdown = res?.results?.map((item) => ({
+          value: item?.id,
+          label: `${capitalizeFLetter(item?.first_name)} ${item?.last_name}`,
+        }));
+        setState({
+          assignList: dropdown,
+        });
+      } else {
+        setState({ assignList: [] });
+      }
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
 
   const propertyList = async (id: any) => {
     try {
@@ -164,8 +253,8 @@ const CreateOpportunities = () => {
       };
       console.log("✌️body --->", body);
 
-      const res = await Models.lead.create(body);
-      Success("Lead Created Successfully");
+      const res = await Models.lead.update(body,id);
+      Success("Lead Updated Successfully");
       router.push("/real-estate/lead/list");
       console.log("✌️res --->", res);
     } catch (error) {
@@ -183,7 +272,6 @@ const CreateOpportunities = () => {
             e?.value == ROLES.DEVELOPER ? ROLES.DEVELOPER : ROLES.AGENT,
         };
         const res: any = await Models.user.list(1, body);
-        console.log("developerList --->", res);
         const dropdown = res?.results?.map((item) => ({
           value: item?.id,
           label: `${capitalizeFLetter(item?.first_name)} ${item?.last_name}`,
@@ -293,7 +381,7 @@ const CreateOpportunities = () => {
     },
   ];
 
-  return  (
+  return (
     <div className="relative h-auto  overflow-scroll bg-cover ">
       <div className="panel  flex  items-center justify-between gap-5 ">
         <div className="flex items-center gap-2">
@@ -309,7 +397,7 @@ const CreateOpportunities = () => {
           </div>
           <div>
             <h5 className="font-semibold " style={{ fontSize: "18px" }}>
-              Create Lead
+              Update Lead
             </h5>
             <div className="  " style={{ fontSize: "14px", color: "grey" }}>
               Your data journey starts here...
@@ -338,48 +426,7 @@ const CreateOpportunities = () => {
             // required
             className="lg:w-[200px]"
           />
-
-          {/* <CustomSelect
-                        value={state.status}
-                        onChange={(e) => setState({ status: e })}
-                        placeholder={'Status'}
-                        options={state.statusList}
-                        error={state.errors?.status}
-                        required
-                        className="lg:w-[200px]"
-                    /> */}
         </div>
-        {/* <div className="flex gap-5">
-          <CustomSelect
-            value={state.contactAssignRole}
-            onChange={(e) =>
-              setState({
-                contactAssignRole: e,
-                contactAssigned_to: "",
-                assignList: [],
-              })
-            }
-            placeholder={"Choose Role"}
-            title={"Choose Role"}
-            options={[
-              { value: "owner", label: "Owner" },
-              { value: "bdm", label: "BDM" },
-              { value: "bde", label: "BDE" },
-              { value: "tm", label: "TM" },
-            ]}
-            className="lg:w-[200px]"
-          />
-          <CustomSelect
-            title="Assigned To"
-            value={state.contactAssigned_to}
-            onChange={(e) => {
-              setState({ contactAssigned_to: e });
-            }}
-            placeholder={"Assigned To"}
-            options={state.assignList}
-            className="lg:w-[200px]"
-          />
-        </div> */}
       </div>
 
       <div className={`flex-wrap" mt-1 flex w-full gap-4`}>
