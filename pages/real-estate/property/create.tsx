@@ -174,7 +174,7 @@ const AddPropertyPage = () => {
   const developerList = async (page) => {
     try {
       const body = {
-        group: ROLES.DEVELOPER,
+        user_type: ROLES.DEVELOPER,
       };
       const res: any = await Models.user.list(page, body);
       const dropdown = res?.results?.map((item) => ({

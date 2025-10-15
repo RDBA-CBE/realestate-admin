@@ -22,6 +22,22 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
+const showTokenExpiredAlert = () => {
+  const userConfirmed = window.confirm(
+    "Your token has expired. Click OK to log in again."
+  );
+
+  if (userConfirmed) {
+    localStorage.clear();
+    window.location.href = "/auth/signin";
+  } else {
+    setTimeout(() => {
+      localStorage.clear();
+      window.location.href = "/auth/signin";
+    }, 1000);
+  }
+};
+
 export const instance = (): AxiosInstance => {
   if (api) return api;
 
@@ -29,7 +45,6 @@ export const instance = (): AxiosInstance => {
     baseURL: BACKEND_URL,
   });
 
-  // Request interceptor
   api.interceptors.request.use(
     (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
       const accessToken = localStorage.getItem("token");
@@ -41,7 +56,6 @@ export const instance = (): AxiosInstance => {
     (error: AxiosError) => Promise.reject(error)
   );
 
-  // Response interceptor
   api.interceptors.response.use(
     (response) => response,
     async (error: AxiosError | any) => {
@@ -54,11 +68,8 @@ export const instance = (): AxiosInstance => {
         originalRequest._retry = true;
 
         const refreshToken = localStorage.getItem("refresh");
-
         if (!refreshToken) {
-          window.location.href = "/auth/signin";
-          localStorage.clear();
-
+          showTokenExpiredAlert();
           return Promise.reject(error);
         }
 
@@ -95,9 +106,13 @@ export const instance = (): AxiosInstance => {
             processQueue(null, access);
             resolve(api!(originalRequest));
           } catch (err) {
-            processQueue(err, null);
-            localStorage.clear();
-            window.location.href = "/auth/signin";
+            if (err.response?.data?.code === "token_not_valid") {
+              showTokenExpiredAlert();
+            } else {
+              processQueue(err, null);
+              localStorage.clear();
+              window.location.href = "/auth/signin";
+            }
             reject(err);
           } finally {
             isRefreshing = false;

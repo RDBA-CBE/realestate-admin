@@ -137,21 +137,15 @@ export default function List() {
       textAlignment: "center",
       render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
-          <button
-            className="flex hover:text-info"
-            onClick={(e) => {
-              handleEdit(row);
-            }}
-          >
-            <IconEdit className="h-4.5 w-4.5" />
-          </button>
-          <button
-            type="button"
-            className="flex hover:text-danger"
-            onClick={(e) => handleDelete(row)}
-          >
-            <IconTrashLines />
-          </button>
+          <div className="flex gap-5">
+            <button
+              type="button"
+              className="btn btn-outline-primary w-full md:mb-0 md:w-auto"
+              onClick={() => handleApprove(row)}
+            >
+              Approve
+            </button>
+          </div>
         </div>
       ),
     },
@@ -260,19 +254,11 @@ export default function List() {
       render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
           <button
-            className="flex hover:text-info"
-            onClick={(e) => {
-              handleEdit(row);
-            }}
-          >
-            <IconEdit className="h-4.5 w-4.5" />
-          </button>
-          <button
             type="button"
-            className="flex hover:text-danger"
-            onClick={(e) => handleDelete(row)}
+            className="btn btn-outline-primary w-full md:mb-0 md:w-auto"
+            onClick={() => handleApprove(row)}
           >
-            <IconTrashLines />
+            Approve
           </button>
         </div>
       ),
@@ -410,27 +396,19 @@ export default function List() {
     }
   };
 
-  const deleteDecord = async (row: any) => {
+  const handleApprove = async (row: any) => {
+    console.log("✌️row --->", row);
     try {
       setState({ btnLoading: true });
-      const res = await Models.property.delete(row?.id);
-      clearData();
-      setState({ btnLoading: false });
-      propertyList(state.page);
-      Success("Property deleted succssfully");
+      const body = {
+        is_approved: true,
+      };
+      const res = await Models.property.update(body, row?.id);
+      console.log("✌️res --->", res);
+      propertyList(1);
+    
+      Success("Property Approved succssfully");
     } catch (error) {}
-  };
-
-  const handleDelete = (row) => {
-    showDeleteAlert(
-      () => {
-        deleteDecord(row);
-      },
-      () => {
-        Swal.fire("Cancelled", "Your Record is safe :)", "info");
-      },
-      "Are you sure want to delete property?"
-    );
   };
 
   const bodyData = () => {
@@ -438,10 +416,8 @@ export default function List() {
     if (state.search) {
       body.search = state.search;
     }
-    if (state.property_type) {
-      body.property_type = state.property_type
-    }
-   
+    body.is_approved = "No";
+    return body;
   };
 
   const handleEdit = async (row) => {
@@ -497,13 +473,12 @@ export default function List() {
     ?.filter((col) => col.visible !== false)
     ?.map(({ visible, toggleable, ...col }) => col);
 
-
   return (
     <>
       <div className="panel mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
-            Property List
+            Approval Property List
           </h5>
         </div>
         <div className="flex gap-5">
@@ -557,7 +532,7 @@ export default function List() {
           />
         </div>
 
-        <button type="button" className="btn btn-primary" onClick={propertyList}>
+        <button type="button" className="btn btn-primary">
           Apply Filter
         </button>
         <button type="button" className="btn btn-primary">

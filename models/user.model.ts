@@ -7,6 +7,10 @@ const user = {
       if (body?.group) {
         url += `&group=${encodeURIComponent(body.group)}`;
       }
+
+      if (body?.user_type) {
+        url += `&user_type=${encodeURIComponent(body.user_type)}`;
+      }
        if (body?.search) {
         url += `&search=${encodeURIComponent(body.search)}`;
       }

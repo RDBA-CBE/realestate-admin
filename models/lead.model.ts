@@ -1,16 +1,17 @@
 import instance from "@/utils/axios.utils";
 
-const properties = {
-  list: (page,body) => {
+const lead = {
+  list: (page, body) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `properties?page=${page}`;
-
-      if (body?.is_approved == "No") {
-        url += `&is_approved=${encodeURIComponent(false)}`;
+      let url = `leads/?page=${page}`;
+      if (body?.group) {
+        url += `&group=${encodeURIComponent(body.group)}`;
       }
-      
+       if (body?.search) {
+        url += `&search=${encodeURIComponent(body.search)}`;
+      }
       instance()
-        .get(url,body)
+        .get(url)
         .then((res) => {
           resolve(res.data);
         })
@@ -27,20 +28,15 @@ const properties = {
 
   create: (data: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `properties/`;
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data; charset=utf-8;",
-        },
-      };
+      let url = `leads/`;
       instance()
-        .post(url, data, config)
+        .post(url, data)
         .then((res) => {
           resolve(res.data);
         })
         .catch((error) => {
           if (error.response) {
-            reject(error.response.data.message);
+            reject(error.response.data);
           } else {
             reject(error);
           }
@@ -51,14 +47,10 @@ const properties = {
 
   update: (data: any, id: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `properties/${id}/`;
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data; charset=utf-8;",
-        },
-      };
+      let url = `leads/${id}/`;
+
       instance()
-        .patch(url, data, config)
+        .patch(url, data)
         .then((res) => {
           resolve(res.data);
         })
@@ -75,7 +67,7 @@ const properties = {
 
   delete: (id: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `properties/${id}/`;
+      let url = `leads/${id}/`;
 
       instance()
         .delete(url)
@@ -95,8 +87,7 @@ const properties = {
 
   details: (id: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `properties/${id}/`;
-
+      let url = `leads/${id}/`;
       instance()
         .get(url)
         .then((res) => {
@@ -140,4 +131,4 @@ const properties = {
   },
 };
 
-export default properties;
+export default lead;

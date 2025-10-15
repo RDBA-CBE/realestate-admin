@@ -6,6 +6,7 @@ import auth from "@/models/auth.model";
 import category from "@/models/category.model";
 import floorPlans from "@/models/floor_plan.model";
 import image from "@/models/image.model";
+import lead from "@/models/lead.model";
 import master from "@/models/master.model";
 import profile from "@/models/profile.model";
 import project from "@/models/project.model";
@@ -31,6 +32,8 @@ export const Models = {
   video,
   virtualTour,
   floorPlans,
+  lead
+  
 };
 
 export default Models;

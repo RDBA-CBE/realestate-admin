@@ -383,7 +383,6 @@ Laura Green
 
 Neha Desai
 
-
 Title: Furnished Office Space in Downtown Trichy
 Transaction Type: Rent
 Area: 2,000 sq ft
@@ -399,3 +398,144 @@ Parking: 4 Cars
 Ownership: Freehold
 Nearby Landmarks: Cauvery Bridge, Trichy Bus Stand
 Description: Premium office suite in the heart of Trichy business zone. Plug-and-play facility with modern amenities.
+
+
+{
+  "lead": {
+    "basic_info": {
+      "first_name": "Rajesh",
+      "last_name": "Sharma",
+      "email": "rajesh.sharma@example.com",
+      "phone": "+919876543210",
+      "alternate_phone": "+919812345670",
+      "company_name": "TechSolutions Pvt Ltd",
+      "occupation": "Software Engineer"
+    },
+    "property_requirements": {
+      "interested_property": 12345,
+      "budget_min": "7500000",
+      "budget_max": "12000000",
+      "preferred_location": "Whitefield, Bangalore",
+      "property_type": "3 BHK Apartment",
+      "bedrooms": 3,
+      "bathrooms": 2,
+      "square_footage_min": 1200,
+      "requirements": "Looking for a ready-to-move-in 3 BHK with modern amenities, covered parking, and proximity to IT parks. Prefer gated community with security."
+    },
+    "lead_details": {
+      "status": "new",
+      "priority": "high",
+      "lead_source": "website",
+      "lead_source_details": "Home page contact form - Property listing page",
+      "assigned_to": 101,
+      "next_follow_up": "2024-01-20T10:30:00Z",
+      "probability": 70
+    },
+    "address_info": {
+      "address": "123 Tech Park Road",
+      "city": "Bangalore",
+      "state": "Karnataka",
+      "country": "India",
+      "postal_code": "560066"
+    },
+    "additional_details": {
+      "timeline": "3-6 months",
+      "financing_type": "mortgage",
+      "pre_approval_status": "in_progress",
+      "current_property_status": "renting",
+      "motivation": "Family expansion, need more space",
+      "preferred_contact_method": "whatsapp",
+      "newsletter_subscribed": true,
+      "sms_marketing": true
+    }
+  }
+}
+
+{
+  "first_name": "Ankit",
+  "last_name": "Patel",
+  "email": "ankit.patel@gmail.com",
+  "phone": "+919776655443",
+  "company_name": "IT Services Ltd",
+  "occupation": "Senior Developer",
+  "interested_property": 45678,
+  "budget_min": "5000000",
+  "budget_max": "8000000",
+  "preferred_location": "Pune - Hinjewadi",
+  "requirements": "2 BHK affordable housing, near IT park, possession within 6 months",
+  "status": "contacted",
+  "priority": "medium",
+  "lead_source": "social_media",
+  "lead_source_details": "Facebook ad - First Home Buyer Campaign",
+  "assigned_to": 103,
+  "next_follow_up": "2024-01-19T11:00:00Z"
+}
+
+{
+  "first_name": "Sameer",
+  "last_name": "Khan",
+  "email": "sameer.khan@nriinvest.com",
+  "phone": "+14155550123",
+  "alternate_phone": "+919900112233",
+  "company_name": "NRI Investment Group",
+  "occupation": "Business Owner",
+  "interested_property": 98765,
+  "budget_min": "15000000",
+  "budget_max": "25000000",
+  "preferred_location": "Gurgaon - Golf Course Road",
+  "requirements": "Commercial property for investment, high rental yield, ready possession",
+  "status": "new",
+  "priority": "high",
+  "lead_source": "website",
+  "lead_source_details": "NRI investment page inquiry",
+  "assigned_to": 101,
+  "next_follow_up": "2024-01-20T20:00:00Z",
+  "address": "123 Business Bay, Dubai",
+  "city": "Dubai",
+  "country": "UAE"
+}
+
+{
+  "first_name": "Meera",
+  "last_name": "Desai",
+  "email": "meera.desai@hotmail.com",
+  "phone": "+919933445566",
+  "company_name": "Homemaker",
+  "occupation": "Homemaker",
+  "interested_property": 0,
+  "budget_min": "0",
+  "budget_max": "0",
+  "preferred_location": "Current property location",
+  "requirements": "Want to sell 3 BHK in premium location, quick sale needed for relocation",
+  "status": "new",
+  "priority": "high",
+  "lead_source": "walk_in",
+  "lead_source_details": "Walk-in to office branch",
+  "assigned_to": 104,
+  "next_follow_up": "2024-01-17T14:00:00Z",
+  "property_to_sell": {
+    "address": "456 Premium Apartments, Bandra West",
+    "current_value": "35000000",
+    "selling_reason": "Relocation abroad"
+  }
+}
+
+{
+  "first_name": "Vikram",
+  "last_name": "Joshi",
+  "email": "vikram.joshi@corporation.com",
+  "phone": "+919988776655",
+  "company_name": "MNC Corporation India",
+  "occupation": "HR Manager",
+  "interested_property": 0,
+  "budget_min": "50000000",
+  "budget_max": "100000000",
+  "preferred_location": "Multiple cities",
+  "requirements": "Bulk purchase of 20+ apartments for employee housing across Bangalore, Pune, Hyderabad",
+  "status": "proposal_sent",
+  "priority": "urgent",
+  "lead_source": "cold_call",
+  "lead_source_details": "Corporate sales team outreach",
+  "assigned_to": 105,
+  "next_follow_up": "2024-01-25T16:00:00Z"
+}
