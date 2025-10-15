@@ -34,8 +34,10 @@ import {
   LISTING_TYPE,
   LISTING_TYPE_LIST,
   ListType,
+  Property_status,
   PROPERTY_TYPE,
   propertyType,
+  ROLES,
 } from "@/utils/constant.utils";
 import { RotatingLines } from "react-loader-spinner";
 import {
@@ -282,9 +284,12 @@ export default function List() {
   const [state, setState] = useSetState({
     isOpen: false,
     btnLoading: false,
+    group: null,
     page: 1,
     categoryList: [],
     tableList: [],
+    agentList: [],
+    developerList: [],
     editId: null,
     name: "",
     location: "",
@@ -306,7 +311,18 @@ export default function List() {
   useEffect(() => {
     propertyList(1);
     categoryList(1);
+    agentList(1), developerList(1);
   }, []);
+
+    useEffect(() => {
+    propertyList(1);
+    }, [state.search, state.property_type, state.offer_type, state.status, state.developer, state.agent])
+
+   useEffect(() => {
+    const group = localStorage.getItem("group") || "";
+
+    setState({ group: group });
+  }, [state.group]);
 
   useEffect(() => {
     if (state.viewMode == "table") {
@@ -319,10 +335,6 @@ export default function List() {
       });
     }
   }, [state.viewMode]);
-
-  useEffect(() => {
-    propertyList(1);
-  }, [debouncedSearch]);
 
   const propertyList = async (page) => {
     try {
@@ -352,6 +364,9 @@ export default function List() {
         developer: `${capitalizeFLetter(
           item?.developer?.first_name
         )} ${capitalizeFLetter(item?.developer?.last_name)}`,
+        agent: `${capitalizeFLetter(
+          item?.agent?.first_name
+        )} ${capitalizeFLetter(item?.agent?.last_name)}`,
         project: capitalizeFLetter(item?.project?.name),
 
         price: formatToINR(item?.price),
@@ -410,6 +425,42 @@ export default function List() {
     }
   };
 
+  const agentList = async (page) => {
+    try {
+      const body = {
+        user_type: ROLES.AGENT,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        agentList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const developerList = async (page) => {
+    try {
+      const body = {
+        group: ROLES.DEVELOPER,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        developerList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
   const deleteDecord = async (row: any) => {
     try {
       setState({ btnLoading: true });
@@ -436,12 +487,29 @@ export default function List() {
   const bodyData = () => {
     let body: any = {};
     if (state.search) {
-      body.search = state.search;
+      body.search = debouncedSearch;
     }
     if (state.property_type) {
-      body.property_type = state.property_type
+      body.property_type = state.property_type.value;
     }
-   
+
+    if (state.offer_type) {
+      body.listing_type = state.offer_type.value;
+    }
+
+    if (state.status) {
+      body.status = state.status.value;
+    }
+    if (state.developer) {
+      body.developer = state.developer.value;
+    }
+
+     if (state.agent) {
+      body.agent = state.agent.value;
+    }
+
+
+    return body;
   };
 
   const handleEdit = async (row) => {
@@ -473,6 +541,17 @@ export default function List() {
     }
   };
 
+  const clearFilter = async() => {
+    setState({
+      search: "",
+      property_type: "",
+      offer_type: "",
+      status: "",
+      developer:"",
+      agent: ""
+    });
+  };
+
   const propertStatus = [
     { value: 1, label: "Available" },
     { value: 2, label: "Unavailable" },
@@ -496,7 +575,6 @@ export default function List() {
   const filteredColumns = state.visibleColumns
     ?.filter((col) => col.visible !== false)
     ?.map(({ visible, toggleable, ...col }) => col);
-
 
   return (
     <>
@@ -534,7 +612,7 @@ export default function List() {
             value={state.property_type}
             onChange={(e) => setState({ property_type: e })}
             options={state?.categoryList}
-            isClearable={false}
+            isClearable={true}
             loadMore={() => catListLoadMore()}
           />
         </div>
@@ -548,19 +626,53 @@ export default function List() {
           />
         </div>
 
+        {state.group == "Admin" && (
+          <>
+            <div className="flex-1">
+              <CustomSelect
+                placeholder="Select Developer"
+                value={state.developer}
+                onChange={(e) => setState({ developer: e })}
+                options={state.developerList}
+                isClearable={true}
+               
+              />
+            </div>
+
+            <div className="flex-1">
+              <CustomSelect
+                placeholder="Select Agent"
+                value={state.agent}
+                onChange={(e) => setState({ agent: e })}
+                options={state?.agentList}
+                isClearable={true}
+                
+              />
+            </div>
+          </>
+        )}
+
         <div className="flex-1">
           <CustomSelect
             placeholder="Select Property Status"
             value={state.status}
             onChange={(e) => setState({ status: e })}
-            options={propertStatus}
+            options={Property_status}
           />
         </div>
 
-        <button type="button" className="btn btn-primary" onClick={propertyList}>
+        {/* <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => propertyList(1)}
+        >
           Apply Filter
-        </button>
-        <button type="button" className="btn btn-primary">
+        </button> */}
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => clearFilter()}
+        >
           Clear Filter
         </button>
       </div>

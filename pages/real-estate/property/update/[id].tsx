@@ -124,6 +124,7 @@ const AddPropertyPage = () => {
         squareFeet: "",
         price: "",
         reraId: "",
+        floorNo:"",
         image: null,
       },
     ],
@@ -296,6 +297,7 @@ const AddPropertyPage = () => {
           squareFeet: plan?.square_feet,
           price: plan?.price,
           reraId: plan?.rera_id, // Fixed: changed from reraId to rera_id
+          floor_no: plan?.floorNo,
           image: plan?.image,
         }));
 
@@ -913,6 +915,7 @@ const AddPropertyPage = () => {
         square_feet: plan.squareFeet,
         price: plan.price,
         rera_id: plan.reraId,
+        floor_no: plan.floorNo,
         ...(!isString(plan.image) && { image: plan.image }),
       };
 
@@ -933,6 +936,7 @@ const AddPropertyPage = () => {
         square_feet: plan.squareFeet,
         price: plan.price,
         rera_id: plan.reraId,
+        floor_no:plan.floorNo,
         image: plan.image,
       };
 
@@ -986,6 +990,7 @@ const AddPropertyPage = () => {
           squareFeet: "",
           price: "",
           reraId: "",
+          floorNo:"",
           image: null,
         },
       ],
@@ -1503,7 +1508,7 @@ const AddPropertyPage = () => {
                                   required={plan.category ? true : false}
                                 />
 
-                                <TextInput
+                                {/* <TextInput
                                   name={`reraId-${index}`}
                                   title="RERA ID"
                                   placeholder="Enter RERA ID"
@@ -1512,6 +1517,21 @@ const AddPropertyPage = () => {
                                     updateFloorPlan(
                                       index,
                                       "reraId",
+                                      e.target.value
+                                    )
+                                  }
+                                  required={plan.category ? true : false}
+                                /> */}
+
+                                <TextInput
+                                  name={`floorNo-${index}`}
+                                  title="Floor No"
+                                  placeholder="Enter Floor NO"
+                                  value={plan.floorNo}
+                                  onChange={(e) =>
+                                    updateFloorPlan(
+                                      index,
+                                      "floorNo",
                                       e.target.value
                                     )
                                   }
@@ -1945,7 +1965,7 @@ const AddPropertyPage = () => {
                       required
                       error={state.error?.developer}
                     />
-                    {state.group == ROLES.ADMIN && (
+                    {state.group == "Admin" && (
                       <div>
                         <CheckboxInput
                           key={"assign"}
