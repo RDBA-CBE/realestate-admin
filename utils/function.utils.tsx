@@ -171,6 +171,31 @@ export const convertUrlToFile = async (url: any, filename: any) => {
   return new File([blob], filename, { type: blob.type });
 };
 
+export const urlToFile = async (url, filename = null) => {
+  try {
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+    }
+    
+    const blob = await response.blob();
+    
+    // Extract filename from URL if not provided
+    let finalFilename = filename;
+    if (!finalFilename) {
+      const urlParts = url.split('/');
+      finalFilename = urlParts[urlParts.length - 1] || 'image.jpg';
+    }
+    
+    // Create File object from blob
+    return new File([blob], finalFilename, { type: blob.type });
+  } catch (error) {
+    console.error('Error converting URL to File:', error);
+    throw error;
+  }
+};
+
 export const isValidImageUrl = (url: string) => {
   const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp"];
   return imageExtensions.some((ext) => url?.toLowerCase().endsWith(ext));

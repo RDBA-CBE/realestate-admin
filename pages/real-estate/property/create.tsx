@@ -27,6 +27,7 @@ import {
   LISTING_TYPE,
   ListType,
   PROPERTY_IMG,
+  Property_status,
   PROPERTY_TYPE,
   propertyType,
   ROLES,
@@ -45,6 +46,8 @@ import IconLoader from "@/components/Icon/IconLoader";
 import ImageUploadWithPreview from "@/components/ImageUploadWithPreview/ImageUploadWithPreview.component";
 import VideoUpload from "@/components/videoUpload/videoUpload.compoent";
 import PrivateRouter from "@/hook/privateRouter";
+import { property } from "lodash";
+import floorPlans from "@/models/floor_plan.model";
 
 const AddPropertyPage = () => {
   const router = useRouter();
@@ -120,6 +123,7 @@ const AddPropertyPage = () => {
     categoryList(1);
     projectList(1);
     developerList(1);
+    agentList(1)
   }, []);
 
   const amenityList = async (page) => {
@@ -225,6 +229,24 @@ const AddPropertyPage = () => {
     }
   };
 
+  const agentList = async (page) => {
+    try {
+      const body = {
+        user_type: ROLES.AGENT,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        agentList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
   const createAmenity = async () => {
     try {
       setState({ amenityLoading: true });
@@ -262,6 +284,8 @@ const AddPropertyPage = () => {
       }
     }
   };
+
+  
 
   const onSubmit = async () => {
     try {
@@ -311,6 +335,7 @@ const AddPropertyPage = () => {
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
         developer: state.developer?.value,
+        agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -331,7 +356,9 @@ const AddPropertyPage = () => {
         longitude: state.longitude,
         latitude: state.latitude,
         address: state.address,
+        status: state.status?.value,
         validatePropertyType: state.property_type,
+
       };
 
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
@@ -355,7 +382,21 @@ const AddPropertyPage = () => {
         await createVideo(res?.id);
       }
 
-      Success("Property Created Successfully");
+      console.log("state.floorPlans", state.floorPlans);
+
+      if (state.floorPlans.length > 0) {
+        console.log("hello state.floorPlans");
+        state.floorPlans?.map((item, index) =>
+          createFloorPlans(res?.id, item, index)
+        );
+      }
+
+     if(state.group == ROLES.ADMIN) {
+         Success("Property Created Successfully");
+      }
+      else{
+        Success("Your property is created and waiting for approval from admin");
+      }
       router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
     } catch (error) {
@@ -369,7 +410,17 @@ const AddPropertyPage = () => {
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
-        Failure(error?.error);
+        if (error && typeof error === "object") {
+          console.log(error);
+
+          const errorMessages = Object.entries(error)
+            .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
+            .join("; ");
+
+          Failure(errorMessages);
+        } else {
+          Failure(error || "Something went wrong");
+        }
         setState({ btnLoading: false });
       }
     }
@@ -391,6 +442,7 @@ const AddPropertyPage = () => {
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
         developer: state.developer?.value,
+        agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -411,6 +463,7 @@ const AddPropertyPage = () => {
         longitude: state.longitude,
         latitude: state.latitude,
         address: state.address,
+        status: state.status?.value,
         validatePropertyType: state.property_type,
       };
       await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
@@ -434,7 +487,19 @@ const AddPropertyPage = () => {
         await createVideo(res?.id);
       }
 
-      Success("Property Created Successfully");
+      if (state.floorPlans.length > 0) {
+        console.log("hello state.floorPlans");
+        state.floorPlans?.map((item, index) =>
+          createFloorPlans(res?.id, item, index)
+        );
+      }
+
+     if(state.group == ROLES.ADMIN) {
+         Success("Property Created Successfully");
+      }
+      else{
+        Success("Your property is created and waiting for approval from admin");
+      }
       router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
     } catch (error) {
@@ -448,7 +513,17 @@ const AddPropertyPage = () => {
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
-        Failure(error?.error);
+        if (error && typeof error === "object") {
+          console.log(error);
+
+          const errorMessages = Object.entries(error)
+            .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
+            .join("; ");
+
+          Failure(errorMessages);
+        } else {
+          Failure(error || "Something went wrong");
+        }
         setState({ btnLoading: false });
       }
     }
@@ -465,6 +540,7 @@ const AddPropertyPage = () => {
         listing_type: "rent",
         project: state.project?.value,
         developer: state.developer?.value,
+        agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -488,6 +564,7 @@ const AddPropertyPage = () => {
         monthly_rent: state.monthly_rent,
         price: state.monthly_rent,
         rent_duration: state.rent_duration,
+        status: state.status?.value,
         validatePropertyType: state.property_type,
       };
       await Utils.Validation.propertyRentCreate.validate(buyBody, {
@@ -513,7 +590,22 @@ const AddPropertyPage = () => {
         await createVideo(res?.id);
       }
 
-      Success("Property Created Successfully");
+      console.log("state.floorPlans", state.floorPlans);
+
+      if (state.floorPlans.length > 0) {
+        console.log("hello state.floorPlans");
+        state.floorPlans?.map((item, index) =>
+          createFloorPlans(res?.id, item, index)
+        );
+      }
+
+      if(state.group == ROLES.ADMIN) {
+         Success("Property Created Successfully");
+      }
+      else{
+        Success("Your property is created and waiting for approval from admin");
+      }
+     
       router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
     } catch (error) {
@@ -527,7 +619,17 @@ const AddPropertyPage = () => {
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
-        Failure(error?.error);
+       if (error && typeof error === "object") {
+          console.log(error);
+
+          const errorMessages = Object.entries(error)
+            .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
+            .join("; ");
+
+          Failure(errorMessages);
+        } else {
+          Failure(error || "Something went wrong");
+        }
         setState({ btnLoading: false });
       }
     }
@@ -578,6 +680,31 @@ const AddPropertyPage = () => {
     }
   };
 
+  const createFloorPlans = async (property, plan, index) => {
+    try {
+      console.log("createFloorPlans true");
+
+      const body = {
+        property: property,
+        category: plan.category?.value,
+        square_feet: plan.squareFeet,
+        price: plan.price,
+        rera_id: plan.reraId,
+        image: plan.image,
+      };
+
+      const formData = buildFormData(body);
+
+      // console.log("Request body:", JSON.stringify(body, null, 2));
+
+      const res = await Models.floorPlans.create(formData);
+      console.log("res", res);
+    } catch (error) {
+      console.log("createFloorPlans false");
+      console.log("✌️error --->", error);
+    }
+  };
+
   const bodyData = () => ({
     title: state.title || null,
     property_type: state.property_type?.value || null,
@@ -623,7 +750,9 @@ const AddPropertyPage = () => {
   const steps = [
     { id: 1, title: "Basic Detail", icon: MapPin },
     { id: 2, title: "Property Information", icon: Info },
-    { id: 5, title: "Floor Plans", icon: Star },
+    ...(state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL
+      ? [{ id: 5, title: "Floor Plans", icon: Star }]
+      : []),
 
     { id: 7, title: "Media", icon: File },
     { id: 3, title: "Location", icon: MapPin },
@@ -631,8 +760,7 @@ const AddPropertyPage = () => {
     // { id: 5, title: "Extra Facilities", icon: Star },
     { id: 6, title: "Contact Information", icon: Phone },
   ];
-console.log('✌️state.floorPlans --->', state.floorPlans);
-
+  console.log("✌️state.floorPlans --->", state.floorPlans);
 
   const addFloorPlan = () => {
     setState({
@@ -675,6 +803,8 @@ console.log('✌️state.floorPlans --->', state.floorPlans);
       setState({ openAccordions: [index] });
     }
   };
+
+  // console.log("state.floorPlans", state.floorPlans);
 
   return (
     <>
@@ -723,6 +853,10 @@ console.log('✌️state.floorPlans --->', state.floorPlans);
                           property_type: e,
                           contact: "",
                           error: { ...state.error, property_type: "" },
+                          floorPlans:
+                            e?.label === PROPERTY_TYPE.AGRICULTURAL
+                              ? []
+                              : state.floorPlans,
                         });
                       }}
                       placeholder={"Select Property type "}
@@ -732,6 +866,8 @@ console.log('✌️state.floorPlans --->', state.floorPlans);
                       isClearable={false}
                       loadMore={() => catListLoadMore()}
                     />
+
+
 
                     <CustomSelect
                       title="Offer type"
@@ -750,8 +886,8 @@ console.log('✌️state.floorPlans --->', state.floorPlans);
                       isClearable={false}
                       // loadMore={() => catListLoadMore()}
                     />
-                  </div>
-                  <div className="mt-4 flex w-full">
+
+                    
                     <TextInput
                       name="title"
                       title="Property Name"
@@ -761,7 +897,27 @@ console.log('✌️state.floorPlans --->', state.floorPlans);
                       required
                       error={state.error?.title}
                     />
+                
+
+                  <CustomSelect
+                      title="Property Status"
+                      value={state.status}
+                      onChange={(e) => {
+                        setState({
+                          status: e,
+                          error: { ...state.error, status: "" },
+
+                        });
+                      }}
+                      placeholder={"Select Property type "}
+                      options={Property_status}
+                      error={state.error?.status}
+                      required
+                      isClearable={false}
+                      loadMore={() => catListLoadMore()}
+                    />
                   </div>
+                  
 
                   <div className="mt-4 flex w-full">
                     <TextArea
@@ -1025,112 +1181,119 @@ console.log('✌️state.floorPlans --->', state.floorPlans);
                 </div>
               )}
 
-              {step.id === 5 && (
-                <div className="panel rounded-lg p-6">
-                  <h2 className="text-lg font-semibold">Floor Plans</h2>
+              {state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL &&
+                step.id === 5 && (
+                  <div className="panel rounded-lg p-6">
+                    <h2 className="text-lg font-semibold">Floor Plans</h2>
 
-                  <div className="mt-4">
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                      {state.floorPlans?.map((plan, index) => (
-                        <div key={index} className="rounded-lg border">
-                          <div
-                            className="flex cursor-pointer items-center justify-between bg-gray-50 p-4"
-                            onClick={() => toggleAccordion(index)}
-                          >
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-medium">
-                                {plan.category?.label ||
-                                  `Floor Plan ${index + 1}`}
-                              </h3>
-                              {plan.squareFeet && (
-                                <span className="text-sm text-gray-500">
-                                  ({plan.squareFeet} sq.ft)
-                                </span>
-                              )}
+                    <div className="mt-4">
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
+                        {state.floorPlans?.map((plan, index) => (
+                          <div key={index} className="rounded-lg border">
+                            <div
+                              className="flex cursor-pointer items-center justify-between bg-gray-50 p-4"
+                              onClick={() => toggleAccordion(index)}
+                            >
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-medium">
+                                  {plan.category?.label ||
+                                    `Floor Plan ${index + 1}`}
+                                </h3>
+                                {plan.squareFeet && (
+                                  <span className="text-sm text-gray-500">
+                                    ({plan.squareFeet} sq.ft)
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {state.floorPlans.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      removeFloorPlan(index);
+                                    }}
+                                    className="rounded p-1 text-red-500 hover:bg-red-50"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                )}
+                                <ChevronDown className="h-4 w-4" />
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              {state.floorPlans.length > 1 && (
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    removeFloorPlan(index);
-                                  }}
-                                  className="rounded p-1 text-red-500 hover:bg-red-50"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              )}
-                              <ChevronDown className="h-4 w-4" />
-                            </div>
-                          </div>
 
-                          <div className="border-t p-4">
-                            <div className="grid grid-cols-1 gap-4">
-                              <CustomSelect
-                                title="Category"
-                                value={plan.category}
-                                onChange={(e) =>
-                                  updateFloorPlan(index, "category", e)
-                                }
-                                placeholder="Select Category"
-                                options={[
-                                  { value: "plots", label: "Plots" },
-                                  { value: "1bhk", label: "1 BHK" },
-                                  { value: "2bhk", label: "2 BHK" },
-                                  { value: "3bhk", label: "3 BHK" },
-                                  { value: "4bhk", label: "4 BHK" },
-                                ]}
-                                required
-                              />
+                            <div className="border-t p-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <CustomSelect
+                                  title="Category"
+                                  value={plan.category}
+                                  onChange={(e) =>
+                                    updateFloorPlan(index, "category", e)
+                                  }
+                                  placeholder="Select Category"
+                                  options={[
+                                    { value: "plots", label: "Plots" },
+                                    { value: "1bhk", label: "1 BHK" },
+                                    { value: "2bhk", label: "2 BHK" },
+                                    { value: "3bhk", label: "3 BHK" },
+                                    { value: "4bhk", label: "4 BHK" },
+                                  ]}
+                                />
 
-                              <TextInput
-                                name={`squareFeet-${index}`}
-                                title="Square Feet"
-                                placeholder="Enter Square Feet"
-                                type="number"
-                                value={plan.squareFeet}
-                                onChange={(e) =>
-                                  updateFloorPlan(
-                                    index,
-                                    "squareFeet",
-                                    e.target.value
-                                  )
-                                }
-                                required
-                              />
+                                <TextInput
+                                  name={`squareFeet-${index}`}
+                                  title="Square Feet"
+                                  placeholder="Enter Square Feet"
+                                  type="number"
+                                  value={plan.squareFeet}
+                                  onChange={(e) =>
+                                    updateFloorPlan(
+                                      index,
+                                      "squareFeet",
+                                      e.target.value
+                                    )
+                                  }
+                                  required={plan.category ? true : false}
+                                />
 
-                              <TextInput
-                                name={`price-${index}`}
-                                title="Price"
-                                placeholder="Enter Price"
-                                type="number"
-                                value={plan.price}
-                                onChange={(e) =>
-                                  updateFloorPlan(
-                                    index,
-                                    "price",
-                                    e.target.value
-                                  )
-                                }
-                                required
-                              />
+                                <TextInput
+                                  name={`price-${index}`}
+                                  title="Price"
+                                  placeholder="Enter Price"
+                                  type="number"
+                                  value={plan.price}
+                                  onChange={(e) =>
+                                    updateFloorPlan(
+                                      index,
+                                      "price",
+                                      e.target.value
+                                    )
+                                  }
+                                  required={plan.category ? true : false}
+                                />
 
-                              <TextInput
-                                name={`reraId-${index}`}
-                                title="RERA ID"
-                                placeholder="Enter RERA ID"
-                                value={plan.reraId}
-                                onChange={(e) =>
-                                  updateFloorPlan(
-                                    index,
-                                    "reraId",
-                                    e.target.value
-                                  )
-                                }
-                              />
+                                <TextInput
+                                  name={`reraId-${index}`}
+                                  title="RERA ID"
+                                  placeholder="Enter RERA ID"
+                                  value={plan.reraId}
+                                  onChange={(e) =>
+                                    updateFloorPlan(
+                                      index,
+                                      "reraId",
+                                      e.target.value
+                                    )
+                                  }
+                                  required={plan.category ? true : false}
+                                />
+                              </div>
+
+                              <h5 className="text-md mt-5 font-bold">
+                                Upload Floor Plan Image
+                              </h5>
+
                               <div
-                                className={`flex h-40 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
+                                className={`mb-4 mt-3 flex h-40 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
                                   plan.image
                                     ? "border-green-300 bg-green-50"
                                     : "border-gray-300 hover:border-gray-400"
@@ -1223,28 +1386,28 @@ console.log('✌️state.floorPlans --->', state.floorPlans);
                                       updateFloorPlan(index, "image", file);
                                     }
                                   }}
+                                  required={plan.category ? true : false}
                                 />
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
 
-                    {/* Add New Floor Plan Button */}
-                    <div className="mt-4">
-                      <button
-                        type="button"
-                        onClick={addFloorPlan}
-                        className="flex items-center gap-2 rounded-lg border border-blue-600 px-4 py-2 text-blue-600 transition-colors hover:bg-blue-50"
-                      >
-                        <Plus className="h-5 w-5" />
-                        Add Floor Plan
-                      </button>
+                      {/* Add New Floor Plan Button */}
+                      <div className="mt-4">
+                        <button
+                          type="button"
+                          onClick={addFloorPlan}
+                          className="flex items-center gap-2 rounded-lg border border-blue-600 px-4 py-2 text-blue-600 transition-colors hover:bg-blue-50"
+                        >
+                          <Plus className="h-5 w-5" />
+                          Add Floor Plan
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {step.id === 7 && (
                 <div className="panel rounded-lg p-6">
@@ -1548,6 +1711,8 @@ console.log('✌️state.floorPlans --->', state.floorPlans);
                       required
                       error={state.error?.developer}
                     />
+
+                    {state.group == ROLES.ADMIN &&
                     <div>
                       <CheckboxInput
                         key={"assign"}
@@ -1580,6 +1745,8 @@ console.log('✌️state.floorPlans --->', state.floorPlans);
                         />
                       )}
                     </div>
+                    }
+                    
                   </div>
                   <div className="mt-6 flex justify-end">
                     <PrimaryButton

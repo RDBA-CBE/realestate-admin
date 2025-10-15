@@ -438,7 +438,10 @@ export default function List() {
     if (state.search) {
       body.search = state.search;
     }
-    return body;
+    if (state.property_type) {
+      body.property_type = state.property_type
+    }
+   
   };
 
   const handleEdit = async (row) => {
@@ -555,7 +558,7 @@ export default function List() {
           />
         </div>
 
-        <button type="button" className="btn btn-primary">
+        <button type="button" className="btn btn-primary" onClick={propertyList}>
           Apply Filter
         </button>
         <button type="button" className="btn btn-primary">

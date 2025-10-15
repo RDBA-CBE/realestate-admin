@@ -4,6 +4,7 @@ import address from "@/models/address.model";
 import amenity from "@/models/amenity.model";
 import auth from "@/models/auth.model";
 import category from "@/models/category.model";
+import floorPlans from "@/models/floor_plan.model";
 import image from "@/models/image.model";
 import master from "@/models/master.model";
 import profile from "@/models/profile.model";
@@ -28,8 +29,8 @@ export const Models = {
   address,
   image,
   video,
-  virtualTour
-  
+  virtualTour,
+  floorPlans,
 };
 
 export default Models;
