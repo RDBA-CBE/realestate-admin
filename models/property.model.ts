@@ -23,6 +23,28 @@ const properties = {
 
       if (body?.developer) {
         url += `&developer=${encodeURIComponent(body?.developer)}`;
+      if (body?.search) {
+        url += `&search=${body?.search}`;
+      }
+
+      if (body?.property_type) {
+        url += `&property_type=${body?.property_type}`;
+      }
+
+      if (body?.listing_type) {
+        url += `&listing_type=${body?.listing_type}`;
+      }
+
+      if (body?.status) {
+        url += `&status=${body?.status}`;
+      }
+
+      if (body?.developer) {
+        url += `&developer=${body?.developer}`;
+      }
+
+      if (body?.agent) {
+        url += `&agent=${body?.agent}`;
       }
 
       instance()
@@ -80,7 +102,7 @@ const properties = {
         })
         .catch((error) => {
           if (error.response) {
-            reject(error.response.data.message);
+            reject(error.response.data);
           } else {
             reject(error);
           }

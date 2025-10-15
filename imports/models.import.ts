@@ -4,6 +4,7 @@ import address from "@/models/address.model";
 import amenity from "@/models/amenity.model";
 import auth from "@/models/auth.model";
 import category from "@/models/category.model";
+import floorPlans from "@/models/floor_plan.model";
 import image from "@/models/image.model";
 import lead from "@/models/lead.model";
 import master from "@/models/master.model";
@@ -30,6 +31,7 @@ export const Models = {
   image,
   video,
   virtualTour,
+  floorPlans,
   lead
   
 };

@@ -40,6 +40,7 @@ export const propertySaleCreate = Yup.object().shape({
   state: Yup.string().required("State is required").nullable(),
   country: Yup.string().required("Country is required").nullable(),
   postal_code: Yup.string().required("Zip Code is required").nullable(),
+  status: Yup.string().required("Status is required").nullable(),
 
   total_area: Yup.string().required("Total Area is required").nullable(),
   furnishing: Yup.string()
@@ -93,6 +94,7 @@ export const propertyLeaseCreate = Yup.object().shape({
   country: Yup.string().required("Country is required").nullable(),
   postal_code: Yup.string().required("Zip Code is required").nullable(),
   total_area: Yup.string().required("Total Area is required").nullable(),
+  status: Yup.string().required("Status is required").nullable(),
   furnishing: Yup.string()
     .nullable()
     .when("validatePropertyType", {
@@ -141,6 +143,7 @@ export const propertyRentCreate = Yup.object().shape({
   country: Yup.string().required("Country is required").nullable(),
   postal_code: Yup.string().required("Zip Code is required").nullable(),
   total_area: Yup.string().required("Total Area is required").nullable(),
+  status: Yup.string().required("Status is required").nullable(),
   furnishing: Yup.string()
     .nullable()
     .when("validatePropertyType", {

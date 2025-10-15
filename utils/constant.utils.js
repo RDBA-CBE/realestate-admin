@@ -594,6 +594,7 @@ export const FURNISHING_TYPE = [
   { value: "unfurnished", label: "Unfurnished" },
 ];
 
+
 export const ListType = [
   { value: "sale", label: "Sale" },
   { value: "rent", label: "Rent" },
@@ -626,6 +627,26 @@ export const Furnishing = [
   },
   { value: 3, label: "Unfurnished" },
 ];
+
+export const FLOORPLANS_CATEGORY = [
+  { value: "plots", label: "Plots" },
+  { value: "1bhk", label: "1 BHK" },
+  { value: "2bhk", label: "2 BHK" },
+  { value: "3bhk", label: "3 BHK" },
+  { value: "4bhk", label: "4 BHK" },
+];
+
+export const Property_status = [
+  { value: "available", label: "Available" },
+  {
+    value: "sold",
+    label: "Sold",
+  },
+  { value: "rented", label: "Rented" },
+  {value: "off_market", label: "Off Market"},
+  {value:"under_contract", label:"Under Contract"},
+  {value:"pending", label:"pending"}
+]
 
 export const ROLES = {
   ADMIN: "admin",

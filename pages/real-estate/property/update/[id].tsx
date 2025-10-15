@@ -1,25 +1,40 @@
 "use client";
 
-import { MapPin, Info, Home, Star, Phone, File } from "lucide-react";
+import {
+  MapPin,
+  Info,
+  Home,
+  Star,
+  Phone,
+  File,
+  Trash2,
+  ChevronDown,
+  Camera,
+  Plus,
+} from "lucide-react";
 import TextInput from "@/components/FormFields/TextInput.component";
 import PrimaryButton from "@/components/FormFields/PrimaryButton.component";
 import {
   buildFormData,
+  convertUrlToFile,
   Dropdown,
   Failure,
   formatNumber,
   getDropdownObject,
   StringDropdown,
   Success,
+  urlToFile,
   useSetState,
 } from "@/utils/function.utils";
 import {
   facingDirection,
+  FLOORPLANS_CATEGORY,
   FURNISHING_TYPE,
   LISTING_TYPE,
   LISTING_TYPE_LIST,
   ListType,
   PROPERTY_IMG,
+  Property_status,
   PROPERTY_TYPE,
   propertyType,
   ROLES,
@@ -39,6 +54,7 @@ import ImageUploadWithPreview from "@/components/ImageUploadWithPreview/ImageUpl
 import VideoUpload from "@/components/videoUpload/videoUpload.compoent";
 import PrivateRouter from "@/hook/privateRouter";
 import UpdatePropertyImagePreview from "@/components/ImageUploadWithPreview/UpdatePropertyImagePreview.component";
+import { isString } from "lodash";
 
 const AddPropertyPage = () => {
   const router = useRouter();
@@ -56,6 +72,7 @@ const AddPropertyPage = () => {
     projectList: [],
     categoryPage: 1,
     categoryNext: null,
+    status:null,
     //Form
     property_type: null,
     property_name: "",
@@ -100,6 +117,18 @@ const AddPropertyPage = () => {
     existingImages: [],
     imageList: [],
     videoLoading: false,
+    floorPlans: [
+      {
+        id: null,
+        category: null,
+        squareFeet: "",
+        price: "",
+        reraId: "",
+        floorNo:"",
+        image: null,
+      },
+    ],
+    deleteFloorPlan: null,
   });
 
   useEffect(() => {
@@ -121,6 +150,7 @@ const AddPropertyPage = () => {
     categoryList(1);
     projectList(1);
     developerList(1);
+    agentList(1)
   }, []);
 
   const propertyDetails = async () => {
@@ -144,8 +174,8 @@ const AddPropertyPage = () => {
       setState({
         title: res?.title,
         description: res?.description,
-        total_area: formatNumber(res?.total_area),
-        built_up_area: formatNumber(res?.built_up_area),
+        // total_area: formatNumber(res?.total_area),
+        // built_up_area: formatNumber(res?.built_up_area),
         bedrooms: res?.bedrooms,
         bathrooms: res?.bathrooms,
         balconies: res?.balconies,
@@ -157,12 +187,25 @@ const AddPropertyPage = () => {
         state: res?.state,
         country: res?.country,
         postal_code: res?.postal_code,
-        longitude: formatNumber(res?.longitude),
-        latitude: formatNumber(res?.latitude),
-        monthly_rent: formatNumber(res?.monthly_rent),
-        rent_duration: formatNumber(res?.rent_duration),
-        lease_total_amount: formatNumber(res?.lease_total_amount),
-        lease_duration: formatNumber(res?.lease_duration),
+       
+        ...(res?.total_area && { total_area: formatNumber(res.total_area) }),
+        ...(res?.built_up_area && {
+          built_up_area: formatNumber(res.built_up_area),
+        }),
+        ...(res?.longitude && { longitude: formatNumber(res.longitude) }),
+        ...(res?.latitude && { latitude: formatNumber(res.latitude) }),
+        ...(res?.monthly_rent && {
+          monthly_rent: formatNumber(res.monthly_rent),
+        }),
+        ...(res?.rent_duration && {
+          rent_duration: formatNumber(res.rent_duration),
+        }),
+        ...(res?.lease_total_amount && {
+          lease_total_amount: formatNumber(res.lease_total_amount),
+        }),
+        ...(res?.lease_duration && {
+          lease_duration: formatNumber(res.lease_duration),
+        }),
       });
 
       if (res?.property_type) {
@@ -171,6 +214,16 @@ const AddPropertyPage = () => {
             value: res?.property_type?.id,
             label: res?.property_type?.name,
           },
+        });
+      }
+
+      if( res?.status){
+        const statusObj = getDropdownObject(
+          res?.status,
+          Property_status
+        );
+        setState({
+          status: statusObj,
         });
       }
 
@@ -189,6 +242,16 @@ const AddPropertyPage = () => {
             value: res?.developer?.id,
             label: `${res?.developer?.first_name} ${res?.developer?.last_name}`,
           },
+          
+        });
+      }
+      if (res?.agent) {
+        setState({
+          agent: {
+            value: res?.agent?.id,
+            label: `${res?.agent?.first_name} ${res?.agent?.last_name}`,
+          },
+          assignAgent: true
         });
       }
 
@@ -206,6 +269,7 @@ const AddPropertyPage = () => {
           furnishing: furnishingObj,
         });
       }
+
       if (res?.listing_type == LISTING_TYPE_LIST.SALE) {
         setState({
           price: formatNumber(res?.price),
@@ -225,10 +289,45 @@ const AddPropertyPage = () => {
           existingVideo: res?.videos?.[0],
         });
       }
+
+      if (res?.floor_plans?.length > 0) {
+        const floorPlansData = res.floor_plans.map((plan) => ({
+          id: plan?.id,
+          category: getDropdownObject(plan?.category, FLOORPLANS_CATEGORY),
+          squareFeet: plan?.square_feet,
+          price: plan?.price,
+          reraId: plan?.rera_id, // Fixed: changed from reraId to rera_id
+          floor_no: plan?.floorNo,
+          image: plan?.image,
+        }));
+
+        setState({
+          floorPlans: floorPlansData,
+        });
+      }
     } catch (error) {
       console.log("✌️error --->", error);
     }
   };
+
+  const agentList = async (page) => {
+      try {
+        const body = {
+          user_type: ROLES.AGENT,
+        };
+        const res: any = await Models.user.list(page, body);
+        const dropdown = res?.results?.map((item) => ({
+          value: item?.id,
+          label: `${item?.first_name} ${item?.last_name}`,
+        }));
+        setState({
+          agentList: dropdown,
+        });
+      } catch (error) {
+        console.log("✌️error --->", error);
+      }
+    };
+  
 
   const amenityList = async (page) => {
     try {
@@ -388,9 +487,9 @@ const AddPropertyPage = () => {
           if (error.name.length > 0) {
             Failure(error.name?.[0]);
           }
-        }else{
-        Failure(error?.error);
-      }
+        } else {
+          Failure(error?.error);
+        }
         setState({ amenityLoading: false });
       }
     }
@@ -441,6 +540,7 @@ const AddPropertyPage = () => {
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
         developer: state.developer?.value,
+        agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -461,6 +561,7 @@ const AddPropertyPage = () => {
         longitude: state.longitude,
         latitude: state.latitude,
         address: state.address,
+        status: state.status?.value,
         validatePropertyType: state.property_type,
       };
 
@@ -479,11 +580,20 @@ const AddPropertyPage = () => {
       //     createImage(id, item, imageLength + index + 1)
       //   );
       // }
-      if (state.virtual_tour) {
-        await createVirtualTour(res?.id);
+
+      if (state.floorPlans.length > 0) {
+        console.log("hello state.floorPlans,", state.floorPlans);
+        state.floorPlans?.forEach((item, index) => {
+          if (item.id) {
+            patchFloorPlans(item.id, item, index);
+          } else {
+            createFloorPlans(id, item, index);
+          }
+        });
       }
-      if (state.video) {
-        await createVideo(res?.id);
+
+      if (state.deleteFloorPlan) {
+        deleteFloorPlans();
       }
 
       Success("Property Updated Successfully");
@@ -500,7 +610,17 @@ const AddPropertyPage = () => {
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
-        Failure(error?.error);
+        if (error && typeof error === "object") {
+          console.log(error);
+
+          const errorMessages = Object.entries(error)
+            .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
+            .join("; ");
+
+          Failure(errorMessages);
+        } else {
+          Failure(error || "Something went wrong");
+        }
         setState({ btnLoading: false });
       }
     }
@@ -522,6 +642,7 @@ const AddPropertyPage = () => {
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
         developer: state.developer?.value,
+         agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -542,6 +663,7 @@ const AddPropertyPage = () => {
         longitude: state.longitude,
         latitude: state.latitude,
         address: state.address,
+        status: state.status?.value,
         validatePropertyType: state.property_type,
       };
       await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
@@ -556,11 +678,19 @@ const AddPropertyPage = () => {
 
       const res: any = await Models.property.update(formData, id);
 
-      if (state.virtual_tour) {
-        await createVirtualTour(res?.id);
+      if (state.floorPlans.length > 0) {
+        console.log("hello state.floorPlans,", state.floorPlans);
+        state.floorPlans?.forEach((item, index) => {
+          if (item.id) {
+            patchFloorPlans(item.id, item, index);
+          } else {
+            createFloorPlans(id, item, index);
+          }
+        });
       }
-      if (state.video) {
-        await createVideo(res?.id);
+
+      if (state.deleteFloorPlan) {
+        deleteFloorPlans();
       }
 
       Success("Property Updated Successfully");
@@ -577,7 +707,17 @@ const AddPropertyPage = () => {
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
-        Failure(error?.error);
+        if (error && typeof error === "object") {
+          console.log(error);
+
+          const errorMessages = Object.entries(error)
+            .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
+            .join("; ");
+
+          Failure(errorMessages);
+        } else {
+          Failure(error || "Something went wrong");
+        }
         setState({ btnLoading: false });
       }
     }
@@ -594,6 +734,7 @@ const AddPropertyPage = () => {
         listing_type: "rent",
         project: state.project?.value,
         developer: state.developer?.value,
+         agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -617,6 +758,7 @@ const AddPropertyPage = () => {
         monthly_rent: state.monthly_rent,
         price: state.monthly_rent,
         rent_duration: state.rent_duration,
+        status: state.status?.value,
         validatePropertyType: state.property_type,
       };
       await Utils.Validation.propertyRentCreate.validate(buyBody, {
@@ -630,13 +772,19 @@ const AddPropertyPage = () => {
 
       const res: any = await Models.property.update(formData, id);
 
-      if (state.virtual_tour) {
-        await createVirtualTour(res?.id);
+      if (state.floorPlans.length > 0) {
+        console.log("hello state.floorPlans,", state.floorPlans);
+        state.floorPlans?.forEach((item, index) => {
+          if (item.id) {
+            patchFloorPlans(item.id, item, index);
+          } else {
+            createFloorPlans(id, item, index);
+          }
+        });
       }
-      console.log("✌️state.video --->", state.video);
 
-      if (state.video) {
-        await createVideo(res?.id);
+      if (state.deleteFloorPlan) {
+        deleteFloorPlans();
       }
 
       Success("Property Updated Successfully");
@@ -653,7 +801,17 @@ const AddPropertyPage = () => {
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
-        Failure(error?.error);
+        if (error && typeof error === "object") {
+          console.log(error);
+
+          const errorMessages = Object.entries(error)
+            .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
+            .join("; ");
+
+          Failure(errorMessages);
+        } else {
+          Failure(error || "Something went wrong");
+        }
         setState({ btnLoading: false });
       }
     }
@@ -742,30 +900,61 @@ const AddPropertyPage = () => {
     }
   };
 
-  const createVideo = async (property) => {
+  const patchFloorPlans = async (property, plan, index) => {
+    console.log("property,", property);
+    console.log("plan,", plan);
+
+    try {
+      console.log("patchFloorPlans true");
+
+      console.log("isString(plan.image)", isString(plan.image));
+
+      const body = {
+        property: property,
+        category: plan.category?.value,
+        square_feet: plan.squareFeet,
+        price: plan.price,
+        rera_id: plan.reraId,
+        floor_no: plan.floorNo,
+        ...(!isString(plan.image) && { image: plan.image }),
+      };
+
+      const formData = buildFormData(body);
+      const res = await Models.floorPlans.update(formData, property);
+      console.log("res", res);
+    } catch (error) {
+      console.log("patchFloorPlans false");
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const createFloorPlans = async (property, plan, index) => {
     try {
       const body = {
         property: property,
-        video: state.video,
+        category: plan.category?.value,
+        square_feet: plan.squareFeet,
+        price: plan.price,
+        rera_id: plan.reraId,
+        floor_no:plan.floorNo,
+        image: plan.image,
       };
+
       const formData = buildFormData(body);
 
-      const res = await Models.video.create(formData);
-      return res;
+      // console.log("Request body:", JSON.stringify(body, null, 2));
+
+      const res = await Models.floorPlans.create(formData);
+      console.log("res", res);
     } catch (error) {
       console.log("✌️error --->", error);
     }
   };
 
-  const createVirtualTour = async (property) => {
+  const deleteFloorPlans = async () => {
+    console.log("deleteFloorPlans", state.deleteFloorPlan);
     try {
-      const body = {
-        property: property,
-        tour_url: state.virtual_tour,
-      };
-
-      const res = await Models.virtualTour.create(body);
-      return res;
+      const res = await Models.floorPlans.delete(state.deleteFloorPlan);
     } catch (error) {
       console.log("✌️error --->", error);
     }
@@ -782,11 +971,78 @@ const AddPropertyPage = () => {
   const steps = [
     { id: 1, title: "Basic Detail", icon: MapPin },
     { id: 2, title: "Property Information", icon: Info },
+    ...(state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL
+      ? [{ id: 5, title: "Floor Plans", icon: Star }]
+      : []),
     { id: 7, title: "Media", icon: File },
     { id: 3, title: "Location", icon: MapPin },
     { id: 4, title: "Amenities", icon: Home },
     { id: 6, title: "Contact Information", icon: Phone },
   ];
+
+  const addFloorPlan = () => {
+    setState({
+      floorPlans: [
+        ...state.floorPlans,
+        {
+          id: null,
+          category: null,
+          squareFeet: "",
+          price: "",
+          reraId: "",
+          floorNo:"",
+          image: null,
+        },
+      ],
+    });
+  };
+
+  // const removeFloorPlan = (index) => {
+  //   if (state.floorPlans.length > 1) {
+  //     // Clean up object URLs if any
+  //     const plan = state.floorPlans[index];
+  //     if (plan.image && typeof plan.image !== "string") {
+  //       URL.revokeObjectURL(plan.image);
+  //     }
+  //     setState({ floorPlans: state.floorPlans.filter((_, i) => i !== index) ,
+  //       deleteFloorPlan: index
+  //     });
+  //   }
+  // };
+
+  console.log("deleteid", state.deleteFloorPlan);
+
+  const removeFloorPlan = (index) => {
+    if (state.floorPlans.length > 1) {
+      const plan = state.floorPlans[index];
+
+      // Clean up object URLs if any
+      if (plan.image && typeof plan.image !== "string") {
+        URL.revokeObjectURL(plan.image);
+      }
+
+      setState({
+        floorPlans: state.floorPlans.filter((_, i) => i !== index),
+        deleteFloorPlan: plan.id, // Set to the actual ID, not the index
+      });
+    }
+  };
+
+  const updateFloorPlan = (index, field, value) => {
+    setState({
+      floorPlans: state.floorPlans.map((plan, i) =>
+        i === index ? { ...plan, [field]: value } : plan
+      ),
+    });
+  };
+
+  const toggleAccordion = (index) => {
+    if (state.openAccordions?.includes(index)) {
+      setState({ openAccordions: [] });
+    } else {
+      setState({ openAccordions: [index] });
+    }
+  };
 
   return (
     <>
@@ -837,6 +1093,10 @@ const AddPropertyPage = () => {
                           property_type: e,
                           contact: "",
                           error: { ...state.error, property_type: "" },
+                          floorPlans:
+                            e?.label === PROPERTY_TYPE.AGRICULTURAL
+                              ? []
+                              : state.floorPlans,
                         });
                       }}
                       placeholder={"Select Property type "}
@@ -864,18 +1124,35 @@ const AddPropertyPage = () => {
                       isClearable={false}
                       // loadMore={() => catListLoadMore()}
                     />
-                  </div>
-                  <div className="mt-4 flex w-full">
                     <TextInput
-                      name="title"
-                      title="Property Name"
-                      placeholder="Enter Property Name"
-                      value={state.title}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.title}
-                    />
+                    name="title"
+                    title="Property Name"
+                    placeholder="Enter Property Name"
+                    value={state.title}
+                    onChange={handleInputChange}
+                    required
+                    error={state.error?.title}
+                  />
+
+                  <CustomSelect
+                    title="Property Status"
+                    value={state.status}
+                    onChange={(e) => {
+                      setState({
+                        status: e,
+                        error: { ...state.error, status: "" },
+                      });
+                    }}
+                    placeholder={"Select Property type "}
+                    options={Property_status}
+                    error={state.error?.status}
+                    required
+                    isClearable={false}
+                    loadMore={() => catListLoadMore()}
+                  />
                   </div>
+
+                  
 
                   <div className="mt-4 flex w-full">
                     <TextArea
@@ -1139,6 +1416,249 @@ const AddPropertyPage = () => {
                   </div>
                 </div>
               )}
+
+              {state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL &&
+                step.id === 5 && (
+                  <div className="panel rounded-lg p-6">
+                    <h2 className="text-lg font-semibold">Floor Plans</h2>
+
+                    <div className="mt-4">
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
+                        {state.floorPlans?.map((plan, index) => (
+                          <div key={index} className="rounded-lg border">
+                            <div
+                              className="flex cursor-pointer items-center justify-between bg-gray-50 p-4"
+                              onClick={() => toggleAccordion(index)}
+                            >
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-medium">
+                                  {plan.category?.label ||
+                                    `Floor Plan ${index + 1}`}
+                                </h3>
+                                {plan.squareFeet && (
+                                  <span className="text-sm text-gray-500">
+                                    ({plan.squareFeet} sq.ft)
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {state.floorPlans.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      removeFloorPlan(index);
+                                    }}
+                                    className="rounded p-1 text-red-500 hover:bg-red-50"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                )}
+                                <ChevronDown className="h-4 w-4" />
+                              </div>
+                            </div>
+
+                            <div className="border-t p-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <CustomSelect
+                                  title="Category"
+                                  value={plan.category}
+                                  onChange={(e) =>
+                                    updateFloorPlan(index, "category", e)
+                                  }
+                                  placeholder="Select Category"
+                                  options={[
+                                    { value: "plots", label: "Plots" },
+                                    { value: "1bhk", label: "1 BHK" },
+                                    { value: "2bhk", label: "2 BHK" },
+                                    { value: "3bhk", label: "3 BHK" },
+                                    { value: "4bhk", label: "4 BHK" },
+                                  ]}
+                                />
+
+                                <TextInput
+                                  name={`squareFeet-${index}`}
+                                  title="Square Feet"
+                                  placeholder="Enter Square Feet"
+                                  type="number"
+                                  value={plan.squareFeet}
+                                  onChange={(e) =>
+                                    updateFloorPlan(
+                                      index,
+                                      "squareFeet",
+                                      e.target.value
+                                    )
+                                  }
+                                  required={plan.category ? true : false}
+                                />
+
+                                <TextInput
+                                  name={`price-${index}`}
+                                  title="Price"
+                                  placeholder="Enter Price"
+                                  type="number"
+                                  value={plan.price}
+                                  onChange={(e) =>
+                                    updateFloorPlan(
+                                      index,
+                                      "price",
+                                      e.target.value
+                                    )
+                                  }
+                                  required={plan.category ? true : false}
+                                />
+
+                                {/* <TextInput
+                                  name={`reraId-${index}`}
+                                  title="RERA ID"
+                                  placeholder="Enter RERA ID"
+                                  value={plan.reraId}
+                                  onChange={(e) =>
+                                    updateFloorPlan(
+                                      index,
+                                      "reraId",
+                                      e.target.value
+                                    )
+                                  }
+                                  required={plan.category ? true : false}
+                                /> */}
+
+                                <TextInput
+                                  name={`floorNo-${index}`}
+                                  title="Floor No"
+                                  placeholder="Enter Floor NO"
+                                  value={plan.floorNo}
+                                  onChange={(e) =>
+                                    updateFloorPlan(
+                                      index,
+                                      "floorNo",
+                                      e.target.value
+                                    )
+                                  }
+                                  required={plan.category ? true : false}
+                                />
+                              </div>
+
+                              <h5 className="text-md mt-5 font-bold">
+                                Upload Floor Plan Image
+                              </h5>
+
+                              <div
+                                className={`mb-4 mt-3 flex h-40 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
+                                  plan.image
+                                    ? "border-green-300 bg-green-50"
+                                    : "border-gray-300 hover:border-gray-400"
+                                } relative`}
+                                onDragOver={(e) => {
+                                  e.preventDefault();
+                                  e.currentTarget.classList.add(
+                                    "border-blue-400",
+                                    "bg-blue-50"
+                                  );
+                                }}
+                                onDragLeave={(e) => {
+                                  e.preventDefault();
+                                  e.currentTarget.classList.remove(
+                                    "border-blue-400",
+                                    "bg-blue-50"
+                                  );
+                                }}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  e.currentTarget.classList.remove(
+                                    "border-blue-400",
+                                    "bg-blue-50"
+                                  );
+
+                                  const files = e.dataTransfer.files;
+                                  if (files.length > 0) {
+                                    const file = files[0];
+                                    if (file.type.startsWith("image/")) {
+                                      updateFloorPlan(index, "image", file);
+                                    }
+                                  }
+                                }}
+                                onClick={() =>
+                                  document
+                                    .getElementById(`file-input-${index}`)
+                                    ?.click()
+                                }
+                              >
+                                {plan.image ? (
+                                  <>
+                                    <img
+                                      src={
+                                        typeof plan.image === "string"
+                                          ? plan.image
+                                          : URL.createObjectURL(plan.image)
+                                      }
+                                      alt="Floor plan"
+                                      className="h-full w-full rounded-lg object-cover"
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-0 transition-all duration-200 hover:bg-opacity-30">
+                                      <div className="text-center text-white opacity-0 transition-opacity duration-200 hover:opacity-100">
+                                        <Camera className="mx-auto mb-1 h-6 w-6" />
+                                        <span className="text-xs">
+                                          Change Image
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        updateFloorPlan(index, "image", null);
+                                      }}
+                                      className="absolute -right-2 -top-2 z-10 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Plus className="h-8 w-8 text-gray-400" />
+                                    <span className="mt-2 text-sm text-gray-500">
+                                      Drag & drop or click to upload
+                                    </span>
+                                    <span className="mt-1 text-xs text-gray-400">
+                                      PNG, JPG, WEBP up to 5MB
+                                    </span>
+                                  </>
+                                )}
+
+                                <input
+                                  id={`file-input-${index}`}
+                                  type="file"
+                                  className="hidden"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                      updateFloorPlan(index, "image", file);
+                                    }
+                                  }}
+                                  required={plan.category ? true : false}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Add New Floor Plan Button */}
+                      <div className="mt-4">
+                        <button
+                          type="button"
+                          onClick={addFloorPlan}
+                          className="flex items-center gap-2 rounded-lg border border-blue-600 px-4 py-2 text-blue-600 transition-colors hover:bg-blue-50"
+                        >
+                          <Plus className="h-5 w-5" />
+                          Add Floor Plan
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
               {step.id === 7 && (
                 <div className="panel rounded-lg p-6">
@@ -1445,38 +1965,40 @@ const AddPropertyPage = () => {
                       required
                       error={state.error?.developer}
                     />
-                    <div>
-                      <CheckboxInput
-                        key={"assign"}
-                        type="checkbox"
-                        name="amenities"
-                        label={"Assign Agent"}
-                        checked={state.assignAgent}
-                        onChange={() => {
-                          setState({ assignAgent: !state.assignAgent });
-                        }}
-                      />
-                      {state.assignAgent && (
-                        <CustomSelect
-                          title="Authorize Agent"
-                          placeholder="Select Agent"
-                          options={state.agentList}
-                          value={state.agent}
-                          onChange={(selectedOption) =>
-                            setState({
-                              agent: selectedOption,
-                              error: {
-                                ...state.error,
-                                agent: null,
-                              },
-                            })
-                          }
-                          isClearable
-                          required
-                          error={state.error?.agent}
+                    {state.group == "Admin" && (
+                      <div>
+                        <CheckboxInput
+                          key={"assign"}
+                          type="checkbox"
+                          name="amenities"
+                          label={"Assign Agent"}
+                          checked={state.assignAgent}
+                          onChange={() => {
+                            setState({ assignAgent: !state.assignAgent });
+                          }}
                         />
-                      )}
-                    </div>
+                        {state.assignAgent && (
+                          <CustomSelect
+                            title="Authorize Agent"
+                            placeholder="Select Agent"
+                            options={state.agentList}
+                            value={state.agent}
+                            onChange={(selectedOption) =>
+                              setState({
+                                agent: selectedOption,
+                                error: {
+                                  ...state.error,
+                                  agent: null,
+                                },
+                              })
+                            }
+                            isClearable
+                            required
+                            error={state.error?.agent}
+                          />
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="mt-6 flex justify-end">
                     <PrimaryButton
