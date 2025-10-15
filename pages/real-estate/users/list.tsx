@@ -12,7 +12,13 @@ import CustomSelect from "@/components/FormFields/CustomSelect.component";
 import PrivateRouter from "@/hook/privateRouter";
 
 import Models from "@/imports/models.import";
-import { Failure, formatDate, showDeleteAlert, Success } from "@/utils/function.utils";
+import {
+  capitalizeFLetter,
+  Failure,
+  formatDate,
+  showDeleteAlert,
+  Success,
+} from "@/utils/function.utils";
 import moment from "moment";
 import Swal from "sweetalert2";
 import useDebounce from "@/hook/useDebounce";
@@ -74,7 +80,7 @@ const List = () => {
         last_name: item?.last_name,
         email: item.email,
         // date: moment(item.created_at).format("DD/MM/YYYY HH:mm"),
-        date: formatDate(item.created_at, 'DD/MM/YYYY'),
+        date: formatDate(item.created_at, "DD/MM/YYYY"),
         role: {
           role: item.user_type,
           color:
@@ -135,7 +141,6 @@ const List = () => {
           validationErrors[err.path] = err?.message;
         });
         console.log("✌️validationErrors --->", validationErrors);
-       
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
@@ -191,6 +196,7 @@ const List = () => {
     if (state.role) {
       body.group = state.role.value;
     }
+    body.account_status = "approved";
 
     return body;
   };
@@ -228,11 +234,9 @@ const List = () => {
       editId: row?.id,
       isOpen: true,
     });
-   
   };
 
   const deleteDecord = async (row) => {
-
     try {
       setState({ btnLoading: true });
 
@@ -270,7 +274,6 @@ const List = () => {
       usersList(newPage);
     }
   };
-
 
   return (
     <>
@@ -373,7 +376,7 @@ const List = () => {
                 title: "Role",
                 render: (row: any) => (
                   <span className={`badge badge-outline-${row?.role?.color} `}>
-                    {row?.role?.role}
+                    {capitalizeFLetter(row?.role?.role)}
                   </span>
                 ),
               },

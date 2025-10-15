@@ -145,6 +145,7 @@ const SidebarDynamic = () => {
     if (!group) return menuConfig.admin;
     return menuConfig[group] || menuConfig.default;
   };
+  console.log('✌️getUserMenu --->', getUserMenu());
 
   return (
     <div className={semidark ? "dark" : ""}>

@@ -86,6 +86,14 @@ export default function List() {
       visible: true,
       toggleable: true,
     },
+
+    {
+      accessor: "created_by",
+      title: "Created By",
+      visible: true,
+      toggleable: true,
+    },
+    
     {
       accessor: "developer",
       title: "Developer",
@@ -203,6 +211,12 @@ export default function List() {
       toggleable: true,
     },
     {
+      accessor: "created_by",
+      title: "Created By",
+      visible: true,
+      toggleable: true,
+    },
+    {
       accessor: "developer",
       title: "Developer",
       visible: true,
@@ -290,7 +304,7 @@ export default function List() {
   const debouncedSearch = useDebounce(state.search, 500);
 
   useEffect(() => {
-    propertyList(1);
+    propertyList(state.page);
     categoryList(1);
   }, []);
 
@@ -307,10 +321,11 @@ export default function List() {
   }, [state.viewMode]);
 
   useEffect(() => {
-    propertyList(1);
+    propertyList(state.page);
   }, [debouncedSearch]);
 
   const propertyList = async (page) => {
+    console.log("✌️page --->", page);
     try {
       setState({ loading: true });
       const body = bodyData();
@@ -341,6 +356,9 @@ export default function List() {
         project: capitalizeFLetter(item?.project?.name),
 
         price: formatToINR(item?.price),
+        created_by: `${capitalizeFLetter(item?.created_by?.first_name)} ${
+          item?.created_by?.last_name
+        }`,
         image:
           item?.primary_image ??
           "/assets/images/real-estate/property-info-img1.png",
@@ -395,6 +413,7 @@ export default function List() {
       console.log("error: ", error);
     }
   };
+  console.log("✌️state.page --->", state.page);
 
   const handleApprove = async (row: any) => {
     console.log("✌️row --->", row);
@@ -404,9 +423,8 @@ export default function List() {
         is_approved: true,
       };
       const res = await Models.property.update(body, row?.id);
-      console.log("✌️res --->", res);
-      propertyList(1);
-    
+      propertyList(state.page);
+
       Success("Property Approved succssfully");
     } catch (error) {}
   };

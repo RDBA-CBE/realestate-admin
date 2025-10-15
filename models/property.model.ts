@@ -1,16 +1,32 @@
 import instance from "@/utils/axios.utils";
 
 const properties = {
-  list: (page,body) => {
+  list: (page, body) => {
     let promise = new Promise((resolve, reject) => {
       let url = `properties?page=${page}`;
 
       if (body?.is_approved == "No") {
         url += `&is_approved=${encodeURIComponent(false)}`;
       }
-      
+
+      if (body?.seller) {
+        url += `&seller=${encodeURIComponent(body?.seller)}`;
+      }
+
+      if (body?.created_by) {
+        url += `&created_by=${encodeURIComponent(body?.created_by)}`;
+      }
+
+      if (body?.agent) {
+        url += `&agent=${encodeURIComponent(body?.agent)}`;
+      }
+
+      if (body?.developer) {
+        url += `&developer=${encodeURIComponent(body?.developer)}`;
+      }
+
       instance()
-        .get(url,body)
+        .get(url, body)
         .then((res) => {
           resolve(res.data);
         })

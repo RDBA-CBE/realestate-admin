@@ -36,6 +36,7 @@ import {
   ListType,
   PROPERTY_TYPE,
   propertyType,
+  ROLES,
 } from "@/utils/constant.utils";
 import { RotatingLines } from "react-loader-spinner";
 import {
@@ -163,37 +164,45 @@ export default function List() {
       title: "Property Info",
       visible: true,
       toggleable: true,
-      render: (row) => (
-        <div className="flex gap-3 font-semibold">
-          <div className="h-28 w-44 rounded-md bg-white-dark/30  ltr:mr-2 rtl:ml-2">
-            <img
-              className="h-full w-full cursor-pointer rounded-md object-cover"
-              src={row.image}
-              alt=""
-            />
-          </div>
-          <div className="flex flex-col justify-between py-2">
-            <div>
-              <div className="flex gap-1">
-                {" "}
-                <IconMapPin className="h-4 w-4" />
-                {row.location}
+      render: (row) => {
+        const group = localStorage.getItem("group");
+
+        return (
+          <div className="flex gap-3 font-semibold">
+            <div className="h-28 w-44 rounded-md bg-white-dark/30 ltr:mr-2 rtl:ml-2">
+              <img
+                className="h-full w-full cursor-pointer rounded-md object-cover"
+                src={row.image}
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col justify-between py-2">
+              <div>
+                <div className="flex gap-1">
+                  <IconMapPin className="h-4 w-4" />
+                  {row.location}
+                </div>
+                <Link
+                  className="cursor-pointer text-lg font-bold"
+                  href={`/real-estate/profile/${row.id}/`}
+                >
+                  {row.title}
+                </Link>
               </div>
-              <Link
-                className="cursor-pointer text-lg font-bold"
-                href={`/real-estate/profile/${row.id}/`}
-              >
-                {row.title}
-              </Link>
-            </div>
-            <div>
-              <Link className="flex gap-1 text-primary" href={"/detail"}>
-                <LucideHome className="h-4 w-4 text-black " /> View Details
-              </Link>
+              {group !== "Admin" && (
+                <span className={`badge  ${row?.is_approved?"w-[70px] badge-outline-success":"w-[140px] badge-outline-warning"}`}>
+                  {row?.is_approved?"Approved":"Waiting For Approval"}
+                </span>
+              )}
+              <div>
+                <Link className="flex gap-1 text-primary" href={"/detail"}>
+                  <LucideHome className="h-4 w-4 text-black" /> View Details
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
 
     {
@@ -327,6 +336,7 @@ export default function List() {
   const propertyList = async (page) => {
     try {
       setState({ loading: true });
+
       const body = bodyData();
       const res: any = await Models.property.list(page, body);
       const data = res?.results?.map((item) => ({
@@ -355,6 +365,7 @@ export default function List() {
         project: capitalizeFLetter(item?.project?.name),
 
         price: formatToINR(item?.price),
+        is_approved:item?.is_approved,
         image:
           item?.primary_image ??
           "/assets/images/real-estate/property-info-img1.png",
@@ -434,9 +445,25 @@ export default function List() {
   };
 
   const bodyData = () => {
+    const group = localStorage.getItem("group");
+    const userId = localStorage.getItem("userId");
+
     let body: any = {};
     if (state.search) {
       body.search = state.search;
+    }
+    if (group == "Seller") {
+      // body.seller = userId;
+      body.created_by = userId;
+    }
+    if (group == "Agent") {
+      body.agent = userId;
+      body.created_by = userId;
+    }
+
+    if (group == "Developer") {
+      body.developer = userId;
+      // body.created_by = userId;
     }
     return body;
   };
@@ -493,7 +520,6 @@ export default function List() {
   const filteredColumns = state.visibleColumns
     ?.filter((col) => col.visible !== false)
     ?.map(({ visible, toggleable, ...col }) => col);
-
 
   return (
     <>

@@ -22,6 +22,7 @@ import Utils from "@/imports/utils.import";
 import * as Yup from "yup";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
+import { FILTER_ROLES, ROLES } from "@/utils/constant.utils";
 
 export default function list() {
   const [state, setState] = useSetState({
@@ -35,6 +36,8 @@ export default function list() {
     description: "",
     search: "",
     error: {},
+    userList: [],
+    role: null,
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -46,7 +49,61 @@ export default function list() {
 
   useEffect(() => {
     projectList(1);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, state.user]);
+
+  const developerList = async (page) => {
+    try {
+      const body = {
+        user_type: ROLES.DEVELOPER,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        userList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const agentList = async (page) => {
+    try {
+      const body = {
+        user_type: ROLES.AGENT,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        userList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const sellerList = async (page) => {
+    try {
+      const body = {
+        user_type: ROLES.SELLER,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        userList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
 
   const projectList = async (page) => {
     try {
@@ -58,10 +115,9 @@ export default function list() {
         status: item?.status,
         id: item?.id,
         properties: item?.property_count,
-        project:item?.project?.name,
-      
-
+        project: item?.project?.name,
       }));
+      const group = localStorage.getItem("group");
 
       setState({
         tableList: data,
@@ -70,6 +126,7 @@ export default function list() {
         next: res.next,
         previous: res.previous,
         totalRecords: res.count,
+        group,
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -98,7 +155,6 @@ export default function list() {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
-        console.log("✌️validationErrors --->", validationErrors);
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
@@ -120,7 +176,6 @@ export default function list() {
       await Utils.Validation.project.validate(body, { abortEarly: false });
 
       const res = await Models.project.update(body, state.editId);
-      console.log("createProject --->", res);
       clearData();
       setState({ btnLoading: false });
       projectList(state.page);
@@ -168,12 +223,17 @@ export default function list() {
   };
 
   const bodyData = () => {
-    let body: any = {}; // start with empty object
+    const userId = localStorage.getItem("userId");
+    let body: any = {};
 
     if (state.search) {
       body.search = state.search;
     }
-
+    if (state.user?.value) {
+      body.created_at = state.user?.value;
+    } else {
+      body.created_at = userId;
+    }
     console.log("✌️body --->", body);
     return body;
   };
@@ -214,6 +274,17 @@ export default function list() {
     }
   };
 
+  const getuserList = (e) => {
+    setState({ role: e, user: null });
+    if (e?.value == "developer") {
+      developerList(1);
+    } else if (e?.value == "agent") {
+      agentList(1);
+    } else if (e?.value == "seller") {
+      sellerList(1);
+    }
+  };
+
   return (
     <>
       <div className="panel mb-5 flex items-center justify-between gap-5">
@@ -236,38 +307,38 @@ export default function list() {
       <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
         {/* Search Input */}
         <div className="flex-1">
-          <input
+          <TextInput
             type="text"
-            className="w-100 form-input"
+            className=" form-input"
             placeholder="Search..."
             value={state.search}
             onChange={(e) => setState({ search: e.target.value })}
           />
         </div>
 
-        {/* Category Dropdown */}
-        <div className="flex-1">
-          <CustomSelect
-            placeholder="Select Role"
-            value={state.role}
-            onChange={(e) => setState({ role: e })}
-            options={state.roleList}
-            // error={state.errors?.tags}
-          />
-        </div>
+        {state.group == "Admin" && (
+          <>
+            <div className="flex-1">
+              <CustomSelect
+                placeholder="Select Role"
+                value={state.role}
+                onChange={(e) => {
+                  getuserList(e);
+                }}
+                options={FILTER_ROLES}
+              />
+            </div>
 
-        <div className="flex-1">
-          <CustomSelect
-            placeholder="Select Role"
-            value={state.role}
-            onChange={(e) => setState({ role: e })}
-            options={state.roleList}
-            // error={state.errors?.tags}
-          />
-        </div>
-        {/* Status Dropdown */}
-
-        {/* Bulk Actions Dropdown */}
+            <div className="flex-1">
+              <CustomSelect
+                placeholder="Select user"
+                value={state.user}
+                onChange={(e) => setState({ user: e })}
+                options={state.userList}
+              />
+            </div>
+          </>
+        )}
 
         <div>
           <button type="button" className="btn btn-primary">
@@ -277,8 +348,6 @@ export default function list() {
       </div>
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
-        {/* <div className="invoice-table"> */}
-
         <div className="datatables pagination-padding"></div>
         <DataTable
           className="table-responsive"

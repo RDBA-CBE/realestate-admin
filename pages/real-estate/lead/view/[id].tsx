@@ -116,8 +116,10 @@ export default function View_opportunity(props: any) {
 
   const getLogList = async () => {
     try {
-      // const res: any = await Models.lead.logOppoList(id);
-      // setState({ logList: res?.results, logCount: res.count });
+      const res: any = await Models.lead.logList(id, {});
+      console.log("getLogList --->", res);
+
+      setState({ logList: res?.results, logCount: res.count });
     } catch (error) {
       setState({ loading: false });
     }
@@ -154,37 +156,9 @@ export default function View_opportunity(props: any) {
     }
   };
 
-  const deleteOpp = async (id) => {
-    // showDeleteAlert(
-    //   async () => {
-    //     try {
-    //       notifySuccess("Opportunity deleted successfully.");
-    //       Swal.fire(
-    //         "Deleted!",
-    //         "Your opportunity has been deleted.",
-    //         "success"
-    //       );
-    //     } catch (error) {
-    //       notifyError("An error occurred while deleting the opportunity.");
-    //       Swal.fire(
-    //         "Error!",
-    //         "An error occurred while deleting the opportunity.",
-    //         "error"
-    //       );
-    //     }
-    //   },
-    //   () => {
-    //     Swal.fire("Cancelled", "Your opportunity is safe :)", "info");
-    //   },
-    //   "Are you sure you want to delete opportunity?"
-    // );
-  };
+  
 
-  // const breadcrumbItems = [
-  //   { label: "Home", path: "/" },
-  //   { label: "Lead", path: `viewLead?id=${redux?.leadId}` },
-  //   { label: "Opportunity", path: "/" },
-  // ];
+
 
   const handleCheckboxChange = (option) => {
     // setState({ logtype: state.logtype == option ? null : option });
@@ -492,14 +466,10 @@ export default function View_opportunity(props: any) {
                   label={option?.label}
                 />
               ))}
-              {/* <CheckboxInput checked={state.logtype === 'Call'} onChange={() => handleCheckboxChange('Call')} label="Call" />
-                            <CheckboxInput checked={state.logtype === 'Meeting'} onChange={() => handleCheckboxChange('Meeting')} label="Meeting" />
-                            <CheckboxInput checked={state.logtype === 'Email'} onChange={() => handleCheckboxChange('Email')} label="Email" /> */}
               <button
                 type="button"
                 className="btn btn-primary log-btn p-1"
                 onClick={() => {
-                  // dispatch(leadId(id));
                   setState({ isLogOpen: true });
                 }}
               >
@@ -513,7 +483,7 @@ export default function View_opportunity(props: any) {
             <LogCard
               data={state.logList}
               onPress={(item) => router.push(`/opportunity?id=${item.id}`)}
-              onDelete={(item) => deleteOpp(item.id)}
+              // onDelete={(item) => deleteOpp(item.id)}
               editIcon={false}
             />
           </div>

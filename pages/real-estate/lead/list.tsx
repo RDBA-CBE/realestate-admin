@@ -30,6 +30,7 @@ import IconTrashLines from "@/components/Icon/IconTrashLines";
 import Link from "next/link";
 import { Calendar, Columns, Eye, EyeOff, Table } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
+import { FILTER_ROLES, ROLES } from "@/utils/constant.utils";
 
 const List = () => {
   const router = useRouter();
@@ -45,6 +46,9 @@ const List = () => {
     search: "",
     error: {},
     visibleColumns: [],
+    assignmentTitle: "Assigned From",
+    userList: [],
+    role: null,
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -56,7 +60,15 @@ const List = () => {
 
   useEffect(() => {
     leadList(1);
-  }, [debouncedSearch]);
+  }, [debouncedSearch,state.user]);
+
+  useEffect(() => {
+    const group = localStorage.getItem("group");
+    console.log("✌️group --->", group);
+    setState({
+      assignmentTitle: group == "Admin" ? "Assigned To" : "Assigned From",
+    });
+  }, []);
 
   const leadList = async (page) => {
     try {
@@ -76,6 +88,7 @@ const List = () => {
           ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
           : "",
       }));
+      const group = localStorage.getItem("group");
 
       setState({
         tableList: data,
@@ -84,6 +97,7 @@ const List = () => {
         next: res.next,
         previous: res.previous,
         totalRecords: res.count,
+        group
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -181,12 +195,85 @@ const List = () => {
     );
   };
 
+  const developerList = async (page) => {
+    try {
+      const body = {
+        user_type: ROLES.DEVELOPER,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        userList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const agentList = async (page) => {
+    try {
+      const body = {
+        user_type: ROLES.AGENT,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        userList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const sellerList = async (page) => {
+    try {
+      const body = {
+        user_type: ROLES.SELLER,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        userList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const getuserList = (e) => {
+    setState({ role: e, user: null });
+    if (e?.value == "developer") {
+      developerList(1);
+    } else if (e?.value == "agent") {
+      agentList(1);
+    } else if (e?.value == "seller") {
+      sellerList(1);
+    }
+  };
+
   const bodyData = () => {
+    const userId = localStorage.getItem("userId");
     let body: any = {};
 
     if (state.search) {
       body.search = state.search;
     }
+
+    if (state.user?.value) {
+      body.created_by = state.user?.value;
+    } else {
+      body.created_by = userId;
+    }
+
 
     console.log("✌️body --->", body);
     return body;
@@ -278,8 +365,7 @@ const List = () => {
 
     {
       accessor: "assigned_to",
-      title: "Assigned To",
-
+      title: state.assignmentTitle,
       visible: true,
       toggleable: true,
     },
@@ -357,6 +443,7 @@ const List = () => {
   const visibleCount = state.visibleColumns?.filter(
     (col) => col.visible
   ).length;
+
   const totalToggleable = state.visibleColumns?.filter(
     (col) => col?.toggleable !== false
   ).length;
@@ -391,24 +478,29 @@ const List = () => {
           />
         </div>
 
-        <div className="flex-1">
-          <CustomSelect
-            placeholder="Select Role"
-            value={state.role}
-            onChange={(e) => setState({ role: e })}
-            options={state.roleList}
-            // error={state.errors?.tags}
-          />
-        </div>
+        {state.group == "Admin" && (
+          <>
+            <div className="flex-1">
+              <CustomSelect
+                placeholder="Select Role"
+                value={state.role}
+                onChange={(e) => {
+                  getuserList(e);
+                }}
+                options={FILTER_ROLES}
+              />
+            </div>
 
-        <div className="flex-1">
-          <CustomSelect
-            placeholder="Select Role"
-            value={state.role}
-            onChange={(e) => setState({ role: e })}
-            options={state.roleList}
-          />
-        </div>
+            <div className="flex-1">
+              <CustomSelect
+                placeholder="Select user"
+                value={state.user}
+                onChange={(e) => setState({ user: e })}
+                options={state.userList}
+              />
+            </div>
+          </>
+        )}
 
         <div>
           <button type="button" className="btn btn-primary">

@@ -30,11 +30,6 @@ export const menuConfig = {
           label: "Projects",
           key: "Projects",
           children: [
-            {
-              type: "link",
-              label: "Waiting For Approval",
-              href: "/real-estate/project/approval",
-            },
             { type: "link", label: "List", href: "/real-estate/project/list" },
           ],
         },
@@ -167,7 +162,7 @@ export const menuConfig = {
     },
   ],
 
-  Agents: [
+  Agent: [
     {
       type: "link",
       icon: "IconMenuWidgets",
@@ -305,7 +300,7 @@ export const menuConfig = {
     },
   ],
 
-  Sellers: [
+  Seller: [
     {
       type: "link",
       icon: "IconMenuWidgets",
@@ -443,7 +438,7 @@ export const menuConfig = {
     },
   ],
 
-  Developers: [
+  Developer: [
     {
       type: "link",
       icon: "IconMenuWidgets",
@@ -623,28 +618,6 @@ export const facingDirection = [
   { value: 10, label: "West-Facing Corner" },
 ];
 
-export const amenitiesList = [
-  { value: "parking", label: "Car Parking" },
-  { value: "power_backup", label: "Power Backup" },
-  { value: "lift", label: "Lift / Elevator" },
-  { value: "security", label: "24x7 Security" },
-  { value: "cctv", label: "CCTV Surveillance" },
-  { value: "water_supply", label: "24x7 Water Supply" },
-  { value: "gym", label: "Gym / Fitness Center" },
-  { value: "swimming_pool", label: "Swimming Pool" },
-  { value: "children_play_area", label: "Children's Play Area" },
-  { value: "clubhouse", label: "Clubhouse / Community Hall" },
-  { value: "garden", label: "Park / Garden" },
-  { value: "intercom", label: "Intercom Facility" },
-  { value: "internet", label: "Wi-Fi / Internet" },
-  { value: "fire_safety", label: "Fire Safety" },
-  { value: "rainwater_harvesting", label: "Rainwater Harvesting" },
-  { value: "shopping_center", label: "Shopping Center" },
-  { value: "sports_facilities", label: "Sports Facilities" },
-  { value: "visitor_parking", label: "Visitor Parking" },
-  { value: "community_events", label: "Community Events Area" },
-];
-
 export const Furnishing = [
   { value: 1, label: "Furnished" },
   {
@@ -696,7 +669,6 @@ export const PROPERTY_IMG = [
   "https://www.pexels.com/photo/lighted-beige-house-1396132/",
 ];
 
-
 export const LEAD_SOURCE_OPTIONS = [
   { value: "website", label: "Website" },
   { value: "referral", label: "Referral" },
@@ -716,12 +688,27 @@ export const STATUS_OPTIONS = [
   { value: "negotiation", label: "Negotiation" },
   { value: "won", label: "Won" },
   { value: "lost", label: "Lost" },
-  { value: "cancelled", label: "Cancelled" }
+  { value: "cancelled", label: "Cancelled" },
 ];
 
 export const PRIORITY_OPTIONS = [
   { value: "low", label: "Low" },
   { value: "medium", label: "Medium" },
   { value: "high", label: "High" },
-  { value: "urgent", label: "Urgent" }
+  { value: "urgent", label: "Urgent" },
+];
+
+export const FILTER_ROLES = [
+  {
+    value: "developer",
+    label: "Developer",
+  },
+  {
+    value: "agent",
+    label: "Agent",
+  },
+  {
+    value: "seller",
+    label: "Seller",
+  },
 ];

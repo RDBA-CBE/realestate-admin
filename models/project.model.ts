@@ -6,8 +6,12 @@ const project = {
       let url = `projects?page=${page}`;
 
       if (body?.search) {
-        url += `&name=${encodeURIComponent(body.search)}`;
+        url += `&search=${encodeURIComponent(body.search)}`;
       }
+      if (body?.created_at) {
+        url += `&created_at=${encodeURIComponent(body.created_at)}`;
+      }
+
       instance()
         .get(url, body)
         .then((res) => {

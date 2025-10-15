@@ -1,65 +1,85 @@
-import React, { useEffect } from "react";
+import Link from "next/link";
 import { DataTable } from "mantine-datatable";
-import IconEdit from "@/components/Icon/IconEdit";
-import {
-  Failure,
-  showDeleteAlert,
-  Success,
-  useSetState,
-} from "@/utils/function.utils";
-import CustomSelect from "@/components/FormFields/CustomSelect.component";
-import IconLoader from "@/components/Icon/IconLoader";
-import Modal from "@/components/modal/modal.component";
-import Models from "@/imports/models.import";
-import TextInput from "@/components/FormFields/TextInput.component";
-import TextArea from "@/components/FormFields/TextArea.component";
-import IconTrash from "@/components/Icon/IconTrash";
-import Swal from "sweetalert2";
-import useDebounce from "@/hook/useDebounce";
-import Utils from "@/imports/utils.import";
-import * as Yup from "yup";
+import { useEffect } from "react";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
-import { useRouter } from "next/navigation";
+import { useSetState } from "@mantine/hooks";
+import CustomSelect from "@/components/FormFields/CustomSelect.component";
 import PrivateRouter from "@/hook/privateRouter";
+import Models from "@/imports/models.import";
+import { capitalizeFLetter, formatDate, Success } from "@/utils/function.utils";
+
+import useDebounce from "@/hook/useDebounce";
+
+import { roleList } from "@/utils/constant.utils";
 
 const List = () => {
-  const router = useRouter();
-  const [state, setState] = useSetState({
-    isOpen: false,
-    btnLoading: false,
+  const [state, setState] = useSetState<any>({
+    previousPage: false,
+    nextPage: false,
+    currentPage: 1,
+    role: null,
     page: 1,
+    btnLoading: false,
     tableList: [],
     editId: null,
-    name: "",
-    location: "",
-    description: "",
     search: "",
+    total: null,
+    next: null,
+    previous: null,
+    totalRecords: null,
+    userList: [],
+    first_name: "",
+    last_name: "",
+    phone: "",
+    email: "",
+    password: "",
+    date: "",
+    address: "",
+    isOpen: false,
     error: {},
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
 
   useEffect(() => {
-    projectList(1);
+    usersList(1);
   }, []);
 
   useEffect(() => {
-    projectList(1);
+    usersList(1);
   }, [debouncedSearch]);
 
-  const projectList = async (page) => {
+  const usersList = async (page: any) => {
     try {
       const body = bodyData();
-      const res: any = await Models.project.list(page, body);
-      const data = res?.results?.map((item) => ({
-        name: item?.name,
-        location: item?.location,
-        status: item?.status,
+      console.log("body", body);
+
+      const res: any = await Models.user.list(page, body);
+      const data = res?.results?.map((item: any) => ({
         id: item?.id,
+        first_name: item?.first_name,
+        last_name: item?.last_name,
+        email: item.email,
+        date: formatDate(item.created_at, "DD/MM/YYYY"),
+        role: {
+          role: item.user_type,
+          color:
+            item.user_type == "buyer"
+              ? "success"
+              : item.user_type == "developer"
+              ? "secondary"
+              : item.user_type == "agent"
+              ? "info"
+              : item.user_type == "seller"
+              ? "warning"
+              : "success",
+        },
+        ...item,
       }));
 
       setState({
+        userList: res.results,
         tableList: data,
         total: res?.count,
         page: page,
@@ -67,146 +87,57 @@ const List = () => {
         previous: res.previous,
         totalRecords: res.count,
       });
-    } catch (error) {
+    } catch (error: any) {
       console.log("✌️error --->", error);
     }
   };
 
-  const createProject = async () => {
-    try {
-      setState({ btnLoading: true });
-      const body = {
-        name: state.name,
-        location: state.location,
-        description: state.description,
-        developer: 3,
-      };
-      await Utils.Validation.project.validate(body, { abortEarly: false });
-
-      const res = await Models.project.create(body);
-      clearData();
-      setState({ btnLoading: false });
-      projectList(1);
-      Success("Preject created succssfully");
-    } catch (error) {
-      if (error instanceof Yup.ValidationError) {
-        const validationErrors = {};
-        error.inner.forEach((err) => {
-          validationErrors[err.path] = err?.message;
-        });
-        console.log("✌️validationErrors --->", validationErrors);
-
-        setState({ error: validationErrors, btnLoading: false });
-      } else {
-        Failure(error?.error);
-        setState({ btnLoading: false });
-      }
-    }
-  };
-
-  const updateProject = async () => {
-    try {
-      setState({ btnLoading: true });
-      const body = {
-        name: state.name,
-        location: state.location,
-        description: state.description,
-        developer: 3,
-      };
-      await Utils.Validation.project.validate(body, { abortEarly: false });
-
-      const res = await Models.project.update(body, state.editId);
-      console.log("createProject --->", res);
-      clearData();
-      setState({ btnLoading: false });
-      projectList(state.page);
-
-      Success("Preject updated succssfully");
-    } catch (error) {
-      if (error instanceof Yup.ValidationError) {
-        const validationErrors = {};
-        error.inner.forEach((err) => {
-          validationErrors[err.path] = err?.message;
-        });
-        console.log("✌️validationErrors --->", validationErrors);
-
-        setState({ error: validationErrors, btnLoading: false });
-      } else {
-        Failure(error?.error);
-        setState({ btnLoading: false });
-      }
-    }
-  };
-
-  const deleteDecord = async (row) => {
-    try {
-      setState({ btnLoading: true });
-
-      const res = await Models.project.delete(row?.id);
-      clearData();
-      setState({ btnLoading: false });
-      projectList(state.page);
-
-      Success("Preject deleted succssfully");
-    } catch (error) {}
-  };
-
-  const handleDelete = (row) => {
-    showDeleteAlert(
-      () => {
-        deleteDecord(row);
-      },
-      () => {
-        Swal.fire("Cancelled", "Your Record is safe :)", "info");
-      },
-      "Are you sure want to delete project?"
-    );
-  };
-
   const bodyData = () => {
-    let body: any = {}; // start with empty object
+    let body: any = {};
 
     if (state.search) {
       body.search = state.search;
     }
+    if (state.role) {
+      body.group = state.role.value;
+    }
+    body.account_status = "unverified";
 
-    console.log("✌️body --->", body);
     return body;
   };
 
-  const handleEdit = (row) => {
+  const clearFilter = () => {
     setState({
-      name: row.name,
-      location: row.location,
-      description: row.description,
-      isOpen: true,
-      editId: row?.id,
+      search: "",
+      role: "",
     });
-    console.log("✌️row --->", row);
   };
 
-  const clearData = () => {
-    setState({
-      editId: null,
-      name: "",
-      location: "",
-      description: "",
-      isOpen: false,
-      error: {},
-    });
+  const handleApprove = async (row) => {
+    try {
+      setState({ btnLoading: true });
+      const body = {
+        account_status: "approved",
+      };
+
+      const res = await Models.user.update(body, row?.id);
+      setState({ btnLoading: false });
+      usersList(state.page);
+      Success("User Approval successfully");
+    } catch (error) {}
   };
 
   const handleNextPage = () => {
-    if (state.next) {
+    if (state?.next) {
       const newPage = state.page + 1;
-      projectList(newPage);
+      usersList(newPage);
     }
   };
 
   const handlePreviousPage = () => {
-    if (state.previous) {
+    if (state?.previous) {
       const newPage = state.page - 1;
-      projectList(newPage);
+      usersList(newPage);
     }
   };
 
@@ -215,14 +146,14 @@ const List = () => {
       <div className="panel mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
-            Waiting for User Approval List
+            Waiting For User Approval List
           </h5>
         </div>
         <div className="flex gap-5">
           <button
             type="button"
             className="btn btn-primary  w-full md:mb-0 md:w-auto"
-            onClick={() => router.push("/real-estate/property/create")}
+            onClick={() => setState({ isOpen: true })}
           >
             + Create
           </button>
@@ -230,7 +161,6 @@ const List = () => {
       </div>
 
       <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
-        {/* Search Input */}
         <div className="flex-1">
           <input
             type="text"
@@ -241,167 +171,123 @@ const List = () => {
           />
         </div>
 
-        {/* Category Dropdown */}
         <div className="flex-1">
           <CustomSelect
             placeholder="Select Role"
             value={state.role}
             onChange={(e) => setState({ role: e })}
-            options={state.roleList}
-            // error={state.errors?.tags}
+            options={roleList}
           />
         </div>
 
-        <div className="flex-1">
-          <CustomSelect
-            placeholder="Select Role"
-            value={state.role}
-            onChange={(e) => setState({ role: e })}
-            options={state.roleList}
-            // error={state.errors?.tags}
-          />
-        </div>
-        {/* Status Dropdown */}
-
-        {/* Bulk Actions Dropdown */}
-
-        <div>
-          <button type="button" className="btn btn-primary">
-            Clear Filter
-          </button>
-        </div>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => usersList(1)}
+        >
+          Apply Filter
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={() => clearFilter()}
+        >
+          Clear Filter
+        </button>
       </div>
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
-        {/* <div className="invoice-table"> */}
+        <div className="datatables pagination-padding">
+          <DataTable
+            className="table-hover whitespace-nowrap"
+            records={state?.tableList || []}
+            columns={[
+              {
+                accessor: "name",
+                title: "Name",
 
-        <div className="datatables pagination-padding"></div>
-        <DataTable
-          className="table-responsive"
-          records={state.tableList || []}
-          columns={[
-            { accessor: "name", title: "Project Name" },
-            { accessor: "location", title: "Location" },
-            { accessor: "status", title: "status" },
+                render: (row) => (
+                  <div className="flex items-center font-semibold">
+                    <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
+                      <img
+                        className="h-8 w-8 cursor-pointer rounded-full object-cover"
+                        src={`/assets/images/profile-${row.id}.jpeg`}
+                        alt=""
+                      />
+                    </div>
+                    <Link
+                      className="cursor-pointer"
+                      href={`/real-estate/profile/${row.id}/`}
+                    >
+                      {row.first_name} {row.last_name}
+                    </Link>
+                  </div>
+                ),
+              },
+              { accessor: "email", title: "Email" },
+              { accessor: "date", title: "Date" },
 
-            {
-              accessor: "actions",
-              title: "Actions",
-              render: (row: any) => (
-                <div className="mx-auto flex w-max items-center gap-4">
-                  <button
-                    className="flex hover:text-primary"
-                    onClick={(e) => {
-                      handleEdit(row);
-                    }}
-                  >
-                    <IconEdit className="h-4.5 w-4.5" />
-                  </button>
-                  <button
-                    className="flex text-danger hover:text-primary"
-                    onClick={() => handleDelete(row)}
-                  >
-                    <IconTrash />
-                  </button>
-                </div>
-              ),
-            },
-          ]}
-          highlightOnHover
-          totalRecords={state.taskList?.length}
-          recordsPerPage={state.pageSize}
-          minHeight={200}
-          page={null}
-          onPageChange={(p) => {}}
-          withBorder={true}
-          paginationText={({ from, to, totalRecords }) =>
-            `Showing  ${from} to ${to} of ${totalRecords} entries`
-          }
-        />
-        <div className="mt-5 flex justify-end gap-3">
+              {
+                accessor: "role",
+                title: "Role",
+                render: (row: any) => (
+                  <span className={`badge badge-outline-${row?.role?.color} `}>
+                    {capitalizeFLetter(row?.role?.role)}
+                  </span>
+                ),
+              },
+              {
+                accessor: "action",
+                title: "Actions",
+                sortable: false,
+                textAlignment: "center",
+                render: (row: any) => (
+                  <div className="mx-auto flex w-max items-center gap-4">
+                    <div className="flex gap-5">
+                      <button
+                        type="button"
+                        className="btn btn-outline-primary w-full md:mb-0 md:w-auto"
+                        onClick={() => handleApprove(row)}
+                      >
+                        Approve
+                      </button>
+                    </div>
+                  </div>
+                ),
+              },
+            ]}
+            highlightOnHover
+            totalRecords={state?.initialRecords?.length}
+            recordsPerPage={state?.pageSize}
+            page={null}
+            onPageChange={(p) => {}}
+            paginationText={({ from, to, totalRecords }) =>
+              `Showing  ${from} to ${to} of ${totalRecords} entries`
+            }
+          />
+        </div>
+
+        <div className="me-2 mt-5 flex justify-end gap-3">
           <button
-            disabled={!state.previous}
+            disabled={!state?.previous}
             onClick={handlePreviousPage}
             className={`btn ${
-              !state.previous ? "btn-disabled" : "btn-primary"
+              !state?.previous ? "btn-disabled" : "btn-primary"
             }`}
           >
             <IconArrowBackward />
           </button>
           <button
-            disabled={!state.next}
+            disabled={!state?.next}
             onClick={handleNextPage}
-            className={`btn ${!state.next ? "btn-disabled" : "btn-primary"}`}
+            className={`btn ${!state?.next ? "btn-disabled" : "btn-primary"}`}
           >
             <IconArrowForward />
           </button>
         </div>
       </div>
-
-      <Modal
-        addHeader={state.editId ? "Update Project" : "Create Project"}
-        open={state.isOpen}
-        close={() => {
-          clearData();
-        }}
-        renderComponent={() => (
-          <div className=" pb-7">
-            <form className="flex flex-col gap-3">
-              <div className=" w-full space-y-5">
-                <TextInput
-                  name="name"
-                  title="Project Name"
-                  placeholder="Enter project name"
-                  value={state.name}
-                  onChange={(e) => setState({ name: e.target.value })}
-                  error={state.error?.name}
-                  required
-                />
-
-                <TextInput
-                  name="name"
-                  title="Location"
-                  placeholder="Enter location"
-                  value={state.location}
-                  onChange={(e) => setState({ location: e.target.value })}
-                  error={state.error?.location}
-                  required
-                />
-
-                <TextArea
-                  name="description"
-                  title="Description"
-                  placeholder="Enter Description"
-                  value={state.description}
-                  onChange={(e) => setState({ description: e.target.value })}
-                />
-              </div>
-
-              <div className="mt-8 flex items-center justify-end">
-                <button
-                  type="button"
-                  className="btn btn-outline-primary gap-2"
-                  onClick={() => {
-                    clearData();
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    state.editId ? updateProject() : createProject()
-                  }
-                  className="btn btn-primary ltr:ml-4 rtl:mr-4"
-                >
-                  {state.btnLoading ? <IconLoader /> : "Confirm"}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-      />
     </>
   );
 };
+
 export default PrivateRouter(List);

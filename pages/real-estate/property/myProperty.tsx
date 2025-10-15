@@ -132,11 +132,13 @@ export default function list() {
   };
 
   const bodyData = () => {
-    let body: any = {}; // start with empty object
+    const userId = localStorage.getItem("userId");
+    let body: any = {};
 
     if (state.search) {
       body.search = state.search;
     }
+    body.created_by = userId;
 
     console.log("✌️body --->", body);
     return body;
@@ -172,53 +174,6 @@ export default function list() {
     }
   };
 
-  const properties = [
-    {
-      id: 1,
-      city: "Panama City",
-      title: "Willow Creek Residence",
-      date: "04 April, 2023",
-      price: "$34,542.000",
-      propertyType: { type: "Plot", color: "warning" },
-      area: "34,542 sq.ft",
-      status: "Active",
-      image: "/assets/images/real-estate/property-info-img1.png",
-    },
-    {
-      id: 2,
-      city: "Panama City",
-      title: "Harmony House",
-      date: "04 April, 2023",
-      price: "$34,542.000",
-      propertyType: { type: "Rent", color: "secondary" },
-
-      area: "34,542 sq.ft",
-      status: "Active",
-      image: "/assets/images/real-estate/property-info-img2.png",
-    },
-    {
-      id: 3,
-      city: "Panama City",
-      title: "Sunflower Cottage",
-      date: "04 April, 2023",
-      price: "$34,542.000",
-      propertyType: { type: "Sale", color: "success" },
-      area: "34,542 sq.ft",
-      status: "Active",
-      image: "/assets/images/real-estate/property-info-img3.png",
-    },
-    {
-      id: 4,
-      city: "Panama City",
-      title: "Sunset Retreat",
-      date: "04 April, 2023",
-      price: "$34,542.000",
-      propertyType: { type: "Lease", color: "info" },
-      area: "34,542 sq.ft",
-      status: "Active",
-      image: "/assets/images/real-estate/property-info-img4.png",
-    },
-  ];
 
   const propertStatus = [
     { value: 1, label: "Active" },
@@ -245,7 +200,6 @@ export default function list() {
       </div>
 
       <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
-        {/* Search Input */}
         <div className="flex-1">
           <input
             type="text"
@@ -256,7 +210,6 @@ export default function list() {
           />
         </div>
 
-        {/* Category Dropdown */}
         <div className="flex-1">
           <CustomSelect
             placeholder="Select Property Type"

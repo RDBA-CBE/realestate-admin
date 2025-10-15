@@ -11,8 +11,12 @@ const user = {
       if (body?.user_type) {
         url += `&user_type=${encodeURIComponent(body.user_type)}`;
       }
-       if (body?.search) {
+      if (body?.search) {
         url += `&search=${encodeURIComponent(body.search)}`;
+      }
+
+      if (body?.account_status) {
+        url += `&account_status=${encodeURIComponent(body?.account_status)}`;
       }
       instance()
         .get(url)

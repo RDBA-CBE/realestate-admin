@@ -10,6 +10,18 @@ const lead = {
        if (body?.search) {
         url += `&search=${encodeURIComponent(body.search)}`;
       }
+
+      if (body?.created_by) {
+        url += `&created_by=${encodeURIComponent(body.created_by)}`;
+      }
+
+      if (body?.assigned_to) {
+        url += `&assigned_to=${encodeURIComponent(body.assigned_to)}`;
+      }
+
+      
+
+      
       instance()
         .get(url)
         .then((res) => {
@@ -96,6 +108,31 @@ const lead = {
         .catch((error) => {
           if (error.response) {
             reject(error.response.data.message);
+          } else {
+            reject(error);
+          }
+        });
+    });
+    return promise;
+  },
+
+  logList: (leadId, body) => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `lead-logs/?lead=${leadId}`;
+      if (body?.group) {
+        url += `&group=${encodeURIComponent(body.group)}`;
+      }
+       if (body?.search) {
+        url += `&search=${encodeURIComponent(body.search)}`;
+      }
+      instance()
+        .get(url)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.message);
           } else {
             reject(error);
           }

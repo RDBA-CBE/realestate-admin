@@ -120,6 +120,8 @@ const AddPropertyPage = () => {
     categoryList(1);
     projectList(1);
     developerList(1);
+    agentList(1);
+
   }, []);
 
   const amenityList = async (page) => {
@@ -184,6 +186,26 @@ const AddPropertyPage = () => {
       console.log("✌️error --->", error);
     }
   };
+
+  const agentList = async (page) => {
+    try {
+      const body = {
+        user_type: ROLES.AGENT,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        agentList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+
 
   const catListLoadMore = async () => {
     try {
