@@ -23,6 +23,7 @@ const properties = {
 
       if (body?.developer) {
         url += `&developer=${encodeURIComponent(body?.developer)}`;
+      }
       if (body?.search) {
         url += `&search=${body?.search}`;
       }
@@ -39,14 +40,6 @@ const properties = {
         url += `&status=${body?.status}`;
       }
 
-      if (body?.developer) {
-        url += `&developer=${body?.developer}`;
-      }
-
-      if (body?.agent) {
-        url += `&agent=${body?.agent}`;
-      }
-
       instance()
         .get(url, body)
         .then((res) => {
@@ -60,6 +53,7 @@ const properties = {
           }
         });
     });
+
     return promise;
   },
 

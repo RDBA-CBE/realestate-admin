@@ -508,7 +508,7 @@ export default function List() {
     }
     if (group == "Agent") {
       body.agent = userId;
-      body.created_by = userId;
+      // body.created_by = userId;
     }
 
     if (group == "Developer") {

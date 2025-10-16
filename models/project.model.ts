@@ -12,6 +12,10 @@ const project = {
         url += `&created_at=${encodeURIComponent(body.created_at)}`;
       }
 
+      if (body?.created_by) {
+        url += `&created_by=${encodeURIComponent(body.created_by)}`;
+      }
+
       instance()
         .get(url, body)
         .then((res) => {

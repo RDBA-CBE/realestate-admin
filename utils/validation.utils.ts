@@ -61,7 +61,9 @@ export const propertySaleCreate = Yup.object().shape({
   price_per_sqft: Yup.string()
     .required("Price Per Sq.ft is required")
     .nullable(),
-  price: Yup.string().required("Price is required").nullable(),
+  min_price: Yup.string().required("Min Price is required").nullable(),
+  max_price: Yup.string().required("Max Price is required").nullable(),
+
   developer: Yup.string().required("Developer is required").nullable(),
   longitude: Yup.string()
   .required("Longitude is required")
@@ -125,9 +127,8 @@ export const propertyLeaseCreate = Yup.object().shape({
   amenities: Yup.array()
     .required("Amenities is required")
     .min(1, "At least one amenities is required"),
-  lease_total_amount: Yup.string()
-    .required("Lease Price is required")
-    .nullable(),
+    min_price: Yup.string().required("Min Price is required").nullable(),
+    max_price: Yup.string().required("Max Price is required").nullable(),
   lease_duration: Yup.string()
     .required("Lease Duration is required")
     .nullable(),
@@ -171,7 +172,8 @@ export const propertyRentCreate = Yup.object().shape({
   amenities: Yup.array()
     .required("Amenities is required")
     .min(1, "At least one amenities is required"),
-  monthly_rent: Yup.string().required("Monthly rent is required").nullable(),
+    min_price: Yup.string().required("Min Price is required").nullable(),
+    max_price: Yup.string().required("Max Price is required").nullable(),
   rent_duration: Yup.string().required("Rent duration is required").nullable(),
 });
 

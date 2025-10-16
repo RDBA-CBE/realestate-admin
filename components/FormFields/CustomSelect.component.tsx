@@ -49,14 +49,14 @@ const CustomSelect = (props: SelectProps) => {
   const customStyles = {
     control: (provided: any, state: any) => ({
       ...provided,
-      borderColor: error ? "red" : state.isFocused ? "#3b82f6" : "#d1d5db",
-      boxShadow: error ? "0 0 0 1px red" : state.isFocused ? "0 0 0 1px #3b82f6" : "none",
+      borderColor: error ? "border-red-500" : state.isFocused ? "#3b82f6" : "#d1d5db",
+      boxShadow: error ? "0 0 0 0.9px red" : state.isFocused ? "0 0 0 1px #3b82f6" : "none",
       "&:hover": {
-        borderColor: error ? "red" : state.isFocused ? "#3b82f6" : "#d1d5db",
+        borderColor: error ? "border-red-500" : state.isFocused ? "#3b82f6" : "#d1d5db",
       },
       borderRadius: borderRadius ? borderRadius : "6px",
       paddingLeft: leftIcon ? "40px" : "12px",
-      minHeight: "42px",
+      minHeight: "38px",
     }),
     valueContainer: (provided: any) => ({
       ...provided,

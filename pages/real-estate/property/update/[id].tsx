@@ -72,7 +72,7 @@ const AddPropertyPage = () => {
     projectList: [],
     categoryPage: 1,
     categoryNext: null,
-    status:null,
+    status: null,
     //Form
     property_type: null,
     property_name: "",
@@ -124,7 +124,7 @@ const AddPropertyPage = () => {
         squareFeet: "",
         price: "",
         reraId: "",
-        floorNo:"",
+        floorNo: "",
         image: null,
       },
     ],
@@ -150,7 +150,7 @@ const AddPropertyPage = () => {
     categoryList(1);
     projectList(1);
     developerList(1);
-    agentList(1)
+    agentList(1);
   }, []);
 
   const propertyDetails = async () => {
@@ -187,7 +187,7 @@ const AddPropertyPage = () => {
         state: res?.state,
         country: res?.country,
         postal_code: res?.postal_code,
-       
+
         ...(res?.total_area && { total_area: formatNumber(res.total_area) }),
         ...(res?.built_up_area && {
           built_up_area: formatNumber(res.built_up_area),
@@ -217,11 +217,8 @@ const AddPropertyPage = () => {
         });
       }
 
-      if( res?.status){
-        const statusObj = getDropdownObject(
-          res?.status,
-          Property_status
-        );
+      if (res?.status) {
+        const statusObj = getDropdownObject(res?.status, Property_status);
         setState({
           status: statusObj,
         });
@@ -242,7 +239,6 @@ const AddPropertyPage = () => {
             value: res?.developer?.id,
             label: `${res?.developer?.first_name} ${res?.developer?.last_name}`,
           },
-          
         });
       }
       if (res?.agent) {
@@ -251,7 +247,7 @@ const AddPropertyPage = () => {
             value: res?.agent?.id,
             label: `${res?.agent?.first_name} ${res?.agent?.last_name}`,
           },
-          assignAgent: true
+          assignAgent: true,
         });
       }
 
@@ -311,23 +307,22 @@ const AddPropertyPage = () => {
   };
 
   const agentList = async (page) => {
-      try {
-        const body = {
-          user_type: ROLES.AGENT,
-        };
-        const res: any = await Models.user.list(page, body);
-        const dropdown = res?.results?.map((item) => ({
-          value: item?.id,
-          label: `${item?.first_name} ${item?.last_name}`,
-        }));
-        setState({
-          agentList: dropdown,
-        });
-      } catch (error) {
-        console.log("✌️error --->", error);
-      }
-    };
-  
+    try {
+      const body = {
+        user_type: ROLES.AGENT,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        agentList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
 
   const amenityList = async (page) => {
     try {
@@ -536,7 +531,6 @@ const AddPropertyPage = () => {
         description: state.description,
         property_type: state.property_type?.value,
         listing_type: "sale",
-        price: state.price,
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
         developer: state.developer?.value,
@@ -563,6 +557,9 @@ const AddPropertyPage = () => {
         address: state.address,
         status: state.status?.value,
         validatePropertyType: state.property_type,
+        min_price: state.min_price,
+        max_price: state.max_price,
+        price: state.max_price,
       };
 
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
@@ -637,12 +634,11 @@ const AddPropertyPage = () => {
 
         listing_type: "lease",
         lease_total_amount: state.lease_total_amount,
-        price: state.lease_total_amount,
         lease_duration: state.lease_duration,
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
         developer: state.developer?.value,
-         agent: state.agent?.value,
+        agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -665,6 +661,9 @@ const AddPropertyPage = () => {
         address: state.address,
         status: state.status?.value,
         validatePropertyType: state.property_type,
+        min_price: state.min_price,
+        max_price: state.max_price,
+        price: state.max_price,
       };
       await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
         abortEarly: false,
@@ -734,7 +733,7 @@ const AddPropertyPage = () => {
         listing_type: "rent",
         project: state.project?.value,
         developer: state.developer?.value,
-         agent: state.agent?.value,
+        agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -756,10 +755,12 @@ const AddPropertyPage = () => {
         latitude: state.latitude,
         address: state.address,
         monthly_rent: state.monthly_rent,
-        price: state.monthly_rent,
         rent_duration: state.rent_duration,
         status: state.status?.value,
         validatePropertyType: state.property_type,
+        min_price: state.min_price,
+        max_price: state.max_price,
+        price: state.max_price,
       };
       await Utils.Validation.propertyRentCreate.validate(buyBody, {
         abortEarly: false,
@@ -936,7 +937,7 @@ const AddPropertyPage = () => {
         square_feet: plan.squareFeet,
         price: plan.price,
         rera_id: plan.reraId,
-        floor_no:plan.floorNo,
+        floor_no: plan.floorNo,
         image: plan.image,
       };
 
@@ -990,7 +991,7 @@ const AddPropertyPage = () => {
           squareFeet: "",
           price: "",
           reraId: "",
-          floorNo:"",
+          floorNo: "",
           image: null,
         },
       ],
@@ -1125,34 +1126,32 @@ const AddPropertyPage = () => {
                       // loadMore={() => catListLoadMore()}
                     />
                     <TextInput
-                    name="title"
-                    title="Property Name"
-                    placeholder="Enter Property Name"
-                    value={state.title}
-                    onChange={handleInputChange}
-                    required
-                    error={state.error?.title}
-                  />
+                      name="title"
+                      title="Property Name"
+                      placeholder="Enter Property Name"
+                      value={state.title}
+                      onChange={handleInputChange}
+                      required
+                      error={state.error?.title}
+                    />
 
-                  <CustomSelect
-                    title="Property Status"
-                    value={state.status}
-                    onChange={(e) => {
-                      setState({
-                        status: e,
-                        error: { ...state.error, status: "" },
-                      });
-                    }}
-                    placeholder={"Select Property type "}
-                    options={Property_status}
-                    error={state.error?.status}
-                    required
-                    isClearable={false}
-                    loadMore={() => catListLoadMore()}
-                  />
+                    <CustomSelect
+                      title="Property Status"
+                      value={state.status}
+                      onChange={(e) => {
+                        setState({
+                          status: e,
+                          error: { ...state.error, status: "" },
+                        });
+                      }}
+                      placeholder={"Select Property type "}
+                      options={Property_status}
+                      error={state.error?.status}
+                      required
+                      isClearable={false}
+                      loadMore={() => catListLoadMore()}
+                    />
                   </div>
-
-                  
 
                   <div className="mt-4 flex w-full">
                     <TextArea
@@ -1350,13 +1349,22 @@ const AddPropertyPage = () => {
                       {state.listing_type?.label == LISTING_TYPE.RENT ? (
                         <>
                           <NumberInput
-                            name="monthly_rent"
-                            title="Monthly Rent"
-                            placeholder="Enter monthly rent"
-                            value={state.monthly_rent}
+                            name="min_price"
+                            title="Minimum Monthly Rent"
+                            placeholder="Enter min monthly rent"
+                            value={state.min_price}
                             onChange={handleInputChange}
                             required
-                            error={state.error?.monthly_rent}
+                            error={state.error?.min_price}
+                          />
+                          <NumberInput
+                            name="max_price"
+                            title="Maximum Monthly Rent"
+                            placeholder="Enter max monthly rent"
+                            value={state.max_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.max_price}
                           />
                           <NumberInput
                             name="rent_duration"
@@ -1370,7 +1378,7 @@ const AddPropertyPage = () => {
                         </>
                       ) : state.listing_type?.label == LISTING_TYPE.SALE ? (
                         <>
-                          <NumberInput
+                          {/* <NumberInput
                             name="price"
                             title="Price"
                             placeholder="Enter Price"
@@ -1378,7 +1386,7 @@ const AddPropertyPage = () => {
                             onChange={handleInputChange}
                             required
                             error={state.error?.price}
-                          />
+                          /> */}
                           <NumberInput
                             name="price_per_sqft"
                             title="Price Per Sq.ft"
@@ -1388,10 +1396,29 @@ const AddPropertyPage = () => {
                             required
                             error={state.error?.price_per_sqft}
                           />
+                          <NumberInput
+                            name="min_price"
+                            title="Minimum Price"
+                            placeholder="Enter Min Price"
+                            value={state.min_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.min_price}
+                          />
+
+                          <NumberInput
+                            name="max_price"
+                            title="Maximum Price"
+                            placeholder="Enter Max Price"
+                            value={state.max_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.max_price}
+                          />
                         </>
                       ) : state.listing_type?.label == LISTING_TYPE.LEASE ? (
                         <>
-                          <NumberInput
+                          {/* <NumberInput
                             name="lease_total_amount"
                             title="Lease Price"
                             placeholder="Enter Lease Price"
@@ -1399,6 +1426,26 @@ const AddPropertyPage = () => {
                             onChange={handleInputChange}
                             required
                             error={state.error?.lease_total_amount}
+                          /> */}
+
+                          <NumberInput
+                            name="min_price"
+                            title="Lease Minimum Price"
+                            placeholder="Enter Lease Min Price"
+                            value={state.min_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.min_price}
+                          />
+
+                          <NumberInput
+                            name="max_price"
+                            title="Lease Maximum Price"
+                            placeholder="Enter Lease Max Price"
+                            value={state.max_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.max_price}
                           />
                           <NumberInput
                             name="lease_duration"
@@ -1525,8 +1572,8 @@ const AddPropertyPage = () => {
 
                                 <TextInput
                                   name={`floorNo-${index}`}
-                                  title="Floor No"
-                                  placeholder="Enter Floor NO"
+                                  title="Floor Number"
+                                  placeholder="Enter Floor Number"
                                   value={plan.floorNo}
                                   onChange={(e) =>
                                     updateFloorPlan(
@@ -1544,7 +1591,7 @@ const AddPropertyPage = () => {
                               </h5>
 
                               <div
-                                className={`mb-4 mt-3 flex h-40 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
+                                className={`mb-4 mt-3 flex h-80 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
                                   plan.image
                                     ? "border-green-300 bg-green-50"
                                     : "border-gray-300 hover:border-gray-400"
@@ -1593,7 +1640,7 @@ const AddPropertyPage = () => {
                                           : URL.createObjectURL(plan.image)
                                       }
                                       alt="Floor plan"
-                                      className="h-full w-full rounded-lg object-cover"
+                                      className="h-full w-full rounded-lg object-contain"
                                     />
                                     <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-0 transition-all duration-200 hover:bg-opacity-30">
                                       <div className="text-center text-white opacity-0 transition-opacity duration-200 hover:opacity-100">

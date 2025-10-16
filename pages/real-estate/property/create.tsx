@@ -107,7 +107,7 @@ const AddPropertyPage = () => {
         squareFeet: "",
         price: "",
         reraId: "",
-        floorNo:'',
+        floorNo: "",
         image: null,
       },
     ],
@@ -125,7 +125,6 @@ const AddPropertyPage = () => {
     projectList(1);
     developerList(1);
     agentList(1);
-
   }, []);
 
   const amenityList = async (page) => {
@@ -190,26 +189,6 @@ const AddPropertyPage = () => {
       console.log("✌️error --->", error);
     }
   };
-
-  const agentList = async (page) => {
-    try {
-      const body = {
-        user_type: ROLES.AGENT,
-      };
-      const res: any = await Models.user.list(page, body);
-      const dropdown = res?.results?.map((item) => ({
-        value: item?.id,
-        label: `${item?.first_name} ${item?.last_name}`,
-      }));
-      setState({
-        agentList: dropdown,
-      });
-    } catch (error) {
-      console.log("✌️error --->", error);
-    }
-  };
-
-
 
   const catListLoadMore = async () => {
     try {
@@ -307,8 +286,6 @@ const AddPropertyPage = () => {
     }
   };
 
-  
-
   const onSubmit = async () => {
     try {
       setState({ btnLoading: true });
@@ -353,7 +330,6 @@ const AddPropertyPage = () => {
         description: state.description,
         property_type: state.property_type?.value,
         listing_type: "sale",
-        price: state.price,
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
         developer: state.developer?.value,
@@ -380,7 +356,9 @@ const AddPropertyPage = () => {
         address: state.address,
         status: state.status?.value,
         validatePropertyType: state.property_type,
-
+        min_price: state.min_price,
+        max_price: state.max_price,
+        price: state.max_price,
       };
 
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
@@ -413,10 +391,9 @@ const AddPropertyPage = () => {
         );
       }
 
-     if(state.group == "Admin") {
-         Success("Property Created Successfully");
-      }
-      else{
+      if (state.group == "Admin") {
+        Success("Property Created Successfully");
+      } else {
         Success("Your property is created and waiting for approval from admin");
       }
       router.push("/real-estate/property/list/");
@@ -459,7 +436,6 @@ const AddPropertyPage = () => {
 
         listing_type: "lease",
         lease_total_amount: state.lease_total_amount,
-        price: state.lease_total_amount,
         lease_duration: state.lease_duration,
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
@@ -487,6 +463,9 @@ const AddPropertyPage = () => {
         address: state.address,
         status: state.status?.value,
         validatePropertyType: state.property_type,
+        min_price: state.min_price,
+        max_price: state.max_price,
+        price: state.max_price,
       };
       await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
         abortEarly: false,
@@ -516,10 +495,9 @@ const AddPropertyPage = () => {
         );
       }
 
-     if(state.group == "Admin") {
-         Success("Property Created Successfully");
-      }
-      else{
+      if (state.group == "Admin") {
+        Success("Property Created Successfully");
+      } else {
         Success("Your property is created and waiting for approval from admin");
       }
       router.push("/real-estate/property/list/");
@@ -584,10 +562,12 @@ const AddPropertyPage = () => {
         latitude: state.latitude,
         address: state.address,
         monthly_rent: state.monthly_rent,
-        price: state.monthly_rent,
         rent_duration: state.rent_duration,
         status: state.status?.value,
         validatePropertyType: state.property_type,
+        min_price: state.min_price,
+        max_price: state.max_price,
+        price: state.max_price,
       };
       await Utils.Validation.propertyRentCreate.validate(buyBody, {
         abortEarly: false,
@@ -621,13 +601,12 @@ const AddPropertyPage = () => {
         );
       }
 
-      if(state.group == "Admin") {
-         Success("Property Created Successfully");
-      }
-      else{
+      if (state.group == "Admin") {
+        Success("Property Created Successfully");
+      } else {
         Success("Your property is created and waiting for approval from admin");
       }
-     
+
       router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
     } catch (error) {
@@ -641,7 +620,7 @@ const AddPropertyPage = () => {
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
-       if (error && typeof error === "object") {
+        if (error && typeof error === "object") {
           console.log(error);
 
           const errorMessages = Object.entries(error)
@@ -794,7 +773,7 @@ const AddPropertyPage = () => {
           squareFeet: "",
           price: "",
           reraId: "",
-          floorNo:"",
+          floorNo: "",
           image: null,
         },
       ],
@@ -891,8 +870,6 @@ const AddPropertyPage = () => {
                       loadMore={() => catListLoadMore()}
                     />
 
-
-
                     <CustomSelect
                       title="Offer type"
                       value={state.listing_type}
@@ -911,7 +888,6 @@ const AddPropertyPage = () => {
                       // loadMore={() => catListLoadMore()}
                     />
 
-                    
                     <TextInput
                       name="title"
                       title="Property Name"
@@ -921,16 +897,14 @@ const AddPropertyPage = () => {
                       required
                       error={state.error?.title}
                     />
-                
 
-                  <CustomSelect
+                    <CustomSelect
                       title="Property Status"
                       value={state.status}
                       onChange={(e) => {
                         setState({
                           status: e,
                           error: { ...state.error, status: "" },
-
                         });
                       }}
                       placeholder={"Select Property type "}
@@ -941,7 +915,6 @@ const AddPropertyPage = () => {
                       loadMore={() => catListLoadMore()}
                     />
                   </div>
-                  
 
                   <div className="mt-4 flex w-full">
                     <TextArea
@@ -1138,13 +1111,22 @@ const AddPropertyPage = () => {
                       {state.listing_type?.label == LISTING_TYPE.RENT ? (
                         <>
                           <NumberInput
-                            name="monthly_rent"
-                            title="Monthly Rent"
-                            placeholder="Enter monthly rent"
-                            value={state.monthly_rent}
+                            name="min_price"
+                            title="Minimum Monthly Rent"
+                            placeholder="Enter min monthly rent"
+                            value={state.min_price}
                             onChange={handleInputChange}
                             required
-                            error={state.error?.monthly_rent}
+                            error={state.error?.min_price}
+                          />
+                          <NumberInput
+                            name="max_price"
+                            title="Maximum Monthly Rent"
+                            placeholder="Enter max monthly rent"
+                            value={state.max_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.max_price}
                           />
                           <NumberInput
                             name="rent_duration"
@@ -1159,15 +1141,6 @@ const AddPropertyPage = () => {
                       ) : state.listing_type?.label == LISTING_TYPE.SALE ? (
                         <>
                           <NumberInput
-                            name="price"
-                            title="Price"
-                            placeholder="Enter Price"
-                            value={state.price}
-                            onChange={handleInputChange}
-                            required
-                            error={state.error?.price}
-                          />
-                          <NumberInput
                             name="price_per_sqft"
                             title="Price Per Sq.ft"
                             placeholder="Enter Price Per Sq.ft"
@@ -1176,17 +1149,46 @@ const AddPropertyPage = () => {
                             required
                             error={state.error?.price_per_sqft}
                           />
+                          <NumberInput
+                            name="min_price"
+                            title="Minimum Price"
+                            placeholder="Enter Min Price"
+                            value={state.min_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.min_price}
+                          />
+
+                          <NumberInput
+                            name="max_price"
+                            title="Maximum Price"
+                            placeholder="Enter Max Price"
+                            value={state.max_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.max_price}
+                          />
                         </>
                       ) : state.listing_type?.label == LISTING_TYPE.LEASE ? (
                         <>
                           <NumberInput
-                            name="lease_total_amount"
-                            title="Lease Price"
-                            placeholder="Enter Lease Price"
-                            value={state.lease_total_amount}
+                            name="min_price"
+                            title="Lease Minimum Price"
+                            placeholder="Enter Lease Min Price"
+                            value={state.min_price}
                             onChange={handleInputChange}
                             required
-                            error={state.error?.lease_total_amount}
+                            error={state.error?.min_price}
+                          />
+
+                          <NumberInput
+                            name="max_price"
+                            title="Lease Maximum Price"
+                            placeholder="Enter Lease Max Price"
+                            value={state.max_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.max_price}
                           />
                           <NumberInput
                             name="lease_duration"
@@ -1332,7 +1334,7 @@ const AddPropertyPage = () => {
                               </h5>
 
                               <div
-                                className={`mb-4 mt-3 flex h-40 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
+                                className={`mb-4 mt-3 flex h-80 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
                                   plan.image
                                     ? "border-green-300 bg-green-50"
                                     : "border-gray-300 hover:border-gray-400"
@@ -1381,7 +1383,7 @@ const AddPropertyPage = () => {
                                           : URL.createObjectURL(plan.image)
                                       }
                                       alt="Floor plan"
-                                      className="h-full w-full rounded-lg object-cover"
+                                      className="h-full w-full rounded-lg object-contain"
                                     />
                                     <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-0 transition-all duration-200 hover:bg-opacity-30">
                                       <div className="text-center text-white opacity-0 transition-opacity duration-200 hover:opacity-100">
@@ -1751,41 +1753,40 @@ const AddPropertyPage = () => {
                       error={state.error?.developer}
                     />
 
-                    {state.group == "Admin" &&
-                    <div>
-                      <CheckboxInput
-                        key={"assign"}
-                        type="checkbox"
-                        name="amenities"
-                        label={"Assign Agent"}
-                        checked={state.assignAgent}
-                        onChange={() => {
-                          setState({ assignAgent: !state.assignAgent });
-                        }}
-                      />
-                      {state.assignAgent && (
-                        <CustomSelect
-                          title="Authorize Agent"
-                          placeholder="Select Agent"
-                          options={state.agentList}
-                          value={state.agent}
-                          onChange={(selectedOption) =>
-                            setState({
-                              agent: selectedOption,
-                              error: {
-                                ...state.error,
-                                agent: null,
-                              },
-                            })
-                          }
-                          isClearable
-                          required
-                          error={state.error?.agent}
+                    {state.group == "Admin" && (
+                      <div>
+                        <CheckboxInput
+                          key={"assign"}
+                          type="checkbox"
+                          name="amenities"
+                          label={"Assign Agent"}
+                          checked={state.assignAgent}
+                          onChange={() => {
+                            setState({ assignAgent: !state.assignAgent });
+                          }}
                         />
-                      )}
-                    </div>
-                    }
-                    
+                        {state.assignAgent && (
+                          <CustomSelect
+                            title="Authorize Agent"
+                            placeholder="Select Agent"
+                            options={state.agentList}
+                            value={state.agent}
+                            onChange={(selectedOption) =>
+                              setState({
+                                agent: selectedOption,
+                                error: {
+                                  ...state.error,
+                                  agent: null,
+                                },
+                              })
+                            }
+                            isClearable
+                            required
+                            error={state.error?.agent}
+                          />
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="mt-6 flex justify-end">
                     <PrimaryButton

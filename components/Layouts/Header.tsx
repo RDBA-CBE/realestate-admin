@@ -37,7 +37,7 @@ import IconMenuDatatables from "@/components/Icon/Menu/IconMenuDatatables";
 import IconMenuForms from "@/components/Icon/Menu/IconMenuForms";
 import IconMenuPages from "@/components/Icon/Menu/IconMenuPages";
 import IconMenuMore from "@/components/Icon/Menu/IconMenuMore";
-import { useSetState } from "@/utils/function.utils";
+import { capitalizeFLetter, useSetState } from "@/utils/function.utils";
 import { userData } from "@/store/userConfigSlice";
 import Models from "@/imports/models.import";
 
@@ -56,10 +56,6 @@ const Header = () => {
   const themeConfig = useSelector((state: IRootState) => state.themeConfig);
 
   const users = useSelector((state: any) => state.userData);
-
-  console.log("users", users);
-
-  const [search, setSearch] = useState(false);
 
   const [flag, setFlag] = useState("");
 
@@ -118,6 +114,27 @@ const Header = () => {
       getUserData();
     }
   }, []);
+
+  useEffect(() => {
+    getUserRole();
+  }, []);
+
+  const getUserRole = async () => {
+    try {
+      const userString = localStorage.getItem("userId");
+      if (userString) {
+        const res: any = await Models.user.details(userString);
+        console.log("getUserRole --->", res);
+        setState({
+          name: `${capitalizeFLetter(res?.first_name)} ${res?.last_name}`,
+          user_type: capitalizeFLetter(res?.user_type),
+          email: res?.email,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
 
   const getUserData = async () => {
     try {
@@ -238,20 +255,20 @@ const Header = () => {
     >
       <div className="shadow-sm">
         <div className="relative flex w-full items-center bg-white px-5 py-2.5 dark:bg-black">
-          <div className="horizontal-logo flex items-center justify-between ltr:mr-2 rtl:ml-2 lg:hidden">
+          <div className="horizontal-logo flex items-center justify-between lg:hidden ltr:mr-2 rtl:ml-2">
             <Link href="/" className="main-logo flex shrink-0 items-center">
               <img
                 className="inline w-8 ltr:-ml-1 rtl:-mr-1"
                 src="/assets/images/logo.svg"
                 alt="logo"
               />
-              <span className="hidden align-middle text-2xl  font-semibold  transition-all duration-300 ltr:ml-1.5 rtl:mr-1.5 dark:text-white-light md:inline">
+              <span className="hidden align-middle text-2xl  font-semibold  transition-all duration-300 dark:text-white-light md:inline ltr:ml-1.5 rtl:mr-1.5">
                 REPUTE
               </span>
             </Link>
             <button
               type="button"
-              className="collapse-icon flex flex-none rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary ltr:ml-2 rtl:mr-2 dark:bg-dark/40 dark:text-[#d0d2d6] dark:hover:bg-dark/60 dark:hover:text-primary lg:hidden"
+              className="collapse-icon flex flex-none rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:text-[#d0d2d6] dark:hover:bg-dark/60 dark:hover:text-primary lg:hidden ltr:ml-2 rtl:mr-2"
               onClick={() => dispatch(toggleSidebar())}
             >
               <IconMenu className="h-5 w-5" />
@@ -286,7 +303,7 @@ const Header = () => {
               </li>
             </ul>
           </div> */}
-          <div className="flex items-center space-x-1.5 ltr:ml-auto rtl:mr-auto rtl:space-x-reverse dark:text-[#d0d2d6] sm:flex-1 ltr:sm:ml-0 sm:rtl:mr-0 lg:space-x-2">
+          <div className="flex items-center space-x-1.5 dark:text-[#d0d2d6] sm:flex-1 lg:space-x-2 ltr:ml-auto ltr:sm:ml-0 rtl:mr-auto rtl:space-x-reverse sm:rtl:mr-0">
             <div className="sm:ltr:mr-auto sm:rtl:ml-auto">
               {/* <form
                 className={`${
@@ -606,7 +623,7 @@ const Header = () => {
                       />
                       <div className="truncate ltr:pl-4 rtl:pr-4">
                         <h4 className="text-base">
-                          John Doe
+                          {state.name}
                           <span className="rounded bg-success-light px-1 text-xs text-success ltr:ml-2 rtl:ml-2">
                             Pro
                           </span>
@@ -615,7 +632,7 @@ const Header = () => {
                           type="button"
                           className="text-black/60 hover:text-primary dark:text-dark-light/60 dark:hover:text-white"
                         >
-                          johndoe@gmail.com
+                         {state.email}
                         </button>
                       </div>
                     </div>
@@ -629,7 +646,7 @@ const Header = () => {
                       Profile
                     </Link>
                   </li>
-                  <li>
+                  {/* <li>
                     <Link
                       href="/apps/mailbox"
                       className="dark:hover:text-white"
@@ -646,7 +663,7 @@ const Header = () => {
                       <IconLockDots className="h-4.5 w-4.5 shrink-0 ltr:mr-2 rtl:ml-2" />
                       Lock Screen
                     </Link>
-                  </li>
+                  </li> */}
                   {state.token ? (
                     <li className="border-t border-white-light dark:border-white-light/10">
                       <button
@@ -678,7 +695,7 @@ const Header = () => {
         </div>
 
         {/* horizontal menu */}
-        <ul className="horizontal-menu hidden border-t border-[#ebedf2] bg-white px-6 py-1.5 font-semibold text-black rtl:space-x-reverse dark:border-[#191e3a] dark:bg-black dark:text-white-dark lg:space-x-1.5 xl:space-x-8">
+        <ul className="horizontal-menu hidden border-t border-[#ebedf2] bg-white px-6 py-1.5 font-semibold text-black dark:border-[#191e3a] dark:bg-black dark:text-white-dark lg:space-x-1.5 xl:space-x-8 rtl:space-x-reverse">
           <li className="menu nav-item relative">
             <button type="button" className="nav-link">
               <div className="flex items-center">
@@ -740,7 +757,7 @@ const Header = () => {
                     <IconCaretDown />
                   </div>
                 </button>
-                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow ltr:left-[95%] rtl:right-[95%] dark:bg-[#1b2e4b] dark:text-white-dark">
+                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
                   <li>
                     <Link href="/apps/invoice/list">{t("list")}</Link>
                   </li>
@@ -907,7 +924,7 @@ const Header = () => {
                     <IconCaretDown />
                   </div>
                 </button>
-                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow ltr:left-[95%] rtl:right-[95%] dark:bg-[#1b2e4b] dark:text-white-dark">
+                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
                   <li>
                     <Link href="/datatables/basic">{t("basic")}</Link>
                   </li>
@@ -1039,7 +1056,7 @@ const Header = () => {
                     <IconCaretDown />
                   </div>
                 </button>
-                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow ltr:left-[95%] rtl:right-[95%] dark:bg-[#1b2e4b] dark:text-white-dark">
+                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
                   <li>
                     <Link href="/users/profile">{t("profile")}</Link>
                   </li>
@@ -1088,7 +1105,7 @@ const Header = () => {
                     <IconCaretDown />
                   </div>
                 </button>
-                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow ltr:left-[95%] rtl:right-[95%] dark:bg-[#1b2e4b] dark:text-white-dark">
+                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
                   <li>
                     <Link href="/pages/error404" target="_blank">
                       {t("404")}
@@ -1113,7 +1130,7 @@ const Header = () => {
                     <IconCaretDown />
                   </div>
                 </button>
-                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow ltr:left-[95%] rtl:right-[95%] dark:bg-[#1b2e4b] dark:text-white-dark">
+                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
                   <li>
                     <Link href="/auth/cover-login" target="_blank">
                       {t("login_cover")}
@@ -1133,7 +1150,7 @@ const Header = () => {
                     <IconCaretDown />
                   </div>
                 </button>
-                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow ltr:left-[95%] rtl:right-[95%] dark:bg-[#1b2e4b] dark:text-white-dark">
+                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
                   <li>
                     <Link href="/auth/cover-register" target="_blank">
                       {t("register_cover")}
@@ -1153,7 +1170,7 @@ const Header = () => {
                     <IconCaretDown />
                   </div>
                 </button>
-                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow ltr:left-[95%] rtl:right-[95%] dark:bg-[#1b2e4b] dark:text-white-dark">
+                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
                   <li>
                     <Link href="/auth/cover-password-reset" target="_blank">
                       {t("recover_id_cover")}
@@ -1173,7 +1190,7 @@ const Header = () => {
                     <IconCaretDown />
                   </div>
                 </button>
-                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow ltr:left-[95%] rtl:right-[95%] dark:bg-[#1b2e4b] dark:text-white-dark">
+                <ul className="absolute top-0 z-[10] hidden min-w-[180px] rounded bg-white p-0 py-2 text-dark shadow dark:bg-[#1b2e4b] dark:text-white-dark ltr:left-[95%] rtl:right-[95%]">
                   <li>
                     <Link href="/auth/cover-lockscreen" target="_blank">
                       {t("unlock_cover")}
