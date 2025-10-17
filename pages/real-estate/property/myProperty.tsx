@@ -5,6 +5,8 @@ import IconEye from "@/components/Icon/IconEye";
 import IconEdit from "@/components/Icon/IconEdit";
 import {
   capitalizeFLetter,
+  commonDateFormat,
+  Dropdown,
   Failure,
   formatToINR,
   showDeleteAlert,
@@ -28,19 +30,274 @@ import { useRouter } from "next/navigation";
 import IconMapPin from "@/components/Icon/IconMapPin";
 import Link from "next/link";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
-import { LISTING_TYPE_LIST, propertyType } from "@/utils/constant.utils";
+import {
+  LISTING_TYPE_LIST,
+  ListType,
+  propertyType,
+} from "@/utils/constant.utils";
 import { FaHome } from "react-icons/fa";
 import { RotatingLines } from "react-loader-spinner";
-import { LucideHome } from "lucide-react";
+import { Checkbox, Popover, Text } from "@mantine/core";
+import {
+  Calendar,
+  Columns,
+  Eye,
+  EyeOff,
+  LucideHome,
+  Table,
+} from "lucide-react";
 
 export default function list() {
   const router = useRouter();
 
+  const tableColumns = [
+    {
+      accessor: "name",
+      title: "Property Info",
+      visible: true,
+      toggleable: true,
+      render: (row) => (
+        <div className="flex gap-3 font-semibold">
+          <div className="flex flex-col justify-between ">
+            <div>
+              <Link
+                className="cursor-pointer text-sm"
+                href={`/real-estate/profile/${row.id}/`}
+              >
+                {row.title}
+              </Link>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+
+    {
+      accessor: "price",
+      title: "Price Range",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "project",
+      title: "Project",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "developer",
+      title: "Developer",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "agent",
+      title: "Agent",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "property_type",
+      title: "Property Type",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "role",
+      title: "Offer Type",
+      visible: true,
+      toggleable: true,
+      render: (row: any) => (
+        <span className={`badge badge-outline-${row?.listing_type?.color} `}>
+          {row?.listing_type?.type}
+        </span>
+      ),
+    },
+    {
+      accessor: "status",
+      title: "Status",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "date",
+      title: "Date",
+      visible: true,
+      toggleable: true,
+    },
+
+    {
+      accessor: "action",
+      title: "Actions",
+      visible: true,
+      toggleable: false, // Actions column cannot be hidden
+      sortable: false,
+      textAlignment: "center",
+      render: (row: any) => (
+        <div className="mx-auto flex w-max items-center gap-4">
+          <button
+            className="flex hover:text-info"
+            onClick={(e) => {
+              handleEdit(row);
+            }}
+          >
+            <IconEdit className="h-4.5 w-4.5" />
+          </button>
+          <button
+            type="button"
+            className="flex hover:text-danger"
+            onClick={(e) => handleDelete(row)}
+          >
+            <IconTrashLines />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  const allColumns = [
+    {
+      accessor: "name",
+      title: "Property Info",
+      visible: true,
+      toggleable: true,
+      render: (row) => {
+        const group = localStorage.getItem("group");
+
+        return (
+          <div className="flex gap-3 font-semibold">
+            <div className="h-28 w-44 rounded-md bg-white-dark/30 ltr:mr-2 rtl:ml-2">
+              <img
+                className="h-full w-full cursor-pointer rounded-md object-cover"
+                src={row.image}
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col justify-between py-2">
+              <div>
+                <div className="flex gap-1">
+                  <IconMapPin className="h-4 w-4" />
+                  {row.location}
+                </div>
+                <Link
+                  className="cursor-pointer text-lg font-bold"
+                  href={`/real-estate/profile/${row.id}/`}
+                >
+                  {row.title}
+                </Link>
+              </div>
+              {group !== "Admin" && (
+                <span
+                  className={`badge  ${
+                    row?.is_approved
+                      ? "badge-outline-success w-[70px]"
+                      : "badge-outline-warning w-[140px]"
+                  }`}
+                >
+                  {row?.is_approved ? "Approved" : "Waiting For Approval"}
+                </span>
+              )}
+              <div>
+                <Link className="flex gap-1 text-primary" href={"/detail"}>
+                  <LucideHome className="h-4 w-4 text-black" /> View Details
+                </Link>
+              </div>
+            </div>
+          </div>
+        );
+      },
+    },
+
+    {
+      accessor: "price",
+      title: "Price Range",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "project",
+      title: "Project",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "developer",
+      title: "Developer",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "agent",
+      title: "Agent",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "property_type",
+      title: "Property Type",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "role",
+      title: "Offer Type",
+      visible: true,
+      toggleable: true,
+      render: (row: any) => (
+        <span className={`badge badge-outline-${row?.listing_type?.color} `}>
+          {row?.listing_type?.type}
+        </span>
+      ),
+    },
+    {
+      accessor: "status",
+      title: "Status",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "date",
+      title: "Date",
+      visible: true,
+      toggleable: true,
+    },
+
+    {
+      accessor: "action",
+      title: "Actions",
+      visible: true,
+      toggleable: false, // Actions column cannot be hidden
+      sortable: false,
+      textAlignment: "center",
+      render: (row: any) => (
+        <div className="mx-auto flex w-max items-center gap-4">
+          <button
+            className="flex hover:text-info"
+            onClick={(e) => {
+              handleEdit(row);
+            }}
+          >
+            <IconEdit className="h-4.5 w-4.5" />
+          </button>
+          <button
+            type="button"
+            className="flex hover:text-danger"
+            onClick={(e) => handleDelete(row)}
+          >
+            <IconTrashLines />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   const [state, setState] = useSetState({
     isOpen: false,
     btnLoading: false,
+    group: null,
     page: 1,
     tableList: [],
+    categoryList: [],
     editId: null,
     name: "",
     location: "",
@@ -48,18 +305,53 @@ export default function list() {
     search: "",
     error: {},
     loading: false,
+    userId: null,
+    visibleColumns: allColumns,
+    viewMode: "image",
   });
 
+  const visibleCount = state.visibleColumns.filter((col) => col.visible).length;
+  const totalToggleable = state.visibleColumns.filter(
+    (col) => col.toggleable !== false
+  ).length;
+
   const debouncedSearch = useDebounce(state.search, 500);
-  console.log("✌️state.search --->", state.search);
+  console.log("✌️state.search --->", debouncedSearch);
 
   useEffect(() => {
-    propertyList(1);
+    const userId = localStorage.getItem("userId");
+    setState({
+      userId: userId,
+    });
   }, []);
 
   useEffect(() => {
-    propertyList(1);
-  }, [debouncedSearch]);
+    categoryList(1);
+  }, []);
+
+  useEffect(() => {
+    if (state.userId !== null) {
+      propertyList(1);
+    }
+  }, [
+    debouncedSearch,
+    state.userId,
+    state.property_type,
+    state.offer_type,
+    state.status,
+  ]);
+
+  useEffect(() => {
+    if (state.viewMode == "table") {
+      setState({
+        visibleColumns: tableColumns,
+      });
+    } else {
+      setState({
+        visibleColumns: allColumns,
+      });
+    }
+  }, [state.viewMode]);
 
   const propertyList = async (page) => {
     try {
@@ -71,6 +363,7 @@ export default function list() {
         status: capitalizeFLetter(item?.status),
         id: item?.id,
         total_area: item?.total_area,
+        property_type: item?.property_type?.name,
         listing_type: {
           type: capitalizeFLetter(item?.listing_type),
           color:
@@ -83,9 +376,18 @@ export default function list() {
               : "success",
         },
 
+        date: commonDateFormat(item?.created_at),
         location: capitalizeFLetter(item?.city),
-        price: formatToINR(item?.price),
+        developer: `${capitalizeFLetter(
+          item?.developer?.first_name
+        )} ${capitalizeFLetter(item?.developer?.last_name)}`,
+        agent: `${capitalizeFLetter(
+          item?.agent?.first_name
+        )} ${capitalizeFLetter(item?.agent?.last_name)}`,
+        project: capitalizeFLetter(item?.project?.name),
 
+        price: formatToINR(item?.price),
+        is_approved: item?.is_approved,
         image:
           item?.primary_image ??
           "/assets/images/real-estate/property-info-img1.png",
@@ -103,6 +405,40 @@ export default function list() {
     } catch (error) {
       console.log("✌️error --->", error);
       setState({ loading: false });
+    }
+  };
+
+  const categoryList = async (page) => {
+    try {
+      const res: any = await Models.category.list(page, {});
+      const droprdown = Dropdown(res?.results, "name");
+      setState({
+        categoryList: droprdown,
+        categoryPage: page,
+        categoryNext: res.next,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const catListLoadMore = async () => {
+    try {
+      if (state.categoryNext) {
+        const res: any = await Models.category.list(state.categoryPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          categoryList: [...state.categoryList, ...newOptions],
+          categoryNext: res.next,
+          categoryPage: state.categoryPage + 1,
+        });
+      } else {
+        setState({
+          categoryList: state.categoryList,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
     }
   };
 
@@ -132,20 +468,32 @@ export default function list() {
   };
 
   const bodyData = () => {
-    const userId = localStorage.getItem("userId");
     let body: any = {};
 
     if (state.search) {
-      body.search = state.search;
+      body.search = debouncedSearch;
     }
-    body.created_by = userId;
+    if (state.userId) {
+      body.userId = state.userId;
+    }
 
-    console.log("✌️body --->", body);
+    if (state.property_type) {
+      body.property_type = state.property_type.value;
+    }
+
+    if (state.offer_type) {
+      body.listing_type = state.offer_type.value;
+    }
+
+    if (state.status) {
+      body.status = state.status.value;
+    }
+
     return body;
   };
 
   const handleEdit = (row) => {
-    router.push("/real-estate/property/edit");
+    router.push(`/real-estate/property/update/${row?.id}`);
     console.log("✌️row --->", row);
   };
 
@@ -174,6 +522,37 @@ export default function list() {
     }
   };
 
+  const clearFilter = async () => {
+    setState({
+      search: "",
+      property_type: "",
+      offer_type: "",
+      status: "",
+      role: { value: "developer", label: "Developer" },
+      user: "",
+      // developer: "",
+      // agent: "",
+    });
+  };
+
+  const toggleColumn = (accessor: string) => {
+    const updatedColumns = state.visibleColumns?.map((col) =>
+      col.accessor === accessor ? { ...col, visible: !col.visible } : col
+    );
+    setState({ visibleColumns: updatedColumns });
+  };
+
+  const toggleAllColumns = (visible: boolean) => {
+    const updatedColumns = state.visibleColumns?.map((col) => ({
+      ...col,
+      visible: col.toggleable === false ? col.visible : visible,
+    }));
+    setState({ visibleColumns: updatedColumns });
+  };
+
+  const filteredColumns = state.visibleColumns
+    ?.filter((col) => col.visible !== false)
+    ?.map(({ visible, toggleable, ...col }) => col);
 
   const propertStatus = [
     { value: 1, label: "Active" },
@@ -185,7 +564,7 @@ export default function list() {
       <div className="panel mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
-            Property List
+            My Property List
           </h5>
         </div>
         <div className="flex gap-5">
@@ -215,16 +594,18 @@ export default function list() {
             placeholder="Select Property Type"
             value={state.property_type}
             onChange={(e) => setState({ property_type: e })}
-            options={propertyType}
+            options={state?.categoryList}
+            isClearable={true}
+            loadMore={() => catListLoadMore()}
           />
         </div>
 
         <div className="flex-1">
           <CustomSelect
-            placeholder="Select Property Status"
-            value={state.status}
-            onChange={(e) => setState({ status: e })}
-            options={propertStatus}
+            placeholder="Select Offer Type"
+            value={state.offer_type}
+            onChange={(e) => setState({ offer_type: e })}
+            options={ListType}
           />
         </div>
 
@@ -232,8 +613,7 @@ export default function list() {
 
         {/* Bulk Actions Dropdown */}
 
-        {/* <div > */}
-        <button
+        {/* <button
           type="button"
           className="btn btn-primary"
           // onClick={() => usersList(1)}
@@ -246,13 +626,10 @@ export default function list() {
           // onClick={() => clearFilter()}
         >
           Clear Filter
-        </button>
-        {/* </div> */}
+        </button> */}
       </div>
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
-        {/* <div className="invoice-table"> */}
-
         <div className="datatables pagination-padding">
           {state?.loading ? (
             <div className="flex h-[400px] items-center justify-center">
@@ -266,106 +643,228 @@ export default function list() {
               />
             </div>
           ) : state.tableList.length > 0 ? (
-            <DataTable
-              className="table-hover whitespace-nowrap"
-              records={state.tableList || []}
-              columns={[
-                {
-                  accessor: "name",
-                  title: "Property Info",
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "end",
+                  alignItems: "center",
+                  marginBottom: "16px",
+                  gap: "10px",
+                }}
+              >
+                <div className="flex items-center gap-3 rounded-md border bg-white px-3  shadow-sm">
+                  <button
+                    onClick={() => setState({ viewMode: "table" })}
+                    className={`rounded-md p-2 transition-all duration-200 `}
+                  >
+                    <Table
+                      size={18}
+                      color={state.viewMode == "table" ? "blue" : "grey"}
+                    />
+                  </button>
 
-                  render: (row) => (
-                    <div className="flex gap-3 font-semibold">
-                      <div className="h-28 w-44 rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
-                        <img
-                          className="h-full w-full cursor-pointer rounded-md object-cover"
-                          src={row.image}
-                          alt=""
-                        />
-                      </div>
-                      <div className="flex flex-col justify-between py-2">
-                        <div>
-                          <div className="flex gap-1">
-                            {" "}
-                            <IconMapPin className="h-4 w-4" />
-                            {row.location}
-                          </div>
-                          <Link
-                            className="cursor-pointer text-lg font-bold"
-                            href={`/real-estate/profile/${row.id}/`}
-                          >
-                            {row.title}
-                          </Link>
-                        </div>
-                        <div>
-                          <Link
-                            className="flex gap-1 text-primary"
-                            href={"/detail"}
-                          >
-                            <LucideHome className="text-black w-4 h-4 " /> View Details
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  ),
-                },
-                { accessor: "date", title: "Listed Date	" },
+                  <div className="h-6 w-px bg-gray-300" />
 
-                { accessor: "price", title: "Price Range	" },
+                  <button
+                    onClick={() => setState({ viewMode: "image" })}
+                    className={`rounded-md p-2 transition-all duration-200 `}
+                  >
+                    <Calendar
+                      size={18}
+                      color={state.viewMode == "image" ? "blue" : "grey"}
+                    />
+                  </button>
+                </div>
 
-                {
-                  accessor: "role",
-                  title: "Property Type",
-                  render: (row: any) => (
-                    <span
-                      className={`badge badge-outline-${row?.listing_type?.color} `}
+                <Popover
+                  position="bottom-end"
+                  withArrow
+                  shadow="md"
+                  width={220}
+                >
+                  <Popover.Target>
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        padding: "8px 16px",
+                        backgroundColor: "white",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                        fontSize: "14px",
+                        fontWeight: 500,
+                        color: "#475569",
+                        transition: "all 0.2s ease",
+                        boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+                      }}
+                      className="hover:border-gray-400 hover:shadow-sm"
                     >
-                      {row?.listing_type?.type}
-                    </span>
-                  ),
-                },
-                { accessor: "status", title: "Status" },
-                {
-                  accessor: "action",
-                  title: "Actions",
-                  sortable: false,
-                  textAlignment: "center",
-                  render: (row: any) => (
-                    <div className="mx-auto flex w-max items-center gap-4">
-                      <button
-                        className="flex hover:text-info"
-                        onClick={(e) => {
-                          handleEdit(row);
+                      <Columns size={16} color="#64748b" />
+                      <span>Show Columns</span>
+                      <div
+                        style={{
+                          width: "20px",
+                          height: "20px",
+                          backgroundColor: "#3b82f6",
+                          borderRadius: "50%",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "12px",
+                          fontWeight: 600,
+                          color: "white",
                         }}
                       >
-                        <IconEdit className="h-4.5 w-4.5" />
-                      </button>
-                      {/* <Link
-                      href="/real-estate/profile"
-                      className="flex hover:text-primary"
-                    >
-                      <IconEye />
-                    </Link> */}
-                      <button
-                        type="button"
-                        className="flex hover:text-danger"
-                        onClick={(e) => handleDelete(row)}
-                      >
-                        <IconTrashLines />
-                      </button>
+                        {visibleCount}
+                      </div>
                     </div>
-                  ),
-                },
-              ]}
-              highlightOnHover
-              totalRecords={state?.initialRecords?.length}
-              recordsPerPage={state?.pageSize}
-              page={null}
-              onPageChange={(p) => {}}
-              paginationText={({ from, to, totalRecords }) =>
-                `Showing  ${from} to ${to} of ${totalRecords} entries`
-              }
-            />
+                  </Popover.Target>
+
+                  <Popover.Dropdown
+                    style={{
+                      padding: "16px",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <div style={{ marginBottom: "16px" }}>
+                      <Text
+                        size="sm"
+                        fw={600}
+                        style={{ color: "#1e293b", marginBottom: "12px" }}
+                      >
+                        Show Columns
+                      </Text>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: "8px",
+                          marginBottom: "16px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            padding: "6px 12px",
+                            backgroundColor: "#f8fafc",
+                            border: "1px solid #e2e8f0",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontSize: "13px",
+                            color: "#475569",
+                            transition: "all 0.2s ease",
+                          }}
+                          className="hover:border-gray-300 hover:bg-gray-50"
+                          onClick={() => toggleAllColumns(true)}
+                        >
+                          <Eye size={14} color="#475569" />
+                          <span>All</span>
+                        </div>
+                        <div
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "6px",
+                            padding: "6px 12px",
+                            backgroundColor: "#f8fafc",
+                            border: "1px solid #e2e8f0",
+                            borderRadius: "6px",
+                            cursor: "pointer",
+                            fontSize: "13px",
+                            color: "#475569",
+                            transition: "all 0.2s ease",
+                          }}
+                          className="hover:border-gray-300 hover:bg-gray-50"
+                          onClick={() => toggleAllColumns(false)}
+                        >
+                          <EyeOff size={14} color="#475569" />
+                          <span>None</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        maxHeight: "200px",
+                        overflowY: "auto",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "12px",
+                        }}
+                      >
+                        {state.visibleColumns?.map((column) => (
+                          <div
+                            key={column.accessor}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                            }}
+                          >
+                            <Checkbox
+                              checked={column.visible ?? true}
+                              onChange={() => toggleColumn(column.accessor)}
+                              disabled={column.toggleable === false}
+                              size="sm"
+                              style={{ flexShrink: 0 }}
+                            />
+                            <Text
+                              size="sm"
+                              style={{
+                                color:
+                                  column.toggleable === false
+                                    ? "#94a3b8"
+                                    : "#475569",
+                                cursor:
+                                  column.toggleable === false
+                                    ? "not-allowed"
+                                    : "pointer",
+                              }}
+                              onClick={() =>
+                                column.toggleable !== false &&
+                                toggleColumn(column.accessor)
+                              }
+                            >
+                              {column.title}
+                            </Text>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        borderTop: "1px solid #f1f5f9",
+                        paddingTop: "12px",
+                        fontSize: "12px",
+                        color: "#64748b",
+                        textAlign: "center",
+                      }}
+                    >
+                      {visibleCount} of {totalToggleable} columns visible
+                    </div>
+                  </Popover.Dropdown>
+                </Popover>
+              </div>
+
+              <DataTable
+                className="table-hover whitespace-nowrap"
+                records={state.tableList || []}
+                columns={filteredColumns}
+                highlightOnHover
+              />
+            </>
           ) : (
             <div className="flex h-[400px] items-center justify-center">
               <p>No Records Found</p>

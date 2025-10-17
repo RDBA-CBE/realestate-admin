@@ -38,18 +38,27 @@ export default function list() {
     error: {},
     userList: [],
     role: null,
+    userId:null
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
   console.log("✌️state.search --->", state.search);
 
-  useEffect(() => {
-    projectList(1);
-  }, []);
+  useEffect(()=>{
+     const group = localStorage.getItem("group");
+    const userId = localStorage.getItem("userId");
+    setState({
+      userId: userId})
+  },[])
+
+
 
   useEffect(() => {
-    projectList(1);
-  }, [debouncedSearch, state.user]);
+    if(state.userId !== null){
+      projectList(1);
+    }
+    
+  }, [debouncedSearch, state.user, state.role, state.userId]);
 
   const developerList = async (page) => {
     try {
@@ -105,9 +114,15 @@ export default function list() {
     }
   };
 
+  
+  
+
   const projectList = async (page) => {
     try {
       const body = bodyData();
+
+      console.log("body", body);
+      
       const res: any = await Models.project.list(page, body);
       const data = res?.results?.map((item) => ({
         name: item?.name,
@@ -222,18 +237,27 @@ export default function list() {
     );
   };
 
+  console.log("state.role", state.role);
+  
+console.log("state.userId", state.userId);
+
   const bodyData = () => {
-    const userId = localStorage.getItem("userId");
+    
     let body: any = {};
 
     if (state.search) {
       body.search = state.search;
     }
-    if (state.user?.value) {
-      body.created_at = state.user?.value;
-    } else {
-      body.created_at = userId;
+    if(state.role){
+      body.group = state.role.value
     }
+
+    if (state.user?.value || (state.role == null  && state.userId) ) {
+      body.created_by = state.user?.value ? state.user?.value : state.userId ;
+    } 
+    // else {
+    //   body.created_by = userId;
+    // }
     console.log("✌️body --->", body);
     return body;
   };
@@ -285,6 +309,17 @@ export default function list() {
     }
   };
 
+  const clearFilter = () =>{
+    setState({
+      search:'',
+      role:"",
+      user:null ,
+      userId: state.userId  
+    })
+  }
+
+  
+
   return (
     <>
       <div className="panel mb-5 flex items-center justify-between gap-5">
@@ -324,6 +359,10 @@ export default function list() {
                 value={state.role}
                 onChange={(e) => {
                   getuserList(e);
+                  // setState({isDeveloper: e.value == ROLES.DEVELOPER ? true : false,
+                  //   isAgent: e.value == ROLES.AGENT ? true : false
+                  // })
+                  setState({userList:[]})
                 }}
                 options={FILTER_ROLES}
               />
@@ -340,11 +379,11 @@ export default function list() {
           </>
         )}
 
-        <div>
-          <button type="button" className="btn btn-primary">
+        {/* <div>
+          <button type="button" className="btn btn-primary" onClick={clearFilter}>
             Clear Filter
           </button>
-        </div>
+        </div> */}
       </div>
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
