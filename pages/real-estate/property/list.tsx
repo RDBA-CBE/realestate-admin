@@ -343,7 +343,14 @@ export default function List() {
   }, []);
 
   useEffect(() => {
-    propertyList(1);
+    const group = localStorage.getItem("group");
+    if (group == "Admin") {
+      if (state.role != null) {
+        propertyList(1);
+      }
+    } else {
+      propertyList(1);
+    }
   }, [
     debouncedSearch,
     state.property_type,
