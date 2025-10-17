@@ -3,27 +3,42 @@ import instance from "@/utils/axios.utils";
 const properties = {
   list: (page, body) => {
     let promise = new Promise((resolve, reject) => {
+      console.log("body in model page", body);
+      
       let url = `properties?page=${page}`;
 
       if (body?.is_approved == "No") {
         url += `&is_approved=${encodeURIComponent(false)}`;
       }
 
-      if (body?.seller) {
-        url += `&seller=${encodeURIComponent(body?.seller)}`;
+      if (body?.group){
+        url += `&group=${body?.group}`;
       }
 
-      if (body?.created_by) {
-        url += `&created_by=${encodeURIComponent(body?.created_by)}`;
+      if (body?.userId){
+        url += `&created_by=${body?.userId}`;
+      }
+
+      // if (body?.user){
+      //   url += `&created_by=${body?.user}&assigned_to=${body?.user}`;
+      // }
+
+      if (body?.developer) {
+        url += `&assigned_to_developer=${encodeURIComponent(body?.developer)}`;
       }
 
       if (body?.agent) {
-        url += `&agent=${encodeURIComponent(body?.agent)}`;
+        url += `&assigned_to_agent=${encodeURIComponent(body?.agent)}`;
       }
 
-      if (body?.developer) {
-        url += `&developer=${encodeURIComponent(body?.developer)}`;
+      if (body?.seller) {
+        url += `&created_by=${encodeURIComponent(body?.seller)}`;
       }
+
+      if (body?.assigned_to) {
+        url += `&assigned_to=${encodeURIComponent(body?.assigned_to)}`;
+      }
+
       if (body?.search) {
         url += `&search=${body?.search}`;
       }

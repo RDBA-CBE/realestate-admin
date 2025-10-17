@@ -8,13 +8,24 @@ const project = {
       if (body?.search) {
         url += `&search=${encodeURIComponent(body.search)}`;
       }
-      if (body?.created_at) {
-        url += `&created_at=${encodeURIComponent(body.created_at)}`;
-      }
+      // if (body?.created_at) {
+      //   url += `&created_at=${encodeURIComponent(body.created_at)}`;
+      // }
 
       if (body?.created_by) {
         url += `&created_by=${encodeURIComponent(body.created_by)}`;
       }
+      
+       if (body?.group) {
+        url += `&group=${encodeURIComponent(body.group)}`;
+      }
+      // if (body?.developer) {
+      //   url += `&developers=${encodeURIComponent(body.developer)}`;
+      // }
+
+      //  if (body?.agent) {
+      //   url += `&agent=${encodeURIComponent(body.agent)}`;
+      // }
 
       instance()
         .get(url, body)

@@ -31,6 +31,7 @@ import IconMapPin from "@/components/Icon/IconMapPin";
 import Link from "next/link";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
 import {
+  FILTER_ROLES,
   LISTING_TYPE,
   LISTING_TYPE_LIST,
   ListType,
@@ -191,8 +192,14 @@ export default function List() {
                 </Link>
               </div>
               {group !== "Admin" && (
-                <span className={`badge  ${row?.is_approved?"w-[70px] badge-outline-success":"w-[140px] badge-outline-warning"}`}>
-                  {row?.is_approved?"Approved":"Waiting For Approval"}
+                <span
+                  className={`badge  ${
+                    row?.is_approved
+                      ? "badge-outline-success w-[70px]"
+                      : "badge-outline-warning w-[140px]"
+                  }`}
+                >
+                  {row?.is_approved ? "Approved" : "Waiting For Approval"}
                 </span>
               )}
               <div>
@@ -298,6 +305,7 @@ export default function List() {
     tableList: [],
     agentList: [],
     developerList: [],
+    userList: [],
     editId: null,
     name: "",
     location: "",
@@ -307,6 +315,10 @@ export default function List() {
     loading: false,
     visibleColumns: allColumns,
     viewMode: "image",
+    role: null,
+    isFilterDeveloper: true,
+    isFilterAgent: false,
+    isFilterSeller: false
   });
 
   const visibleCount = state.visibleColumns.filter((col) => col.visible).length;
@@ -317,20 +329,36 @@ export default function List() {
   const debouncedSearch = useDebounce(state.search, 500);
 
   useEffect(() => {
-    propertyList(1);
-    categoryList(1);
-    agentList(1), developerList(1);
-  }, []);
-
-    useEffect(() => {
-    propertyList(1);
-    }, [state.search, state.property_type, state.offer_type, state.status, state.developer, state.agent])
-
-   useEffect(() => {
     const group = localStorage.getItem("group") || "";
 
-    setState({ group: group });
+    setState({
+      group: group,
+      role: group == "Admin" && {
+        value: "developer",
+        label: "Developer",
+      },
+    });
   }, [state.group]);
+
+  useEffect(() => {
+    categoryList(1);
+    developerList(1);
+  }, []);
+
+  useEffect(() => {
+    if (state.role !== null) {
+      propertyList(1);
+    }
+  }, [
+    debouncedSearch,
+    state.property_type,
+    state.offer_type,
+    state.status,
+    state.developer,
+    state.agent,
+    state.role,
+    state.user,
+  ]);
 
   useEffect(() => {
     if (state.viewMode == "table") {
@@ -349,6 +377,9 @@ export default function List() {
       setState({ loading: true });
 
       const body = bodyData();
+
+      console.log("body", body);
+
       const res: any = await Models.property.list(page, body);
       const data = res?.results?.map((item) => ({
         title: capitalizeFLetter(item?.title),
@@ -379,7 +410,7 @@ export default function List() {
         project: capitalizeFLetter(item?.project?.name),
 
         price: formatToINR(item?.price),
-        is_approved:item?.is_approved,
+        is_approved: item?.is_approved,
         image:
           item?.primary_image ??
           "/assets/images/real-estate/property-info-img1.png",
@@ -437,6 +468,8 @@ export default function List() {
 
   const agentList = async (page) => {
     try {
+      console.log("hello agent");
+
       const body = {
         user_type: ROLES.AGENT,
       };
@@ -446,7 +479,7 @@ export default function List() {
         label: `${item?.first_name} ${item?.last_name}`,
       }));
       setState({
-        agentList: dropdown,
+        userList: dropdown,
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -456,7 +489,7 @@ export default function List() {
   const developerList = async (page) => {
     try {
       const body = {
-        group: ROLES.DEVELOPER,
+        user_type: ROLES.DEVELOPER,
       };
       const res: any = await Models.user.list(page, body);
       const dropdown = res?.results?.map((item) => ({
@@ -464,10 +497,43 @@ export default function List() {
         label: `${item?.first_name} ${item?.last_name}`,
       }));
       setState({
-        developerList: dropdown,
+        userList: dropdown,
       });
     } catch (error) {
       console.log("✌️error --->", error);
+    }
+  };
+
+  const sellerList = async (page) => {
+    try {
+      const body = {
+        user_type: ROLES.SELLER,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        userList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  console.log("userList", state.userList);
+
+  const getuserList = (e) => {
+    setState({ role: e, user: null });
+    console.log("e", e);
+
+    if (e?.value == "developer") {
+      developerList(1);
+    } else if (e?.value == "agent") {
+      agentList(1);
+    } else if (e?.value == "seller") {
+      sellerList(1);
     }
   };
 
@@ -499,22 +565,45 @@ export default function List() {
     const userId = localStorage.getItem("userId");
 
     let body: any = {};
+
+    if (state.role) {
+      body.group = state.role?.value;
+    }
+
+    // if (state.user  ) {
+    //   body.user = state.user?.value;
+    // }
+
+    if (state.user && state.isFilterDeveloper ) {
+      body.developer = state.user?.value;
+    }
+
+    if (state.user && state.isFilterAgent ) {
+      body.agent = state.user?.value;
+    }
+
+     if (state.user && state.isFilterSeller ) {
+      body.seller = state.user?.value;
+    }
+
     if (state.search) {
       body.search = debouncedSearch;
     }
+
     if (group == "Seller") {
       // body.seller = userId;
       body.created_by = userId;
     }
     if (group == "Agent") {
-      body.agent = userId;
+      body.assigned_to = userId;
       // body.created_by = userId;
     }
 
     if (group == "Developer") {
-      body.developer = userId;
+      body.assigned_to = userId;
       // body.created_by = userId;
     }
+
     if (state.property_type) {
       body.property_type = state.property_type.value;
     }
@@ -526,14 +615,14 @@ export default function List() {
     if (state.status) {
       body.status = state.status.value;
     }
-    if (state.developer) {
-      body.developer = state.developer.value;
-    }
 
-     if (state.agent) {
-      body.agent = state.agent.value;
-    }
+    // if (state.developer) {
+    //   body.developer = state.developer.value;
+    // }
 
+    // if (state.agent) {
+    //   body.agent = state.agent.value;
+    // }
 
     return body;
   };
@@ -567,14 +656,16 @@ export default function List() {
     }
   };
 
-  const clearFilter = async() => {
+  const clearFilter = async () => {
     setState({
       search: "",
       property_type: "",
       offer_type: "",
       status: "",
-      developer:"",
-      agent: ""
+      role: { value: "developer", label: "Developer" },
+      user: "",
+      // developer: "",
+      // agent: "",
     });
   };
 
@@ -602,12 +693,21 @@ export default function List() {
     ?.filter((col) => col.visible !== false)
     ?.map(({ visible, toggleable, ...col }) => col);
 
+    console.log("isFilterDeveloper", state.isFilterDeveloper);
+    
+
   return (
     <>
       <div className="panel mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
-            Property List
+            {state.group == "Admin"
+              ? "Properties List"
+              : state.group == "Developer" || state.group == "Agent"
+              ? "Assigned Properties"
+              : state.group == "Seller"
+              ? "My Properties"
+              : "Properties List"}
           </h5>
         </div>
         <div className="flex gap-5">
@@ -656,12 +756,37 @@ export default function List() {
           <>
             <div className="flex-1">
               <CustomSelect
+                placeholder="Select Role"
+                value={state.role}
+                onChange={(e) => {
+                  getuserList(e);
+                  setState({ userList: [],
+                    isFilterDeveloper: e.value == ROLES.DEVELOPER ? true : false,
+                    isFilterAgent : e.value == ROLES.AGENT ? true : false,
+                    isFilterSeller : e.value == ROLES.SELLER ? true : false,
+                   });
+                }}
+                options={FILTER_ROLES}
+                isClearable = {false}
+              />
+            </div>
+
+            <div className="flex-1">
+              <CustomSelect
+                placeholder="Select user"
+                value={state.user}
+                onChange={(e) => setState({ user: e })}
+                options={state.userList}
+              />
+            </div>
+
+            {/* <div className="flex-1">
+              <CustomSelect
                 placeholder="Select Developer"
                 value={state.developer}
                 onChange={(e) => setState({ developer: e })}
                 options={state.developerList}
                 isClearable={true}
-               
               />
             </div>
 
@@ -672,9 +797,8 @@ export default function List() {
                 onChange={(e) => setState({ agent: e })}
                 options={state?.agentList}
                 isClearable={true}
-                
               />
-            </div>
+            </div> */}
           </>
         )}
 
