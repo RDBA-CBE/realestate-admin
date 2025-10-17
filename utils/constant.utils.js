@@ -121,33 +121,39 @@ export const menuConfig = {
           label: "Create Leads",
           href: "/real-estate/lead/create",
         },
-      ],
-    },
-    {
-      type: "section",
-      label: "Inquiries",
-      children: [
-        {
-          type: "link",
-          icon: "IconMenuChat",
-          label: "Inquiries",
-          href: "/real-estate/inquiry/list",
-        },
         {
           type: "link",
           icon: "IconMenuPages",
           label: "Bookings",
           href: "/real-estate/inquiry/bookingList",
         },
-
-        {
-          type: "link",
-          icon: "IconMenuPages",
-          label: "Create Booking",
-          href: "/real-estate/inquiry/createBooking",
-        },
       ],
     },
+    // {
+    //   type: "section",
+    //   label: "Inquiries",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuChat",
+    //       label: "Inquiries",
+    //       href: "/real-estate/inquiry/list",
+    //     },
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuPages",
+    //       label: "Bookings",
+    //       href: "/real-estate/inquiry/bookingList",
+    //     },
+
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuPages",
+    //       label: "Create Booking",
+    //       href: "/real-estate/inquiry/createBooking",
+    //     },
+    //   ],
+    // },
     {
       type: "section",
       label: "Reports",
@@ -219,24 +225,24 @@ export const menuConfig = {
         },
       ],
     },
-    {
-      type: "section",
-      label: "User Management",
-      children: [
-        {
-          type: "link",
-          icon: "IconMenuUsers",
-          label: "All Users",
-          href: "/real-estate/users/list",
-        },
+    // {
+    //   type: "section",
+    //   label: "User Management",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuUsers",
+    //       label: "All Users",
+    //       href: "/real-estate/users/list",
+    //     },
         // {
         //   type: "link",
         //   icon: "IconMenuScrumboard",
         //   label: "Create",
         //   href: "/real-estate/users/create",
         // },
-      ],
-    },
+    //   ],
+    // },
     {
       type: "section",
       label: "Leads",
@@ -259,33 +265,34 @@ export const menuConfig = {
           label: "Create Leads",
           href: "/real-estate/lead/create",
         },
-      ],
-    },
-    {
-      type: "section",
-      label: "Inquiries",
-      children: [
-        {
-          type: "link",
-          icon: "IconMenuChat",
-          label: "Inquiries",
-          href: "/real-estate/inquiry/list",
-        },
         {
           type: "link",
           icon: "IconMenuPages",
           label: "Bookings",
           href: "/real-estate/inquiry/bookingList",
         },
-
-        {
-          type: "link",
-          icon: "IconMenuPages",
-          label: "Create Booking",
-          href: "/real-estate/inquiry/createBooking",
-        },
       ],
     },
+    // {
+    //   type: "section",
+    //   label: "Inquiries",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuChat",
+    //       label: "Inquiries",
+    //       href: "/real-estate/inquiry/list",
+    //     },
+       
+
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuPages",
+    //       label: "Create Booking",
+    //       href: "/real-estate/inquiry/createBooking",
+    //     },
+    //   ],
+    // },
     {
       type: "section",
       label: "Reports",
@@ -397,33 +404,63 @@ export const menuConfig = {
           label: "Create Leads",
           href: "/real-estate/lead/create",
         },
-      ],
-    },
-    {
-      type: "section",
-      label: "Inquiries",
-      children: [
-        {
-          type: "link",
-          icon: "IconMenuChat",
-          label: "Inquiries",
-          href: "/real-estate/inquiry/list",
-        },
         {
           type: "link",
           icon: "IconMenuPages",
           label: "Bookings",
           href: "/real-estate/inquiry/bookingList",
         },
-
-        {
-          type: "link",
-          icon: "IconMenuPages",
-          label: "Create Booking",
-          href: "/real-estate/inquiry/createBooking",
-        },
       ],
     },
+    // {
+    //   type: "section",
+    //   label: "Leads",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuTables",
+    //       label: "List",
+    //       href: "/real-estate/lead/list",
+    //     },
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuForms",
+    //       label: "Assign Leads",
+    //       href: "/real-estate/lead/assignLead",
+    //     },
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuScrumboard",
+    //       label: "Create Leads",
+    //       href: "/real-estate/lead/create",
+    //     },
+    //   ],
+    // },
+    // {
+    //   type: "section",
+    //   label: "Inquiries",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuChat",
+    //       label: "Inquiries",
+    //       href: "/real-estate/inquiry/list",
+    //     },
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuPages",
+    //       label: "Bookings",
+    //       href: "/real-estate/inquiry/bookingList",
+    //     },
+
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuPages",
+    //       label: "Create Booking",
+    //       href: "/real-estate/inquiry/createBooking",
+    //     },
+    //   ],
+    // },
     {
       type: "section",
       label: "Reports",
@@ -495,24 +532,73 @@ export const menuConfig = {
         },
       ],
     },
-    {
-      type: "section",
-      label: "User Management",
-      children: [
-        {
-          type: "link",
-          icon: "IconMenuUsers",
-          label: "All Users",
-          href: "/real-estate/users/list",
-        },
-        // {
-        //   type: "link",
-        //   icon: "IconMenuScrumboard",
-        //   label: "Create",
-        //   href: "/real-estate/users/create",
-        // },
-      ],
-    },
+    // {
+    //   type: "section",
+    //   label: "User Management",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuUsers",
+    //       label: "All Users",
+    //       href: "/real-estate/users/list",
+    //     },
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuScrumboard",
+    //       label: "Create",
+    //       href: "/real-estate/users/create",
+    //     },
+    //   ],
+    // },
+    // {
+    //   type: "section",
+    //   label: "Leads",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuTables",
+    //       label: "List",
+    //       href: "/real-estate/lead/list",
+    //     },
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuForms",
+    //       label: "Assign Leads",
+    //       href: "/real-estate/lead/assignLead",
+    //     },
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuScrumboard",
+    //       label: "Create Leads",
+    //       href: "/real-estate/lead/create",
+    //     },
+    //   ],
+    // },
+    // {
+    //   type: "section",
+    //   label: "Inquiries",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuChat",
+    //       label: "Inquiries",
+    //       href: "/real-estate/inquiry/list",
+    //     },
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuPages",
+    //       label: "Bookings",
+    //       href: "/real-estate/inquiry/bookingList",
+    //     },
+
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuPages",
+    //       label: "Create Booking",
+    //       href: "/real-estate/inquiry/createBooking",
+    //     },
+    //   ],
+    // },
     {
       type: "section",
       label: "Leads",
@@ -535,30 +621,11 @@ export const menuConfig = {
           label: "Create Leads",
           href: "/real-estate/lead/create",
         },
-      ],
-    },
-    {
-      type: "section",
-      label: "Inquiries",
-      children: [
-        {
-          type: "link",
-          icon: "IconMenuChat",
-          label: "Inquiries",
-          href: "/real-estate/inquiry/list",
-        },
         {
           type: "link",
           icon: "IconMenuPages",
           label: "Bookings",
           href: "/real-estate/inquiry/bookingList",
-        },
-
-        {
-          type: "link",
-          icon: "IconMenuPages",
-          label: "Create Booking",
-          href: "/real-estate/inquiry/createBooking",
         },
       ],
     },
