@@ -101,7 +101,7 @@ const List = () => {
     if (state.role) {
       body.group = state.role.value;
     }
-    body.account_status = "unverified";
+    body.account_status = "pending_review";
 
     return body;
   };
@@ -118,6 +118,7 @@ const List = () => {
       setState({ btnLoading: true });
       const body = {
         account_status: "approved",
+        is_active:true
       };
 
       const res = await Models.user.update(body, row?.id);
