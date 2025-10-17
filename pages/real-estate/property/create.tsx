@@ -142,10 +142,7 @@ const AddPropertyPage = () => {
   const categoryList = async (page) => {
     try {
       const res: any = await Models.category.list(page, {});
-      console.log("✌️res --->", res);
-
       const droprdown = Dropdown(res?.results, "name");
-
       setState({
         categoryList: droprdown,
         categoryPage: page,
