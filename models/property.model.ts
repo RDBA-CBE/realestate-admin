@@ -3,7 +3,6 @@ import instance from "@/utils/axios.utils";
 const properties = {
   list: (page, body) => {
     let promise = new Promise((resolve, reject) => {
-      console.log("body in model page", body);
       
       let url = `properties?page=${page}`;
 
@@ -19,20 +18,16 @@ const properties = {
         url += `&created_by=${body?.userId}`;
       }
 
-      // if (body?.user){
-      //   url += `&created_by=${body?.user}&assigned_to=${body?.user}`;
-      // }
-
-      if (body?.developer) {
-        url += `&assigned_to_developer=${encodeURIComponent(body?.developer)}`;
+      if (body?.assigned_to_developer) {
+        url += `&assigned_to_developer=${encodeURIComponent(body?.assigned_to_developer)}`;
       }
 
-      if (body?.agent) {
-        url += `&assigned_to_agent=${encodeURIComponent(body?.agent)}`;
+      if (body?.assigned_to_agent) {
+        url += `&assigned_to_agent=${encodeURIComponent(body?.assigned_to_agent)}`;
       }
 
-      if (body?.seller) {
-        url += `&created_by=${encodeURIComponent(body?.seller)}`;
+      if (body?.created_by) {
+        url += `&created_by=${encodeURIComponent(body?.created_by)}`;
       }
 
       if (body?.assigned_to) {
@@ -53,6 +48,14 @@ const properties = {
 
       if (body?.status) {
         url += `&status=${body?.status}`;
+      }
+
+      if (body?.developer) {
+        url += `&developer=${body?.developer}`;
+      }
+
+      if (body?.agent) {
+        url += `&agent=${body?.agent}`;
       }
 
       instance()

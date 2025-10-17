@@ -316,9 +316,6 @@ export default function List() {
     visibleColumns: allColumns,
     viewMode: "image",
     role: null,
-    isFilterDeveloper: true,
-    isFilterAgent: false,
-    isFilterSeller: false
   });
 
   const visibleCount = state.visibleColumns.filter((col) => col.visible).length;
@@ -346,9 +343,7 @@ export default function List() {
   }, []);
 
   useEffect(() => {
-    if (state.role !== null) {
-      propertyList(1);
-    }
+    propertyList(1);
   }, [
     debouncedSearch,
     state.property_type,
@@ -377,8 +372,6 @@ export default function List() {
       setState({ loading: true });
 
       const body = bodyData();
-
-      console.log("body", body);
 
       const res: any = await Models.property.list(page, body);
       const data = res?.results?.map((item) => ({
@@ -415,7 +408,6 @@ export default function List() {
           item?.primary_image ??
           "/assets/images/real-estate/property-info-img1.png",
       }));
-      console.log("✌️data --->", data);
 
       setState({
         tableList: data,
@@ -468,8 +460,6 @@ export default function List() {
 
   const agentList = async (page) => {
     try {
-      console.log("hello agent");
-
       const body = {
         user_type: ROLES.AGENT,
       };
@@ -522,11 +512,8 @@ export default function List() {
     }
   };
 
-  console.log("userList", state.userList);
-
   const getuserList = (e) => {
-    setState({ role: e, user: null });
-    console.log("e", e);
+    setState({ role: e, user: null, userList: [] });
 
     if (e?.value == "developer") {
       developerList(1);
@@ -562,48 +549,12 @@ export default function List() {
 
   const bodyData = () => {
     const group = localStorage.getItem("group");
-    const userId = localStorage.getItem("userId");
-
     let body: any = {};
 
-    if (state.role) {
-      body.group = state.role?.value;
-    }
-
-    // if (state.user  ) {
-    //   body.user = state.user?.value;
-    // }
-
-    if (state.user && state.isFilterDeveloper ) {
-      body.developer = state.user?.value;
-    }
-
-    if (state.user && state.isFilterAgent ) {
-      body.agent = state.user?.value;
-    }
-
-     if (state.user && state.isFilterSeller ) {
-      body.seller = state.user?.value;
-    }
-
+    // Common
     if (state.search) {
       body.search = debouncedSearch;
     }
-
-    if (group == "Seller") {
-      // body.seller = userId;
-      body.created_by = userId;
-    }
-    if (group == "Agent") {
-      body.assigned_to = userId;
-      // body.created_by = userId;
-    }
-
-    if (group == "Developer") {
-      body.assigned_to = userId;
-      // body.created_by = userId;
-    }
-
     if (state.property_type) {
       body.property_type = state.property_type.value;
     }
@@ -616,14 +567,53 @@ export default function List() {
       body.status = state.status.value;
     }
 
-    // if (state.developer) {
-    //   body.developer = state.developer.value;
-    // }
+    if (group == capitalizeFLetter(ROLES.ADMIN)) {
+      body = { ...body, ...adminBody() };
+    } else if (group == capitalizeFLetter(ROLES.DEVELOPER)) {
+      body = { ...body, ...developerBody() };
+    } else if (group == capitalizeFLetter(ROLES.AGENT)) {
+      body = { ...body, ...agentBody() };
+    } else if (group == capitalizeFLetter(ROLES.SELLER)) {
+      body = { ...body, ...sellerBody() };
+    }
+    return body;
+  };
 
-    // if (state.agent) {
-    //   body.agent = state.agent.value;
-    // }
+  const adminBody = () => {
+    let body: any = {};
+    if (state.user) {
+      if (state.role?.value == "developer") {
+        body.assigned_to_developer = state.user?.value;
+      } else if (state.role?.value == "agent") {
+        body.assigned_to_agent = state.user?.value;
+      } else if (state.role?.value == "seller") {
+        body.created_by = state.user?.value;
+      }
+    } else {
+      if (state.role) {
+        body.group = state.role?.value;
+      }
+    }
+    return body;
+  };
 
+  const developerBody = () => {
+    const userId = localStorage.getItem("userId");
+    const body: any = {};
+    body.developer = userId;
+    return body;
+  };
+  const agentBody = () => {
+    const userId = localStorage.getItem("userId");
+    const body: any = {};
+    body.agent = userId;
+    return body;
+  };
+
+  const sellerBody = () => {
+    const userId = localStorage.getItem("userId");
+    const body: any = {};
+    body.created_by = userId;
     return body;
   };
 
@@ -693,9 +683,6 @@ export default function List() {
     ?.filter((col) => col.visible !== false)
     ?.map(({ visible, toggleable, ...col }) => col);
 
-    console.log("isFilterDeveloper", state.isFilterDeveloper);
-    
-
   return (
     <>
       <div className="panel mb-5 flex items-center justify-between gap-5">
@@ -760,14 +747,9 @@ export default function List() {
                 value={state.role}
                 onChange={(e) => {
                   getuserList(e);
-                  setState({ userList: [],
-                    isFilterDeveloper: e.value == ROLES.DEVELOPER ? true : false,
-                    isFilterAgent : e.value == ROLES.AGENT ? true : false,
-                    isFilterSeller : e.value == ROLES.SELLER ? true : false,
-                   });
                 }}
                 options={FILTER_ROLES}
-                isClearable = {false}
+                isClearable={false}
               />
             </div>
 
