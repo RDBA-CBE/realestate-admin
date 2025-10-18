@@ -28,7 +28,7 @@ import TextArea from "@/components/FormFields/TextArea.component";
 import IconLoader from "@/components/Icon/IconLoader";
 import Utils from "@/imports/utils.import";
 import * as Yup from "yup";
-import { roleList } from "@/utils/constant.utils";
+import { FILTER_ROLES, roleList } from "@/utils/constant.utils";
 
 const List = () => {
   const [state, setState] = useSetState<any>({
@@ -66,7 +66,7 @@ const List = () => {
 
   useEffect(() => {
     usersList(1);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, state.role]);
 
   const usersList = async (page: any) => {
     try {
@@ -194,7 +194,7 @@ const List = () => {
       body.search = state.search;
     }
     if (state.role) {
-      body.group = state.role.value;
+      body.user_type = state.role.value;
     }
     body.account_status = "approved";
 
@@ -316,12 +316,8 @@ const List = () => {
           />
         </div>
 
-        {/* Status Dropdown */}
-
-        {/* Bulk Actions Dropdown */}
-
-        {/* <div > */}
-        <button
+     
+        {/* <button
           type="button"
           className="btn btn-primary"
           onClick={() => usersList(1)}
@@ -334,8 +330,8 @@ const List = () => {
           onClick={() => clearFilter()}
         >
           Clear Filter
-        </button>
-        {/* </div> */}
+        </button> */}
+      
       </div>
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">

@@ -109,12 +109,12 @@ export const menuConfig = {
           label: "List",
           href: "/real-estate/lead/list",
         },
-        {
-          type: "link",
-          icon: "IconMenuForms",
-          label: "Assign Leads",
-          href: "/real-estate/lead/assignLead",
-        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuForms",
+        //   label: "Assign Leads",
+        //   href: "/real-estate/lead/assignLead",
+        // },
         {
           type: "link",
           icon: "IconMenuScrumboard",
@@ -356,32 +356,32 @@ export const menuConfig = {
             // { type: "link", label: "Reviews", href: "/apps/invoice/edit" },
           ],
         },
-        {
-          type: "link",
-          icon: "IconMenuNotes",
-          label: "My Properties",
-          href: "/real-estate/property/myProperty",
-        },
-      ],
-    },
-    {
-      type: "section",
-      label: "User Management",
-      children: [
-        {
-          type: "link",
-          icon: "IconMenuUsers",
-          label: "All Users",
-          href: "/real-estate/users/list",
-        },
         // {
         //   type: "link",
-        //   icon: "IconMenuScrumboard",
-        //   label: "Create",
-        //   href: "/real-estate/users/create",
+        //   icon: "IconMenuNotes",
+        //   label: "My Properties",
+        //   href: "/real-estate/property/myProperty",
         // },
       ],
     },
+    // {
+    //   type: "section",
+    //   label: "User Management",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuUsers",
+    //       label: "All Users",
+    //       href: "/real-estate/users/list",
+    //     },
+    //     // {
+    //     //   type: "link",
+    //     //   icon: "IconMenuScrumboard",
+    //     //   label: "Create",
+    //     //   href: "/real-estate/users/create",
+    //     // },
+    //   ],
+    // },
     {
       type: "section",
       label: "Leads",
@@ -744,10 +744,22 @@ export const LISTING_TYPE_LIST = {
 };
 
 export const roleList = [
-  { value: 1, label: "Agent" },
-  { value: 2, label: "Developer" },
-  { value: 3, label: "Seller" },
-  { value: 4, label: "Buyer" },
+   {
+    value: "developer",
+    label: "Developer",
+  },
+  {
+    value: "agent",
+    label: "Agent",
+  },
+  {
+    value: "seller",
+    label: "Seller",
+  },
+   {
+    value: "buyer",
+    label: "Buyer",
+  },
 ];
 
 export const PROPERTY_IMG = [

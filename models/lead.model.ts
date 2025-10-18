@@ -7,7 +7,7 @@ const lead = {
       if (body?.group) {
         url += `&group=${encodeURIComponent(body.group)}`;
       }
-       if (body?.search) {
+      if (body?.search) {
         url += `&search=${encodeURIComponent(body.search)}`;
       }
 
@@ -19,9 +19,17 @@ const lead = {
         url += `&assigned_to=${encodeURIComponent(body.assigned_to)}`;
       }
 
-      
+      if (body?.lead_source) {
+        url += `&lead_source=${encodeURIComponent(body.lead_source)}`;
+      }
+      if (body?.status) {
+        url += `&status=${encodeURIComponent(body.status)}`;
+      }
 
-      
+      if (body?.date) {
+        url += `&created_at=${encodeURIComponent(body.date)}`;
+      }
+
       instance()
         .get(url)
         .then((res) => {
@@ -122,7 +130,7 @@ const lead = {
       if (body?.group) {
         url += `&group=${encodeURIComponent(body.group)}`;
       }
-       if (body?.search) {
+      if (body?.search) {
         url += `&search=${encodeURIComponent(body.search)}`;
       }
       instance()

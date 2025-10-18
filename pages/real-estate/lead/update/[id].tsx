@@ -253,7 +253,7 @@ const CreateOpportunities = () => {
       };
       console.log("✌️body --->", body);
 
-      const res = await Models.lead.update(body,id);
+      const res = await Models.lead.update(body, id);
       Success("Lead Updated Successfully");
       router.push("/real-estate/lead/list");
       console.log("✌️res --->", res);
@@ -488,6 +488,7 @@ const CreateOpportunities = () => {
               placeholder="Next Follow Up Date"
               title="Next Follow Up Date"
               onChange={(e) => setState({ next_follow_up: e })}
+              showTimeSelect={true}
               required
             />
             <TextArea

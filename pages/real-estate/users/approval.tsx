@@ -48,7 +48,7 @@ const List = () => {
 
   useEffect(() => {
     usersList(1);
-  }, [debouncedSearch]);
+  }, [debouncedSearch, state.role]);
 
   const usersList = async (page: any) => {
     try {
@@ -99,7 +99,7 @@ const List = () => {
       body.search = state.search;
     }
     if (state.role) {
-      body.group = state.role.value;
+      body.user_type = state.role.value;
     }
     body.account_status = "pending_review";
 
@@ -181,7 +181,7 @@ const List = () => {
           />
         </div>
 
-        <button
+        {/* <button
           type="button"
           className="btn btn-primary"
           onClick={() => usersList(1)}
@@ -194,7 +194,7 @@ const List = () => {
           onClick={() => clearFilter()}
         >
           Clear Filter
-        </button>
+        </button> */}
       </div>
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">

@@ -50,7 +50,7 @@ export default function list() {
       const data = res?.results?.map((item) => ({
         name: item?.name,
         location: item?.location,
-        status: item?.status,
+        properties_count: item?.properties_count,
         id: item?.id,
       }));
 
@@ -219,7 +219,7 @@ export default function list() {
             Category List
           </h5>
         </div>
-        <div className="flex gap-5">
+        {/* <div className="flex gap-5">
           <button
             type="button"
             className="btn btn-primary  w-full md:mb-0 md:w-auto"
@@ -227,11 +227,11 @@ export default function list() {
           >
             + Create
           </button>
-        </div>
+        </div> */}
       </div>
 
-      <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
-        {/* Search Input */}
+      {/* <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
+       
         <div className="flex-1">
           <input
             type="text"
@@ -242,7 +242,7 @@ export default function list() {
           />
         </div>
 
-        {/* Category Dropdown */}
+       
         <div className="flex-1">
           <CustomSelect
             placeholder="Select Role"
@@ -262,16 +262,13 @@ export default function list() {
             // error={state.errors?.tags}
           />
         </div>
-        {/* Status Dropdown */}
-
-        {/* Bulk Actions Dropdown */}
-
+       
         <div>
           <button type="button" className="btn btn-primary">
             Clear Filter
           </button>
         </div>
-      </div>
+      </div> */}
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
         {/* <div className="invoice-table"> */}
@@ -288,30 +285,30 @@ export default function list() {
             records={state.tableList || []}
             columns={[
               { accessor: "name", title: "Category Name" },
-              { accessor: "status", title: "status" },
+              { accessor: "properties_count", title: "No of Properties" },
 
-              {
-                accessor: "actions",
-                title: "Actions",
-                render: (row: any) => (
-                  <div className="mx-auto flex w-max items-center gap-4">
-                    <button
-                      className="flex hover:text-primary"
-                      onClick={(e) => {
-                        handleEdit(row);
-                      }}
-                    >
-                      <IconEdit className="h-4.5 w-4.5" />
-                    </button>
-                    <button
-                      className="flex text-danger hover:text-primary"
-                      onClick={() => handleDelete(row)}
-                    >
-                      <IconTrash />
-                    </button>
-                  </div>
-                ),
-              },
+              // {
+              //   accessor: "actions",
+              //   title: "Actions",
+              //   render: (row: any) => (
+              //     <div className="mx-auto flex w-max items-center gap-4">
+              //       <button
+              //         className="flex hover:text-primary"
+              //         onClick={(e) => {
+              //           handleEdit(row);
+              //         }}
+              //       >
+              //         <IconEdit className="h-4.5 w-4.5" />
+              //       </button>
+              //       <button
+              //         className="flex text-danger hover:text-primary"
+              //         onClick={() => handleDelete(row)}
+              //       >
+              //         <IconTrash />
+              //       </button>
+              //     </div>
+              //   ),
+              // },
             ]}
             highlightOnHover
             totalRecords={state.taskList?.length}

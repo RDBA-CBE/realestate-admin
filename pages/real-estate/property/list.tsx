@@ -769,25 +769,7 @@ export default function List() {
               />
             </div>
 
-            {/* <div className="flex-1">
-              <CustomSelect
-                placeholder="Select Developer"
-                value={state.developer}
-                onChange={(e) => setState({ developer: e })}
-                options={state.developerList}
-                isClearable={true}
-              />
-            </div>
-
-            <div className="flex-1">
-              <CustomSelect
-                placeholder="Select Agent"
-                value={state.agent}
-                onChange={(e) => setState({ agent: e })}
-                options={state?.agentList}
-                isClearable={true}
-              />
-            </div> */}
+            
           </>
         )}
 
@@ -800,13 +782,7 @@ export default function List() {
           />
         </div>
 
-        {/* <button
-          type="button"
-          className="btn btn-primary"
-          onClick={() => propertyList(1)}
-        >
-          Apply Filter
-        </button> */}
+
         <button
           type="button"
           className="btn btn-primary"

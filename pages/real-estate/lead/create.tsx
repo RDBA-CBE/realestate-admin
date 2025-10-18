@@ -293,7 +293,7 @@ const CreateOpportunities = () => {
     },
   ];
 
-  return  (
+  return (
     <div className="relative h-auto  overflow-scroll bg-cover ">
       <div className="panel  flex  items-center justify-between gap-5 ">
         <div className="flex items-center gap-2">
@@ -441,6 +441,7 @@ const CreateOpportunities = () => {
               placeholder="Next Follow Up Date"
               title="Next Follow Up Date"
               onChange={(e) => setState({ next_follow_up: e })}
+              showTimeSelect={true}
               required
             />
             <TextArea

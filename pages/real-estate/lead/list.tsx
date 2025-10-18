@@ -6,6 +6,7 @@ import IconEdit from "@/components/Icon/IconEdit";
 import {
   capitalizeFLetter,
   commonDateFormat,
+  Dropdown,
   Failure,
   showDeleteAlert,
   Success,
@@ -30,7 +31,13 @@ import IconTrashLines from "@/components/Icon/IconTrashLines";
 import Link from "next/link";
 import { Calendar, Columns, Eye, EyeOff, Table } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
-import { FILTER_ROLES, ROLES } from "@/utils/constant.utils";
+import {
+  FILTER_ROLES,
+  LEAD_SOURCE_OPTIONS,
+  ROLES,
+  STATUS_OPTIONS,
+} from "@/utils/constant.utils";
+import CustomeDatePicker from "@/components/datePicker";
 
 const List = () => {
   const router = useRouter();
@@ -39,6 +46,7 @@ const List = () => {
     btnLoading: false,
     page: 1,
     tableList: [],
+    categoryList: [],
     editId: null,
     name: "",
     location: "",
@@ -55,12 +63,22 @@ const List = () => {
 
   useEffect(() => {
     leadList(1);
+    categoryList(1);
     setState({ visibleColumns: columns });
   }, []);
 
   useEffect(() => {
     leadList(1);
-  }, [debouncedSearch,state.user]);
+  }, [
+    debouncedSearch,
+    state.user,
+    state.developer,
+    state.agent,
+    state.role,
+    state.lead_source,
+    state.status,
+    state.date,
+  ]);
 
   useEffect(() => {
     const group = localStorage.getItem("group");
@@ -69,6 +87,40 @@ const List = () => {
       assignmentTitle: group == "Admin" ? "Assigned To" : "Assigned From",
     });
   }, []);
+
+  const categoryList = async (page) => {
+    try {
+      const res: any = await Models.category.list(page, {});
+      const droprdown = Dropdown(res?.results, "name");
+      setState({
+        categoryList: droprdown,
+        categoryPage: page,
+        categoryNext: res.next,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const catListLoadMore = async () => {
+    try {
+      if (state.categoryNext) {
+        const res: any = await Models.category.list(state.categoryPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          categoryList: [...state.categoryList, ...newOptions],
+          categoryNext: res.next,
+          categoryPage: state.categoryPage + 1,
+        });
+      } else {
+        setState({
+          categoryList: state.categoryList,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
 
   const leadList = async (page) => {
     try {
@@ -97,7 +149,7 @@ const List = () => {
         next: res.next,
         previous: res.previous,
         totalRecords: res.count,
-        group
+        group,
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -262,22 +314,60 @@ const List = () => {
 
   const bodyData = () => {
     const userId = localStorage.getItem("userId");
+    const group = localStorage.getItem("group");
     let body: any = {};
 
     if (state.search) {
       body.search = state.search;
     }
 
-    if (state.user?.value) {
-      body.created_by = state.user?.value;
-    } else {
-      body.created_by = userId;
+    if (state.lead_source) {
+      body.lead_source = state.lead_source.value;
     }
 
+    if (state.property_type) {
+      body.property_type = state.property_type;
+    }
+
+    if (state.status) {
+      body.status = state.status.value;
+    }
+
+    if (state.date) {
+      body.date = commonDateFormat(state.date);
+    }
+
+    if (state.user) {
+      body.created_by = state.user?.value;
+    } 
+    else {
+      if (state.role) {
+        body.group = state.role?.value;
+      } else {
+        body.created_by = userId;
+      }
+    }
+
+    // if (group == capitalizeFLetter(ROLES.ADMIN)) {
+    //   body = { ...body, ...adminBody() };
+    // }
 
     console.log("✌️body --->", body);
     return body;
   };
+
+
+  // const adminBody = () => {
+  //   let body: any = {};
+  //   if (state.user) {
+  //     body.created_by = state.user?.value;
+  //   } else {
+  //     if (state.role) {
+  //       body.group = state.role?.value;
+  //     }
+  //   }
+  //   return body;
+  // };
 
   const handleEdit = (row) => {
     router.push(`/real-estate/lead/update/${row?.id}`);
@@ -478,6 +568,40 @@ const List = () => {
           />
         </div>
 
+        {/* <div className="flex-1">
+          <CustomSelect
+            placeholder="Select Property Type"
+            value={state.}
+            onChange={(e) => setState({ property_type: e })}
+            options={state?.categoryList}
+            isClearable={true}
+            loadMore={() => catListLoadMore()}
+          />
+        </div> */}
+
+        <div className="flex-1">
+          <CustomSelect
+            value={state.lead_source}
+            onChange={(e) => setState({ lead_source: e })}
+            placeholder={"Select Lead Source"}
+            options={LEAD_SOURCE_OPTIONS}
+            error={state.errors?.lead_source}
+            isClearable={true}
+          />
+        </div>
+
+        <div className="flex-1">
+          <CustomSelect
+            value={state.status}
+            onChange={(e) => setState({ status: e })}
+            placeholder={"Select Status"}
+            options={STATUS_OPTIONS}
+            error={state.errors?.status}
+            required
+            className="w-full"
+          />
+        </div>
+
         {state.group == "Admin" && (
           <>
             <div className="flex-1">
@@ -486,6 +610,7 @@ const List = () => {
                 value={state.role}
                 onChange={(e) => {
                   getuserList(e);
+                  setState({userList:[]})
                 }}
                 options={FILTER_ROLES}
               />
@@ -501,6 +626,15 @@ const List = () => {
             </div>
           </>
         )}
+
+        <div className="flex-1">
+          <CustomeDatePicker
+            value={state.date}
+            placeholder="Choose Date"
+            onChange={(e) => setState({ date: e })}
+            showTimeSelect={false}
+          />
+        </div>
 
         <div>
           <button type="button" className="btn btn-primary">
@@ -709,6 +843,7 @@ const List = () => {
             paginationText={({ from, to, totalRecords }) =>
               `Showing  ${from} to ${to} of ${totalRecords} entries`
             }
+            style={{ zIndex: 0 }}
           />
         </div>
         <div className="mt-5 flex justify-end gap-3">

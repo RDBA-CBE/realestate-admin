@@ -34,6 +34,7 @@ import {
   LISTING_TYPE,
   LISTING_TYPE_LIST,
   ListType,
+  Property_status,
   PROPERTY_TYPE,
   propertyType,
 } from "@/utils/constant.utils";
@@ -93,7 +94,7 @@ export default function List() {
       visible: true,
       toggleable: true,
     },
-    
+
     {
       accessor: "developer",
       title: "Developer",
@@ -304,9 +305,13 @@ export default function List() {
   const debouncedSearch = useDebounce(state.search, 500);
 
   useEffect(() => {
-    propertyList(state.page);
+    propertyList(1);
     categoryList(1);
   }, []);
+
+  useEffect(() => {
+    propertyList(1);
+  }, [debouncedSearch, state.property_type, state.offer_type, state.status]);
 
   useEffect(() => {
     if (state.viewMode == "table") {
@@ -319,10 +324,6 @@ export default function List() {
       });
     }
   }, [state.viewMode]);
-
-  useEffect(() => {
-    propertyList(state.page);
-  }, [debouncedSearch]);
 
   const propertyList = async (page) => {
     console.log("✌️page --->", page);
@@ -431,10 +432,24 @@ export default function List() {
 
   const bodyData = () => {
     let body: any = {};
-    if (state.search) {
-      body.search = state.search;
-    }
+
     body.is_approved = "No";
+
+    if (state.search) {
+      body.search = debouncedSearch;
+    }
+    if (state.property_type) {
+      body.property_type = state.property_type.value;
+    }
+
+    if (state.offer_type) {
+      body.listing_type = state.offer_type.value;
+    }
+
+    if (state.status) {
+      body.status = state.status.value;
+    }
+
     return body;
   };
 
@@ -527,7 +542,7 @@ export default function List() {
             value={state.property_type}
             onChange={(e) => setState({ property_type: e })}
             options={state?.categoryList}
-            isClearable={false}
+            isClearable={true}
             loadMore={() => catListLoadMore()}
           />
         </div>
@@ -546,16 +561,13 @@ export default function List() {
             placeholder="Select Property Status"
             value={state.status}
             onChange={(e) => setState({ status: e })}
-            options={propertStatus}
+            options={Property_status}
           />
         </div>
 
-        <button type="button" className="btn btn-primary">
-          Apply Filter
-        </button>
-        <button type="button" className="btn btn-primary">
+        {/*<button type="button" className="btn btn-primary">
           Clear Filter
-        </button>
+        </button> */}
       </div>
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">

@@ -237,8 +237,8 @@ export default function list() {
         </div>
       </div>
 
-      <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
-        {/* Search Input */}
+      {/* <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
+       
         <div className="flex-1">
           <input
             type="text"
@@ -249,14 +249,14 @@ export default function list() {
           />
         </div>
 
-        {/* Category Dropdown */}
+       
         <div className="flex-1">
           <CustomSelect
             placeholder="Select Role"
             value={state.role}
             onChange={(e) => setState({ role: e })}
             options={state.roleList}
-            // error={state.errors?.tags}
+            
           />
         </div>
 
@@ -266,19 +266,19 @@ export default function list() {
             value={state.role}
             onChange={(e) => setState({ role: e })}
             options={state.roleList}
-            // error={state.errors?.tags}
+           
           />
         </div>
-        {/* Status Dropdown */}
+        
 
-        {/* Bulk Actions Dropdown */}
+       
 
         <div>
           <button type="button" className="btn btn-primary">
             Clear Filter
           </button>
         </div>
-      </div>
+      </div> */}
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
         {/* <div className="invoice-table"> */}

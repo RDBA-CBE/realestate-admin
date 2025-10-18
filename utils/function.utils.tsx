@@ -475,6 +475,14 @@ export const commonDateFormat = (date) => {
   }
 };
 
+export const backendDateFormat = (date) => {
+  if (date) {
+    return moment(date).format("YYYY-MM-DD");
+  } else {
+    return "";
+  }
+};
+
 export const formatPhoneNumber = (phone) => {
   if (!phone) return "";
 
