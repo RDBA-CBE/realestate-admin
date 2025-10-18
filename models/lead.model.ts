@@ -19,8 +19,9 @@ const lead = {
         url += `&assigned_to=${encodeURIComponent(body.assigned_to)}`;
       }
 
-      
-
+      if (body?.status) {
+        url += `&status=${encodeURIComponent(body.status)}`;
+      }
       
       instance()
         .get(url)
