@@ -538,7 +538,7 @@ export default function List() {
 
         <div className="flex-1">
           <CustomSelect
-            placeholder="Select Property Type"
+            placeholder="Property Type"
             value={state.property_type}
             onChange={(e) => setState({ property_type: e })}
             options={state?.categoryList}
@@ -549,7 +549,7 @@ export default function List() {
 
         <div className="flex-1">
           <CustomSelect
-            placeholder="Select Offer Type"
+            placeholder="Offer Type"
             value={state.offer_type}
             onChange={(e) => setState({ offer_type: e })}
             options={ListType}
@@ -558,7 +558,7 @@ export default function List() {
 
         <div className="flex-1">
           <CustomSelect
-            placeholder="Select Property Status"
+            placeholder="Property Status"
             value={state.status}
             onChange={(e) => setState({ status: e })}
             options={Property_status}

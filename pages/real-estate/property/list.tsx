@@ -715,7 +715,7 @@ export default function List() {
         </div>
       </div>
 
-      <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
+      <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 flex flex-col md:flex-row md:justify-between xl:gap-4 gap-y-4">
         <div className="flex-1">
           <input
             type="text"
@@ -728,7 +728,7 @@ export default function List() {
 
         <div className="flex-1">
           <CustomSelect
-            placeholder="Select Property Type"
+            placeholder="Property Type"
             value={state.property_type}
             onChange={(e) => setState({ property_type: e })}
             options={state?.categoryList}
@@ -739,7 +739,7 @@ export default function List() {
 
         <div className="flex-1">
           <CustomSelect
-            placeholder="Select Offer Type"
+            placeholder="Offer Type"
             value={state.offer_type}
             onChange={(e) => setState({ offer_type: e })}
             options={ListType}
@@ -775,7 +775,7 @@ export default function List() {
 
         <div className="flex-1">
           <CustomSelect
-            placeholder="Select Property Status"
+            placeholder="Property Status"
             value={state.status}
             onChange={(e) => setState({ status: e })}
             options={Property_status}
@@ -783,13 +783,13 @@ export default function List() {
         </div>
 
 
-        <button
+        {/* <button
           type="button"
           className="btn btn-primary"
           onClick={() => clearFilter()}
         >
           Clear Filter
-        </button>
+        </button> */}
       </div>
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">

@@ -583,7 +583,7 @@ const List = () => {
           <CustomSelect
             value={state.lead_source}
             onChange={(e) => setState({ lead_source: e })}
-            placeholder={"Select Lead Source"}
+            placeholder={"Lead Source"}
             options={LEAD_SOURCE_OPTIONS}
             error={state.errors?.lead_source}
             isClearable={true}
@@ -594,7 +594,7 @@ const List = () => {
           <CustomSelect
             value={state.status}
             onChange={(e) => setState({ status: e })}
-            placeholder={"Select Status"}
+            placeholder={"Status"}
             options={STATUS_OPTIONS}
             error={state.errors?.status}
             required
@@ -606,7 +606,7 @@ const List = () => {
           <>
             <div className="flex-1">
               <CustomSelect
-                placeholder="Select Role"
+                placeholder="Role"
                 value={state.role}
                 onChange={(e) => {
                   getuserList(e);
@@ -618,7 +618,7 @@ const List = () => {
 
             <div className="flex-1">
               <CustomSelect
-                placeholder="Select user"
+                placeholder="user"
                 value={state.user}
                 onChange={(e) => setState({ user: e })}
                 options={state.userList}

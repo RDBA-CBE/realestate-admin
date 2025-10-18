@@ -174,7 +174,7 @@ const List = () => {
 
         <div className="flex-1">
           <CustomSelect
-            placeholder="Select Role"
+            placeholder="Role"
             value={state.role}
             onChange={(e) => setState({ role: e })}
             options={roleList}
