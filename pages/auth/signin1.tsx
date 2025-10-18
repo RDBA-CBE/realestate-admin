@@ -93,22 +93,31 @@ const LoginBoxed = () => {
         } else {
           // Fallback to other method names if needed
           const availableMethods = Object.keys(Models.auth);
-          console.error('Singup method not found. Available methods:', availableMethods);
-          const functionMethods = availableMethods.filter(method => typeof Models.auth[method] === 'function');
-          throw new Error(`Signup functionality not available. Found methods: ${functionMethods.join(', ')}`);
+          console.error(
+            'Singup method not found. Available methods:',
+            availableMethods
+          );
+          const functionMethods = availableMethods.filter(
+            (method) => typeof Models.auth[method] === 'function'
+          );
+          throw new Error(
+            `Signup functionality not available. Found methods: ${functionMethods.join(
+              ', '
+            )}`
+          );
         }
 
         console.log('Signup response:', res);
-        Success("Signup Successful");
+        Success('Signup Successful');
 
         // Clear form and switch to login tab
-        setState({ 
+        setState({
           activeTab: 'login',
           email: '',
           password: '',
           firstName: '',
           lastName: '',
-          error: null
+          error: null,
         });
 
         Success('Please login with your new account');
@@ -245,32 +254,37 @@ const LoginBoxed = () => {
                   </div>
                 )}
 
-                <TextInput
-                  name='email'
-                  type='email'
-                  title='Email'
-                  placeholder='Enter Email'
-                  value={state.email}
-                  onChange={(e) => setState({ email: e.target.value })}
-                  error={state.error?.email}
-                  icon={<IconMail fill={true} />}
-                />
+                {/* Email and Password in same line */}
+                <div className='grid grid-cols-2 gap-4'>
+                  <TextInput
+                    name='email'
+                    type='email'
+                    title='Email'
+                    placeholder='Enter Email'
+                    value={state.email}
+                    onChange={(e) => setState({ email: e.target.value })}
+                    error={state.error?.email}
+                    icon={<IconMail fill={true} />}
+                  />
 
-                <TextInput
-                  id='Password'
-                  title='Password'
-                  type={state.showPassword ? 'text' : 'password'}
-                  placeholder='Enter Password'
-                  className='form-input ps-10 placeholder:text-white-dark'
-                  onChange={(e) => setState({ password: e.target.value })}
-                  value={state.password}
-                  error={state.error?.password}
-                  icon={<IconLockDots fill={true} />}
-                  rightIcon={state.showPassword ? <IconEyeOff /> : <IconEye />}
-                  rightIconOnlick={() =>
-                    setState({ showPassword: !state.showPassword })
-                  }
-                />
+                  <TextInput
+                    id='Password'
+                    title='Password'
+                    type={state.showPassword ? 'text' : 'password'}
+                    placeholder='Enter Password'
+                    className='form-input ps-10 placeholder:text-white-dark'
+                    onChange={(e) => setState({ password: e.target.value })}
+                    value={state.password}
+                    error={state.error?.password}
+                    icon={<IconLockDots fill={true} />}
+                    rightIcon={
+                      state.showPassword ? <IconEyeOff /> : <IconEye />
+                    }
+                    rightIconOnlick={() =>
+                      setState({ showPassword: !state.showPassword })
+                    }
+                  />
+                </div>
 
                 {/* Remember me and Forgot password - Only for login */}
                 {state.activeTab === 'login' && (
@@ -296,7 +310,7 @@ const LoginBoxed = () => {
                 <PrimaryButton
                   type='submit'
                   text={state.activeTab === 'login' ? 'SUBMIT' : 'SIGN UP'}
-                  className='btn btn-gradient !mt-2 w-full border-0 py-3 font-semibold uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)] transition-all hover:shadow-lg'
+                  className='btn btn-gradient !mt-6 w-full border-0 py-3 font-semibold uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)] transition-all hover:shadow-lg'
                   loading={state.btnLoading}
                 />
               </form>
