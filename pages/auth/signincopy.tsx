@@ -74,7 +74,7 @@ const LoginCover = () => {
                 className="flex w-full items-center justify-center rounded-[50px] border border-black py-3 text-sm font-medium text-gray-700 transition duration-150 hover:bg-gray-100"
               >
                 {/* FaGoogle is styled red to match the minimal look */}
-                <FaGoogle className="mr-3 h-5 w-5 text-red-500" />
+                {/* <FaGoogle className="mr-3 h-5 w-5 text-red-500" /> */}
                 Continue with Google
               </button>
 

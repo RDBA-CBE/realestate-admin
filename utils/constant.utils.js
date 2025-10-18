@@ -12,7 +12,7 @@ export const menuConfig = {
       type: "link",
       icon: "IconMenuWidgets",
       label: "dashboard",
-      href: "/profile",
+      href: "/",
     },
     {
       type: "section",
@@ -162,7 +162,8 @@ export const menuConfig = {
           type: "link",
           icon: "IconMenuCharts",
           label: "Reports",
-          href: "/real-estate/report",
+          href: "/",
+
         },
       ],
     },

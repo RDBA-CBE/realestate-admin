@@ -389,11 +389,11 @@ export default function list() {
                           {row.title}
                         </Link>
                       </div>
-                      <div>
+                      {/* <div>
                         <Link className="flex gap-1 text-primary" href={"#"}>
                           <FaHome className="text-black" /> View Details
                         </Link>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 ),
