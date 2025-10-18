@@ -782,8 +782,8 @@ export default function List() {
           />
         </div>
 
-
-        {/* <button
+{/* 
+        <button
           type="button"
           className="btn btn-primary"
           onClick={() => clearFilter()}
