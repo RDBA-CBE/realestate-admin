@@ -27,7 +27,7 @@ const lead = {
       }
 
       if (body?.date) {
-        url += `&created_at=${encodeURIComponent(body.date)}`;
+        url += `&created_after=${encodeURIComponent(body.date)}`;
       }
 
       instance()

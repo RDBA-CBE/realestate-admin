@@ -4,6 +4,7 @@ import Tippy from "@tippyjs/react";
 import IconEye from "@/components/Icon/IconEye";
 import IconEdit from "@/components/Icon/IconEdit";
 import {
+  backendDateFormat,
   capitalizeFLetter,
   commonDateFormat,
   Dropdown,
@@ -334,7 +335,7 @@ const List = () => {
     }
 
     if (state.date) {
-      body.date = commonDateFormat(state.date);
+      body.date = backendDateFormat(state.date);
     }
 
     if (state.user) {
