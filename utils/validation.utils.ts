@@ -28,6 +28,51 @@ export const signin = Yup.object().shape({
 export const property_type = Yup.object().shape({
   listing_type: Yup.string().required("Offer Type is required").nullable(),
   property_type: Yup.string().required("Property Type is required").nullable(),
+  title: Yup.string().required("Property Name is required").nullable(),
+  city: Yup.string().required("City is required").nullable(),
+  state: Yup.string().required("State is required").nullable(),
+  country: Yup.string().required("Country is required").nullable(),
+  postal_code: Yup.string().required("Zip Code is required").nullable(),
+  status: Yup.string().required("Status is required").nullable(),
+
+  total_area: Yup.string().required("Total Area is required").nullable(),
+  built_up_area: Yup.string()
+    .nullable()
+    .when("validatePropertyType", {
+      is: (val) => val?.label !== PROPERTY_TYPE.AGRICULTURAL,
+      then: (schema) => schema.required("Built-up Area is required"),
+      otherwise: (schema) => schema.nullable(),
+    }),
+  eveloper: Yup.string().required("Developer is required").nullable(),
+  longitude: Yup.string()
+    .required("Longitude is required")
+    .matches(
+      /^-?\d{1,2}(\.\d+)?$/,
+      "Longitude must have at most 2 digits before the decimal point"
+    )
+    .nullable(),
+
+  latitude: Yup.string()
+    .required("Latitude is required")
+    .matches(
+      /^-?\d{1,2}(\.\d+)?$/,
+      "Latitude must have at most 2 digits before the decimal point"
+    )
+    .nullable(),
+
+  address: Yup.string().required("Address is required").nullable(),
+  images: Yup.array()
+    .required("Property image is required")
+    .min(1, "At least one image is required")
+    .max(7, "Maximum 7 images allowed"),
+
+  amenities: Yup.array()
+    .required("Amenities is required")
+    .min(1, "At least one amenities is required"),
+  description: Yup.string().required("Description is required").nullable(),
+  project: Yup.string().required("Project is required").nullable(),
+  developer: Yup.string().required("Developer is required").nullable(),
+
 });
 
 export const propertySaleCreate = Yup.object().shape({
@@ -66,14 +111,20 @@ export const propertySaleCreate = Yup.object().shape({
 
   developer: Yup.string().required("Developer is required").nullable(),
   longitude: Yup.string()
-  .required("Longitude is required")
-  .matches(/^-?\d{1,2}(\.\d+)?$/, "Longitude must have at most 2 digits before the decimal point")
-  .nullable(),
+    .required("Longitude is required")
+    .matches(
+      /^-?\d{1,2}(\.\d+)?$/,
+      "Longitude must have at most 2 digits before the decimal point"
+    )
+    .nullable(),
 
-latitude: Yup.string()
-  .required("Latitude is required")
-  .matches(/^-?\d{1,2}(\.\d+)?$/, "Latitude must have at most 2 digits before the decimal point")
-  .nullable(),
+  latitude: Yup.string()
+    .required("Latitude is required")
+    .matches(
+      /^-?\d{1,2}(\.\d+)?$/,
+      "Latitude must have at most 2 digits before the decimal point"
+    )
+    .nullable(),
 
   address: Yup.string().required("Address is required").nullable(),
   images: Yup.array()
@@ -127,8 +178,8 @@ export const propertyLeaseCreate = Yup.object().shape({
   amenities: Yup.array()
     .required("Amenities is required")
     .min(1, "At least one amenities is required"),
-    min_price: Yup.string().required("Min Price is required").nullable(),
-    max_price: Yup.string().required("Max Price is required").nullable(),
+  min_price: Yup.string().required("Min Price is required").nullable(),
+  max_price: Yup.string().required("Max Price is required").nullable(),
   lease_duration: Yup.string()
     .required("Lease Duration is required")
     .nullable(),
@@ -172,8 +223,8 @@ export const propertyRentCreate = Yup.object().shape({
   amenities: Yup.array()
     .required("Amenities is required")
     .min(1, "At least one amenities is required"),
-    min_price: Yup.string().required("Min Price is required").nullable(),
-    max_price: Yup.string().required("Max Price is required").nullable(),
+  min_price: Yup.string().required("Min Price is required").nullable(),
+  max_price: Yup.string().required("Max Price is required").nullable(),
   rent_duration: Yup.string().required("Rent duration is required").nullable(),
 });
 
