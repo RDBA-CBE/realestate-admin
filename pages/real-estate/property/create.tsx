@@ -289,6 +289,22 @@ const AddPropertyPage = () => {
       const body = {
         property_type: state.property_type?.value,
         listing_type: state.listing_type?.value,
+        title: state.title,
+        status: state.status?.value,
+        total_area: state.total_area,
+        built_up_area: state.built_up_area,
+        longitude: state.longitude,
+        latitude: state.latitude,
+        address: state.address,
+        city: state.city,
+        state: state.state,
+        country: state.country,
+        postal_code: state.postal_code,
+        images: state.images,
+        amenities: state.amenities,
+        project: state.project?.value,
+        developer: state.developer?.value,
+
       };
 
       if (state.listing_type?.label == LISTING_TYPE.SALE) {
