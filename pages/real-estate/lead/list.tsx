@@ -58,6 +58,7 @@ const List = () => {
     assignmentTitle: "Assigned From",
     userList: [],
     role: null,
+    groupList: [],
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -65,6 +66,7 @@ const List = () => {
   useEffect(() => {
     leadList(1);
     categoryList(1);
+    groupList();
     setState({ visibleColumns: columns });
   }, []);
 
@@ -97,6 +99,22 @@ const List = () => {
         categoryList: droprdown,
         categoryPage: page,
         categoryNext: res.next,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const groupList = async () => {
+    try {
+      const res: any = await Models.user.groups();
+      const droprdown = Dropdown(res?.results, "name");
+      const filter = droprdown?.filter(
+        (item) => item?.label != "Admin" && item?.label != "Buyer"
+      );
+
+      setState({
+        groupList: filter,
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -340,8 +358,7 @@ const List = () => {
 
     if (state.user) {
       body.created_by = state.user?.value;
-    } 
-    else {
+    } else {
       if (state.role) {
         body.group = state.role?.value;
       } else {
@@ -356,7 +373,6 @@ const List = () => {
     console.log("✌️body --->", body);
     return body;
   };
-
 
   // const adminBody = () => {
   //   let body: any = {};
@@ -611,9 +627,9 @@ const List = () => {
                 value={state.role}
                 onChange={(e) => {
                   getuserList(e);
-                  setState({userList:[]})
+                  setState({ userList: [] });
                 }}
-                options={FILTER_ROLES}
+                options={state.groupList}
               />
             </div>
 
