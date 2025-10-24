@@ -217,6 +217,13 @@ const AddPropertyPage = () => {
         });
       }
 
+      if (res?.price_range && res?.price_range?.minimum_price) {
+        setState({
+          min_price: formatNumber(res?.price_range?.minimum_price),
+          max_price: formatNumber(res?.price_range?.maximum_price),
+        });
+      }
+
       if (res?.status) {
         const statusObj = getDropdownObject(res?.status, Property_status);
         setState({
@@ -506,9 +513,9 @@ const AddPropertyPage = () => {
         createRentProperty();
       }
 
-      await Utils.Validation.property_type.validate(body, {
-        abortEarly: false,
-      });
+      // await Utils.Validation.property_type.validate(body, {
+      //   abortEarly: false,
+      // });
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -559,7 +566,7 @@ const AddPropertyPage = () => {
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
-        price: state.max_price,
+        // price: state.max_price,
       };
 
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
@@ -567,6 +574,8 @@ const AddPropertyPage = () => {
       });
       delete saleBody.images;
       delete saleBody.validatePropertyType;
+      saleBody.minimum_price = state.min_price;
+      saleBody.maximum_price = state.max_price;
 
       const formData = buildFormData(saleBody);
 
@@ -663,13 +672,15 @@ const AddPropertyPage = () => {
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
-        price: state.max_price,
+        // price: state.max_price,
       };
       await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
         abortEarly: false,
       });
       delete buyBody.images;
       delete buyBody.validatePropertyType;
+      buyBody.minimum_price = state.min_price;
+      buyBody.maximum_price = state.max_price;
 
       console.log("✌️buyBody --->", buyBody);
 
@@ -760,12 +771,14 @@ const AddPropertyPage = () => {
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
-        price: state.max_price,
+        // price: state.max_price,
       };
       await Utils.Validation.propertyRentCreate.validate(buyBody, {
         abortEarly: false,
       });
       delete buyBody.images;
+      buyBody.minimum_price = state.min_price;
+      buyBody.maximum_price = state.max_price;
       // delete buyBody.validatePropertyType
       console.log("✌️buyBody --->", buyBody);
 

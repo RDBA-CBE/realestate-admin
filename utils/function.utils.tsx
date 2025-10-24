@@ -498,3 +498,50 @@ export const formatPhoneNumber = (phone) => {
 
   return phone;
 };
+
+
+export const formatToINRS = (price: number | string): string => {
+  const numericPrice = typeof price === "string" ? parseFloat(price) : price;
+
+  if (isNaN(numericPrice)) return "Price not available";
+
+  if (numericPrice >= 10000000) {
+    const crValue = numericPrice / 10000000;
+    return `₹${crValue % 1 === 0 ? crValue.toFixed(0) : crValue.toFixed(1)} Cr`;
+  } else if (numericPrice >= 100000) {
+    const lValue = numericPrice / 100000;
+    return `₹${lValue % 1 === 0 ? lValue.toFixed(0) : lValue.toFixed(1)} L`;
+  } else if (numericPrice >= 1000) {
+    const kValue = numericPrice / 1000;
+    return `₹${kValue % 1 === 0 ? kValue.toFixed(0) : kValue.toFixed(1)}K`;
+  } else {
+    return `₹${numericPrice.toLocaleString("en-IN")}`;
+  }
+};
+
+export const formatPriceRange = (
+  minPrice: number | string | null,
+  maxPrice: number | string | null
+): string => {
+  if (minPrice === null && maxPrice === null) {
+    return "Price on request";
+  }
+  
+  if (minPrice === null) {
+    return `Max: ${formatToINRS(maxPrice)}`;
+  }
+  
+  if (maxPrice === null) {
+    return `Min: ${formatToINRS(minPrice)}`;
+  }
+
+  const numericMin = typeof minPrice === "string" ? parseFloat(minPrice) : minPrice;
+  const numericMax = typeof maxPrice === "string" ? parseFloat(maxPrice) : maxPrice;
+
+  if (isNaN(numericMin) || isNaN(numericMax)) return "Contact for price";
+
+  const formattedMin = formatToINRS(numericMin).replace("₹", "");
+  const formattedMax = formatToINRS(numericMax).replace("₹", "");
+
+  return `${formattedMin} - ${formattedMax}`;
+};
