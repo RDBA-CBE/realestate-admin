@@ -217,6 +217,13 @@ const AddPropertyPage = () => {
         });
       }
 
+      if (res?.price_range && res?.price_range?.minimum_price) {
+        setState({
+          min_price: formatNumber(res?.price_range?.minimum_price),
+          max_price: formatNumber(res?.price_range?.maximum_price),
+        });
+      }
+
       if (res?.status) {
         const statusObj = getDropdownObject(res?.status, Property_status);
         setState({
@@ -579,7 +586,7 @@ const AddPropertyPage = () => {
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
-        price: state.max_price,
+        // price: state.max_price,
       };
 
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
@@ -687,7 +694,7 @@ const AddPropertyPage = () => {
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
-        price: state.max_price,
+        // price: state.max_price,
       };
       await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
         abortEarly: false,
@@ -788,7 +795,7 @@ const AddPropertyPage = () => {
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
-        price: state.max_price,
+        // price: state.max_price,
       };
       await Utils.Validation.propertyRentCreate.validate(buyBody, {
         abortEarly: false,

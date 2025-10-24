@@ -8,6 +8,7 @@ import {
   commonDateFormat,
   Dropdown,
   Failure,
+  formatPriceRange,
   formatToINR,
   showDeleteAlert,
   Success,
@@ -386,7 +387,12 @@ export default function list() {
         )} ${capitalizeFLetter(item?.agent?.last_name)}`,
         project: capitalizeFLetter(item?.project?.name),
 
-        price: formatToINR(item?.price),
+        // price: formatToINR(item?.price),
+        price: formatPriceRange(
+          item?.price_range?.minimum_price,
+          item?.price_range?.maximum_price
+        ),
+
         is_approved: item?.is_approved,
         image:
           item?.primary_image ??

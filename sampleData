@@ -598,3 +598,35 @@ LEAD---------------------------------
   "assigned_to": 105,
   "next_follow_up": "2024-01-25T16:00:00Z"
 }
+
+
+LAt_LONG
+
+[
+  { "name": "Chennai Central Railway Station", "latitude": 13.0827, "longitude": 80.2707 },
+  { "name": "Marina Beach", "latitude": 13.0500, "longitude": 80.2824 },
+  { "name": "T Nagar", "latitude": 13.0418, "longitude": 80.2337 },
+  { "name": "Velachery", "latitude": 12.9800, "longitude": 80.2200 },
+  { "name": "Guindy", "latitude": 13.0108, "longitude": 80.2209 },
+  { "name": "Adyar", "latitude": 13.0067, "longitude": 80.2570 },
+  { "name": "Tambaram", "latitude": 12.9229, "longitude": 80.1273 },
+  { "name": "Anna Nagar", "latitude": 13.0878, "longitude": 80.2103 },
+  { "name": "Nungambakkam", "latitude": 13.0604, "longitude": 80.2406 },
+  { "name": "Chromepet", "latitude": 12.9513, "longitude": 80.1404 },
+  { "name": "Saidapet", "latitude": 13.0211, "longitude": 80.2234 },
+  { "name": "Perambur", "latitude": 13.1200, "longitude": 80.2300 },
+  { "name": "Egmore", "latitude": 13.0747, "longitude": 80.2607 },
+  { "name": "Mylapore", "latitude": 13.0313, "longitude": 80.2693 },
+  { "name": "Pallavaram", "latitude": 12.9676, "longitude": 80.1534 },
+  { "name": "Porur", "latitude": 13.0400, "longitude": 80.1600 },
+  { "name": "Ambattur", "latitude": 13.1143, "longitude": 80.1548 },
+  { "name": "OMR (Old Mahabalipuram Road)", "latitude": 12.8698, "longitude": 80.2270 },
+  { "name": "Sholinganallur", "latitude": 12.8728, "longitude": 80.2245 },
+  { "name": "Thiruvanmiyur", "latitude": 13.0007, "longitude": 80.2596 },
+  { "name": "Medavakkam", "latitude": 12.9183, "longitude": 80.1840 },
+  { "name": "Avadi", "latitude": 13.1151, "longitude": 80.1013 },
+  { "name": "Red Hills", "latitude": 13.1881, "longitude": 80.1841 },
+  { "name": "Poonamallee", "latitude": 13.0463, "longitude": 80.0971 },
+  { "name": "Kelambakkam", "latitude": 12.7850, "longitude": 80.2270 },
+  { "name": "ECR (Injambakkam)", "latitude": 12.9220, "longitude": 80.2485 }
+]

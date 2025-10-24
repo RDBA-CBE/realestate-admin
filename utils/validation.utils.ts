@@ -61,10 +61,10 @@ export const property_type = Yup.object().shape({
     .nullable(),
 
   address: Yup.string().required("Address is required").nullable(),
-  images: Yup.array()
-    .required("Property image is required")
-    .min(1, "At least one image is required")
-    .max(7, "Maximum 7 images allowed"),
+  // images: Yup.array()
+  //   .required("Property image is required")
+  //   .min(1, "At least one image is required")
+  //   .max(7, "Maximum 7 images allowed"),
 
   amenities: Yup.array()
     .required("Amenities is required")

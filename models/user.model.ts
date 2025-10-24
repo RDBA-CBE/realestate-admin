@@ -112,6 +112,25 @@ const user = {
     return promise;
   },
 
+  groups: () => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `groups/`;
+      instance()
+        .get(url)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.data.message);
+          } else {
+            reject(error);
+          }
+        });
+    });
+    return promise;
+  },
+
   uploadFile: (file: any) => {
     let promise = new Promise((resolve, reject) => {
       const formData = new FormData();
