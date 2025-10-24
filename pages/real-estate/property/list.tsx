@@ -55,6 +55,16 @@ import moment from "moment";
 export default function List() {
   const router = useRouter();
 
+  // const [group, setGroup] = useState(null);
+
+  // console.log("group", group);
+  
+
+  // useEffect(() => {
+  //   const usergroup = localStorage.getItem("group") || "";
+  //   setGroup(usergroup);
+  // }, []);
+
   const tableColumns = [
     {
       accessor: "name",
@@ -191,7 +201,7 @@ export default function List() {
                   {row.title}
                 </Link>
               </div>
-              {group !== "Admin" && (
+              {group == "Seller" && (
                 <span
                   className={`badge  ${
                     row?.is_approved
@@ -267,34 +277,35 @@ export default function List() {
       toggleable: true,
     },
 
-    {
-      accessor: "action",
-      title: "Actions",
-      visible: true,
-      toggleable: false, // Actions column cannot be hidden
-      sortable: false,
-      textAlignment: "center",
-      render: (row: any) => (
-        <div className="mx-auto flex w-max items-center gap-4">
-          <button
-            className="flex hover:text-info"
-            onClick={(e) => {
-              handleEdit(row);
-            }}
-          >
-            <IconEdit className="h-4.5 w-4.5" />
-          </button>
-          <button
-            type="button"
-            className="flex hover:text-danger"
-            onClick={(e) => handleDelete(row)}
-          >
-            <IconTrashLines />
-          </button>
-        </div>
-      ),
-    },
-  ];
+    // ...(group == "Admin" || group == "Seller"
+    //   ? [
+          {
+            accessor: "action",
+            title: "Actions",
+            visible: true,
+            toggleable: false,
+            sortable: false,
+            textAlignment: "center",
+            render: (row) => (
+              <div className="mx-auto flex w-max items-center gap-4">
+                <button
+                  className="flex hover:text-info"
+                  onClick={() => handleEdit(row)}
+                >
+                  <IconEdit className="h-4.5 w-4.5" />
+                </button>
+                <button
+                  className="flex hover:text-danger"
+                  onClick={() => handleDelete(row)}
+                >
+                  <IconTrashLines />
+                </button>
+              </div>
+            ),
+          },
+  //       ]
+  //     : []),
+   ];
 
   const [state, setState] = useSetState({
     isOpen: false,
@@ -559,6 +570,7 @@ export default function List() {
     let body: any = {};
 
     // Common
+
     if (state.search) {
       body.search = debouncedSearch;
     }
@@ -588,6 +600,7 @@ export default function List() {
 
   const adminBody = () => {
     let body: any = {};
+
     if (state.user) {
       if (state.role?.value == "developer") {
         body.assigned_to_developer = state.user?.value;
@@ -607,12 +620,14 @@ export default function List() {
   const developerBody = () => {
     const userId = localStorage.getItem("userId");
     const body: any = {};
+    body.is_approved = "Yes";
     body.developer = userId;
     return body;
   };
   const agentBody = () => {
     const userId = localStorage.getItem("userId");
     const body: any = {};
+    body.is_approved = "Yes";
     body.agent = userId;
     return body;
   };
@@ -715,7 +730,7 @@ export default function List() {
         </div>
       </div>
 
-      <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 flex flex-col md:flex-row md:justify-between xl:gap-4 gap-y-4">
+      <div className="panel mb-5 mt-5 flex flex-col gap-2 gap-y-4 px-2 md:mt-0 md:flex-row md:justify-between xl:gap-4">
         <div className="flex-1">
           <input
             type="text"
@@ -768,8 +783,6 @@ export default function List() {
                 options={state.userList}
               />
             </div>
-
-            
           </>
         )}
 
@@ -782,7 +795,7 @@ export default function List() {
           />
         </div>
 
-{/* 
+        {/* 
         <button
           type="button"
           className="btn btn-primary"

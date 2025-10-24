@@ -10,6 +10,10 @@ const properties = {
         url += `&is_approved=${encodeURIComponent(false)}`;
       }
 
+      if (body?.is_approved == "Yes") {
+        url += `&is_approved=${encodeURIComponent(true)}`;
+      }
+
       if (body?.group){
         url += `&group=${body?.group}`;
       }

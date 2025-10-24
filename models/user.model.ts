@@ -137,6 +137,27 @@ const user = {
     });
     return promise;
   },
+
+  group: (page) => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `groups/?page=${page}`;
+     
+      instance()
+        .get(url)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.message);
+          } else {
+            reject(error);
+          }
+        });
+    });
+    return promise;
+  },
+
 };
 
 export default user;

@@ -1,3 +1,57 @@
+USER NAMES
+
+
+Alex Jordan
+
+Priya Kumar
+
+Naveen Rao
+
+Mia Thomas
+
+Samuel Rodriguez
+
+Anya Patel
+
+Julia Smith
+
+Vijay Krishnan
+
+Kavitha Nair
+
+Arjun Mehta
+
+Rahul Sharma
+
+Sneha Iyer
+
+David Wilson
+
+Aisha Khan
+
+Rohit Bansal
+
+Emma Parker
+
+Kiran Reddy
+
+Olivia Brown
+
+Sandeep Menon
+
+Sophia Clark
+
+Anil Verma
+
+Grace Lee
+
+Harish Kumar
+
+Laura Green
+
+Neha Desai
+
+
 PROJECT NAMES :
 
 🏢  Luxury & Premium Names
@@ -330,59 +384,6 @@ Ivy Court Apartments
 
 
 
-USER NAMES
-
-
-Alex Jordan
-
-Priya Kumar
-
-Naveen Rao
-
-Mia Thomas
-
-Samuel Rodriguez
-
-Anya Patel
-
-Julia Smith
-
-Vijay Krishnan
-
-Kavitha Nair
-
-Arjun Mehta
-
-Rahul Sharma
-
-Sneha Iyer
-
-David Wilson
-
-Aisha Khan
-
-Rohit Bansal
-
-Emma Parker
-
-Kiran Reddy
-
-Olivia Brown
-
-Sandeep Menon
-
-Sophia Clark
-
-Anil Verma
-
-Grace Lee
-
-Harish Kumar
-
-Laura Green
-
-Neha Desai
-
 Title: Furnished Office Space in Downtown Trichy
 Transaction Type: Rent
 Area: 2,000 sq ft
@@ -398,6 +399,64 @@ Parking: 4 Cars
 Ownership: Freehold
 Nearby Landmarks: Cauvery Bridge, Trichy Bus Stand
 Description: Premium office suite in the heart of Trichy business zone. Plug-and-play facility with modern amenities.
+
+
+{
+  "title": "Eco Harmony",
+  "description": "A premium 3 BHK apartment located in the heart of the city with excellent connectivity, modern amenities, and vibrant surroundings.",
+  "property_type": "APARTMENT",
+  "offer_type": "SALE",
+  "price": 12500000,
+
+
+  "details": {
+    "bedrooms": 3,
+    "bathrooms": 3,
+    "balconies": 2,
+    "total_area_sqft": 2200,
+    "builtup_area_sqft": 1800,
+    "carpet_area_sqft": 1500,
+    "price": 12500000,
+    "min_price": 12000000,
+    "max_price": 13500000,
+    "price_per_sqft": 6500,
+    
+    "furnishing": "SEMI_FURNISHED",
+    "floor": 8,
+    "total_floors": 20,
+    "parking": "COVERED",
+    "age_of_property_years": 2
+  },
+
+
+
+  "floor_plans": [
+    {
+      "category": "3 BHK",
+      "square_feet": 1800,
+      "price": 12500000,
+      "rera_id": "RERA-1234",
+      "image": "https://example.com/floorplans/3bhk-plan.png"
+    }
+  ], 
+
+
+
+  "location": {
+    "address": "123 MG Road",
+    "landmark": "Near City Mall",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "country": "India",
+    "pincode": "560001",
+    "latitude": 12.9716,
+    "longitude": 77.5946
+  },
+}
+
+
+
+LEAD---------------------------------
 
 
 {

@@ -18,6 +18,7 @@ import {
   formatDate,
   showDeleteAlert,
   Success,
+  Dropdown,
 } from "@/utils/function.utils";
 import moment from "moment";
 import Swal from "sweetalert2";
@@ -61,12 +62,37 @@ const List = () => {
   console.log("✌️state.search --->", state.search);
 
   useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    setState(() => {
+      userId;
+    });
+  }, []);
+
+  useEffect(() => {
     usersList(1);
+    groupsList(1);
   }, []);
 
   useEffect(() => {
     usersList(1);
   }, [debouncedSearch, state.role]);
+
+  const groupsList = async (page: any) => {
+    try {
+      const res: any = await Models.user.group(page);
+      console.log("res", res);
+      const dropdown = Dropdown(res?.results, "name");
+      setState({
+        groupList: dropdown.filter((item) => item.label !== "Admin"),
+        groupPage: page,
+        groupNext: res.next,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  console.log("groupList", state.groupList);
 
   const usersList = async (page: any) => {
     try {
@@ -120,9 +146,11 @@ const List = () => {
         email: state?.email,
         password: state?.password,
         phone: state?.phone,
-
-        groups: state?.role?.map((item) => item?.value),
+        groups: [state?.role?.value],
+        // groups: state?.role?.map((item) => item?.value),
         address: state?.address,
+        account_status: "approved",
+        approved_by: state.userId,
       };
 
       console.log("create body", body);
@@ -224,12 +252,16 @@ const List = () => {
   };
 
   const handleEdit = (row) => {
+    console.log("row", row);
+
     setState({
       first_name: row?.first_name,
       last_name: row?.last_name,
       email: row?.email,
       phone: row?.phone,
-      role: row?.role?.role,
+      role: state?.groupList?.find(
+        (item) => item.label.toLowerCase() === row?.user_type?.toLowerCase()
+      ),
       address: row?.address,
       editId: row?.id,
       isOpen: true,
@@ -316,7 +348,6 @@ const List = () => {
           />
         </div>
 
-     
         {/* <button
           type="button"
           className="btn btn-primary"
@@ -331,7 +362,6 @@ const List = () => {
         >
           Clear Filter
         </button> */}
-      
       </div>
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
@@ -511,8 +541,7 @@ const List = () => {
                   placeholder="Select Role"
                   value={state.role}
                   onChange={(e) => setState({ role: e })}
-                  options={roleList}
-                  isMulti={true}
+                  options={state.groupList}
                 />
 
                 <TextArea

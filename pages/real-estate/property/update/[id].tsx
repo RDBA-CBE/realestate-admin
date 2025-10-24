@@ -496,7 +496,28 @@ const AddPropertyPage = () => {
       const body = {
         property_type: state.property_type?.value,
         listing_type: state.listing_type?.value,
+        title: state.title,
+        description: state.description,
+        status: state.status?.value,
+        total_area: state.total_area,
+        built_up_area: state.built_up_area,
+        longitude: state.longitude,
+        latitude: state.latitude,
+        address: state.address,
+        city: state.city,
+        state: state.state,
+        country: state.country,
+        postal_code: state.postal_code,
+        images: state.imageList,
+        amenities: state.amenities,
+        project: state.project?.value,
+        developer: state.developer?.value,
+
       };
+
+      await Utils.Validation.property_type.validate(body, {
+        abortEarly: false,
+      });
 
       if (state.listing_type?.label == LISTING_TYPE.SALE) {
         createSaleProperty();
@@ -506,9 +527,7 @@ const AddPropertyPage = () => {
         createRentProperty();
       }
 
-      await Utils.Validation.property_type.validate(body, {
-        abortEarly: false,
-      });
+      
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -534,6 +553,7 @@ const AddPropertyPage = () => {
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
         developer: state.developer?.value,
+        assignAgent: state.assignAgent,
         agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
@@ -567,6 +587,9 @@ const AddPropertyPage = () => {
       });
       delete saleBody.images;
       delete saleBody.validatePropertyType;
+      delete saleBody.assignAgent;
+      saleBody.minimum_price = state.min_price;
+      saleBody.maximum_price = state.max_price;
 
       const formData = buildFormData(saleBody);
 
@@ -638,6 +661,7 @@ const AddPropertyPage = () => {
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
         developer: state.developer?.value,
+        assignAgent: state.assignAgent,
         agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
@@ -670,6 +694,9 @@ const AddPropertyPage = () => {
       });
       delete buyBody.images;
       delete buyBody.validatePropertyType;
+      delete buyBody.assignAgent;
+      buyBody.minimum_price = state.min_price;
+      buyBody.maximum_price = state.max_price;
 
       console.log("✌️buyBody --->", buyBody);
 
@@ -733,6 +760,7 @@ const AddPropertyPage = () => {
         listing_type: "rent",
         project: state.project?.value,
         developer: state.developer?.value,
+        assignAgent: state.assignAgent,
         agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
@@ -766,7 +794,10 @@ const AddPropertyPage = () => {
         abortEarly: false,
       });
       delete buyBody.images;
-      // delete buyBody.validatePropertyType
+      delete buyBody.assignAgent;
+      delete buyBody.validatePropertyType
+      buyBody.minimum_price = state.min_price;
+      buyBody.maximum_price = state.max_price;
       console.log("✌️buyBody --->", buyBody);
 
       const formData = buildFormData(buyBody);
@@ -817,6 +848,9 @@ const AddPropertyPage = () => {
       }
     }
   };
+
+  console.log("errors", state.error);
+  
 
   const createImage = async (
     propertyId: number,

@@ -289,6 +289,7 @@ const AddPropertyPage = () => {
       const body = {
         property_type: state.property_type?.value,
         listing_type: state.listing_type?.value,
+        description: state?.description,
         title: state.title,
         status: state.status?.value,
         total_area: state.total_area,
@@ -304,8 +305,11 @@ const AddPropertyPage = () => {
         amenities: state.amenities,
         project: state.project?.value,
         developer: state.developer?.value,
-
       };
+
+      await Utils.Validation.property_type.validate(body, {
+        abortEarly: false,
+      });
 
       if (state.listing_type?.label == LISTING_TYPE.SALE) {
         createSaleProperty();
@@ -314,10 +318,6 @@ const AddPropertyPage = () => {
       } else if (state.listing_type?.label == LISTING_TYPE.RENT) {
         createRentProperty();
       }
-
-      await Utils.Validation.property_type.validate(body, {
-        abortEarly: false,
-      });
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -346,6 +346,7 @@ const AddPropertyPage = () => {
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
         developer: state.developer?.value,
+        assignAgent: state.assignAgent,
         agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
@@ -380,6 +381,10 @@ const AddPropertyPage = () => {
 
       delete saleBody.images;
       delete saleBody.validatePropertyType;
+      delete saleBody.assignAgent;
+      saleBody.minimum_price = state.min_price;
+      saleBody.maximum_price = state.max_price;
+
       console.log("✌️buyBody --->", saleBody);
 
       const formData = buildFormData(saleBody);
@@ -409,7 +414,7 @@ const AddPropertyPage = () => {
       } else {
         Success("Your property is created and waiting for approval from admin");
       }
-      router.push("/real-estate/property/list/");
+      // router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -453,6 +458,7 @@ const AddPropertyPage = () => {
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
         developer: state.developer?.value,
+        assignAgent: state.assignAgent,
         agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
@@ -485,6 +491,9 @@ const AddPropertyPage = () => {
       });
       delete buyBody.images;
       delete buyBody.validatePropertyType;
+      delete buyBody.assignAgent;
+      buyBody.minimum_price = state.min_price;
+      buyBody.maximum_price = state.max_price;
 
       console.log("✌️buyBody --->", buyBody);
 
@@ -553,6 +562,7 @@ const AddPropertyPage = () => {
         listing_type: "rent",
         project: state.project?.value,
         developer: state.developer?.value,
+        assignAgent: state.assignAgent,
         agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
@@ -581,12 +591,16 @@ const AddPropertyPage = () => {
         min_price: state.min_price,
         max_price: state.max_price,
         price: state.max_price,
+        
       };
       await Utils.Validation.propertyRentCreate.validate(buyBody, {
         abortEarly: false,
       });
       delete buyBody.images;
       delete buyBody.validatePropertyType;
+      delete buyBody.assignAgent;
+      buyBody.minimum_price = state.min_price;
+      buyBody.maximum_price = state.max_price;
 
       console.log("✌️buyBody --->", buyBody);
 
