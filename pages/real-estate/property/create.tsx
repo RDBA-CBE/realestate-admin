@@ -304,7 +304,6 @@ const AddPropertyPage = () => {
         images: state.images,
         amenities: state.amenities,
         project: state.project?.value,
-        developer: state.developer?.value,
       };
 
       await Utils.Validation.property_type.validate(body, {
@@ -339,15 +338,13 @@ const AddPropertyPage = () => {
       setState({ btnLoading: true });
 
       const saleBody: any = {
+        group: state.group,
         title: state.title,
         description: state.description,
         property_type: state.property_type?.value,
         listing_type: "sale",
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
-        developer: state.developer?.value,
-        assignAgent: state.assignAgent,
-        agent: state.agent?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -375,6 +372,17 @@ const AddPropertyPage = () => {
         price: state.max_price,
       };
 
+      if (state.group !== "Developer") {
+        saleBody.developer = state.developer?.value;
+      }
+
+      if (state.group !== "Agent") {
+        saleBody.assignAgent = state.assignAgent;
+        saleBody.agent = state.agent?.value;
+      }
+
+      console.log("saleBody", saleBody);
+
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
         abortEarly: false,
       });
@@ -382,6 +390,7 @@ const AddPropertyPage = () => {
       delete saleBody.images;
       delete saleBody.validatePropertyType;
       delete saleBody.assignAgent;
+      delete saleBody.group;
       saleBody.minimum_price = state.min_price;
       saleBody.maximum_price = state.max_price;
 
@@ -448,6 +457,7 @@ const AddPropertyPage = () => {
       setState({ btnLoading: true });
 
       const buyBody: any = {
+        group: state.group,
         title: state.title,
         description: state.description,
         property_type: state.property_type?.value,
@@ -457,9 +467,7 @@ const AddPropertyPage = () => {
         lease_duration: state.lease_duration,
         price_per_sqft: state.price_per_sqft,
         project: state.project?.value,
-        developer: state.developer?.value,
-        assignAgent: state.assignAgent,
-        agent: state.agent?.value,
+
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -486,12 +494,23 @@ const AddPropertyPage = () => {
         max_price: state.max_price,
         price: state.max_price,
       };
+
+      if (state.group !== "Developer") {
+        buyBody.developer = state.developer?.value;
+      }
+
+      if (state.group !== "Agent") {
+        buyBody.assignAgent = state.assignAgent;
+        buyBody.agent = state.agent?.value;
+      }
+
       await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
         abortEarly: false,
       });
       delete buyBody.images;
       delete buyBody.validatePropertyType;
       delete buyBody.assignAgent;
+      delete buyBody.group;
       buyBody.minimum_price = state.min_price;
       buyBody.maximum_price = state.max_price;
 
@@ -556,14 +575,13 @@ const AddPropertyPage = () => {
       setState({ btnLoading: true });
 
       const buyBody: any = {
+        group: state.group,
         title: state.title,
         description: state.description,
         property_type: state.property_type?.value,
         listing_type: "rent",
         project: state.project?.value,
-        developer: state.developer?.value,
-        assignAgent: state.assignAgent,
-        agent: state.agent?.value,
+
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
@@ -591,14 +609,24 @@ const AddPropertyPage = () => {
         min_price: state.min_price,
         max_price: state.max_price,
         price: state.max_price,
-        
       };
+
+      if (state.group !== "Developer") {
+        buyBody.developer = state.developer?.value;
+      }
+
+      if (state.group !== "Agent") {
+        buyBody.assignAgent = state.assignAgent;
+        buyBody.agent = state.agent?.value;
+      }
+
       await Utils.Validation.propertyRentCreate.validate(buyBody, {
         abortEarly: false,
       });
       delete buyBody.images;
       delete buyBody.validatePropertyType;
       delete buyBody.assignAgent;
+      delete buyBody.group;
       buyBody.minimum_price = state.min_price;
       buyBody.maximum_price = state.max_price;
 
@@ -1761,28 +1789,31 @@ const AddPropertyPage = () => {
                       loadMore={() => projectLoadMore()}
                     />
 
-                    <CustomSelect
-                      title="Assign Developer"
-                      placeholder="Select Developer"
-                      options={state.developerList}
-                      value={state.developer}
-                      onChange={(selectedOption) =>
-                        setState({
-                          developer: selectedOption,
-                          error: {
-                            ...state.error,
-                            developer: null,
-                          },
-                        })
-                      }
-                      isClearable
-                      required
-                      error={state.error?.developer}
-                    />
+                    {state.group !== "Developer" && (
+                      <CustomSelect
+                        title="Assign Developer"
+                        placeholder="Select Developer"
+                        options={state.developerList}
+                        value={state.developer}
+                        onChange={(selectedOption) =>
+                          setState({
+                            developer: selectedOption,
+                            error: {
+                              ...state.error,
+                              developer: null,
+                            },
+                          })
+                        }
+                        isClearable
+                        required
+                        error={state.error?.developer}
+                      />
+                    )}
 
-                    {state.group == "Admin" && (
-                      <div>
+                    {state.group !== "Agent" && (
+                      <>
                         <CheckboxInput
+                          className="mt-8"
                           key={"assign"}
                           type="checkbox"
                           name="amenities"
@@ -1812,9 +1843,10 @@ const AddPropertyPage = () => {
                             error={state.error?.agent}
                           />
                         )}
-                      </div>
+                      </>
                     )}
                   </div>
+
                   <div className="mt-6 flex justify-end">
                     <PrimaryButton
                       type="submit"
