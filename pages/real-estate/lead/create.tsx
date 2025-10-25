@@ -41,6 +41,7 @@ import CustomeDatePicker from "@/components/datePicker";
 import CustomPhoneInput from "@/components/phoneInput";
 import Link from "next/link";
 import IconMapPin from "@/components/Icon/IconMapPin";
+import Utils from "@/imports/utils.import";
 
 const CreateOpportunities = () => {
   const dispatch = useDispatch();
@@ -52,12 +53,31 @@ const CreateOpportunities = () => {
   const id = router.query.leadid;
 
   const [state, setState] = useSetState({
+     userId: null,
     loading: false,
+    assigned_to:null,
+    company_name: "",
     first_name: "",
+    last_name: "",
+    phone: "",
+    email: "",
+    interested_property: null,
+    lead_source: null,
+    next_follow_up: null,
+    status: "",
+    requirements: "",
+    property_name:null,
     propertyPage: 1,
     propertyList: [],
     hasMoreProperty: false,
+    error: {},
+   
   });
+
+  useEffect(()=>{
+    const userId = localStorage.getItem("userId")
+    setState({userId})
+  },[])
 
   useEffect(() => {
     propertyList(1);
@@ -103,7 +123,7 @@ const CreateOpportunities = () => {
 
   const handleGetProperty = async (e) => {
     try {
-      setState({ property_name: e });
+      setState({ property_name: e , error: { ...state.error, interested_property: null }});
       if (e) {
         const res: any = await Models.property.details(e?.value);
         const data = [
@@ -149,27 +169,47 @@ const CreateOpportunities = () => {
 
   const handleSubmit = async () => {
     try {
+      setState({ btnLoading: true });
       const body = {
+        company_name: state.company_name,
         first_name: state.first_name,
         last_name: state.last_name,
         phone: state.phone,
         email: state.email,
         interested_property: state.property_name?.value,
         lead_source: state.lead_source?.value,
-        assigned_to: state.assigned_to?.value,
+        assigned_to: state.assigned_to ?  state.assigned_to?.value : state.userId,
         // lead_source_details: state.lead_source_details,
-        next_follow_up: moment(state.next_follow_up).format("YYYY-MM-DD"),
+        next_follow_up: state.next_follow_up
+          ? moment(state.next_follow_up).format("YYYY-MM-DD")
+          : null,
         status: state.status?.value,
         requirements: state.requirements,
       };
       console.log("✌️body --->", body);
 
+      await Utils.Validation.lead.validate(body, { abortEarly: false });
+
       const res = await Models.lead.create(body);
+      setState({ btnLoading: false });
       Success("Lead Created Successfully");
       router.push("/real-estate/lead/list");
       console.log("✌️res --->", res);
-    } catch (error) {
-      console.log("✌️error --->", error);
+    } catch (error: any) {
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err?.message;
+        });
+        console.log("✌️validationErrors --->", validationErrors);
+
+        setState({ error: validationErrors, btnLoading: false });
+        Failure("Please fill all the required fields");
+      } else {
+        console.log("error", error);
+        Failure(error);
+        setState({ btnLoading: false });
+      }
     }
   };
 
@@ -331,10 +371,12 @@ const CreateOpportunities = () => {
           />
           <CustomSelect
             value={state.assigned_to}
-            onChange={(e) => setState({ assigned_to: e })}
+            onChange={(e) => setState({ assigned_to: e , 
+              // error: { ...state.error, assigned_to: null },
+            })}
             placeholder={"Assign To"}
             options={state.assignList}
-            error={state.errors?.assigned_to}
+            // error={state.error?.assigned_to}
             // required
             className="lg:w-[200px]"
           />
@@ -399,17 +441,22 @@ const CreateOpportunities = () => {
               value={state.company_name}
               onChange={(e) => setState({ company_name: e.target.value })}
               placeholder="Company Name"
-              error={state.errors?.company_name}
+             
               icon={<Computer height={15} width={15} />}
             />
 
             <CustomSelect
               title="Lead Source"
               value={state.lead_source}
-              onChange={(e) => setState({ lead_source: e })}
+              onChange={(e) => {
+                setState({
+                  lead_source: e,
+                  error: { ...state.error, lead_source: null },
+                });
+              }}
               placeholder={"Lead Source"}
               options={LEAD_SOURCE_OPTIONS}
-              error={state.errors?.lead_source}
+              error={state.error?.lead_source}
               required
               className="w-full"
               leftIcon={<Building className="h-4 w-4 text-gray-400" />}
@@ -426,11 +473,13 @@ const CreateOpportunities = () => {
 
             <CustomSelect
               value={state.status}
-              onChange={(e) => setState({ status: e })}
+              onChange={(e) =>
+                setState({ status: e, error: { ...state.error, status: null } })
+              }
               placeholder={"Status"}
               title={"Status"}
               options={STATUS_OPTIONS}
-              error={state.errors?.status}
+              error={state.error?.status}
               required
               className="w-full"
               leftIcon={<User2Icon className="h-4 w-4 text-gray-400" />}
@@ -440,16 +489,28 @@ const CreateOpportunities = () => {
               value={state.next_follow_up}
               placeholder="Next Follow Up Date"
               title="Next Follow Up Date"
-              onChange={(e) => setState({ next_follow_up: e })}
+              onChange={(e) =>
+                setState({
+                  next_follow_up: e,
+                  error: { ...state.error, next_follow_up: null },
+                })
+              }
               showTimeSelect={true}
               required
+              error={state.error?.next_follow_up}
             />
             <TextArea
-              title="Requirements"
-              placeholder="Requirements"
+              title="Inquiry Details"
+              placeholder="Inquiry Details"
               value={state.requirements}
-              onChange={(e) => setState({ requirements: e.target.value })}
+              onChange={(e) => {
+                setState({
+                  requirements: e.target.value,
+                  error: { ...state.error, requirements: "" },
+                });
+              }}
               required
+              error={state.error?.requirements}
             />
           </div>
         </div>
@@ -469,9 +530,9 @@ const CreateOpportunities = () => {
               <TextInput
                 title="First Name"
                 value={state.first_name}
-                onChange={(e) => setState({ first_name: e.target.value })}
+                onChange={(e) => setState({ first_name: e.target.value , error: { ...state.error, first_name: "" }})}
                 placeholder={"First Name"}
-                error={state.errors?.first_name}
+                error={state.error?.first_name}
                 icon={<User2 height={15} width={15} />}
                 required
               />
@@ -479,29 +540,29 @@ const CreateOpportunities = () => {
               <TextInput
                 title="Last Name"
                 value={state.last_name}
-                onChange={(e) => setState({ last_name: e.target.value })}
+                onChange={(e) => setState({ last_name: e.target.value, error: { ...state.error, last_name: "" } })}
                 placeholder={"Last Name"}
-                error={state.errors?.last_name}
+                error={state.error?.last_name}
                 icon={<User2 height={15} width={15} />}
                 required
               />
               <TextInput
                 title="Email"
                 value={state.email}
-                onChange={(e) => setState({ email: e.target.value })}
+                onChange={(e) => setState({ email: e.target.value, error: { ...state.error, email: "" } })}
                 placeholder={"Email"}
-                error={state.errors?.email}
+                error={state.error?.email}
                 icon={<IconMail fill={false} />}
                 required
               />
 
               <CustomPhoneInput
                 value={state.phone}
-                onChange={(value) => setState({ phone: value })}
+                onChange={(value) => setState({ phone: value , error: { ...state.error, phone: "" }})}
                 title="Phone Number"
                 name="phone"
                 required
-                error={state.errors?.phone}
+                error={state.error?.phone}
               />
             </div>
             <div className=" panel mt-4  flex flex-col gap-5 rounded-2xl p-3">
@@ -520,7 +581,7 @@ const CreateOpportunities = () => {
                 onChange={(e) => handleGetProperty(e)}
                 placeholder={"Select Property"}
                 options={state.propertyList}
-                error={state.errors?.lead_source}
+                error={state.error?.interested_property}
                 required
                 className="w-full"
                 loadMore={() => propertyLoadMore()}

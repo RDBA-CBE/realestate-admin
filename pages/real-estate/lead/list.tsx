@@ -39,6 +39,7 @@ import {
   STATUS_OPTIONS,
 } from "@/utils/constant.utils";
 import CustomeDatePicker from "@/components/datePicker";
+import { group } from "console";
 
 const List = () => {
   const router = useRouter();
@@ -55,10 +56,10 @@ const List = () => {
     search: "",
     error: {},
     visibleColumns: [],
-    assignmentTitle: "Assigned From",
     userList: [],
     role: null,
     groupList: [],
+    group: null,
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -82,14 +83,6 @@ const List = () => {
     state.status,
     state.date,
   ]);
-
-  useEffect(() => {
-    const group = localStorage.getItem("group");
-    console.log("✌️group --->", group);
-    setState({
-      assignmentTitle: group == "Admin" ? "Assigned To" : "Assigned From",
-    });
-  }, []);
 
   const categoryList = async (page) => {
     try {
@@ -157,6 +150,9 @@ const List = () => {
         requirements: item?.requirements,
         assigned_to: item?.assigned_to_details
           ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
+          : "",
+        assigned_by: item?.assigned_by_details
+          ? `${item?.assigned_by_details?.first_name} ${item?.assigned_by_details?.last_name}`
           : "",
       }));
       const group = localStorage.getItem("group");
@@ -322,11 +318,11 @@ const List = () => {
 
   const getuserList = (e) => {
     setState({ role: e, user: null });
-    if (e?.value == "developer") {
+    if (e?.label == "Developer") {
       developerList(1);
-    } else if (e?.value == "agent") {
+    } else if (e?.label == "Agent") {
       agentList(1);
-    } else if (e?.value == "seller") {
+    } else if (e?.label == "Seller") {
       sellerList(1);
     }
   };
@@ -360,7 +356,7 @@ const List = () => {
       body.created_by = state.user?.value;
     } else {
       if (state.role) {
-        body.group = state.role?.value;
+        body.created_by_group = state.role?.value;
       } else {
         body.created_by = userId;
       }
@@ -435,6 +431,8 @@ const List = () => {
     ?.filter((col) => col.visible !== false)
     ?.map(({ visible, toggleable, ...col }) => col);
 
+  
+
   const columns = [
     {
       accessor: "date",
@@ -472,7 +470,7 @@ const List = () => {
 
     {
       accessor: "assigned_to",
-      title: state.assignmentTitle,
+      title: "Assigned To",
       visible: true,
       toggleable: true,
     },

@@ -43,7 +43,7 @@ export const property_type = Yup.object().shape({
       then: (schema) => schema.required("Built-up Area is required"),
       otherwise: (schema) => schema.nullable(),
     }),
-  
+
   longitude: Yup.string()
     .required("Longitude is required")
     .matches(
@@ -101,9 +101,9 @@ export const propertySaleCreate = Yup.object().shape({
       otherwise: (schema) => schema.nullable(),
     }),
   project: Yup.string().required("Project is required").nullable(),
-  price_per_sqft: Yup.string()
-    .required("Price Per Sq.ft is required")
-    .nullable(),
+  // price_per_sqft: Yup.string()
+  //   .required("Price Per Sq.ft is required")
+  //   .nullable(),
   min_price: Yup.string().required("Min Price is required").nullable(),
   max_price: Yup.string().required("Max Price is required").nullable(),
 
@@ -290,4 +290,31 @@ export const amenity = Yup.object().shape({
 export const user = Yup.object().shape({
   email: Yup.string().required("Email is required"),
   password: Yup.string().required("Password is required"),
+});
+
+export const lead = Yup.object().shape({
+  first_name: Yup.string().required("First Name is required"),
+
+  last_name: Yup.string().required("Last Name is required"),
+  phone: Yup.string()
+    .required("Phone Number is required")
+    .test("is-valid-phone", "Enter a valid phone number", (value) => {
+      // Allow both formats: 10 digits OR 91 followed by 10 digits
+      return /^(91)?[0-9]{10}$/.test(value);
+    }),
+
+  email: Yup.string()
+    .required("Email is required")
+    .email("Enter a valid email"),
+
+  interested_property: Yup.string().required("Please select a property"),
+
+  lead_source: Yup.string().required("Lead Source is required"),
+
+  next_follow_up: Yup.string().required("Next Follow Up Date is required"),
+
+  status: Yup.string().required("Status is required"),
+
+  requirements: Yup.string().required("Inquiry Details are required"),
+  assigned_to: Yup.string().required("Assigned to are required"),
 });

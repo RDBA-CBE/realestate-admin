@@ -4,8 +4,10 @@ import Tippy from "@tippyjs/react";
 import IconEye from "@/components/Icon/IconEye";
 import IconEdit from "@/components/Icon/IconEdit";
 import {
+  backendDateFormat,
   capitalizeFLetter,
   commonDateFormat,
+  Dropdown,
   Failure,
   showDeleteAlert,
   Success,
@@ -30,6 +32,12 @@ import IconTrashLines from "@/components/Icon/IconTrashLines";
 import Link from "next/link";
 import { Calendar, Columns, Eye, EyeOff, Table } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
+import {
+  LEAD_SOURCE_OPTIONS,
+  ROLES,
+  STATUS_OPTIONS,
+} from "@/utils/constant.utils";
+import CustomeDatePicker from "@/components/datePicker";
 
 const List = () => {
   const router = useRouter();
@@ -45,27 +53,131 @@ const List = () => {
     search: "",
     error: {},
     visibleColumns: [],
-    assignmentTitle: "Assigned From",
+    assignmentTitle: "Assigned By",
+    group: null,
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
 
   useEffect(() => {
     leadList(1);
+    categoryList(1);
+    groupList();
     setState({ visibleColumns: columns });
   }, []);
 
   useEffect(() => {
     leadList(1);
-  }, [debouncedSearch]);
+  }, [
+    debouncedSearch,
+    state.lead_source,
+    state.status,
+    state.date,
+    state.user,
+    state.developer,
+    state.agent,
+    state.role,
+  ]);
 
   useEffect(() => {
     const group = localStorage.getItem("group");
     console.log("✌️group --->", group);
-    setState({
-      assignmentTitle: group == "Admin" ? "Assigned To" : "Assigned From",
-    });
   }, []);
+
+  const categoryList = async (page) => {
+    try {
+      const res: any = await Models.category.list(page, {});
+      const droprdown = Dropdown(res?.results, "name");
+      setState({
+        categoryList: droprdown,
+        categoryPage: page,
+        categoryNext: res.next,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const groupList = async () => {
+    try {
+      const res: any = await Models.user.groups();
+      const droprdown = Dropdown(res?.results, "name");
+      const filter = droprdown?.filter(
+        (item) => item?.label != "Admin" && item?.label != "Buyer"
+      );
+
+      setState({
+        groupList: filter,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const developerList = async (page) => {
+    try {
+      const body = {
+        user_type: ROLES.DEVELOPER,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        userList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const agentList = async (page) => {
+    try {
+      const body = {
+        user_type: ROLES.AGENT,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        userList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const sellerList = async (page) => {
+    try {
+      const body = {
+        user_type: ROLES.SELLER,
+      };
+      const res: any = await Models.user.list(page, body);
+      const dropdown = res?.results?.map((item) => ({
+        value: item?.id,
+        label: `${item?.first_name} ${item?.last_name}`,
+      }));
+      setState({
+        userList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const getuserList = (e) => {
+    setState({ role: e, user: null });
+    if (e?.label == "Developer") {
+      developerList(1);
+    } else if (e?.label == "Agent") {
+      agentList(1);
+    } else if (e?.label == "Seller") {
+      sellerList(1);
+    }
+  };
 
   const leadList = async (page) => {
     try {
@@ -84,7 +196,12 @@ const List = () => {
         assigned_to: item?.assigned_to_details
           ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
           : "",
+        assigned_by: item?.assigned_by_details
+          ? `${item?.assigned_by_details?.first_name} ${item?.assigned_by_details?.last_name}`
+          : "",
       }));
+
+      const group = localStorage.getItem("group");
 
       setState({
         tableList: data,
@@ -93,6 +210,7 @@ const List = () => {
         next: res.next,
         previous: res.previous,
         totalRecords: res.count,
+        group,
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -198,7 +316,33 @@ const List = () => {
       body.search = state.search;
     }
 
-    body.assigned_to = userId;
+    if (state.lead_source) {
+      body.lead_source = state.lead_source.value;
+    }
+
+    if (state.property_type) {
+      body.property_type = state.property_type;
+    }
+
+    if (state.status) {
+      body.status = state.status.value;
+    }
+
+    if (state.date) {
+      body.date = backendDateFormat(state.date);
+    }
+
+    if (state.user) {
+      body.assigned_to = state.user?.value;
+    } else {
+      if (state.role) {
+        body.assigned_to_group = state.role?.value;
+      } else {
+        body.assigned_to = userId;
+      }
+    }
+
+    // body.assigned_to = userId;
 
     console.log("✌️body --->", body);
     return body;
@@ -253,6 +397,8 @@ const List = () => {
     ?.filter((col) => col.visible !== false)
     ?.map(({ visible, toggleable, ...col }) => col);
 
+  const group = localStorage.getItem("group");
+
   const columns = [
     {
       accessor: "date",
@@ -289,8 +435,8 @@ const List = () => {
     },
 
     {
-      accessor: "assigned_to",
-      title: state.assignmentTitle,
+      accessor: "assigned_by",
+      title: "Assigned By",
       visible: true,
       toggleable: true,
     },
@@ -402,22 +548,71 @@ const List = () => {
           />
         </div>
 
+        {/* <div className="flex-1">
+          <CustomSelect
+            placeholder="Select Property Type"
+            value={state.}
+            onChange={(e) => setState({ property_type: e })}
+            options={state?.categoryList}
+            isClearable={true}
+            loadMore={() => catListLoadMore()}
+          />
+        </div> */}
+
         <div className="flex-1">
           <CustomSelect
-            placeholder="Select Role"
-            value={state.role}
-            onChange={(e) => setState({ role: e })}
-            options={state.roleList}
-            // error={state.errors?.tags}
+            value={state.lead_source}
+            onChange={(e) => setState({ lead_source: e })}
+            placeholder={"Lead Source"}
+            options={LEAD_SOURCE_OPTIONS}
+            error={state.errors?.lead_source}
+            isClearable={true}
           />
         </div>
 
         <div className="flex-1">
           <CustomSelect
-            placeholder="Select Role"
-            value={state.role}
-            onChange={(e) => setState({ role: e })}
-            options={state.roleList}
+            value={state.status}
+            onChange={(e) => setState({ status: e })}
+            placeholder={"Status"}
+            options={STATUS_OPTIONS}
+            error={state.errors?.status}
+            required
+            className="w-full"
+          />
+        </div>
+
+        {state.group == "Admin" && (
+          <>
+            <div className="flex-1">
+              <CustomSelect
+                placeholder="Role"
+                value={state.role}
+                onChange={(e) => {
+                  getuserList(e);
+                  setState({ userList: [] });
+                }}
+                options={state.groupList}
+              />
+            </div>
+
+            <div className="flex-1">
+              <CustomSelect
+                placeholder="user"
+                value={state.user}
+                onChange={(e) => setState({ user: e })}
+                options={state.userList}
+              />
+            </div>
+          </>
+        )}
+
+        <div className="flex-1">
+          <CustomeDatePicker
+            value={state.date}
+            placeholder="Choose Date"
+            onChange={(e) => setState({ date: e })}
+            showTimeSelect={false}
           />
         </div>
 
@@ -628,6 +823,7 @@ const List = () => {
             paginationText={({ from, to, totalRecords }) =>
               `Showing  ${from} to ${to} of ${totalRecords} entries`
             }
+            style={{ zIndex: 0 }}
           />
         </div>
         <div className="mt-5 flex justify-end gap-3">

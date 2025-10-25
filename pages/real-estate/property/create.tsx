@@ -80,7 +80,7 @@ const AddPropertyPage = () => {
     facing_direction: null,
     furnishing_type: null,
     price: null,
-    price_per_sqft: null,
+
     //Media
     images: [],
     video: null,
@@ -343,7 +343,7 @@ const AddPropertyPage = () => {
         description: state.description,
         property_type: state.property_type?.value,
         listing_type: "sale",
-        price_per_sqft: state.price_per_sqft,
+
         project: state.project?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
@@ -465,7 +465,7 @@ const AddPropertyPage = () => {
         listing_type: "lease",
         lease_total_amount: state.lease_total_amount,
         lease_duration: state.lease_duration,
-        price_per_sqft: state.price_per_sqft,
+
         project: state.project?.value,
 
         amenities: state.amenities,
@@ -730,7 +730,11 @@ const AddPropertyPage = () => {
       };
 
       const res = await Models.virtualTour.create(body);
+       console.log("virtual tour",res);
       return res;
+
+     
+      
     } catch (error) {
       console.log("✌️error --->", error);
     }
@@ -761,40 +765,6 @@ const AddPropertyPage = () => {
       console.log("✌️error --->", error);
     }
   };
-
-  const bodyData = () => ({
-    title: state.title || null,
-    property_type: state.property_type?.value || null,
-    description: state.description || null,
-    listing_type: state.listing_type?.value || null,
-    commercial_type: state.commercial_type?.value || null,
-    plot_area: state.plot_area || null,
-    land_type: state.land_type?.value || null,
-    built_up_area: state.built_up_area || null,
-    carpet_area: state.carpet_area || null,
-    bedrooms: state.bedrooms || null,
-    bathrooms: state.bathrooms || null,
-    balconies: state.balconies || null,
-    floor_number: state.floor_number || null,
-    total_floors: state.total_floors || null,
-    built_year: state.built_year || null,
-    facing: state.facing?.value || null,
-    furnishing: state.furnishing?.value || null,
-    address: state.address,
-    city: state.city,
-    state: state.state,
-    country: state.country,
-    postal_code: state.postal_code || null,
-    latitude: state.latitude || null,
-    longitude: state.longitude || null,
-
-    price_per_sqft: state.price_per_sqft || null,
-    lease_rent: state.lease_rent || null,
-    lease_duration: state.lease_duration || null,
-    plot_price: state.price || null,
-    amenities: state.amenities,
-    images: state.images,
-  });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -1195,7 +1165,7 @@ const AddPropertyPage = () => {
                         </>
                       ) : state.listing_type?.label == LISTING_TYPE.SALE ? (
                         <>
-                          <NumberInput
+                          {/*<NumberInput
                             name="price_per_sqft"
                             title="Price Per Sq.ft"
                             placeholder="Enter Price Per Sq.ft"
@@ -1203,7 +1173,8 @@ const AddPropertyPage = () => {
                             onChange={handleInputChange}
                             required
                             error={state.error?.price_per_sqft}
-                          />
+                          />*/}
+
                           <NumberInput
                             name="min_price"
                             title="Minimum Price"
