@@ -336,7 +336,7 @@ const AddPropertyPage = () => {
 
   const createSaleProperty = async () => {
     try {
-      // setState({ btnLoading: true });
+      setState({ btnLoading: true });
 
       const saleBody: any = {
         title: state.title,
@@ -414,7 +414,7 @@ const AddPropertyPage = () => {
       } else {
         Success("Your property is created and waiting for approval from admin");
       }
-      // router.push("/real-estate/property/list/");
+      router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -445,7 +445,7 @@ const AddPropertyPage = () => {
 
   const createLeaseProperty = async () => {
     try {
-      // setState({ btnLoading: true });
+      setState({ btnLoading: true });
 
       const buyBody: any = {
         title: state.title,
@@ -553,7 +553,7 @@ const AddPropertyPage = () => {
 
   const createRentProperty = async () => {
     try {
-      // setState({ btnLoading: true });
+      setState({ btnLoading: true });
 
       const buyBody: any = {
         title: state.title,
