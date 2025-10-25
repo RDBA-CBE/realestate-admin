@@ -335,7 +335,7 @@ const AddPropertyPage = () => {
 
   const createSaleProperty = async () => {
     try {
-      // setState({ btnLoading: true });
+      setState({ btnLoading: true });
 
       const saleBody: any = {
         group: state.group,
@@ -454,7 +454,7 @@ const AddPropertyPage = () => {
 
   const createLeaseProperty = async () => {
     try {
-      // setState({ btnLoading: true });
+      setState({ btnLoading: true });
 
       const buyBody: any = {
         group: state.group,
@@ -572,7 +572,7 @@ const AddPropertyPage = () => {
 
   const createRentProperty = async () => {
     try {
-      // setState({ btnLoading: true });
+      setState({ btnLoading: true });
 
       const buyBody: any = {
         group: state.group,
