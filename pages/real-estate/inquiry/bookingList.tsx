@@ -39,6 +39,7 @@ import {
   STATUS_OPTIONS,
 } from "@/utils/constant.utils";
 import CustomeDatePicker from "@/components/datePicker";
+import CheckboxInput from "@/components/FormFields/CheckBoxInput.component";
 
 const List = () => {
   const router = useRouter();
@@ -59,6 +60,12 @@ const List = () => {
     userList: [],
     groupList: [],
     role: null,
+    created: true,
+    assigned: false,
+    assigned_to_user: null,
+    created_by_user: null,
+    leadType: "created",
+    group:null
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -71,25 +78,32 @@ const List = () => {
   }, []);
 
   useEffect(() => {
-     leadList(1);
-   }, [
-     debouncedSearch,
-     state.user,
-     state.developer,
-     state.agent,
-     state.role,
-     state.lead_source,
-     state.status,
-     state.date,
-   ]);
+    leadList(1);
+  }, [
+    debouncedSearch,
+    state.leadType,
+    state.created_by_user,
+    state.assigned_to_user,
+    state.developer,
+    state.agent,
+    state.lead_source,
+    state.status,
+    state.date,
+    state.role
+  ]);
+
+  console.log("created_by_user", state.created_by_user);
 
   useEffect(() => {
     const group = localStorage.getItem("group");
-    console.log("✌️group --->", group);
+   
     setState({
+      group, 
       assignmentTitle: group == "Admin" ? "Assigned To" : "Assigned From",
     });
   }, []);
+
+   console.log("✌️group --->", state.group);
 
   const categoryList = async (page) => {
     try {
@@ -142,6 +156,10 @@ const List = () => {
         assigned_to: item?.assigned_to_details
           ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
           : "",
+          assigned_by: item?.assigned_by_details
+          ? `${item?.assigned_by_details?.first_name} ${item?.assigned_by_details?.last_name}`
+          : "",
+          created_by: item?.created_by
       }));
       const group = localStorage.getItem("group");
 
@@ -251,20 +269,20 @@ const List = () => {
   };
 
   const groupList = async () => {
-      try {
-        const res: any = await Models.user.groups();
-        const droprdown = Dropdown(res?.results, "name");
-        const filter = droprdown?.filter(
-          (item) => item?.label != "Admin" && item?.label != "Buyer"
-        );
-  
-        setState({
-          groupList: filter,
-        });
-      } catch (error) {
-        console.log("✌️error --->", error);
-      }
-    };
+    try {
+      const res: any = await Models.user.groups();
+      const droprdown = Dropdown(res?.results, "name");
+      const filter = droprdown?.filter(
+        (item) => item?.label != "Admin" && item?.label != "Buyer"
+      );
+
+      setState({
+        groupList: filter,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
 
   const developerList = async (page) => {
     try {
@@ -331,51 +349,73 @@ const List = () => {
     }
   };
 
-   const bodyData = () => {
-     const userId = localStorage.getItem("userId");
-     const group = localStorage.getItem("group");
-     let body: any = {};
+  const bodyData = () => {
+    const userId = localStorage.getItem("userId");
+    const group = localStorage.getItem("group");
+    let body: any = {};
 
-     body.status = "won"
- 
-     if (state.search) {
-       body.search = state.search;
-     }
- 
-     if (state.lead_source) {
-       body.lead_source = state.lead_source.value;
-     }
- 
-     if (state.property_type) {
-       body.property_type = state.property_type;
-     }
- 
-     if (state.status) {
-       body.status = state.status.value;
-     }
- 
-     if (state.date) {
-       body.date = backendDateFormat(state.date);
-     }
- 
-     if (state.user) {
-       body.created_by = state.user?.value;
-     } else {
-       if (state.role) {
-         body.group = state.role?.value;
-       } else {
-         body.created_by = userId;
-       }
-     }
- 
-     // if (group == capitalizeFLetter(ROLES.ADMIN)) {
-     //   body = { ...body, ...adminBody() };
-     // }
- 
-     console.log("✌️body --->", body);
-     return body;
-   };
+    body.status = "won";
 
+    if (state.search) {
+      body.search = state.search;
+    }
+
+    if (state.lead_source) {
+      body.lead_source = state.lead_source.value;
+    }
+
+    if (state.property_type) {
+      body.property_type = state.property_type;
+    }
+
+    if (state.status) {
+      body.status = state.status.value;
+    }
+
+    if (state.date) {
+      body.date = backendDateFormat(state.date);
+    }
+
+    //  if (state.user) {
+    //    body.created_by = state.user?.value;
+    //  } else {
+    //    if (state.role) {
+    //      body.group = state.role?.value;
+    //    } else {
+    //      body.created_by = userId;
+    //    }
+    //  }
+
+    if (state.role) {
+      if (state.assigned_to_user) {
+        body.assigned_to = state.assigned_to_user?.value;
+      } else {
+        body.created_by = state.created_by_user?.value || userId;
+      }
+    } else {
+      if (state.group == "Admin" || state.group == "Seller") {
+        body.created_by = userId;
+      } else {
+        if (state.leadType == "created") {
+          body.created_by = userId;
+        }
+        if (state.leadType == "assinged") {
+          body.assigned_to = userId;
+        }
+      }
+    }
+
+    console.log("userId", userId);
+
+    console.log("state.leadType", state.leadType);
+
+    // if (group == capitalizeFLetter(ROLES.ADMIN)) {
+    //   body = { ...body, ...adminBody() };
+    // }
+
+    console.log("✌️body --->", body);
+    return body;
+  };
 
   // const adminBody = () => {
   //   let body: any = {};
@@ -473,9 +513,23 @@ const List = () => {
       toggleable: true,
     },
 
+     {
+      accessor: "created_by",
+      title: "Created By",
+      visible: true,
+      toggleable: true,
+    },
+
+    {
+      accessor: "assigned_by",
+      title: "Assigned By",
+      visible: true,
+      toggleable: true,
+    },
+
     {
       accessor: "assigned_to",
-      title: state.assignmentTitle,
+      title: "Assigned To",
       visible: true,
       toggleable: true,
     },
@@ -578,6 +632,36 @@ const List = () => {
       </div>
 
       <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
+        {(state.group !== "Admin") && (state.group !== "Seller") ? (
+          <>
+            <div className="mt-2">
+              <CheckboxInput
+                type="checkbox"
+                checked={state.leadType == "created"}
+                onChange={() =>
+                  setState({
+                    leadType: "created",
+                  })
+                }
+                label="Created Leads"
+              />
+            </div>
+
+            <div className="mt-2">
+              <CheckboxInput
+                type="checkbox"
+                checked={state.leadType == "assinged"}
+                onChange={() =>
+                  setState({
+                    leadType: "assinged",
+                  })
+                }
+                label="Assinged Leads"
+              />
+            </div>
+          </>
+        ) : []}
+
         <div className="flex-1">
           <input
             type="text"
@@ -630,7 +714,7 @@ const List = () => {
                 value={state.role}
                 onChange={(e) => {
                   getuserList(e);
-                  setState({userList:[]})
+                  setState({ userList: [] });
                 }}
                 options={state.groupList}
               />
@@ -638,10 +722,21 @@ const List = () => {
 
             <div className="flex-1">
               <CustomSelect
-                placeholder="Select user"
-                value={state.user}
-                onChange={(e) => setState({ user: e })}
+                placeholder="Select Created by User"
+                value={state.created_by_user}
+                onChange={(e) => setState({ created_by_user: e })}
                 options={state.userList}
+                disabled={state.assigned_to_user ? true : false}
+              />
+            </div>
+
+            <div className="flex-1">
+              <CustomSelect
+                placeholder="Select Assigned to User"
+                value={state.assigned_to_user}
+                onChange={(e) => setState({ assigned_to_user: e })}
+                options={state.userList}
+                disabled={state.created_by_user ? true : false}
               />
             </div>
           </>
@@ -656,11 +751,11 @@ const List = () => {
           />
         </div>
 
-        <div>
+        {/*<div>
           <button type="button" className="btn btn-primary">
             Clear Filter
           </button>
-        </div>
+        </div>*/}
       </div>
 
       <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
