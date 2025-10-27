@@ -12,9 +12,11 @@ import moment from "moment";
 import CheckboxInput from "@/components/FormFields/CheckBoxInput.component";
 import LogCard from "@/components/logCard";
 import {
+  backendDateFormat,
   capitalizeFLetter,
   commonDateFormat,
   formatPhoneNumber,
+  formatPriceRange,
   formatToINR,
   objIsEmpty,
   useSetState,
@@ -24,6 +26,8 @@ import IconMapPin from "@/components/Icon/IconMapPin";
 import Link from "next/link";
 import { LucideHome } from "lucide-react";
 import { LISTING_TYPE_LIST } from "@/utils/constant.utils";
+import CustomSelect from "@/components/FormFields/CustomSelect.component";
+import CustomeDatePicker from "@/components/datePicker";
 
 export default function View_opportunity(props: any) {
   const router = useRouter();
@@ -46,13 +50,17 @@ export default function View_opportunity(props: any) {
     getLogStageList();
   }, []);
 
+  // useEffect(() => {
+  //   if (state.logtype) {
+  //     getLogListFilter();
+  //   } else {
+  //     getLogList();
+  //   }
+  // }, [state.logtype]);
+
   useEffect(() => {
-    if (state.logtype) {
-      getLogListFilter();
-    } else {
-      getLogList();
-    }
-  }, [state.logtype]);
+    getLogList();
+  }, [ state.date_from, state.action, state.date_to]);
 
   const getDetails = async () => {
     try {
@@ -99,7 +107,10 @@ export default function View_opportunity(props: any) {
             )} ${capitalizeFLetter(res?.developer?.last_name)}`,
             project: capitalizeFLetter(res?.project?.name),
 
-            price: formatToINR(res?.price),
+            price: formatPriceRange(
+              res?.price_range?.minimum_price,
+              res?.price_range?.maximum_price
+            ),
             image:
               res?.primary_image?.image ??
               "/assets/images/real-estate/property-info-img1.png",
@@ -116,7 +127,14 @@ export default function View_opportunity(props: any) {
 
   const getLogList = async () => {
     try {
-      const res: any = await Models.lead.logList(id, {});
+
+      console.log("hello ");
+      
+      const body = logListFilter();
+
+      console.log("body", body);
+      
+      const res: any = await Models.lead.logList(id, body);
       console.log("getLogList --->", res);
 
       setState({ logList: res?.results, logCount: res.count });
@@ -125,24 +143,44 @@ export default function View_opportunity(props: any) {
     }
   };
 
-  const getLogListFilter = async () => {
-    try {
-      let statusId = null;
-      if (state.logtype == "Email") {
-        statusId = "Email";
-      }
-      if (state.logtype == "Call") {
-        statusId = "Call";
-      }
-      if (state.logtype == "Meeting") {
-        statusId = "Meeting";
-      }
-      // const res: any = await Models.lead.opplogFilterList(id, statusId);
-      // setState({ logList: res?.results, loading: false, logCount: res.count });
-    } catch (error) {
-      setState({ loading: false });
+
+  
+
+  const logListFilter = () => {
+    let body: any = {};
+    if (state.action) {
+      body.action = state.action.value;
     }
+
+    if (state.date_from) {
+      body.date_from = backendDateFormat(state.date_from);
+    }
+
+    if (state.date_to) {
+      body.date_to = backendDateFormat(state.date_to);
+    }
+
+    return body
   };
+
+  // const getLogListFilter = async () => {
+  //   try {
+  //     let statusId = null;
+  //     if (state.logtype == "Email") {
+  //       statusId = "Email";
+  //     }
+  //     if (state.logtype == "Call") {
+  //       statusId = "Call";
+  //     }
+  //     if (state.logtype == "Meeting") {
+  //       statusId = "Meeting";
+  //     }
+  //     // const res: any = await Models.lead.opplogFilterList(id, statusId);
+  //     // setState({ logList: res?.results, loading: false, logCount: res.count });
+  //   } catch (error) {
+  //     setState({ loading: false });
+  //   }
+  // };
 
   const getLogStageList = async () => {
     try {
@@ -156,19 +194,18 @@ export default function View_opportunity(props: any) {
     }
   };
 
-  
-
-
-
   const handleCheckboxChange = (option) => {
     // setState({ logtype: state.logtype == option ? null : option });
     setState({ logtype: option });
   };
 
-  const checkboxOptions = [
-    { value: "Call", label: "Call" },
-    { value: "Meeting", label: "Meeting" },
-    { value: "Email", label: "Email" },
+  const StatusOptions = [
+    { value: "created", label: "Lead Created" },
+    { value: "updated", label: "Lead Updated" },
+    { value: "status_changed", label: "Status Changed" },
+    { value: "assigned", label: "Lead Assigned" },
+    { value: "contacted", label: "Lead Contacted" },
+    { value: "note_added", label: "Note Added" },
   ];
 
   const allColumns = [
@@ -453,7 +490,7 @@ export default function View_opportunity(props: any) {
               className="mt-2 flex cursor-pointer flex-wrap items-center gap-3"
               onClick={() => setState({ isOpenLog: true })}
             >
-              {checkboxOptions.map((option) => (
+              {/* {checkboxOptions.map((option) => (
                 <CheckboxInput
                   key={option.value}
                   checked={state.logtype === option?.value}
@@ -465,8 +502,36 @@ export default function View_opportunity(props: any) {
                   }
                   label={option?.label}
                 />
-              ))}
-              <button
+              ))} */}
+
+              <div className="flex-1">
+                <CustomeDatePicker
+                  value={state.date_from}
+                  placeholder="Choose From Date"
+                  onChange={(e) => setState({ date_from: e })}
+                  showTimeSelect={false}
+                />
+              </div>
+
+              <div className="flex-1">
+                <CustomeDatePicker
+                  value={state.date_to}
+                  placeholder="Choose To Date"
+                  onChange={(e) => setState({ date_to: e })}
+                  showTimeSelect={false}
+                />
+              </div>
+
+              <div className="flex-1">
+                <CustomSelect
+                  value={state.action}
+                  onChange={(e) => setState({ action: e })}
+                  placeholder={"Select Lead Action"}
+                  options={StatusOptions}
+                  isClearable={true}
+                />
+              </div>
+              {/* <button
                 type="button"
                 className="btn btn-primary log-btn p-1"
                 onClick={() => {
@@ -474,7 +539,7 @@ export default function View_opportunity(props: any) {
                 }}
               >
                 <IconPlus />
-              </button>
+              </button> */}
             </div>
           </div>
         </div>

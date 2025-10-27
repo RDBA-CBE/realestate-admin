@@ -139,6 +139,16 @@ const lead = {
       if (body?.search) {
         url += `&search=${encodeURIComponent(body.search)}`;
       }
+      if ( body.action) {
+         url += `&action=${encodeURIComponent(body.action)}`;
+      }
+      if ( body.date_from) {
+         url += `&date_from=${encodeURIComponent(body.date_from)}`;
+      }
+
+      if ( body.date_to) {
+         url += `&date_to=${encodeURIComponent(body.date_to)}`;
+      }
       instance()
         .get(url)
         .then((res) => {

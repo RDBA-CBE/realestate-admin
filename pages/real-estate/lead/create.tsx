@@ -10,6 +10,7 @@ import {
   Success,
   capitalizeFLetter,
   commonDateFormat,
+  formatPriceRange,
   formatToINR,
   objIsEmpty,
   useSetState,
@@ -152,7 +153,7 @@ const CreateOpportunities = () => {
             )} ${capitalizeFLetter(res?.developer?.last_name)}`,
             project: capitalizeFLetter(res?.project?.name),
 
-            price: formatToINR(res?.price),
+             price: formatPriceRange(res?.price_range?.minimum_price,res?.price_range?.maximum_price),
             image:
               res?.primary_image?.image ??
               "/assets/images/real-estate/property-info-img1.png",
