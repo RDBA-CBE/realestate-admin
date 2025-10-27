@@ -7,6 +7,12 @@ const lead = {
       if (body?.group) {
         url += `&group=${encodeURIComponent(body.group)}`;
       }
+      if (body.created_by_group) {
+        url += `&created_by_group=${encodeURIComponent(body.created_by_group)}`;
+      }
+       if (body.assigned_to_group) {
+        url += `&assigned_to_group=${encodeURIComponent(body.assigned_to_group)}`;
+      }
       if (body?.search) {
         url += `&search=${encodeURIComponent(body.search)}`;
       }

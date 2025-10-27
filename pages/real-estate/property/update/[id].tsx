@@ -78,6 +78,7 @@ const AddPropertyPage = () => {
     property_name: "",
     description: "",
     virtual_tour: "",
+    virtual_tourList: [],
     //Buy,
     built_up_area: null,
     carpet_area: null,
@@ -90,7 +91,7 @@ const AddPropertyPage = () => {
     facing_direction: null,
     furnishing_type: null,
     price: null,
-    price_per_sqft: null,
+
     //Media
     images: [],
     video: null,
@@ -276,15 +277,21 @@ const AddPropertyPage = () => {
       if (res?.listing_type == LISTING_TYPE_LIST.SALE) {
         setState({
           price: formatNumber(res?.price),
-          price_per_sqft: formatNumber(res?.price_per_sqft),
+          // price_per_sqft: formatNumber(res?.price_per_sqft),
         });
       }
 
       if (res?.virtual_tours?.length > 0) {
-        // setState({
-        //   price: formatNumber(res?.price),
-        //   price_per_sqft: formatNumber(res?.price_per_sqft),
-        // });
+        const id = res?.virtual_tours[0].id;
+        setState({
+          virtual_tourList: res.virtual_tours,
+          // virtual_tour: res.virtual_tours[0]
+        });
+        getVirtualTour(id);
+      } else {
+        setState({
+          virtual_tourList: [],
+        });
       }
 
       if (res?.videos?.length > 0) {
@@ -353,6 +360,19 @@ const AddPropertyPage = () => {
       const res: any = await Models.image.list(1, body);
       setState({
         imageList: res?.results,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const getVirtualTour = async (vr_id) => {
+    try {
+      const res: any = await Models.virtualTour.details(vr_id);
+      console.log("virtual tour res", res);
+
+      setState({
+        virtual_tour: res?.tour_url,
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -546,6 +566,8 @@ const AddPropertyPage = () => {
     }
   };
 
+  console.log("state.virtual_tour", state.virtual_tour);
+
   const createSaleProperty = async () => {
     try {
       const saleBody: any = {
@@ -554,7 +576,7 @@ const AddPropertyPage = () => {
         description: state.description,
         property_type: state.property_type?.value,
         listing_type: "sale",
-        price_per_sqft: state.price_per_sqft,
+
         project: state.project?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
@@ -611,6 +633,22 @@ const AddPropertyPage = () => {
       //     createImage(id, item, imageLength + index + 1)
       //   );
       // }
+      console.log("hello virtual_tour,", state.virtual_tourList);
+
+      if (state.virtual_tour) {
+        if (state.virtual_tourList.length > 0) {
+          const vr_id = state.virtual_tourList[0].id;
+
+          updateVirtualTour(vr_id);
+        }
+
+        if (state.virtual_tourList.length == 0) {
+          createVirtualTour(id);
+        }
+      } else {
+        const vr_id = state.virtual_tourList[0].id;
+        deleteVirtualTour(vr_id);
+      }
 
       if (state.floorPlans.length > 0) {
         console.log("hello state.floorPlans,", state.floorPlans);
@@ -670,7 +708,7 @@ const AddPropertyPage = () => {
         listing_type: "lease",
         lease_total_amount: state.lease_total_amount,
         lease_duration: state.lease_duration,
-        price_per_sqft: state.price_per_sqft,
+
         project: state.project?.value,
 
         amenities: state.amenities,
@@ -724,6 +762,21 @@ const AddPropertyPage = () => {
       const formData = buildFormData(buyBody);
 
       const res: any = await Models.property.update(formData, id);
+
+      if (state.virtual_tour) {
+        if (state.virtual_tourList.length > 0) {
+          const vr_id = state.virtual_tourList[0].id;
+
+          updateVirtualTour(vr_id);
+        }
+
+        if (state.virtual_tourList.length == 0) {
+          createVirtualTour(id);
+        }
+      } else {
+        const vr_id = state.virtual_tourList[0].id;
+        deleteVirtualTour(vr_id);
+      }
 
       if (state.floorPlans.length > 0) {
         console.log("hello state.floorPlans,", state.floorPlans);
@@ -834,6 +887,21 @@ const AddPropertyPage = () => {
       const formData = buildFormData(buyBody);
 
       const res: any = await Models.property.update(formData, id);
+
+      if (state.virtual_tour) {
+        if (state.virtual_tourList.length > 0) {
+          const vr_id = state.virtual_tourList[0].id;
+
+          updateVirtualTour(vr_id);
+        }
+
+        if (state.virtual_tourList.length == 0) {
+          createVirtualTour(id);
+        }
+      } else {
+        const vr_id = state.virtual_tourList[0].id;
+        deleteVirtualTour(vr_id);
+      }
 
       if (state.floorPlans.length > 0) {
         console.log("hello state.floorPlans,", state.floorPlans);
@@ -962,6 +1030,45 @@ const AddPropertyPage = () => {
       throw error;
     } finally {
       setState({ videoLoading: false });
+    }
+  };
+
+  const updateVirtualTour = async (vr_id) => {
+    try {
+      const body = {
+        tour_url: state.virtual_tour,
+      };
+
+      const res = await Models.virtualTour.update(body, vr_id);
+      console.log("virtual tour update", res);
+      return res;
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const createVirtualTour = async (property) => {
+    try {
+      const body = {
+        property: property,
+        tour_url: state.virtual_tour,
+      };
+
+      const res = await Models.virtualTour.create(body);
+      console.log("virtual tour create", res);
+      return res;
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const deleteVirtualTour = async (vr_id) => {
+    try {
+      const res = await Models.virtualTour.delete(vr_id);
+      console.log("virtual tour update", res);
+      return res;
+    } catch (error) {
+      console.log("✌️error --->", error);
     }
   };
 
@@ -1451,7 +1558,7 @@ const AddPropertyPage = () => {
                             required
                             error={state.error?.price}
                           /> */}
-                          <NumberInput
+                          {/* <NumberInput
                             name="price_per_sqft"
                             title="Price Per Sq.ft"
                             placeholder="Enter Price Per Sq.ft"
@@ -1459,7 +1566,7 @@ const AddPropertyPage = () => {
                             onChange={handleInputChange}
                             required
                             error={state.error?.price_per_sqft}
-                          />
+                          /> */}
                           <NumberInput
                             name="min_price"
                             title="Minimum Price"

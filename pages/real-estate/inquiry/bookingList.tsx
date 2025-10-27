@@ -4,6 +4,7 @@ import Tippy from "@tippyjs/react";
 import IconEye from "@/components/Icon/IconEye";
 import IconEdit from "@/components/Icon/IconEdit";
 import {
+  backendDateFormat,
   capitalizeFLetter,
   commonDateFormat,
   Dropdown,
@@ -56,6 +57,7 @@ const List = () => {
     visibleColumns: [],
     assignmentTitle: "Assigned From",
     userList: [],
+    groupList: [],
     role: null,
   });
 
@@ -64,21 +66,22 @@ const List = () => {
   useEffect(() => {
     leadList(1);
     categoryList(1);
+    groupList();
     setState({ visibleColumns: columns });
   }, []);
 
   useEffect(() => {
-    leadList(1);
-  }, [
-    debouncedSearch,
-    state.user,
-    state.developer,
-    state.agent,
-    state.role,
-    state.lead_source,
-    state.status,
-    state.date,
-  ]);
+     leadList(1);
+   }, [
+     debouncedSearch,
+     state.user,
+     state.developer,
+     state.agent,
+     state.role,
+     state.lead_source,
+     state.status,
+     state.date,
+   ]);
 
   useEffect(() => {
     const group = localStorage.getItem("group");
@@ -247,6 +250,22 @@ const List = () => {
     );
   };
 
+  const groupList = async () => {
+      try {
+        const res: any = await Models.user.groups();
+        const droprdown = Dropdown(res?.results, "name");
+        const filter = droprdown?.filter(
+          (item) => item?.label != "Admin" && item?.label != "Buyer"
+        );
+  
+        setState({
+          groupList: filter,
+        });
+      } catch (error) {
+        console.log("✌️error --->", error);
+      }
+    };
+
   const developerList = async (page) => {
     try {
       const body = {
@@ -303,56 +322,59 @@ const List = () => {
 
   const getuserList = (e) => {
     setState({ role: e, user: null });
-    if (e?.value == "developer") {
+    if (e?.label == "Developer") {
       developerList(1);
-    } else if (e?.value == "agent") {
+    } else if (e?.label == "Agent") {
       agentList(1);
-    } else if (e?.value == "seller") {
+    } else if (e?.label == "Seller") {
       sellerList(1);
     }
   };
 
-  const bodyData = () => {
-    const userId = localStorage.getItem("userId");
-    const group = localStorage.getItem("group");
-    let body: any = {};
+   const bodyData = () => {
+     const userId = localStorage.getItem("userId");
+     const group = localStorage.getItem("group");
+     let body: any = {};
 
-    if (state.search) {
-      body.search = state.search;
-    }
-
-    if (state.lead_source) {
-      body.lead_source = state.lead_source.value;
-    }
-
-    if (state.property_type) {
-      body.property_type = state.property_type;
-    }
-
-      body.status = "won";
-
-    if (state.date) {
-      body.date = commonDateFormat(state.date);
-    }
-
-    if (state.user) {
-      body.created_by = state.user?.value;
-    } 
-    else {
-      if (state.role) {
-        body.group = state.role?.value;
-      } else {
-        body.created_by = userId;
-      }
-    }
-
-    // if (group == capitalizeFLetter(ROLES.ADMIN)) {
-    //   body = { ...body, ...adminBody() };
-    // }
-
-    console.log("✌️body --->", body);
-    return body;
-  };
+     body.status = "won"
+ 
+     if (state.search) {
+       body.search = state.search;
+     }
+ 
+     if (state.lead_source) {
+       body.lead_source = state.lead_source.value;
+     }
+ 
+     if (state.property_type) {
+       body.property_type = state.property_type;
+     }
+ 
+     if (state.status) {
+       body.status = state.status.value;
+     }
+ 
+     if (state.date) {
+       body.date = backendDateFormat(state.date);
+     }
+ 
+     if (state.user) {
+       body.created_by = state.user?.value;
+     } else {
+       if (state.role) {
+         body.group = state.role?.value;
+       } else {
+         body.created_by = userId;
+       }
+     }
+ 
+     // if (group == capitalizeFLetter(ROLES.ADMIN)) {
+     //   body = { ...body, ...adminBody() };
+     // }
+ 
+     console.log("✌️body --->", body);
+     return body;
+   };
 
 
   // const adminBody = () => {
@@ -610,7 +632,7 @@ const List = () => {
                   getuserList(e);
                   setState({userList:[]})
                 }}
-                options={FILTER_ROLES}
+                options={state.groupList}
               />
             </div>
 
