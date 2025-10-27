@@ -414,6 +414,7 @@ const Index = () => {
                     <li>
                         <Link href="/" className="text-primary hover:underline">
                             Dashboard
+                            
                         </Link>
                     </li>
                     <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
