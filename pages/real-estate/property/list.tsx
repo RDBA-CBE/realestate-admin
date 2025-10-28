@@ -572,6 +572,8 @@ export default function List() {
 
     // Common
 
+    body.is_approved = 'Yes'
+
     if (state.search) {
       body.search = debouncedSearch;
     }

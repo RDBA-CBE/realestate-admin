@@ -36,13 +36,13 @@ export const property_type = Yup.object().shape({
   status: Yup.string().required("Status is required").nullable(),
 
   total_area: Yup.string().required("Total Area is required").nullable(),
-  built_up_area: Yup.string()
-    .nullable()
-    .when("validatePropertyType", {
-      is: (val) => val?.label !== PROPERTY_TYPE.AGRICULTURAL,
-      then: (schema) => schema.required("Built-up Area is required"),
-      otherwise: (schema) => schema.nullable(),
-    }),
+  // built_up_area: Yup.string()
+  //   .nullable()
+  //   .when("validatePropertyType", {
+  //     is: (val) => val?.label !== PROPERTY_TYPE.AGRICULTURAL,
+  //     then: (schema) => schema.required("Built-up Area is required"),
+  //     otherwise: (schema) => schema.nullable(),
+  //   }),
 
   longitude: Yup.string()
     .required("Longitude is required")

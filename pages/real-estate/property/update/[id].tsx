@@ -527,7 +527,7 @@ const AddPropertyPage = () => {
         description: state.description,
         status: state.status?.value,
         total_area: state.total_area,
-        built_up_area: state.built_up_area,
+        // built_up_area: state.built_up_area,
         longitude: state.longitude,
         latitude: state.latitude,
         address: state.address,
@@ -566,7 +566,7 @@ const AddPropertyPage = () => {
     }
   };
 
-  console.log("state.virtual_tour", state.virtual_tour);
+
 
   const createSaleProperty = async () => {
     try {
@@ -614,6 +614,9 @@ const AddPropertyPage = () => {
         saleBody.agent = state.agent?.value;
       }
 
+      
+      
+
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
         abortEarly: false,
       });
@@ -633,25 +636,25 @@ const AddPropertyPage = () => {
       //     createImage(id, item, imageLength + index + 1)
       //   );
       // }
-      console.log("hello virtual_tour,", state.virtual_tourList);
+      
 
       if (state.virtual_tour) {
-        if (state.virtual_tourList.length > 0) {
-          const vr_id = state.virtual_tourList[0].id;
+        if (state.virtual_tourList?.length > 0) {
+          const vr_id = state.virtual_tourList?.[0]?.id;
 
           updateVirtualTour(vr_id);
         }
 
-        if (state.virtual_tourList.length == 0) {
+        if (state.virtual_tourList?.length == 0) {
           createVirtualTour(id);
         }
       } else {
-        const vr_id = state.virtual_tourList[0].id;
+        const vr_id = state.virtual_tourList?.[0]?.id;
         deleteVirtualTour(vr_id);
       }
 
       if (state.floorPlans.length > 0) {
-        console.log("hello state.floorPlans,", state.floorPlans);
+       
         state.floorPlans?.forEach((item, index) => {
           if (item.id) {
             patchFloorPlans(item.id, item, index);
@@ -669,6 +672,8 @@ const AddPropertyPage = () => {
       router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
     } catch (error) {
+
+      
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
         error.inner.forEach((err) => {
@@ -686,7 +691,7 @@ const AddPropertyPage = () => {
             .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
             .join("; ");
 
-          Failure(errorMessages);
+          Failure(errorMessages || error);
         } else {
           Failure(error || "Something went wrong");
         }
@@ -764,22 +769,22 @@ const AddPropertyPage = () => {
       const res: any = await Models.property.update(formData, id);
 
       if (state.virtual_tour) {
-        if (state.virtual_tourList.length > 0) {
-          const vr_id = state.virtual_tourList[0].id;
+        if (state.virtual_tourList?.length > 0) {
+          const vr_id = state.virtual_tourList?.[0]?.id;
 
           updateVirtualTour(vr_id);
         }
 
-        if (state.virtual_tourList.length == 0) {
+        if (state.virtual_tourList?.length == 0) {
           createVirtualTour(id);
         }
       } else {
-        const vr_id = state.virtual_tourList[0].id;
+        const vr_id = state.virtual_tourList?.[0]?.id;
         deleteVirtualTour(vr_id);
       }
 
-      if (state.floorPlans.length > 0) {
-        console.log("hello state.floorPlans,", state.floorPlans);
+      if (state.floorPlans?.length > 0) {
+        
         state.floorPlans?.forEach((item, index) => {
           if (item.id) {
             patchFloorPlans(item.id, item, index);
@@ -889,22 +894,22 @@ const AddPropertyPage = () => {
       const res: any = await Models.property.update(formData, id);
 
       if (state.virtual_tour) {
-        if (state.virtual_tourList.length > 0) {
-          const vr_id = state.virtual_tourList[0].id;
+        if (state.virtual_tourList?.length > 0) {
+          const vr_id = state.virtual_tourList?.[0].id;
 
           updateVirtualTour(vr_id);
         }
 
-        if (state.virtual_tourList.length == 0) {
+        if (state.virtual_tourList?.length == 0) {
           createVirtualTour(id);
         }
       } else {
-        const vr_id = state.virtual_tourList[0].id;
+        const vr_id = state.virtual_tourList?.[0].id;
         deleteVirtualTour(vr_id);
       }
 
-      if (state.floorPlans.length > 0) {
-        console.log("hello state.floorPlans,", state.floorPlans);
+      if (state.floorPlans?.length > 0) {
+       
         state.floorPlans?.forEach((item, index) => {
           if (item.id) {
             patchFloorPlans(item.id, item, index);
@@ -948,7 +953,7 @@ const AddPropertyPage = () => {
     }
   };
 
-  console.log("errors", state.error);
+ 
 
   const createImage = async (
     propertyId: number,
@@ -1055,7 +1060,7 @@ const AddPropertyPage = () => {
       };
 
       const res = await Models.virtualTour.create(body);
-      console.log("virtual tour create", res);
+     
       return res;
     } catch (error) {
       console.log("✌️error --->", error);
@@ -1065,7 +1070,7 @@ const AddPropertyPage = () => {
   const deleteVirtualTour = async (vr_id) => {
     try {
       const res = await Models.virtualTour.delete(vr_id);
-      console.log("virtual tour update", res);
+      
       return res;
     } catch (error) {
       console.log("✌️error --->", error);
@@ -1073,13 +1078,10 @@ const AddPropertyPage = () => {
   };
 
   const patchFloorPlans = async (property, plan, index) => {
-    console.log("property,", property);
-    console.log("plan,", plan);
+    // console.log("property,", property);
+    // console.log("plan,", plan);
 
     try {
-      console.log("patchFloorPlans true");
-
-      console.log("isString(plan.image)", isString(plan.image));
 
       const body = {
         property: property,
@@ -1095,7 +1097,7 @@ const AddPropertyPage = () => {
       const res = await Models.floorPlans.update(formData, property);
       console.log("res", res);
     } catch (error) {
-      console.log("patchFloorPlans false");
+    
       console.log("✌️error --->", error);
     }
   };
@@ -1124,7 +1126,7 @@ const AddPropertyPage = () => {
   };
 
   const deleteFloorPlans = async () => {
-    console.log("deleteFloorPlans", state.deleteFloorPlan);
+    
     try {
       const res = await Models.floorPlans.delete(state.deleteFloorPlan);
     } catch (error) {
@@ -1182,7 +1184,6 @@ const AddPropertyPage = () => {
   //   }
   // };
 
-  console.log("deleteid", state.deleteFloorPlan);
 
   const removeFloorPlan = (index) => {
     if (state.floorPlans.length > 1) {
