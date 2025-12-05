@@ -7,7 +7,6 @@ import IconEdit from "@/components/Icon/IconEdit";
 import IconEye from "@/components/Icon/IconEye";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
-import { useSetState } from "@mantine/hooks";
 import CustomSelect from "@/components/FormFields/CustomSelect.component";
 import PrivateRouter from "@/hook/privateRouter";
 
@@ -19,6 +18,7 @@ import {
   showDeleteAlert,
   Success,
   Dropdown,
+  useSetState,
 } from "@/utils/function.utils";
 import moment from "moment";
 import Swal from "sweetalert2";
@@ -32,7 +32,7 @@ import * as Yup from "yup";
 import { FILTER_ROLES, roleList } from "@/utils/constant.utils";
 
 const List = () => {
-  const [state, setState] = useSetState<any>({
+  const [state, setState] = useSetState({
     previousPage: false,
     nextPage: false,
     currentPage: 1,

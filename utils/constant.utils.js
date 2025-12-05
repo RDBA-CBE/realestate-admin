@@ -3,7 +3,9 @@ export const BASEURL = "https://zenbkad.zenwellnesslounge.com/api";
 export const CLIENT_ID =
   "625052261407-4p8ihs05c67d778mr5d91lqjvnvpkd8k.apps.googleusercontent.com";
 
-export const BACKEND_URL = "http://31.97.206.165/api/";
+// export const BACKEND_URL = "http://31.97.206.165/api/";
+
+export const BACKEND_URL = "https://file.boomrealtys.com/api/";
 
 // menuConfig.ts
 export const menuConfig = {
