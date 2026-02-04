@@ -16,7 +16,6 @@ import user from "@/models/user.model";
 import video from "@/models/video.model";
 import virtualTour from "@/models/virtual_tour.model";
 
-
 export const Models = {
   auth,
   test,
