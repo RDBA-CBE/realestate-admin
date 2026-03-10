@@ -33,6 +33,7 @@ import Link from "next/link";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
 import {
   FILTER_ROLES,
+  FRONTEND_URL,
   LISTING_TYPE,
   LISTING_TYPE_LIST,
   ListType,
@@ -214,7 +215,7 @@ export default function List() {
                 </span>
               )}
               <div>
-                <Link className="flex gap-1 text-primary" href={"/detail"}>
+                <Link className="flex gap-1 text-primary" href={`${FRONTEND_URL}/property-detail/${row?.id}`} target="_blank">
                   <LucideHome className="h-4 w-4 text-black" /> View Details
                 </Link>
               </div>

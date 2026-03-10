@@ -5,6 +5,8 @@ export const CLIENT_ID =
 // export const BACKEND_URL = "http://31.97.206.165/api/";
 
 export const BACKEND_URL = "https://file.boomrealtys.com/api/";
+export const FRONTEND_URL = "https://realestate-front-eight.vercel.app/";
+
 
 // menuConfig.ts
 export const menuConfig = {
