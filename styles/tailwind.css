@@ -707,3 +707,7 @@ pre.hljs {
 .swal2-container .swal2-popup.swal2-toast.color-success {
     @apply bg-success;
 }
+.page-ti {
+    font-size: 24px;
+    color: #000;
+  }

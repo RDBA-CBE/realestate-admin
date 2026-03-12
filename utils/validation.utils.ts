@@ -318,3 +318,12 @@ export const lead = Yup.object().shape({
   requirements: Yup.string().required("Inquiry Details are required"),
   assigned_to: Yup.string().required("Assigned to are required"),
 });
+
+
+export const change_password = Yup.object().shape({
+  old_password: Yup.string().required("Current Password is required"),
+  new_password: Yup.string().required("New Password is required"),
+  confirm_password: Yup.string()
+    .required("Confirm Password is required")
+    .oneOf([Yup.ref("new_password")], "Passwords must match"),
+});
