@@ -151,6 +151,7 @@ const List = () => {
         address: state?.address,
         account_status: "approved",
         approved_by: state.userId,
+        industry:state.industry
       };
 
       console.log("create body", body);
@@ -189,6 +190,7 @@ const List = () => {
         phone: state?.phone,
         role: state?.role?.value,
         address: state?.address,
+        industry:state.industry
       };
 
       const res = await Models.user.update(body, state.editId);
@@ -543,7 +545,16 @@ const List = () => {
                   onChange={(e) => setState({ role: e })}
                   options={state.groupList}
                 />
-
+<TextInput
+                  name="industry"
+                  type="text"
+                  title="Industry"
+                  placeholder="Enter industry"
+                  value={state.industry}
+                  onChange={(e) => setState({ industry: e.target.value })}
+                  // error={state.error?.last_name}
+                  // required
+                />
                 <TextArea
                   name="address"
                   title="Address"

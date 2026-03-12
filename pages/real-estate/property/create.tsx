@@ -304,93 +304,19 @@ const AddPropertyPage = () => {
         images: state.images,
         amenities: state.amenities,
         project: state.project?.value,
-
-        group: state.group,
-
-        // Sale
-        min_price: state.min_price,
-        max_price: state.max_price,
-        price: state.max_price,
-
-        // Lease
-        lease_total_amount: state.lease_total_amount,
-        lease_duration: state.lease_duration,
-
-        // Rent
-        monthly_rent: state.monthly_rent,
-        rent_duration: state.rent_duration,
-
-        // Property details
-        furnishing: state.furnishing?.value,
-        carpet_area: state.carpet_area,
-        bedrooms: state.bedrooms,
-        bathrooms: state.bathrooms,
-        balconies: state.balconies,
-        total_floors: state.total_floors,
-        floor_number: state.floor_number,
-        built_year: state.built_year,
-        facing_direction: state.facing?.value,
-
-        // Media
-        virtual_tour: state.virtual_tour,
-        video: state.video,
-        floorPlans: state.floorPlans,
-
-        // Assignments
-        developer: state.developer?.value,
-        assignAgent: state.assignAgent,
-        agent: state.agent?.value,
-      
-
-     
-        // validatePropertyType: state.property_type,
-        minimum_price: state.min_price,
-        maximum_price: state.max_price,
-
       };
-      console.log('✌️body --->', body);
 
-      // await Utils.Validation.property_type.validate(body, {
-      //   abortEarly: false,
-      // });
+      await Utils.Validation.property_type.validate(body, {
+        abortEarly: false,
+      });
 
-
-      const formData = buildFormData(body);
-
-      const res: any = await Models.property.create(formData);
-      if (state.images?.length > 0) {
-        state.images?.map((item, i) => createImage(res?.id, item, i));
+      if (state.listing_type?.label == LISTING_TYPE.SALE) {
+        createSaleProperty();
+      } else if (state.listing_type?.label == LISTING_TYPE.LEASE) {
+        createLeaseProperty();
+      } else if (state.listing_type?.label == LISTING_TYPE.RENT) {
+        createRentProperty();
       }
-      if (state.virtual_tour) {
-        await createVirtualTour(res?.id);
-      }
-      if (state.video) {
-        await createVideo(res?.id);
-      }
-
-      if (state.floorPlans.length > 0) {
-        console.log("hello state.floorPlans");
-        state.floorPlans?.map((item, index) =>
-          createFloorPlans(res?.id, item, index)
-        );
-      }
-
-      if (state.group == "Admin") {
-        Success("Property Created Successfully");
-      } else {
-        Success("Your property is created and waiting for approval from admin");
-      }
-      router.push("/real-estate/property/list/");
-      setState({ btnLoading: false });
-
-
-      // if (state.listing_type?.label == LISTING_TYPE.SALE) {
-      //   createSaleProperty();
-      // } else if (state.listing_type?.label == LISTING_TYPE.LEASE) {
-      //   createLeaseProperty();
-      // } else if (state.listing_type?.label == LISTING_TYPE.RENT) {
-      //   createRentProperty();
-      // }
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -804,8 +730,11 @@ const AddPropertyPage = () => {
       };
 
       const res = await Models.virtualTour.create(body);
-      console.log("virtual tour", res);
+       console.log("virtual tour",res);
       return res;
+
+     
+      
     } catch (error) {
       console.log("✌️error --->", error);
     }
@@ -848,10 +777,9 @@ const AddPropertyPage = () => {
   const steps = [
     { id: 1, title: "Basic Detail", icon: MapPin },
     { id: 2, title: "Property Information", icon: Info },
-    { id: 5, title: "Floor Plans", icon: Star },
-    // ...(state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL
-    //   ? [{ id: 5, title: "Floor Plans", icon: Star }]
-    //   : []),
+    ...(state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL
+      ? [{ id: 5, title: "Floor Plans", icon: Star }]
+      : []),
 
     { id: 7, title: "Media", icon: File },
     { id: 3, title: "Location", icon: MapPin },
@@ -954,10 +882,9 @@ const AddPropertyPage = () => {
                           contact: "",
                           error: { ...state.error, property_type: "" },
                           floorPlans:
-                            // e?.label === PROPERTY_TYPE.AGRICULTURAL
-                            //   ? []
-                            //   :
-                            state.floorPlans,
+                            e?.label === PROPERTY_TYPE.AGRICULTURAL
+                              ? []
+                              : state.floorPlans,
                         });
                       }}
                       placeholder={"Select Property type "}
@@ -1105,140 +1032,140 @@ const AddPropertyPage = () => {
                         error={state.error?.total_area}
                       />
 
-                      {/* {state.property_type?.label !==
-                        PROPERTY_TYPE.AGRICULTURAL && ( */}
-                      <NumberInput
-                        name="built_up_area"
-                        title="Built-up Area (sq.ft.)"
-                        placeholder="Enter total built-up area"
-                        value={state.built_up_area}
-                        onChange={handleInputChange}
-                        required
-                        error={state.error?.built_up_area}
-                      />
-                      {/* )} */}
-
-                      {/* {state.property_type?.label ==
-                        PROPERTY_TYPE.RESIDENTIAL && (
-                        <> */}
-                      <TextInput
-                        name="bedrooms"
-                        title="Bedrooms (Number Only)"
-                        placeholder="Enter number of bedrooms"
-                        value={state.bedrooms}
-                        onChange={handleInputChange}
-                      />
-                      <TextInput
-                        name="bathrooms"
-                        title="Bathrooms (Number Only)"
-                        placeholder="Enter number of bathrooms"
-                        value={state.bathrooms}
-                        onChange={handleInputChange}
-                      />
-                      <TextInput
-                        name="balconies"
-                        title="Balconies (Number Only)"
-                        placeholder="Enter number of balconies"
-                        value={state.balconies}
-                        onChange={handleInputChange}
-                      />
-                    </>
-                    {/* )} */}
-
-                    {/* {state.property_type?.label !==
+                      {state.property_type?.label !==
                         PROPERTY_TYPE.AGRICULTURAL && (
-                        <> */}
-                    <TextInput
-                      name="floor_number"
-                      title="Floor No (Number Only)"
-                      placeholder="Enter floor number"
-                      value={state.floor_number}
-                      onChange={handleInputChange}
-                    />
-                    <TextInput
-                      name="total_floors"
-                      title="Total Floors (Number Only)"
-                      placeholder="Enter total number of floors"
-                      value={state.total_floors}
-                      onChange={handleInputChange}
-                    />
-                    <NumberInput
-                      name="built_year"
-                      title="Built Year"
-                      placeholder="Enter the built year"
-                      value={state.built_year}
-                      onChange={handleInputChange}
-                    />
+                        <NumberInput
+                          name="built_up_area"
+                          title="Built-up Area (sq.ft.)"
+                          placeholder="Enter total built-up area"
+                          value={state.built_up_area}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.built_up_area}
+                        />
+                      )}
 
-                    <CustomSelect
-                      title="Furnishing Type"
-                      placeholder="Select furnishing type"
-                      options={[
-                        { value: "furnished", label: "Furnished" },
-                        {
-                          value: "semi_furnished",
-                          label: "Semi-Furnished",
-                        },
-                        { value: "unfurnished", label: "Unfurnished" },
-                      ]}
-                      value={state.furnishing}
-                      onChange={(selectedOption) =>
-                        setState({
-                          furnishing: selectedOption,
-                          error: { ...state.error, furnishing: "" },
-                        })
-                      }
-                      required
-                      isClearable
-                      error={state.error?.furnishing}
-                    />
-                    {/* </>
-                      )} */}
+                      {state.property_type?.label ==
+                        PROPERTY_TYPE.RESIDENTIAL && (
+                        <>
+                          <TextInput
+                            name="bedrooms"
+                            title="Bedrooms (Number Only)"
+                            placeholder="Enter number of bedrooms"
+                            value={state.bedrooms}
+                            onChange={handleInputChange}
+                          />
+                          <TextInput
+                            name="bathrooms"
+                            title="Bathrooms (Number Only)"
+                            placeholder="Enter number of bathrooms"
+                            value={state.bathrooms}
+                            onChange={handleInputChange}
+                          />
+                          <TextInput
+                            name="balconies"
+                            title="Balconies (Number Only)"
+                            placeholder="Enter number of balconies"
+                            value={state.balconies}
+                            onChange={handleInputChange}
+                          />
+                        </>
+                      )}
 
-                    <CustomSelect
-                      title="Property Facing Direction"
-                      placeholder="Select facing direction"
-                      options={facingDirection}
-                      value={state.facing}
-                      onChange={(selectedOption) =>
-                        setState({ facing: selectedOption })
-                      }
-                      isClearable
-                    />
+                      {state.property_type?.label !==
+                        PROPERTY_TYPE.AGRICULTURAL && (
+                        <>
+                          <TextInput
+                            name="floor_number"
+                            title="Floor No (Number Only)"
+                            placeholder="Enter floor number"
+                            value={state.floor_number}
+                            onChange={handleInputChange}
+                          />
+                          <TextInput
+                            name="total_floors"
+                            title="Total Floors (Number Only)"
+                            placeholder="Enter total number of floors"
+                            value={state.total_floors}
+                            onChange={handleInputChange}
+                          />
+                          <NumberInput
+                            name="built_year"
+                            title="Built Year"
+                            placeholder="Enter the built year"
+                            value={state.built_year}
+                            onChange={handleInputChange}
+                          />
 
-                    {/* {state.listing_type?.label == LISTING_TYPE.RENT ? (
-                        <> */}
-                    <NumberInput
-                      name="min_price"
-                      title="Minimum Monthly Rent"
-                      placeholder="Enter min monthly rent"
-                      value={state.min_price}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.min_price}
-                    />
-                    <NumberInput
-                      name="max_price"
-                      title="Maximum Monthly Rent"
-                      placeholder="Enter max monthly rent"
-                      value={state.max_price}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.max_price}
-                    />
-                    <NumberInput
-                      name="rent_duration"
-                      title="Rent Duration"
-                      placeholder="Enter rent duration"
-                      value={state.rent_duration}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.rent_duration}
-                    />
-                    {/* </>
+                          <CustomSelect
+                            title="Furnishing Type"
+                            placeholder="Select furnishing type"
+                            options={[
+                              { value: "furnished", label: "Furnished" },
+                              {
+                                value: "semi_furnished",
+                                label: "Semi-Furnished",
+                              },
+                              { value: "unfurnished", label: "Unfurnished" },
+                            ]}
+                            value={state.furnishing}
+                            onChange={(selectedOption) =>
+                              setState({
+                                furnishing: selectedOption,
+                                error: { ...state.error, furnishing: "" },
+                              })
+                            }
+                            required
+                            isClearable
+                            error={state.error?.furnishing}
+                          />
+                        </>
+                      )}
+
+                      <CustomSelect
+                        title="Property Facing Direction"
+                        placeholder="Select facing direction"
+                        options={facingDirection}
+                        value={state.facing}
+                        onChange={(selectedOption) =>
+                          setState({ facing: selectedOption })
+                        }
+                        isClearable
+                      />
+
+                      {state.listing_type?.label == LISTING_TYPE.RENT ? (
+                        <>
+                          <NumberInput
+                            name="min_price"
+                            title="Minimum Monthly Rent"
+                            placeholder="Enter min monthly rent"
+                            value={state.min_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.min_price}
+                          />
+                          <NumberInput
+                            name="max_price"
+                            title="Maximum Monthly Rent"
+                            placeholder="Enter max monthly rent"
+                            value={state.max_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.max_price}
+                          />
+                          <NumberInput
+                            name="rent_duration"
+                            title="Rent Duration"
+                            placeholder="Enter rent duration"
+                            value={state.rent_duration}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.rent_duration}
+                          />
+                        </>
                       ) : state.listing_type?.label == LISTING_TYPE.SALE ? (
-                        <> */}
-                    {/*<NumberInput
+                        <>
+                          {/*<NumberInput
                             name="price_per_sqft"
                             title="Price Per Sq.ft"
                             placeholder="Enter Price Per Sq.ft"
@@ -1248,156 +1175,156 @@ const AddPropertyPage = () => {
                             error={state.error?.price_per_sqft}
                           />*/}
 
-                    <NumberInput
-                      name="min_price"
-                      title="Minimum Price"
-                      placeholder="Enter Min Price"
-                      value={state.min_price}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.min_price}
-                    />
+                          <NumberInput
+                            name="min_price"
+                            title="Minimum Price"
+                            placeholder="Enter Min Price"
+                            value={state.min_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.min_price}
+                          />
 
-                    <NumberInput
-                      name="max_price"
-                      title="Maximum Price"
-                      placeholder="Enter Max Price"
-                      value={state.max_price}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.max_price}
-                    />
-                    {/* </>
+                          <NumberInput
+                            name="max_price"
+                            title="Maximum Price"
+                            placeholder="Enter Max Price"
+                            value={state.max_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.max_price}
+                          />
+                        </>
                       ) : state.listing_type?.label == LISTING_TYPE.LEASE ? (
-                        <> */}
-                    <NumberInput
-                      name="min_price"
-                      title="Lease Minimum Price"
-                      placeholder="Enter Lease Min Price"
-                      value={state.min_price}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.min_price}
-                    />
+                        <>
+                          <NumberInput
+                            name="min_price"
+                            title="Lease Minimum Price"
+                            placeholder="Enter Lease Min Price"
+                            value={state.min_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.min_price}
+                          />
 
-                    <NumberInput
-                      name="max_price"
-                      title="Lease Maximum Price"
-                      placeholder="Enter Lease Max Price"
-                      value={state.max_price}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.max_price}
-                    />
-                    <NumberInput
-                      name="lease_duration"
-                      title="Lease Duration (Year)"
-                      placeholder="Enter lease duration"
-                      value={state.lease_duration}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.lease_duration}
-                    />
-                    {/* </>
-                      ) : null} */}
-                    {/* </> */}
+                          <NumberInput
+                            name="max_price"
+                            title="Lease Maximum Price"
+                            placeholder="Enter Lease Max Price"
+                            value={state.max_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.max_price}
+                          />
+                          <NumberInput
+                            name="lease_duration"
+                            title="Lease Duration (Year)"
+                            placeholder="Enter lease duration"
+                            value={state.lease_duration}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.lease_duration}
+                          />
+                        </>
+                      ) : null}
+                    </>
                     {/* )} */}
                   </div>
                 </div>
               )}
 
-              {/* {state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL && */}
-              {step.id === 5 && (
-                <div className="panel rounded-lg p-6">
-                  <h2 className="text-lg font-semibold">Floor Plans</h2>
+              {state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL &&
+                step.id === 5 && (
+                  <div className="panel rounded-lg p-6">
+                    <h2 className="text-lg font-semibold">Floor Plans</h2>
 
-                  <div className="mt-4">
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
-                      {state.floorPlans?.map((plan, index) => (
-                        <div key={index} className="rounded-lg border">
-                          <div
-                            className="flex cursor-pointer items-center justify-between bg-gray-50 p-4"
-                            onClick={() => toggleAccordion(index)}
-                          >
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-medium">
-                                {plan.category?.label ||
-                                  `Floor Plan ${index + 1}`}
-                              </h3>
-                              {plan.squareFeet && (
-                                <span className="text-sm text-gray-500">
-                                  ({plan.squareFeet} sq.ft)
-                                </span>
-                              )}
+                    <div className="mt-4">
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
+                        {state.floorPlans?.map((plan, index) => (
+                          <div key={index} className="rounded-lg border">
+                            <div
+                              className="flex cursor-pointer items-center justify-between bg-gray-50 p-4"
+                              onClick={() => toggleAccordion(index)}
+                            >
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-medium">
+                                  {plan.category?.label ||
+                                    `Floor Plan ${index + 1}`}
+                                </h3>
+                                {plan.squareFeet && (
+                                  <span className="text-sm text-gray-500">
+                                    ({plan.squareFeet} sq.ft)
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {state.floorPlans.length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      removeFloorPlan(index);
+                                    }}
+                                    className="rounded p-1 text-red-500 hover:bg-red-50"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                )}
+                                <ChevronDown className="h-4 w-4" />
+                              </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              {state.floorPlans.length > 1 && (
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    removeFloorPlan(index);
-                                  }}
-                                  className="rounded p-1 text-red-500 hover:bg-red-50"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              )}
-                              <ChevronDown className="h-4 w-4" />
-                            </div>
-                          </div>
 
-                          <div className="border-t p-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <CustomSelect
-                                title="Category"
-                                value={plan.category}
-                                onChange={(e) =>
-                                  updateFloorPlan(index, "category", e)
-                                }
-                                placeholder="Select Category"
-                                options={[
-                                  { value: "plots", label: "Plots" },
-                                  { value: "1bhk", label: "1 BHK" },
-                                  { value: "2bhk", label: "2 BHK" },
-                                  { value: "3bhk", label: "3 BHK" },
-                                  { value: "4bhk", label: "4 BHK" },
-                                ]}
-                              />
+                            <div className="border-t p-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <CustomSelect
+                                  title="Category"
+                                  value={plan.category}
+                                  onChange={(e) =>
+                                    updateFloorPlan(index, "category", e)
+                                  }
+                                  placeholder="Select Category"
+                                  options={[
+                                    { value: "plots", label: "Plots" },
+                                    { value: "1bhk", label: "1 BHK" },
+                                    { value: "2bhk", label: "2 BHK" },
+                                    { value: "3bhk", label: "3 BHK" },
+                                    { value: "4bhk", label: "4 BHK" },
+                                  ]}
+                                />
 
-                              <TextInput
-                                name={`squareFeet-${index}`}
-                                title="Square Feet"
-                                placeholder="Enter Square Feet"
-                                type="number"
-                                value={plan.squareFeet}
-                                onChange={(e) =>
-                                  updateFloorPlan(
-                                    index,
-                                    "squareFeet",
-                                    e.target.value
-                                  )
-                                }
-                                required={plan.category ? true : false}
-                              />
+                                <TextInput
+                                  name={`squareFeet-${index}`}
+                                  title="Square Feet"
+                                  placeholder="Enter Square Feet"
+                                  type="number"
+                                  value={plan.squareFeet}
+                                  onChange={(e) =>
+                                    updateFloorPlan(
+                                      index,
+                                      "squareFeet",
+                                      e.target.value
+                                    )
+                                  }
+                                  required={plan.category ? true : false}
+                                />
 
-                              <TextInput
-                                name={`price-${index}`}
-                                title="Price"
-                                placeholder="Enter Price"
-                                type="number"
-                                value={plan.price}
-                                onChange={(e) =>
-                                  updateFloorPlan(
-                                    index,
-                                    "price",
-                                    e.target.value
-                                  )
-                                }
-                                required={plan.category ? true : false}
-                              />
+                                <TextInput
+                                  name={`price-${index}`}
+                                  title="Price"
+                                  placeholder="Enter Price"
+                                  type="number"
+                                  value={plan.price}
+                                  onChange={(e) =>
+                                    updateFloorPlan(
+                                      index,
+                                      "price",
+                                      e.target.value
+                                    )
+                                  }
+                                  required={plan.category ? true : false}
+                                />
 
-                              {/* <TextInput
+                                {/* <TextInput
                                   name={`reraId-${index}`}
                                   title="RERA ID"
                                   placeholder="Enter RERA ID"
@@ -1412,142 +1339,142 @@ const AddPropertyPage = () => {
                                   required={plan.category ? true : false}
                                 /> */}
 
-                              <TextInput
-                                name={`floorNo-${index}`}
-                                title="Floor No"
-                                placeholder="Enter Floor No"
-                                value={plan.floorNo}
-                                onChange={(e) =>
-                                  updateFloorPlan(
-                                    index,
-                                    "floorNo",
-                                    e.target.value
-                                  )
-                                }
-                                required={plan.category ? true : false}
-                              />
-                            </div>
-
-                            <h5 className="text-md mt-5 font-bold">
-                              Upload Floor Plan Image
-                            </h5>
-
-                            <div
-                              className={`mb-4 mt-3 flex h-80 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
-                                plan.image
-                                  ? "border-green-300 bg-green-50"
-                                  : "border-gray-300 hover:border-gray-400"
-                              } relative`}
-                              onDragOver={(e) => {
-                                e.preventDefault();
-                                e.currentTarget.classList.add(
-                                  "border-blue-400",
-                                  "bg-blue-50"
-                                );
-                              }}
-                              onDragLeave={(e) => {
-                                e.preventDefault();
-                                e.currentTarget.classList.remove(
-                                  "border-blue-400",
-                                  "bg-blue-50"
-                                );
-                              }}
-                              onDrop={(e) => {
-                                e.preventDefault();
-                                e.currentTarget.classList.remove(
-                                  "border-blue-400",
-                                  "bg-blue-50"
-                                );
-
-                                const files = e.dataTransfer.files;
-                                if (files.length > 0) {
-                                  const file = files[0];
-                                  if (file.type.startsWith("image/")) {
-                                    updateFloorPlan(index, "image", file);
+                                <TextInput
+                                  name={`floorNo-${index}`}
+                                  title="Floor No"
+                                  placeholder="Enter Floor No"
+                                  value={plan.floorNo}
+                                  onChange={(e) =>
+                                    updateFloorPlan(
+                                      index,
+                                      "floorNo",
+                                      e.target.value
+                                    )
                                   }
-                                }
-                              }}
-                              onClick={() =>
-                                document
-                                  .getElementById(`file-input-${index}`)
-                                  ?.click()
-                              }
-                            >
-                              {plan.image ? (
-                                <>
-                                  <img
-                                    src={
-                                      typeof plan.image === "string"
-                                        ? plan.image
-                                        : URL.createObjectURL(plan.image)
-                                    }
-                                    alt="Floor plan"
-                                    className="h-full w-full rounded-lg object-contain"
-                                  />
-                                  <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-0 transition-all duration-200 hover:bg-opacity-30">
-                                    <div className="text-center text-white opacity-0 transition-opacity duration-200 hover:opacity-100">
-                                      <Camera className="mx-auto mb-1 h-6 w-6" />
-                                      <span className="text-xs">
-                                        Change Image
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      updateFloorPlan(index, "image", null);
-                                    }}
-                                    className="absolute -right-2 -top-2 z-10 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
-                                  >
-                                    <Trash2 className="h-3 w-3" />
-                                  </button>
-                                </>
-                              ) : (
-                                <>
-                                  <Plus className="h-8 w-8 text-gray-400" />
-                                  <span className="mt-2 text-sm text-gray-500">
-                                    Drag & drop or click to upload
-                                  </span>
-                                  <span className="mt-1 text-xs text-gray-400">
-                                    PNG, JPG, WEBP up to 5MB
-                                  </span>
-                                </>
-                              )}
+                                  required={plan.category ? true : false}
+                                />
+                              </div>
 
-                              <input
-                                id={`file-input-${index}`}
-                                type="file"
-                                className="hidden"
-                                accept="image/*"
-                                onChange={(e) => {
-                                  const file = e.target.files[0];
-                                  if (file) {
-                                    updateFloorPlan(index, "image", file);
+                              <h5 className="text-md mt-5 font-bold">
+                                Upload Floor Plan Image
+                              </h5>
+
+                              <div
+                                className={`mb-4 mt-3 flex h-80 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed ${
+                                  plan.image
+                                    ? "border-green-300 bg-green-50"
+                                    : "border-gray-300 hover:border-gray-400"
+                                } relative`}
+                                onDragOver={(e) => {
+                                  e.preventDefault();
+                                  e.currentTarget.classList.add(
+                                    "border-blue-400",
+                                    "bg-blue-50"
+                                  );
+                                }}
+                                onDragLeave={(e) => {
+                                  e.preventDefault();
+                                  e.currentTarget.classList.remove(
+                                    "border-blue-400",
+                                    "bg-blue-50"
+                                  );
+                                }}
+                                onDrop={(e) => {
+                                  e.preventDefault();
+                                  e.currentTarget.classList.remove(
+                                    "border-blue-400",
+                                    "bg-blue-50"
+                                  );
+
+                                  const files = e.dataTransfer.files;
+                                  if (files.length > 0) {
+                                    const file = files[0];
+                                    if (file.type.startsWith("image/")) {
+                                      updateFloorPlan(index, "image", file);
+                                    }
                                   }
                                 }}
-                                required={plan.category ? true : false}
-                              />
+                                onClick={() =>
+                                  document
+                                    .getElementById(`file-input-${index}`)
+                                    ?.click()
+                                }
+                              >
+                                {plan.image ? (
+                                  <>
+                                    <img
+                                      src={
+                                        typeof plan.image === "string"
+                                          ? plan.image
+                                          : URL.createObjectURL(plan.image)
+                                      }
+                                      alt="Floor plan"
+                                      className="h-full w-full rounded-lg object-contain"
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black bg-opacity-0 transition-all duration-200 hover:bg-opacity-30">
+                                      <div className="text-center text-white opacity-0 transition-opacity duration-200 hover:opacity-100">
+                                        <Camera className="mx-auto mb-1 h-6 w-6" />
+                                        <span className="text-xs">
+                                          Change Image
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        updateFloorPlan(index, "image", null);
+                                      }}
+                                      className="absolute -right-2 -top-2 z-10 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                                    >
+                                      <Trash2 className="h-3 w-3" />
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Plus className="h-8 w-8 text-gray-400" />
+                                    <span className="mt-2 text-sm text-gray-500">
+                                      Drag & drop or click to upload
+                                    </span>
+                                    <span className="mt-1 text-xs text-gray-400">
+                                      PNG, JPG, WEBP up to 5MB
+                                    </span>
+                                  </>
+                                )}
+
+                                <input
+                                  id={`file-input-${index}`}
+                                  type="file"
+                                  className="hidden"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                      updateFloorPlan(index, "image", file);
+                                    }
+                                  }}
+                                  required={plan.category ? true : false}
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
 
-                    {/* Add New Floor Plan Button */}
-                    <div className="mt-4">
-                      <button
-                        type="button"
-                        onClick={addFloorPlan}
-                        className="flex items-center gap-2 rounded-lg border border-blue-600 px-4 py-2 text-blue-600 transition-colors hover:bg-blue-50"
-                      >
-                        <Plus className="h-5 w-5" />
-                        Add Floor Plan
-                      </button>
+                      {/* Add New Floor Plan Button */}
+                      <div className="mt-4">
+                        <button
+                          type="button"
+                          onClick={addFloorPlan}
+                          className="flex items-center gap-2 rounded-lg border border-blue-600 px-4 py-2 text-blue-600 transition-colors hover:bg-blue-50"
+                        >
+                          <Plus className="h-5 w-5" />
+                          Add Floor Plan
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {step.id === 7 && (
                 <div className="panel rounded-lg p-6">
@@ -1897,7 +1824,7 @@ const AddPropertyPage = () => {
                       text="Post Property"
                       className="!mt-6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
                       onClick={onSubmit}
-                      // loading={state.btnLoading}
+                      loading={state.btnLoading}
                     />
                   </div>
                 </div>
