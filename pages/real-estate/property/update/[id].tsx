@@ -520,32 +520,11 @@ const AddPropertyPage = () => {
   const onSubmit = async () => {
     try {
       setState({ btnLoading: true });
-      // const body = {
-      //   property_type: state.property_type?.value,
-      //   listing_type: state.listing_type?.value,
-      //   title: state.title,
-      //   description: state.description,
-      //   status: state.status?.value,
-      //   total_area: state.total_area,
-      //   // built_up_area: state.built_up_area,
-      //   longitude: state.longitude,
-      //   latitude: state.latitude,
-      //   address: state.address,
-      //   city: state.city,
-      //   state: state.state,
-      //   country: state.country,
-      //   postal_code: state.postal_code,
-      //   images: state.imageList,
-      //   amenities: state.amenities,
-      //   project: state.project?.value,
-      // };
-
-
       const body = {
         property_type: state.property_type?.value,
         listing_type: state.listing_type?.value,
-        description: state?.description,
         title: state.title,
+        description: state.description,
         status: state.status?.value,
         total_area: state.total_area,
         built_up_area: state.built_up_area,
@@ -556,112 +535,26 @@ const AddPropertyPage = () => {
         state: state.state,
         country: state.country,
         postal_code: state.postal_code,
-        images: state.images,
+        images: state.imageList,
         amenities: state.amenities,
         project: state.project?.value,
-
-        group: state.group,
-
-        // Sale
-        min_price: state.min_price,
-        max_price: state.max_price,
-        price: state.max_price,
-
-        // Lease
-        lease_total_amount: state.lease_total_amount,
-        lease_duration: state.lease_duration,
-
-        // Rent
-        monthly_rent: state.monthly_rent,
-        rent_duration: state.rent_duration,
-
-        // Property details
-        furnishing: state.furnishing?.value,
-        carpet_area: state.carpet_area,
-        bedrooms: state.bedrooms,
-        bathrooms: state.bathrooms,
-        balconies: state.balconies,
-        total_floors: state.total_floors,
-        floor_number: state.floor_number,
-        built_year: state.built_year,
-        facing_direction: state.facing?.value,
-
-        // Media
-        virtual_tour: state.virtual_tour,
-        video: state.video,
-        floorPlans: state.floorPlans,
-
-        // Assignments
-        developer: state.developer?.value,
-        assignAgent: state.assignAgent,
-        agent: state.agent?.value,
-      
-
-     
-        // validatePropertyType: state.property_type,
-        minimum_price: state.min_price,
-        maximum_price: state.max_price,
-
+        lease_duration:state.lease_duration,
+        developer:state.developer?.value,
+        min_price:state.min_price,
+        max_price:state.max_price,
       };
-      // await Utils.Validation.property_type.validate(body, {
-      //   abortEarly: false,
-      // });
 
-      if (state.group !== "Developer") {
-        body.developer = state.developer?.value;
-      }
+      await Utils.Validation.property_type.validate(body, {
+        abortEarly: false,
+      });
 
-      if (state.group !== "Agent") {
-        body.assignAgent = state.assignAgent;
-        body.agent = state.agent?.value;
-      }
-
+      if (state.listing_type?.label == LISTING_TYPE.SALE) {
+        createSaleProperty();
+      } else if (state.listing_type?.label == LISTING_TYPE.LEASE) {
+        createLeaseProperty();
+      } 
       
-
-      const formData = buildFormData(body);
-
-      const res: any = await Models.property.update(formData, id);
-
-      if (state.virtual_tour) {
-        if (state.virtual_tourList?.length > 0) {
-          const vr_id = state.virtual_tourList?.[0]?.id;
-
-          updateVirtualTour(vr_id);
-        }
-
-        if (state.virtual_tourList?.length == 0) {
-          createVirtualTour(id);
-        }
-      } else {
-        const vr_id = state.virtual_tourList?.[0]?.id;
-        deleteVirtualTour(vr_id);
-      }
-
-      if (state.floorPlans.length > 0) {
-       
-        state.floorPlans?.forEach((item, index) => {
-          if (item.id) {
-            patchFloorPlans(item.id, item, index);
-          } else {
-            createFloorPlans(id, item, index);
-          }
-        });
-      }
-
-      if (state.deleteFloorPlan) {
-        deleteFloorPlans();
-      }
-
-      Success("Property Updated Successfully");
-      router.push("/real-estate/property/list/");
-      setState({ btnLoading: false });
-
-
-      // if (state.listing_type?.label == LISTING_TYPE.SALE) {
-      //   createSaleProperty();
-      // } else if (state.listing_type?.label == LISTING_TYPE.LEASE) {
-      //   createLeaseProperty();
-      // } else if (state.listing_type?.label == LISTING_TYPE.RENT) {
+      // else if (state.listing_type?.label == LISTING_TYPE.RENT) {
       //   createRentProperty();
       // }
     } catch (error) {
@@ -1258,10 +1151,9 @@ const AddPropertyPage = () => {
   const steps = [
     { id: 1, title: "Basic Detail", icon: MapPin },
     { id: 2, title: "Property Information", icon: Info },
-    { id: 5, title: "Floor Plans", icon: Star },
-    // ...(state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL
-    //   ? [{ id: 5, title: "Floor Plans", icon: Star }]
-    //   : []),
+    ...(state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL
+      ? [{ id: 5, title: "Floor Plans", icon: Star }]
+      : []),
     { id: 7, title: "Media", icon: File },
     { id: 3, title: "Location", icon: MapPin },
     { id: 4, title: "Amenities", icon: Home },
@@ -1381,10 +1273,9 @@ const AddPropertyPage = () => {
                           contact: "",
                           error: { ...state.error, property_type: "" },
                           floorPlans:
-                            // e?.label === PROPERTY_TYPE.AGRICULTURAL
-                            //   ? []
-                            //   :
-                               state.floorPlans,
+                            e?.label === PROPERTY_TYPE.AGRICULTURAL
+                              ? []
+                              : state.floorPlans,
                         });
                       }}
                       placeholder={"Select Property type "}
@@ -1532,8 +1423,8 @@ const AddPropertyPage = () => {
                         error={state.error?.total_area}
                       />
 
-                      {/* {state.property_type?.label !==
-                        PROPERTY_TYPE.AGRICULTURAL && ( */}
+                      {state.property_type?.label !==
+                        PROPERTY_TYPE.AGRICULTURAL && (
                         <NumberInput
                           name="built_up_area"
                           title="Built-up Area (sq.ft.)"
@@ -1543,11 +1434,11 @@ const AddPropertyPage = () => {
                           required
                           error={state.error?.built_up_area}
                         />
-                      {/* )} */}
+                      )}
 
-                      {/* {state.property_type?.label ==
+                      {state.property_type?.label ==
                         PROPERTY_TYPE.RESIDENTIAL && (
-                        <> */}
+                        <>
                           <TextInput
                             name="bedrooms"
                             title="Bedrooms (Number Only)"
@@ -1570,11 +1461,11 @@ const AddPropertyPage = () => {
                             onChange={handleInputChange}
                           />
                         </>
-                      {/* )} */}
-{/* 
+                      )}
+
                       {state.property_type?.label !==
                         PROPERTY_TYPE.AGRICULTURAL && (
-                        <> */}
+                        <>
                           <TextInput
                             name="floor_number"
                             title="Floor No (Number Only)"
@@ -1619,8 +1510,8 @@ const AddPropertyPage = () => {
                             isClearable
                             error={state.error?.furnishing}
                           />
-                        {/* </> */}
-                      {/* )} */}
+                        </>
+                      )}
 
                       <CustomSelect
                         title="Property Facing Direction"
@@ -1745,15 +1636,13 @@ const AddPropertyPage = () => {
                           />
                         </>
                       ) : null}
-                    {/* </> */}
+                    </>
                     {/* )} */}
                   </div>
                 </div>
               )}
 
-              {/* {state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL && */}
-              {
-
+              {state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL &&
                 step.id === 5 && (
                   <div className="panel rounded-lg p-6">
                     <h2 className="text-lg font-semibold">Floor Plans</h2>

@@ -49,18 +49,18 @@ const ImageUploadWithPreview: React.FC<ImageUploadProps> = ({
         continue;
       }
 
-      if (file.size > 10 * 1024 * 1024) {
-        setError(`File too large: ${file.name}. Maximum size is 10MB.`);
+      if (file.size > 5 * 1024 * 1024) {
+        setError(`File too large: ${file.name}. Maximum size is 5MB.`);
         continue;
       }
 
-      const isValidDimensions = await validateImage(file);
-      if (!isValidDimensions) {
-        setError(
-          `Invalid dimensions for ${file.name}. Minimum required: ${minWidth}x${minHeight} pixels.`
-        );
-        continue;
-      }
+      // const isValidDimensions = await validateImage(file);
+      // if (!isValidDimensions) {
+      //   setError(
+      //     `Invalid dimensions for ${file.name}. Minimum required: ${minWidth}x${minHeight} pixels.`
+      //   );
+      //   continue;
+      // }
 
       const preview = URL.createObjectURL(file);
       newImages.push({ file, preview });
@@ -158,8 +158,10 @@ const ImageUploadWithPreview: React.FC<ImageUploadProps> = ({
             Upload/Drag photos of your property
           </p>
           <p className="text-sm text-gray-500">
-            Photos must be JPEG or PNG format and at least {minWidth}x
-            {minHeight}
+            Photos must be JPEG or PNG format and max size 5MB
+            
+             {/* at least {minWidth}x
+            {minHeight} */}
           </p>
           <button
             type="button"

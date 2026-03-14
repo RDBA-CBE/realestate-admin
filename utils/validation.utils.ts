@@ -1,6 +1,6 @@
 import moment from "moment";
 import * as Yup from "yup";
-import { PROPERTY_TYPE } from "./constant.utils";
+import { LISTING_TYPE, PROPERTY_TYPE } from "./constant.utils";
 
 export const sessionCreate = Yup.object().shape({
   lounge_type: Yup.string().required("Lounge type is required"),
@@ -34,15 +34,22 @@ export const property_type = Yup.object().shape({
   country: Yup.string().required("Country is required").nullable(),
   postal_code: Yup.string().required("Zip Code is required").nullable(),
   status: Yup.string().required("Status is required").nullable(),
+  total_area: Yup.string().required("Total area is required").nullable(),
+  built_up_area: Yup.string().required("Build up area is required").nullable(),
+  min_price: Yup.string().required("Minimum is required").nullable(),
 
-  total_area: Yup.string().required("Total Area is required").nullable(),
-  // built_up_area: Yup.string()
-  //   .nullable()
-  //   .when("validatePropertyType", {
-  //     is: (val) => val?.label !== PROPERTY_TYPE.AGRICULTURAL,
-  //     then: (schema) => schema.required("Built-up Area is required"),
-  //     otherwise: (schema) => schema.nullable(),
-  //   }),
+  max_price: Yup.string().required("Maximum is required").nullable(),
+
+
+ 
+
+  lease_duration: Yup.string()
+    .nullable()
+    .when("listing_type", {
+      is: (val) => val == "lease",
+      then: (schema) => schema.required("Lease duration is required"),
+      otherwise: (schema) => schema.nullable(),
+    }),
 
   longitude: Yup.string()
     .required("Longitude is required")
@@ -86,13 +93,13 @@ export const propertySaleCreate = Yup.object().shape({
   status: Yup.string().required("Status is required").nullable(),
 
   total_area: Yup.string().required("Total Area is required").nullable(),
-  furnishing: Yup.string()
-    .nullable()
-    .when("validatePropertyType", {
-      is: (val) => val?.label !== PROPERTY_TYPE.AGRICULTURAL,
-      then: (schema) => schema.required("Furnishing is required"),
-      otherwise: (schema) => schema.nullable(),
-    }),
+  // furnishing: Yup.string()
+  //   .nullable()
+  //   .when("validatePropertyType", {
+  //     is: (val) => val?.label !== PROPERTY_TYPE.AGRICULTURAL,
+  //     then: (schema) => schema.required("Furnishing is required"),
+  //     otherwise: (schema) => schema.nullable(),
+  //   }),
   built_up_area: Yup.string()
     .nullable()
     .when("validatePropertyType", {
@@ -162,13 +169,13 @@ export const propertyLeaseCreate = Yup.object().shape({
   postal_code: Yup.string().required("Zip Code is required").nullable(),
   total_area: Yup.string().required("Total Area is required").nullable(),
   status: Yup.string().required("Status is required").nullable(),
-  furnishing: Yup.string()
-    .nullable()
-    .when("validatePropertyType", {
-      is: (val) => val?.label !== PROPERTY_TYPE.AGRICULTURAL,
-      then: (schema) => schema.required("Furnishing is required"),
-      otherwise: (schema) => schema.nullable(),
-    }),
+  // furnishing: Yup.string()
+  //   .nullable()
+  //   .when("validatePropertyType", {
+  //     is: (val) => val?.label !== PROPERTY_TYPE.AGRICULTURAL,
+  //     then: (schema) => schema.required("Furnishing is required"),
+  //     otherwise: (schema) => schema.nullable(),
+  //   }),
   built_up_area: Yup.string()
     .nullable()
     .when("validatePropertyType", {

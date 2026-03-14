@@ -304,91 +304,23 @@ const AddPropertyPage = () => {
         images: state.images,
         amenities: state.amenities,
         project: state.project?.value,
-
-        group: state.group,
-
-        // Sale
-        min_price: state.min_price,
-        max_price: state.max_price,
-        price: state.max_price,
-
-        // Lease
-        lease_total_amount: state.lease_total_amount,
-        lease_duration: state.lease_duration,
-
-        // Rent
-        monthly_rent: state.monthly_rent,
-        rent_duration: state.rent_duration,
-
-        // Property details
-        furnishing: state.furnishing?.value,
-        carpet_area: state.carpet_area,
-        bedrooms: state.bedrooms,
-        bathrooms: state.bathrooms,
-        balconies: state.balconies,
-        total_floors: state.total_floors,
-        floor_number: state.floor_number,
-        built_year: state.built_year,
-        facing_direction: state.facing?.value,
-
-        // Media
-        virtual_tour: state.virtual_tour,
-        video: state.video,
-        floorPlans: state.floorPlans,
-
-        // Assignments
-        developer: state.developer?.value,
-        assignAgent: state.assignAgent,
-        agent: state.agent?.value,
-      
-
-     
-        // validatePropertyType: state.property_type,
-        minimum_price: state.min_price,
-        maximum_price: state.max_price,
-
+        min_price:state.min_price,
+        max_price:state.max_price,
+        lease_duration:state.lease_duration,
+        developer:state.developer?.value
       };
       console.log('✌️body --->', body);
 
-      // await Utils.Validation.property_type.validate(body, {
-      //   abortEarly: false,
-      // });
+      await Utils.Validation.property_type.validate(body, {
+        abortEarly: false,
+      });
 
-
-      const formData = buildFormData(body);
-
-      const res: any = await Models.property.create(formData);
-      if (state.images?.length > 0) {
-        state.images?.map((item, i) => createImage(res?.id, item, i));
-      }
-      if (state.virtual_tour) {
-        await createVirtualTour(res?.id);
-      }
-      if (state.video) {
-        await createVideo(res?.id);
-      }
-
-      if (state.floorPlans.length > 0) {
-        console.log("hello state.floorPlans");
-        state.floorPlans?.map((item, index) =>
-          createFloorPlans(res?.id, item, index)
-        );
-      }
-
-      if (state.group == "Admin") {
-        Success("Property Created Successfully");
-      } else {
-        Success("Your property is created and waiting for approval from admin");
-      }
-      router.push("/real-estate/property/list/");
-      setState({ btnLoading: false });
-
-
-      // if (state.listing_type?.label == LISTING_TYPE.SALE) {
-      //   createSaleProperty();
-      // } else if (state.listing_type?.label == LISTING_TYPE.LEASE) {
-      //   createLeaseProperty();
-      // } else if (state.listing_type?.label == LISTING_TYPE.RENT) {
+      if (state.listing_type?.label == LISTING_TYPE.SALE) {
+        createSaleProperty();
+      } else if (state.listing_type?.label == LISTING_TYPE.LEASE) {
+        createLeaseProperty();
+      } 
+      // else if (state.listing_type?.label == LISTING_TYPE.RENT) {
       //   createRentProperty();
       // }
     } catch (error) {
@@ -859,7 +791,6 @@ const AddPropertyPage = () => {
     // { id: 5, title: "Extra Facilities", icon: Star },
     { id: 6, title: "Contact Information", icon: Phone },
   ];
-  console.log("✌️state.floorPlans --->", state.floorPlans);
 
   const addFloorPlan = () => {
     setState({
@@ -1119,126 +1050,126 @@ const AddPropertyPage = () => {
                       {/* )} */}
 
                       {/* {state.property_type?.label ==
-                        PROPERTY_TYPE.RESIDENTIAL && (
-                        <> */}
-                      <TextInput
-                        name="bedrooms"
-                        title="Bedrooms (Number Only)"
-                        placeholder="Enter number of bedrooms"
-                        value={state.bedrooms}
-                        onChange={handleInputChange}
-                      />
-                      <TextInput
-                        name="bathrooms"
-                        title="Bathrooms (Number Only)"
-                        placeholder="Enter number of bathrooms"
-                        value={state.bathrooms}
-                        onChange={handleInputChange}
-                      />
-                      <TextInput
-                        name="balconies"
-                        title="Balconies (Number Only)"
-                        placeholder="Enter number of balconies"
-                        value={state.balconies}
-                        onChange={handleInputChange}
-                      />
-                    </>
-                    {/* )} */}
+                        PROPERTY_TYPE.RESIDENTIAL && ( */}
+                      <>
+                        <NumberInput
+                          name="bedrooms"
+                          title="Bedrooms (Number Only)"
+                          placeholder="Enter number of bedrooms"
+                          value={state.bedrooms}
+                          onChange={handleInputChange}
+                        />
+                        <NumberInput
+                          name="bathrooms"
+                          title="Bathrooms (Number Only)"
+                          placeholder="Enter number of bathrooms"
+                          value={state.bathrooms}
+                          onChange={handleInputChange}
+                        />
+                        <NumberInput
+                          name="balconies"
+                          title="Balconies (Number Only)"
+                          placeholder="Enter number of balconies"
+                          value={state.balconies}
+                          onChange={handleInputChange}
+                        />
+                      </>
+                      {/* )} */}
 
-                    {/* {state.property_type?.label !==
+                      {/* {state.property_type?.label !==
                         PROPERTY_TYPE.AGRICULTURAL && (
                         <> */}
-                    <TextInput
-                      name="floor_number"
-                      title="Floor No (Number Only)"
-                      placeholder="Enter floor number"
-                      value={state.floor_number}
-                      onChange={handleInputChange}
-                    />
-                    <TextInput
-                      name="total_floors"
-                      title="Total Floors (Number Only)"
-                      placeholder="Enter total number of floors"
-                      value={state.total_floors}
-                      onChange={handleInputChange}
-                    />
-                    <NumberInput
-                      name="built_year"
-                      title="Built Year"
-                      placeholder="Enter the built year"
-                      value={state.built_year}
-                      onChange={handleInputChange}
-                    />
+                      <NumberInput
+                        name="floor_number"
+                        title="Floor No (Number Only)"
+                        placeholder="Enter floor number"
+                        value={state.floor_number}
+                        onChange={handleInputChange}
+                      />
+                      <NumberInput
+                        name="total_floors"
+                        title="Total Floors (Number Only)"
+                        placeholder="Enter total number of floors"
+                        value={state.total_floors}
+                        onChange={handleInputChange}
+                      />
+                      <NumberInput
+                        name="built_year"
+                        title="Built Year"
+                        placeholder="Enter the built year"
+                        value={state.built_year}
+                        onChange={handleInputChange}
+                      />
 
-                    <CustomSelect
-                      title="Furnishing Type"
-                      placeholder="Select furnishing type"
-                      options={[
-                        { value: "furnished", label: "Furnished" },
-                        {
-                          value: "semi_furnished",
-                          label: "Semi-Furnished",
-                        },
-                        { value: "unfurnished", label: "Unfurnished" },
-                      ]}
-                      value={state.furnishing}
-                      onChange={(selectedOption) =>
-                        setState({
-                          furnishing: selectedOption,
-                          error: { ...state.error, furnishing: "" },
-                        })
-                      }
-                      required
-                      isClearable
-                      error={state.error?.furnishing}
-                    />
-                    {/* </>
+                      <CustomSelect
+                        title="Furnishing Type"
+                        placeholder="Select furnishing type"
+                        options={[
+                          { value: "furnished", label: "Furnished" },
+                          {
+                            value: "semi_furnished",
+                            label: "Semi-Furnished",
+                          },
+                          { value: "unfurnished", label: "Unfurnished" },
+                        ]}
+                        value={state.furnishing}
+                        onChange={(selectedOption) =>
+                          setState({
+                            furnishing: selectedOption,
+                            error: { ...state.error, furnishing: "" },
+                          })
+                        }
+                        isClearable
+                        error={state.error?.furnishing}
+                      />
+                      {/* </>
                       )} */}
 
-                    <CustomSelect
-                      title="Property Facing Direction"
-                      placeholder="Select facing direction"
-                      options={facingDirection}
-                      value={state.facing}
-                      onChange={(selectedOption) =>
-                        setState({ facing: selectedOption })
-                      }
-                      isClearable
-                    />
+                      <CustomSelect
+                        title="Property Facing Direction"
+                        placeholder="Select facing direction"
+                        options={facingDirection}
+                        value={state.facing}
+                        onChange={(selectedOption) =>
+                          setState({ facing: selectedOption })
+                        }
+                        isClearable
+                      />
 
-                    {/* {state.listing_type?.label == LISTING_TYPE.RENT ? (
-                        <> */}
-                    <NumberInput
-                      name="min_price"
-                      title="Minimum Monthly Rent"
-                      placeholder="Enter min monthly rent"
-                      value={state.min_price}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.min_price}
-                    />
-                    <NumberInput
-                      name="max_price"
-                      title="Maximum Monthly Rent"
-                      placeholder="Enter max monthly rent"
-                      value={state.max_price}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.max_price}
-                    />
-                    <NumberInput
-                      name="rent_duration"
-                      title="Rent Duration"
-                      placeholder="Enter rent duration"
-                      value={state.rent_duration}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.rent_duration}
-                    />
-                    {/* </>
-                      ) : state.listing_type?.label == LISTING_TYPE.SALE ? (
-                        <> */}
-                    {/*<NumberInput
+                      {/* {state.listing_type?.label == LISTING_TYPE.RENT ? (
+                      <>
+                        <NumberInput
+                          name="min_price"
+                          title="Minimum Monthly Rent"
+                          placeholder="Enter min monthly rent"
+                          value={state.min_price}
+                          onChange={handleInputChange}
+                          error={state.error?.min_price}
+                        />
+                        <NumberInput
+                          name="max_price"
+                          title="Maximum Monthly Rent"
+                          placeholder="Enter max monthly rent"
+                          value={state.max_price}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.max_price}
+                        />
+                        <NumberInput
+                          name="rent_duration"
+                          title="Rent Duration"
+                          placeholder="Enter rent duration"
+                          value={state.rent_duration}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.rent_duration}
+                        />
+                      </>
+                   ) :  */}
+                   
+                   {state.listing_type?.label == LISTING_TYPE.SALE || !state.listing_type ? ( 
+                      <>
+                        {/*<NumberInput
                             name="price_per_sqft"
                             title="Price Per Sq.ft"
                             placeholder="Enter Price Per Sq.ft"
@@ -1248,59 +1179,59 @@ const AddPropertyPage = () => {
                             error={state.error?.price_per_sqft}
                           />*/}
 
-                    <NumberInput
-                      name="min_price"
-                      title="Minimum Price"
-                      placeholder="Enter Min Price"
-                      value={state.min_price}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.min_price}
-                    />
+                        <NumberInput
+                          name="min_price"
+                          title="Minimum Price"
+                          placeholder="Enter Min Price"
+                          value={state.min_price}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.min_price}
+                        />
 
-                    <NumberInput
-                      name="max_price"
-                      title="Maximum Price"
-                      placeholder="Enter Max Price"
-                      value={state.max_price}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.max_price}
-                    />
-                    {/* </>
-                      ) : state.listing_type?.label == LISTING_TYPE.LEASE ? (
-                        <> */}
-                    <NumberInput
-                      name="min_price"
-                      title="Lease Minimum Price"
-                      placeholder="Enter Lease Min Price"
-                      value={state.min_price}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.min_price}
-                    />
+                        <NumberInput
+                          name="max_price"
+                          title="Maximum Price"
+                          placeholder="Enter Max Price"
+                          value={state.max_price}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.max_price}
+                        />
+                      </>
+                   ) : state.listing_type?.label == LISTING_TYPE.LEASE ? (
+                      <>
+                        <NumberInput
+                          name="min_price"
+                          title="Lease Minimum Price"
+                          placeholder="Enter Lease Min Price"
+                          value={state.min_price}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.min_price}
+                        />
 
-                    <NumberInput
-                      name="max_price"
-                      title="Lease Maximum Price"
-                      placeholder="Enter Lease Max Price"
-                      value={state.max_price}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.max_price}
-                    />
-                    <NumberInput
-                      name="lease_duration"
-                      title="Lease Duration (Year)"
-                      placeholder="Enter lease duration"
-                      value={state.lease_duration}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.lease_duration}
-                    />
-                    {/* </>
-                      ) : null} */}
-                    {/* </> */}
+                        <NumberInput
+                          name="max_price"
+                          title="Lease Maximum Price"
+                          placeholder="Enter Lease Max Price"
+                          value={state.max_price}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.max_price}
+                        />
+                        <NumberInput
+                          name="lease_duration"
+                          title="Lease Duration (Year)"
+                          placeholder="Enter lease duration"
+                          value={state.lease_duration}
+                          onChange={handleInputChange}
+                          required
+                          error={state.error?.lease_duration}
+                        />
+                      </>
+                    ) : null} 
+                    </>
                     {/* )} */}
                   </div>
                 </div>
@@ -1848,8 +1779,8 @@ const AddPropertyPage = () => {
                             },
                           })
                         }
-                        isClearable
                         required
+                        isClearable
                         error={state.error?.developer}
                       />
                     )}
@@ -1883,7 +1814,6 @@ const AddPropertyPage = () => {
                               })
                             }
                             isClearable
-                            required
                             error={state.error?.agent}
                           />
                         )}
@@ -1897,7 +1827,7 @@ const AddPropertyPage = () => {
                       text="Post Property"
                       className="!mt-6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
                       onClick={onSubmit}
-                      // loading={state.btnLoading}
+                      loading={state.btnLoading}
                     />
                   </div>
                 </div>

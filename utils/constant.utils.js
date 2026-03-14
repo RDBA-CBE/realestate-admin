@@ -668,7 +668,7 @@ export const FURNISHING_TYPE = [
 
 export const ListType = [
   { value: "sale", label: "Sale" },
-  { value: "rent", label: "Rent" },
+  // { value: "rent", label: "Rent" },
   { value: "lease", label: "Lease" },
 ];
 
