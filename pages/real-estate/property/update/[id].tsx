@@ -154,6 +154,7 @@ const AddPropertyPage = () => {
     agentList(1);
   }, []);
 
+
   const propertyDetails = async () => {
     try {
       const res: any = await Models.property.details(id);
@@ -188,11 +189,12 @@ const AddPropertyPage = () => {
         state: res?.state,
         country: res?.country,
         postal_code: res?.postal_code,
-
-        ...(res?.total_area && { total_area: formatNumber(res.total_area) }),
-        ...(res?.built_up_area && {
-          built_up_area: formatNumber(res.built_up_area),
-        }),
+        total_area: res?.total_area,
+        built_up_area: res?.built_up_area,
+        // ...(res?.total_area && { total_area: formatNumber(res.total_area) }),
+        // ...(res?.built_up_area && {
+        //   built_up_area: formatNumber(res.built_up_area),
+        // }),
         ...(res?.longitude && { longitude: formatNumber(res.longitude) }),
         ...(res?.latitude && { latitude: formatNumber(res.latitude) }),
         ...(res?.monthly_rent && {
