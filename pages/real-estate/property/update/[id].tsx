@@ -1435,7 +1435,7 @@ const AddPropertyPage = () => {
                       </> */}
                     {/* ) : ( */}
                     <>
-                      <NumberInput
+                      <TextInput
                         name="total_area"
                         title="Total Area (sq.ft.)"
                         placeholder="Enter total area"
@@ -1447,7 +1447,7 @@ const AddPropertyPage = () => {
 
                       {state.property_type?.label !==
                         PROPERTY_TYPE.AGRICULTURAL && (
-                        <NumberInput
+                        <TextInput
                           name="built_up_area"
                           title="Built-up Area (sq.ft.)"
                           placeholder="Enter total built-up area"
@@ -1458,8 +1458,8 @@ const AddPropertyPage = () => {
                         />
                       )}
 
-                      {state.property_type?.label ==
-                        PROPERTY_TYPE.RESIDENTIAL && (
+                      {/* {state.property_type?.label ==
+                        PROPERTY_TYPE.RESIDENTIAL && ( */}
                         <>
                           <TextInput
                             name="bedrooms"
@@ -1483,11 +1483,11 @@ const AddPropertyPage = () => {
                             onChange={handleInputChange}
                           />
                         </>
-                      )}
+                      {/* )} */}
 
-                      {state.property_type?.label !==
+                      {/* {state.property_type?.label !==
                         PROPERTY_TYPE.AGRICULTURAL && (
-                        <>
+                        <> */}
                           <TextInput
                             name="floor_number"
                             title="Floor No (Number Only)"
@@ -1532,8 +1532,8 @@ const AddPropertyPage = () => {
                             isClearable
                             error={state.error?.furnishing}
                           />
-                        </>
-                      )}
+                        {/* </> */}
+                      {/* )} */}
 
                       <CustomSelect
                         title="Property Facing Direction"

@@ -1051,7 +1051,7 @@ const AddPropertyPage = () => {
                       </> */}
 
                     <>
-                      <NumberInput
+                      <TextInput
                         name="total_area"
                         title="Total Area (sq.ft.)"
                         placeholder="Enter total area"
@@ -1063,7 +1063,7 @@ const AddPropertyPage = () => {
 
                       {/* {state.property_type?.label !==
                         PROPERTY_TYPE.AGRICULTURAL && ( */}
-                      <NumberInput
+                      <TextInput
                         name="built_up_area"
                         title="Built-up Area (sq.ft.)"
                         placeholder="Enter total built-up area"
