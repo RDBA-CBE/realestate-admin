@@ -35,6 +35,7 @@ import {
   FRONTEND_URL,
   LISTING_TYPE_LIST,
   ListType,
+  PROPERTY_STATUS,
   propertyType,
 } from "@/utils/constant.utils";
 import { FaHome } from "react-icons/fa";
@@ -199,6 +200,15 @@ export default function list() {
                   {row?.is_approved ? "Approved" : "Waiting For Approval"}
                 </span>
               )}
+                <div
+                className={`inline-block w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+                  row?.publish == "Published"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-gray-200 text-gray-700"
+                }`}
+              >
+                {row?.publish}
+              </div>
               <div>
                 <Link className="flex gap-1 text-primary" href={`${FRONTEND_URL}/property-detail/${row?.id}`} target="_blank">
                   <LucideHome className="h-4 w-4 text-black" /> View Details
@@ -341,6 +351,7 @@ export default function list() {
     state.property_type,
     state.offer_type,
     state.status,
+    state.publish
   ]);
 
   useEffect(() => {
@@ -361,6 +372,8 @@ export default function list() {
       const body = bodyData();
       const res: any = await Models.property.list(page, body);
       const data = res?.results?.map((item) => ({
+        publish: item?.publish == true ? "Published" : "Draft",
+
         title: capitalizeFLetter(item?.title),
         status: capitalizeFLetter(item?.status),
         id: item?.id,
@@ -495,6 +508,10 @@ export default function list() {
     if (state.status) {
       body.status = state.status.value;
     }
+    if (state.publish) {
+      body.publish = state.publish?.value == "Publish" ? "Yes" : "No";
+    }
+
 
     return body;
   };
@@ -615,7 +632,14 @@ export default function list() {
             options={ListType}
           />
         </div>
-
+        <div className="flex-1">
+          <CustomSelect
+            placeholder="Publish or Draft"
+            value={state.publish}
+            onChange={(e) => setState({ publish: e })}
+            options={PROPERTY_STATUS}
+          />
+        </div>
         {/* Status Dropdown */}
 
         {/* Bulk Actions Dropdown */}

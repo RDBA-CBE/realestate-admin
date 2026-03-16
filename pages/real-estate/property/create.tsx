@@ -283,9 +283,13 @@ const AddPropertyPage = () => {
     }
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (type: string) => {
     try {
-      setState({ btnLoading: true });
+      if (type == "draft") {
+        setState({ btnLoading1: true });
+      } else {
+        setState({ btnLoading: true });
+      }
       const body = {
         property_type: state.property_type?.value,
         listing_type: state.listing_type?.value,
@@ -304,22 +308,22 @@ const AddPropertyPage = () => {
         images: state.images,
         amenities: state.amenities,
         project: state.project?.value,
-        min_price:state.min_price,
-        max_price:state.max_price,
-        lease_duration:state.lease_duration,
-        developer:state.developer?.value
+        min_price: state.min_price,
+        max_price: state.max_price,
+        lease_duration: state.lease_duration,
+        developer: state.developer?.value,
       };
-      console.log('✌️body --->', body);
+      console.log("✌️body --->", body);
 
       await Utils.Validation.property_type.validate(body, {
         abortEarly: false,
       });
 
       if (state.listing_type?.label == LISTING_TYPE.SALE) {
-        createSaleProperty();
+        createSaleProperty(type);
       } else if (state.listing_type?.label == LISTING_TYPE.LEASE) {
-        createLeaseProperty();
-      } 
+        createLeaseProperty(type);
+      }
       // else if (state.listing_type?.label == LISTING_TYPE.RENT) {
       //   createRentProperty();
       // }
@@ -334,14 +338,18 @@ const AddPropertyPage = () => {
         setState({ error: validationErrors, btnLoading: false });
       } else {
         Failure(error?.error);
-        setState({ btnLoading: false });
+        setState({ btnLoading: false,btnLoading1:false });
       }
     }
   };
 
-  const createSaleProperty = async () => {
+  const createSaleProperty = async (type: string) => {
     try {
-      setState({ btnLoading: true });
+      if (type == "draft") {
+        setState({ btnLoading1: true });
+      } else {
+        setState({ btnLoading: true });
+      }
 
       const saleBody: any = {
         group: state.group,
@@ -385,6 +393,11 @@ const AddPropertyPage = () => {
       if (state.group !== "Agent") {
         saleBody.assignAgent = state.assignAgent;
         saleBody.agent = state.agent?.value;
+      }
+      if (type == "draft") {
+        saleBody.publish = false;
+      } else {
+        saleBody.publish = true;
       }
 
       console.log("saleBody", saleBody);
@@ -430,7 +443,8 @@ const AddPropertyPage = () => {
         Success("Your property is created and waiting for approval from admin");
       }
       router.push("/real-estate/property/list/");
-      setState({ btnLoading: false });
+      setState({ btnLoading: false,btnLoading1:false });
+   
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -453,14 +467,19 @@ const AddPropertyPage = () => {
         } else {
           Failure(error || "Something went wrong");
         }
-        setState({ btnLoading: false });
+      setState({ btnLoading: false,btnLoading1:false });
+
       }
     }
   };
 
-  const createLeaseProperty = async () => {
+  const createLeaseProperty = async (type: string) => {
     try {
-      setState({ btnLoading: true });
+      if (type == "draft") {
+        setState({ btnLoading1: true });
+      } else {
+        setState({ btnLoading: true });
+      }
 
       const buyBody: any = {
         group: state.group,
@@ -510,6 +529,11 @@ const AddPropertyPage = () => {
         buyBody.agent = state.agent?.value;
       }
 
+      if (type == "draft") {
+        buyBody.publish = false;
+      } else {
+        buyBody.publish = true;
+      }
       await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
         abortEarly: false,
       });
@@ -548,7 +572,7 @@ const AddPropertyPage = () => {
         Success("Your property is created and waiting for approval from admin");
       }
       router.push("/real-estate/property/list/");
-      setState({ btnLoading: false });
+      setState({ btnLoading: false,btnLoading1:false });
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -571,7 +595,8 @@ const AddPropertyPage = () => {
         } else {
           Failure(error || "Something went wrong");
         }
-        setState({ btnLoading: false });
+      setState({ btnLoading: false,btnLoading1:false });
+        
       }
     }
   };
@@ -1166,10 +1191,11 @@ const AddPropertyPage = () => {
                         />
                       </>
                    ) :  */}
-                   
-                   {state.listing_type?.label == LISTING_TYPE.SALE || !state.listing_type ? ( 
-                      <>
-                        {/*<NumberInput
+
+                      {state.listing_type?.label == LISTING_TYPE.SALE ||
+                      !state.listing_type ? (
+                        <>
+                          {/*<NumberInput
                             name="price_per_sqft"
                             title="Price Per Sq.ft"
                             placeholder="Enter Price Per Sq.ft"
@@ -1179,58 +1205,58 @@ const AddPropertyPage = () => {
                             error={state.error?.price_per_sqft}
                           />*/}
 
-                        <NumberInput
-                          name="min_price"
-                          title="Minimum Price"
-                          placeholder="Enter Min Price"
-                          value={state.min_price}
-                          onChange={handleInputChange}
-                          required
-                          error={state.error?.min_price}
-                        />
+                          <NumberInput
+                            name="min_price"
+                            title="Minimum Price"
+                            placeholder="Enter Min Price"
+                            value={state.min_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.min_price}
+                          />
 
-                        <NumberInput
-                          name="max_price"
-                          title="Maximum Price"
-                          placeholder="Enter Max Price"
-                          value={state.max_price}
-                          onChange={handleInputChange}
-                          required
-                          error={state.error?.max_price}
-                        />
-                      </>
-                   ) : state.listing_type?.label == LISTING_TYPE.LEASE ? (
-                      <>
-                        <NumberInput
-                          name="min_price"
-                          title="Lease Minimum Price"
-                          placeholder="Enter Lease Min Price"
-                          value={state.min_price}
-                          onChange={handleInputChange}
-                          required
-                          error={state.error?.min_price}
-                        />
+                          <NumberInput
+                            name="max_price"
+                            title="Maximum Price"
+                            placeholder="Enter Max Price"
+                            value={state.max_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.max_price}
+                          />
+                        </>
+                      ) : state.listing_type?.label == LISTING_TYPE.LEASE ? (
+                        <>
+                          <NumberInput
+                            name="min_price"
+                            title="Lease Minimum Price"
+                            placeholder="Enter Lease Min Price"
+                            value={state.min_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.min_price}
+                          />
 
-                        <NumberInput
-                          name="max_price"
-                          title="Lease Maximum Price"
-                          placeholder="Enter Lease Max Price"
-                          value={state.max_price}
-                          onChange={handleInputChange}
-                          required
-                          error={state.error?.max_price}
-                        />
-                        <NumberInput
-                          name="lease_duration"
-                          title="Lease Duration (Year)"
-                          placeholder="Enter lease duration"
-                          value={state.lease_duration}
-                          onChange={handleInputChange}
-                          required
-                          error={state.error?.lease_duration}
-                        />
-                      </>
-                    ) : null} 
+                          <NumberInput
+                            name="max_price"
+                            title="Lease Maximum Price"
+                            placeholder="Enter Lease Max Price"
+                            value={state.max_price}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.max_price}
+                          />
+                          <NumberInput
+                            name="lease_duration"
+                            title="Lease Duration (Year)"
+                            placeholder="Enter lease duration"
+                            value={state.lease_duration}
+                            onChange={handleInputChange}
+                            required
+                            error={state.error?.lease_duration}
+                          />
+                        </>
+                      ) : null}
                     </>
                     {/* )} */}
                   </div>
@@ -1821,12 +1847,20 @@ const AddPropertyPage = () => {
                     )}
                   </div>
 
-                  <div className="mt-6 flex justify-end">
+                  <div className="flex justify-end gap-4">
                     <PrimaryButton
                       type="submit"
-                      text="Post Property"
+                      text="Draft Property"
+                      className="!mt-6 border border-black !bg-transparent !font-black uppercase !text-black"
+                      onClick={() => onSubmit("draft")}
+                      loading={state.btnLoading1}
+                    />
+
+                    <PrimaryButton
+                      type="submit"
+                      text="Publish Property"
                       className="!mt-6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
-                      onClick={onSubmit}
+                      onClick={() => onSubmit("publish")}
                       loading={state.btnLoading}
                     />
                   </div>

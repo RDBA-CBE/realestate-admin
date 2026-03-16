@@ -37,6 +37,7 @@ import {
   LISTING_TYPE,
   LISTING_TYPE_LIST,
   ListType,
+  PROPERTY_STATUS,
   Property_status,
   PROPERTY_TYPE,
   propertyType,
@@ -60,7 +61,6 @@ export default function List() {
   // const [group, setGroup] = useState(null);
 
   // console.log("group", group);
-  
 
   // useEffect(() => {
   //   const usergroup = localStorage.getItem("group") || "";
@@ -214,8 +214,22 @@ export default function List() {
                   {row?.is_approved ? "Approved" : "Waiting For Approval"}
                 </span>
               )}
+
+              <div
+                className={`inline-block w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+                  row?.publish == "Published"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-gray-200 text-gray-700"
+                }`}
+              >
+                {row?.publish}
+              </div>
               <div>
-                <Link className="flex gap-1 text-primary" href={`${FRONTEND_URL}/property-detail/${row?.id}`} target="_blank">
+                <Link
+                  className="flex gap-1 text-primary"
+                  href={`${FRONTEND_URL}/property-detail/${row?.id}`}
+                  target="_blank"
+                >
                   <LucideHome className="h-4 w-4 text-black" /> View Details
                 </Link>
               </div>
@@ -281,33 +295,33 @@ export default function List() {
 
     // ...(group == "Admin" || group == "Seller"
     //   ? [
-          {
-            accessor: "action",
-            title: "Actions",
-            visible: true,
-            toggleable: false,
-            sortable: false,
-            textAlignment: "center",
-            render: (row) => (
-              <div className="mx-auto flex w-max items-center gap-4">
-                <button
-                  className="flex hover:text-info"
-                  onClick={() => handleEdit(row)}
-                >
-                  <IconEdit className="h-4.5 w-4.5" />
-                </button>
-                <button
-                  className="flex hover:text-danger"
-                  onClick={() => handleDelete(row)}
-                >
-                  <IconTrashLines />
-                </button>
-              </div>
-            ),
-          },
-  //       ]
-  //     : []),
-   ];
+    {
+      accessor: "action",
+      title: "Actions",
+      visible: true,
+      toggleable: false,
+      sortable: false,
+      textAlignment: "center",
+      render: (row) => (
+        <div className="mx-auto flex w-max items-center gap-4">
+          <button
+            className="flex hover:text-info"
+            onClick={() => handleEdit(row)}
+          >
+            <IconEdit className="h-4.5 w-4.5" />
+          </button>
+          <button
+            className="flex hover:text-danger"
+            onClick={() => handleDelete(row)}
+          >
+            <IconTrashLines />
+          </button>
+        </div>
+      ),
+    },
+    //       ]
+    //     : []),
+  ];
 
   const [state, setState] = useSetState({
     isOpen: false,
@@ -373,6 +387,7 @@ export default function List() {
     state.agent,
     state.role,
     state.user,
+    state.publish,
   ]);
 
   useEffect(() => {
@@ -395,6 +410,7 @@ export default function List() {
 
       const res: any = await Models.property.list(page, body);
       const data = res?.results?.map((item) => ({
+        publish: item?.publish == true ? "Published" : "Draft",
         title: capitalizeFLetter(item?.title),
         status: capitalizeFLetter(item?.status),
         id: item?.id,
@@ -422,7 +438,10 @@ export default function List() {
         )} ${capitalizeFLetter(item?.agent?.last_name)}`,
         project: capitalizeFLetter(item?.project?.name),
 
-        price: formatPriceRange(item?.price_range?.minimum_price,item?.price_range?.maximum_price),
+        price: formatPriceRange(
+          item?.price_range?.minimum_price,
+          item?.price_range?.maximum_price
+        ),
         is_approved: item?.is_approved,
         image:
           item?.primary_image ??
@@ -573,7 +592,7 @@ export default function List() {
 
     // Common
 
-    body.is_approved = 'Yes'
+    body.is_approved = "Yes";
 
     if (state.search) {
       body.search = debouncedSearch;
@@ -588,6 +607,9 @@ export default function List() {
 
     if (state.status) {
       body.status = state.status.value;
+    }
+    if (state.publish) {
+      body.publish = state.publish?.value == "Publish" ? "Yes" : "No";
     }
 
     if (group == capitalizeFLetter(ROLES.ADMIN)) {
@@ -799,6 +821,14 @@ export default function List() {
           />
         </div>
 
+        <div className="flex-1">
+          <CustomSelect
+            placeholder="Publish or Draft"
+            value={state.publish}
+            onChange={(e) => setState({ publish: e })}
+            options={PROPERTY_STATUS}
+          />
+        </div>
         {/* 
         <button
           type="button"

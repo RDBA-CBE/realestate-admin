@@ -10,8 +10,12 @@ const properties = {
         url += `&is_approved=${encodeURIComponent(false)}`;
       }
 
-      if (body?.is_approved == "Yes") {
-        url += `&is_approved=${encodeURIComponent(true)}`;
+      if (body?.publish == "Yes") {
+        url += `&publish=${encodeURIComponent(true)}`;
+      }
+
+      if (body?.publish == "No") {
+        url += `&publish=${encodeURIComponent(false)}`;
       }
 
       if (body?.group){

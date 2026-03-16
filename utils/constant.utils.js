@@ -766,6 +766,17 @@ export const roleList = [
   },
 ];
 
+export const PROPERTY_STATUS = [
+  {
+   value: "Publish",
+   label: "Publish",
+ },
+ {
+   value: "Draft",
+   label: "Draft",
+ }
+];
+
 export const PROPERTY_IMG = [
   "https://www.pexels.com/photo/sun-piercing-of-brown-concrete-house-near-sea-1732414/",
   "https://www.pexels.com/photo/high-angle-photography-of-village-280221/",

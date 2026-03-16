@@ -517,9 +517,13 @@ const AddPropertyPage = () => {
     }
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (type:string) => {
     try {
-      setState({ btnLoading: true });
+      if (type == "draft") {
+        setState({ btnLoading1: true });
+      } else {
+        setState({ btnLoading: true });
+      }
       const body = {
         property_type: state.property_type?.value,
         listing_type: state.listing_type?.value,
@@ -549,9 +553,9 @@ const AddPropertyPage = () => {
       });
 
       if (state.listing_type?.label == LISTING_TYPE.SALE) {
-        createSaleProperty();
+        createSaleProperty(type);
       } else if (state.listing_type?.label == LISTING_TYPE.LEASE) {
-        createLeaseProperty();
+        createLeaseProperty(type);
       } 
       
       // else if (state.listing_type?.label == LISTING_TYPE.RENT) {
@@ -567,14 +571,15 @@ const AddPropertyPage = () => {
         setState({ error: validationErrors, btnLoading: false });
       } else {
         Failure(error?.error);
-        setState({ btnLoading: false });
+        setState({ btnLoading: false,btnLoading1:false });
+
       }
     }
   };
 
 
 
-  const createSaleProperty = async () => {
+  const createSaleProperty = async (type:string) => {
     try {
       const saleBody: any = {
         group: state.group,
@@ -621,6 +626,11 @@ const AddPropertyPage = () => {
       }
 
       
+      if (type == "draft") {
+        saleBody.publish = false;
+      } else {
+        saleBody.publish = true;
+      }
       
 
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
@@ -676,7 +686,7 @@ const AddPropertyPage = () => {
 
       Success("Property Updated Successfully");
       router.push("/real-estate/property/list/");
-      setState({ btnLoading: false });
+      setState({ btnLoading: false,btnLoading1:false });
     } catch (error) {
 
       
@@ -701,12 +711,13 @@ const AddPropertyPage = () => {
         } else {
           Failure(error || "Something went wrong");
         }
-        setState({ btnLoading: false });
+      setState({ btnLoading: false,btnLoading1:false });
+
       }
     }
   };
 
-  const createLeaseProperty = async () => {
+  const createLeaseProperty = async (type:string) => {
     try {
       // setState({ btnLoading: true });
 
@@ -758,6 +769,13 @@ const AddPropertyPage = () => {
         buyBody.agent = state.agent?.value;
       }
 
+
+      if (type == "draft") {
+        buyBody.publish = false;
+      } else {
+        buyBody.publish = true;
+      }
+
       await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
         abortEarly: false,
       });
@@ -806,7 +824,8 @@ const AddPropertyPage = () => {
 
       Success("Property Updated Successfully");
       router.push("/real-estate/property/list/");
-      setState({ btnLoading: false });
+      setState({ btnLoading: false,btnLoading1:false });
+
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -830,6 +849,8 @@ const AddPropertyPage = () => {
           Failure(error || "Something went wrong");
         }
         setState({ btnLoading: false });
+      setState({ btnLoading: false,btnLoading1:false });
+
       }
     }
   };
@@ -932,6 +953,7 @@ const AddPropertyPage = () => {
       Success("Property Updated Successfully");
       router.push("/real-estate/property/list/");
       setState({ btnLoading: false });
+      
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -2229,12 +2251,20 @@ const AddPropertyPage = () => {
                       </>
                     )}
                   </div>
-                  <div className="mt-6 flex justify-end">
+                  <div className="flex justify-end gap-4">
                     <PrimaryButton
                       type="submit"
-                      text="Update Property"
+                      text="Draft Property"
+                      className="!mt-6 border border-black !bg-transparent !font-black uppercase !text-black"
+                      onClick={() => onSubmit("draft")}
+                      loading={state.btnLoading1}
+                    />
+
+                    <PrimaryButton
+                      type="submit"
+                      text="Publish Property"
                       className="!mt-6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
-                      onClick={onSubmit}
+                      onClick={() => onSubmit("publish")}
                       loading={state.btnLoading}
                     />
                   </div>

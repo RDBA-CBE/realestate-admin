@@ -8,6 +8,7 @@ import {
   commonDateFormat,
   Dropdown,
   Failure,
+  formatPriceRange,
   formatToINR,
   showDeleteAlert,
   Success,
@@ -35,6 +36,7 @@ import {
   LISTING_TYPE,
   LISTING_TYPE_LIST,
   ListType,
+  PROPERTY_STATUS,
   Property_status,
   PROPERTY_TYPE,
   propertyType,
@@ -190,8 +192,21 @@ export default function List() {
                 {row.title}
               </Link>
             </div>
+            <div
+              className={`inline-block w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+                row?.publish == "Published"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-gray-200 text-gray-700"
+              }`}
+            >
+              {row?.publish}
+            </div>
             <div>
-              <Link className="flex gap-1 text-primary" href={`${FRONTEND_URL}/property-detail/${row?.id}`} target="_blank">
+              <Link
+                className="flex gap-1 text-primary"
+                href={`${FRONTEND_URL}/property-detail/${row?.id}`}
+                target="_blank"
+              >
                 <LucideHome className="h-4 w-4 text-black " /> View Details
               </Link>
             </div>
@@ -312,7 +327,13 @@ export default function List() {
 
   useEffect(() => {
     propertyList(1);
-  }, [debouncedSearch, state.property_type, state.offer_type, state.status]);
+  }, [
+    debouncedSearch,
+    state.property_type,
+    state.offer_type,
+    state.status,
+    state.publish,
+  ]);
 
   useEffect(() => {
     if (state.viewMode == "table") {
@@ -331,6 +352,7 @@ export default function List() {
     try {
       setState({ loading: true });
       const body = bodyData();
+console.log('✌️body --->', body);
       const res: any = await Models.property.list(page, body);
       const data = res?.results?.map((item) => ({
         title: capitalizeFLetter(item?.title),
@@ -356,8 +378,10 @@ export default function List() {
           item?.developer?.first_name
         )} ${capitalizeFLetter(item?.developer?.last_name)}`,
         project: capitalizeFLetter(item?.project?.name),
+        publish: item?.publish ? "Published" : "Draft",
+        agent: false,
 
-        price: formatToINR(item?.price),
+        price: formatPriceRange(item?.minimum_price, item?.maximum_price),
         created_by: `${capitalizeFLetter(item?.created_by?.first_name)} ${
           item?.created_by?.last_name
         }`,
@@ -434,7 +458,7 @@ export default function List() {
   const bodyData = () => {
     let body: any = {};
 
-    body.is_approved = "No";
+    // body.is_approved = "No";
 
     if (state.search) {
       body.search = debouncedSearch;
@@ -449,6 +473,15 @@ export default function List() {
 
     if (state.status) {
       body.status = state.status.value;
+    }
+
+    if (state.status) {
+      body.status = state.status.value;
+    }
+    if (state.publish?.value) {
+      body.publish = state.publish.value == "Publish" ? "Yes" : "No";
+    } else {
+      body.publish = "Yes";
     }
 
     return body;
@@ -563,6 +596,15 @@ export default function List() {
             value={state.status}
             onChange={(e) => setState({ status: e })}
             options={Property_status}
+          />
+        </div>
+
+        <div className="flex-1">
+          <CustomSelect
+            placeholder="Publish or Draft"
+            value={state.publish}
+            onChange={(e) => setState({ publish: e })}
+            options={PROPERTY_STATUS}
           />
         </div>
 
