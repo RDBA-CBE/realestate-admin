@@ -203,27 +203,39 @@ export default function List() {
                   {row.title}
                 </Link>
               </div>
-              {group == "Seller" && (
-                <span
-                  className={`badge  ${
-                    row?.is_approved
-                      ? "badge-outline-success w-[70px]"
-                      : "badge-outline-warning w-[140px]"
+              {group == "Seller" ? (
+                <div className="flex items-center justify-center gap-2">
+                  <span
+                    className={`badge  ${
+                      row?.is_approved
+                        ? "badge-outline-success w-[70px]"
+                        : "badge-outline-warning w-[140px]"
+                    }`}
+                  >
+                    {row?.is_approved ? "Approved" : "Waiting For Approval"}
+                  </span>
+
+                  <div
+                    className={`inline-block w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+                      row?.publish == "Published"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-200 text-gray-700"
+                    }`}
+                  >
+                    {row?.publish}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className={`inline-block w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+                    row?.publish == "Published"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-200 text-gray-700"
                   }`}
                 >
-                  {row?.is_approved ? "Approved" : "Waiting For Approval"}
-                </span>
+                  {row?.publish}
+                </div>
               )}
-
-              <div
-                className={`inline-block w-fit rounded-full px-3 py-1 text-xs font-semibold ${
-                  row?.publish == "Published"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                {row?.publish}
-              </div>
               <div>
                 <Link
                   className="flex gap-1 text-primary"
