@@ -273,7 +273,7 @@ const CreateOpportunities = () => {
       const res = await Models.lead.update(body, id);
       setState({ btnLoading: false });
       Success("Lead Updated Successfully");
-      router.push("/real-estate/lead/list");
+      router.back()
       console.log("✌️res --->", res);
     } catch (error: any) {
       if (error instanceof Yup.ValidationError) {
