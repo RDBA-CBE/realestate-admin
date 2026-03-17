@@ -1,7 +1,9 @@
 "use client";
 
+import NumberInput from "@/components/FormFields/NumberInputs.component";
 import PrimaryButton from "@/components/FormFields/PrimaryButton.component";
 import TextInput from "@/components/FormFields/TextInput.component";
+import IconCalendar from "@/components/Icon/IconCalendar";
 import IconEdit from "@/components/Icon/IconEdit";
 import IconEye from "@/components/Icon/IconEye";
 import IconEyeOff from "@/components/Icon/IconEyeOff";
@@ -9,7 +11,9 @@ import IconHome from "@/components/Icon/IconHome";
 import IconLoader from "@/components/Icon/IconLoader";
 import IconLockDots from "@/components/Icon/IconLockDots";
 import IconMail from "@/components/Icon/IconMail";
+import IconMapPin from "@/components/Icon/IconMapPin";
 import IconUser from "@/components/Icon/IconUser";
+import IconMenuDatatables from "@/components/Icon/Menu/IconMenuDatatables";
 import Modal from "@/components/modal/modal.component";
 import Models from "@/imports/models.import";
 import Utils from "@/imports/utils.import";
@@ -42,6 +46,8 @@ export default function Profile() {
     username: "",
     email: "",
     profile: null,
+    industry_start_year: "",
+    location: "",
   });
 
   useEffect(() => {
@@ -126,6 +132,8 @@ export default function Profile() {
         last_name: state.last_name,
         email: state.email,
         industry: state.industry,
+        industry_start_year: state.industry_start_year,
+        location: state.location,
       };
 
       //   await Utils.Validation.update_profile.validate(body, {
@@ -283,36 +291,21 @@ export default function Profile() {
                       value={capitalizeFLetter(state?.profile?.industry)}
                     />
                   )}
-
-                  {state.profile?.institution?.name && (
+                  {state.profile?.industry_start_year && (
                     <InfoCard
-                      icon={<Building2 className="h-5 w-5" />}
-                      label="Institution"
-                      value={capitalizeFLetter(
-                        state.profile?.institution?.name
-                      )}
+                      icon={<IconCalendar className="h-5 w-5" />}
+                      label="Industry Start Year"
+                      value={`${state.profile?.industry_start_year}`}
+                    />
+                  )}
+                  {state.profile?.location && (
+                    <InfoCard
+                      icon={<IconMapPin className="h-5 w-5" />}
+                      label="Location"
+                      value={`${state.profile?.location}`}
                     />
                   )}
 
-                  {state.profile?.department?.department_name && (
-                    <InfoCard
-                      icon={<BookOpen className="h-5 w-5" />}
-                      label="Department"
-                      value={capitalizeFLetter(
-                        state.profile?.department?.department_name
-                      )}
-                    />
-                  )}
-
-                  {state.profile?.college?.length > 0 && (
-                    <InfoCard
-                      icon={<GraduationCap className="h-5 w-5" />}
-                      label="College"
-                      value={state.profile?.college
-                        ?.map((c: any) => capitalizeFLetter(c.college_name))
-                        .join(", ")}
-                    />
-                  )}
                 </div>
               </div>
             )}
@@ -401,10 +394,11 @@ export default function Profile() {
       <Modal
         open={state.isOpen}
         close={() => setState({ isOpen: false })}
+        addHeader="Update Profile"
         renderComponent={() => (
           <div className="w-full  p-6">
             {/* Header */}
-            <div className="mb-6 text-center">
+            {/* <div className="mb-6 text-center">
               <div className="bg-dblue mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full dark:from-blue-900 dark:to-purple-900">
                 <IconUser className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
@@ -416,7 +410,7 @@ export default function Profile() {
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Modify your username and email
               </p>
-            </div>
+            </div> */}
 
             {/* Form */}
             <div className="space-y-5">
@@ -448,11 +442,28 @@ export default function Profile() {
               />
 
               <TextInput
-                title="Industry"
+                title="Industry Name"
                 placeholder="Enter your industry"
                 value={state.industry}
                 onChange={(e) => setState({ industry: e.target.value })}
                 icon={<IconHome />}
+              />
+
+              <NumberInput
+                title="Industry Start Year"
+                placeholder="Enter Start Year"
+                value={state.industry_start_year}
+                onChange={(e) =>
+                  setState({ industry_start_year: e.target.value })
+                }
+                icon={<IconMenuDatatables />}
+              />
+              <TextInput
+                title="Location"
+                placeholder="Enter your industry location"
+                value={state.location}
+                onChange={(e) => setState({ location: e.target.value })}
+                icon={<IconMapPin />}
               />
             </div>
 

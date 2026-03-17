@@ -352,7 +352,7 @@ export default function List() {
     try {
       setState({ loading: true });
       const body = bodyData();
-console.log('✌️body --->', body);
+      console.log("✌️body --->", body);
       const res: any = await Models.property.list(page, body);
       const data = res?.results?.map((item) => ({
         title: capitalizeFLetter(item?.title),
@@ -463,8 +463,9 @@ console.log('✌️body --->', body);
     if (state.search) {
       body.search = debouncedSearch;
     }
-    if (state.property_type) {
-      body.property_type = state.property_type.value;
+
+    if (state.property_type?.length > 0) {
+      body.property_type = state.property_type?.map((item) => item?.value);
     }
 
     if (state.offer_type) {
@@ -577,6 +578,7 @@ console.log('✌️body --->', body);
             onChange={(e) => setState({ property_type: e })}
             options={state?.categoryList}
             isClearable={true}
+            isMulti={true}
             loadMore={() => catListLoadMore()}
           />
         </div>

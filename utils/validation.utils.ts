@@ -27,7 +27,7 @@ export const signin = Yup.object().shape({
 
 export const property_type = Yup.object().shape({
   listing_type: Yup.string().required("Offer Type is required").nullable(),
-  property_type: Yup.string().required("Property Type is required").nullable(),
+  // property_type: Yup.string().required("Property Type is required").nullable(),
   title: Yup.string().required("Property Name is required").nullable(),
   city: Yup.string().required("City is required").nullable(),
   state: Yup.string().required("State is required").nullable(),
@@ -40,8 +40,9 @@ export const property_type = Yup.object().shape({
 
   max_price: Yup.string().required("Maximum is required").nullable(),
 
-
- 
+  property_type: Yup.array()
+    .required("Property Type is required is required")
+    .min(1, "At least one property type is required"),
 
   lease_duration: Yup.string()
     .nullable()
@@ -325,7 +326,6 @@ export const lead = Yup.object().shape({
   requirements: Yup.string().required("Inquiry Details are required"),
   assigned_to: Yup.string().required("Assigned to are required"),
 });
-
 
 export const change_password = Yup.object().shape({
   old_password: Yup.string().required("Current Password is required"),

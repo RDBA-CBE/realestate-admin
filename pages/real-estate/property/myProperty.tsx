@@ -513,8 +513,8 @@ export default function list() {
       body.userId = state.userId;
     }
 
-    if (state.property_type) {
-      body.property_type = state.property_type.value;
+    if (state.property_type?.length > 0) {
+      body.property_type = state.property_type?.map((item) => item?.value);
     }
 
     if (state.offer_type) {
@@ -630,11 +630,12 @@ export default function list() {
 
         <div className="flex-1">
           <CustomSelect
-            placeholder="Select Property Type"
+            placeholder="Property Type"
             value={state.property_type}
             onChange={(e) => setState({ property_type: e })}
             options={state?.categoryList}
             isClearable={true}
+            isMulti
             loadMore={() => catListLoadMore()}
           />
         </div>

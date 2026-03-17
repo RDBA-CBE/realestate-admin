@@ -3,7 +3,6 @@ import instance from "@/utils/axios.utils";
 const properties = {
   list: (page, body) => {
     let promise = new Promise((resolve, reject) => {
-      
       let url = `properties?page=${page}`;
 
       if (body?.is_approved == "No") {
@@ -18,20 +17,24 @@ const properties = {
         url += `&publish=${encodeURIComponent(false)}`;
       }
 
-      if (body?.group){
+      if (body?.group) {
         url += `&group=${body?.group}`;
       }
 
-      if (body?.userId){
+      if (body?.userId) {
         url += `&created_by=${body?.userId}`;
       }
 
       if (body?.assigned_to_developer) {
-        url += `&assigned_to_developer=${encodeURIComponent(body?.assigned_to_developer)}`;
+        url += `&assigned_to_developer=${encodeURIComponent(
+          body?.assigned_to_developer
+        )}`;
       }
 
       if (body?.assigned_to_agent) {
-        url += `&assigned_to_agent=${encodeURIComponent(body?.assigned_to_agent)}`;
+        url += `&assigned_to_agent=${encodeURIComponent(
+          body?.assigned_to_agent
+        )}`;
       }
 
       if (body?.created_by) {
@@ -97,7 +100,10 @@ const properties = {
           resolve(res.data);
         })
         .catch((error) => {
-          if (error.response) {
+          console.log("✌️error --->", error);
+          if (error.response?.data) {
+            reject(error.response.data);
+          } else if (error.response) {
             reject(error.response.data.message);
           } else {
             reject(error);

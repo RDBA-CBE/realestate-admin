@@ -777,6 +777,13 @@ export const PROPERTY_STATUS = [
  }
 ];
 
+
+export const PLAN_TYPE = [
+  { value: "Apartment", label: "Apartment" },
+  { value: "Villa", label: "Villa" }
+];
+
+
 export const PROPERTY_IMG = [
   "https://www.pexels.com/photo/sun-piercing-of-brown-concrete-house-near-sea-1732414/",
   "https://www.pexels.com/photo/high-angle-photography-of-village-280221/",

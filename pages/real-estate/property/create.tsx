@@ -26,6 +26,7 @@ import {
   FURNISHING_TYPE,
   LISTING_TYPE,
   ListType,
+  PLAN_TYPE,
   PROPERTY_IMG,
   Property_status,
   PROPERTY_TYPE,
@@ -273,7 +274,6 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
-        console.log("✌️validationErrors --->", validationErrors);
 
         setState({ error: validationErrors, amenityLoading: false });
       } else {
@@ -291,7 +291,7 @@ const AddPropertyPage = () => {
         setState({ btnLoading: true });
       }
       const body = {
-        property_type: state.property_type?.value,
+        property_type: state.property_type?.map((item) => item?.value),
         listing_type: state.listing_type?.value,
         description: state?.description,
         title: state.title,
@@ -313,7 +313,6 @@ const AddPropertyPage = () => {
         lease_duration: state.lease_duration,
         developer: state.developer?.value,
       };
-      console.log("✌️body --->", body);
 
       await Utils.Validation.property_type.validate(body, {
         abortEarly: false,
@@ -334,11 +333,10 @@ const AddPropertyPage = () => {
           validationErrors[err.path] = err?.message;
         });
         Failure("Please Fill all the required fields");
-        console.log("✌️validationErrors --->", validationErrors);
         setState({ error: validationErrors, btnLoading: false });
       } else {
         Failure(error?.error);
-        setState({ btnLoading: false,btnLoading1:false });
+        setState({ btnLoading: false, btnLoading1: false });
       }
     }
   };
@@ -355,7 +353,9 @@ const AddPropertyPage = () => {
         group: state.group,
         title: state.title,
         description: state.description,
-        property_type: state.property_type?.value,
+        // property_type: state.property_type?.value,
+        property_type: state.property_type?.map((item) => item?.value),
+
         listing_type: "sale",
 
         project: state.project?.value,
@@ -400,8 +400,6 @@ const AddPropertyPage = () => {
         saleBody.publish = true;
       }
 
-      console.log("saleBody", saleBody);
-
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
         abortEarly: false,
       });
@@ -412,8 +410,6 @@ const AddPropertyPage = () => {
       delete saleBody.group;
       saleBody.minimum_price = state.min_price;
       saleBody.maximum_price = state.max_price;
-
-      console.log("✌️buyBody --->", saleBody);
 
       const formData = buildFormData(saleBody);
 
@@ -428,10 +424,7 @@ const AddPropertyPage = () => {
         await createVideo(res?.id);
       }
 
-      console.log("state.floorPlans", state.floorPlans);
-
       if (state.floorPlans.length > 0) {
-        console.log("hello state.floorPlans");
         state.floorPlans?.map((item, index) =>
           createFloorPlans(res?.id, item, index)
         );
@@ -443,16 +436,15 @@ const AddPropertyPage = () => {
         Success("Your property is created and waiting for approval from admin");
       }
       router.push("/real-estate/property/list/");
-      setState({ btnLoading: false,btnLoading1:false });
-   
+      setState({ btnLoading: false, btnLoading1: false });
     } catch (error) {
+console.log('✌️error --->', error);
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
         Failure("Please Fill all the required fields");
-        console.log("✌️validationErrors --->", validationErrors);
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
@@ -467,8 +459,7 @@ const AddPropertyPage = () => {
         } else {
           Failure(error || "Something went wrong");
         }
-      setState({ btnLoading: false,btnLoading1:false });
-
+        setState({ btnLoading: false, btnLoading1: false });
       }
     }
   };
@@ -485,7 +476,8 @@ const AddPropertyPage = () => {
         group: state.group,
         title: state.title,
         description: state.description,
-        property_type: state.property_type?.value,
+        // property_type: state.property_type?.value,
+        property_type: state.property_type?.map((item) => item?.value),
 
         listing_type: "lease",
         lease_total_amount: state.lease_total_amount,
@@ -544,8 +536,6 @@ const AddPropertyPage = () => {
       buyBody.minimum_price = state.min_price;
       buyBody.maximum_price = state.max_price;
 
-      console.log("✌️buyBody --->", buyBody);
-
       const formData = buildFormData(buyBody);
 
       const res: any = await Models.property.create(formData);
@@ -559,8 +549,7 @@ const AddPropertyPage = () => {
         await createVideo(res?.id);
       }
 
-      if (state.floorPlans.length > 0) {
-        console.log("hello state.floorPlans");
+      if (state.floorPlans?.length > 0) {
         state.floorPlans?.map((item, index) =>
           createFloorPlans(res?.id, item, index)
         );
@@ -572,7 +561,7 @@ const AddPropertyPage = () => {
         Success("Your property is created and waiting for approval from admin");
       }
       router.push("/real-estate/property/list/");
-      setState({ btnLoading: false,btnLoading1:false });
+      setState({ btnLoading: false, btnLoading1: false });
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -580,7 +569,6 @@ const AddPropertyPage = () => {
           validationErrors[err.path] = err?.message;
         });
         Failure("Please Fill all the required fields");
-        console.log("✌️validationErrors --->", validationErrors);
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
@@ -595,8 +583,7 @@ const AddPropertyPage = () => {
         } else {
           Failure(error || "Something went wrong");
         }
-      setState({ btnLoading: false,btnLoading1:false });
-        
+        setState({ btnLoading: false, btnLoading1: false });
       }
     }
   };
@@ -661,8 +648,6 @@ const AddPropertyPage = () => {
       buyBody.minimum_price = state.min_price;
       buyBody.maximum_price = state.max_price;
 
-      console.log("✌️buyBody --->", buyBody);
-
       const formData = buildFormData(buyBody);
 
       const res: any = await Models.property.create(formData);
@@ -672,16 +657,12 @@ const AddPropertyPage = () => {
       if (state.virtual_tour) {
         await createVirtualTour(res?.id);
       }
-      console.log("✌️state.video --->", state.video);
 
       if (state.video) {
         await createVideo(res?.id);
       }
 
-      console.log("state.floorPlans", state.floorPlans);
-
       if (state.floorPlans.length > 0) {
-        console.log("hello state.floorPlans");
         state.floorPlans?.map((item, index) =>
           createFloorPlans(res?.id, item, index)
         );
@@ -702,13 +683,10 @@ const AddPropertyPage = () => {
           validationErrors[err.path] = err?.message;
         });
         Failure("Please Fill all the required fields");
-        console.log("✌️validationErrors --->", validationErrors);
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
         if (error && typeof error === "object") {
-          console.log(error);
-
           const errorMessages = Object.entries(error)
             .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
             .join("; ");
@@ -761,7 +739,6 @@ const AddPropertyPage = () => {
       };
 
       const res = await Models.virtualTour.create(body);
-      console.log("virtual tour", res);
       return res;
     } catch (error) {
       console.log("✌️error --->", error);
@@ -770,8 +747,6 @@ const AddPropertyPage = () => {
 
   const createFloorPlans = async (property, plan, index) => {
     try {
-      console.log("createFloorPlans true");
-
       const body = {
         property: property,
         category: plan.category?.value,
@@ -780,6 +755,7 @@ const AddPropertyPage = () => {
         rera_id: plan?.reraId,
         floor_no: plan?.floorNo,
         image: plan.image,
+        type: plan?.type?.value,
       };
 
       const formData = buildFormData(body);
@@ -787,9 +763,7 @@ const AddPropertyPage = () => {
       // console.log("Request body:", JSON.stringify(body, null, 2));
 
       const res = await Models.floorPlans.create(formData);
-      console.log("res", res);
     } catch (error) {
-      console.log("createFloorPlans false");
       console.log("✌️error --->", error);
     }
   };
@@ -860,8 +834,6 @@ const AddPropertyPage = () => {
     }
   };
 
-  // console.log("state.floorPlans", state.floorPlans);
-
   return (
     <>
       <div className="panel mb-5 flex flex flex-col justify-between gap-5  md:flex-row md:items-center">
@@ -920,6 +892,7 @@ const AddPropertyPage = () => {
                       options={state.categoryList}
                       error={state.error?.property_type}
                       required
+                      isMulti={true}
                       isClearable={false}
                       loadMore={() => catListLoadMore()}
                     />
@@ -1322,6 +1295,16 @@ const AddPropertyPage = () => {
                                 ]}
                               />
 
+                              <CustomSelect
+                                title="Type"
+                                value={plan.type}
+                                onChange={(e) =>
+                                  updateFloorPlan(index, "type", e)
+                                }
+                                placeholder="Select type"
+                                options={PLAN_TYPE}
+                              />
+
                               <TextInput
                                 name={`squareFeet-${index}`}
                                 title="Square Feet"
@@ -1519,7 +1502,6 @@ const AddPropertyPage = () => {
                             images: image,
                             error: { ...state.error, images: "" },
                           });
-                          console.log("onImageUrlsChange", image);
                         }}
                       />
 

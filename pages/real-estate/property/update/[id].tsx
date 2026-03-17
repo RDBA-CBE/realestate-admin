@@ -33,6 +33,7 @@ import {
   LISTING_TYPE,
   LISTING_TYPE_LIST,
   ListType,
+  PLAN_TYPE,
   PROPERTY_IMG,
   Property_status,
   PROPERTY_TYPE,
@@ -154,7 +155,6 @@ const AddPropertyPage = () => {
     agentList(1);
   }, []);
 
-
   const propertyDetails = async () => {
     try {
       const res: any = await Models.property.details(id);
@@ -211,12 +211,12 @@ const AddPropertyPage = () => {
         }),
       });
 
-      if (res?.property_type) {
+      if (res?.property_type?.length > 0) {
         setState({
-          property_type: {
-            value: res?.property_type?.id,
-            label: res?.property_type?.name,
-          },
+          property_type: res?.property_type?.map((item) => ({
+            value: item?.id,
+            label: item?.name,
+          })),
         });
       }
 
@@ -309,8 +309,9 @@ const AddPropertyPage = () => {
           squareFeet: plan?.square_feet,
           price: plan?.price,
           reraId: plan?.rera_id, // Fixed: changed from reraId to rera_id
-          floor_no: plan?.floorNo,
+          floorNo: plan?.floor_no,
           image: plan?.image,
+          type:plan?.type?{value:plan?.type,label:plan?.type}:null
         }));
 
         setState({
@@ -321,6 +322,7 @@ const AddPropertyPage = () => {
       console.log("✌️error --->", error);
     }
   };
+
 
   const agentList = async (page) => {
     try {
@@ -519,7 +521,7 @@ const AddPropertyPage = () => {
     }
   };
 
-  const onSubmit = async (type:string) => {
+  const onSubmit = async (type: string) => {
     try {
       if (type == "draft") {
         setState({ btnLoading1: true });
@@ -527,7 +529,9 @@ const AddPropertyPage = () => {
         setState({ btnLoading: true });
       }
       const body = {
-        property_type: state.property_type?.value,
+        // property_type: state.property_type?.value,
+        property_type: state.property_type?.map((item) => item?.value),
+
         listing_type: state.listing_type?.value,
         title: state.title,
         description: state.description,
@@ -544,10 +548,10 @@ const AddPropertyPage = () => {
         images: state.imageList,
         amenities: state.amenities,
         project: state.project?.value,
-        lease_duration:state.lease_duration,
-        developer:state.developer?.value,
-        min_price:state.min_price,
-        max_price:state.max_price,
+        lease_duration: state.lease_duration,
+        developer: state.developer?.value,
+        min_price: state.min_price,
+        max_price: state.max_price,
       };
 
       await Utils.Validation.property_type.validate(body, {
@@ -558,8 +562,8 @@ const AddPropertyPage = () => {
         createSaleProperty(type);
       } else if (state.listing_type?.label == LISTING_TYPE.LEASE) {
         createLeaseProperty(type);
-      } 
-      
+      }
+
       // else if (state.listing_type?.label == LISTING_TYPE.RENT) {
       //   createRentProperty();
       // }
@@ -573,21 +577,20 @@ const AddPropertyPage = () => {
         setState({ error: validationErrors, btnLoading: false });
       } else {
         Failure(error?.error);
-        setState({ btnLoading: false,btnLoading1:false });
-
+        setState({ btnLoading: false, btnLoading1: false });
       }
     }
   };
 
-
-
-  const createSaleProperty = async (type:string) => {
+  const createSaleProperty = async (type: string) => {
     try {
       const saleBody: any = {
         group: state.group,
         title: state.title,
         description: state.description,
-        property_type: state.property_type?.value,
+        // property_type: state.property_type?.value,
+        property_type: state.property_type?.map((item) => item?.value),
+
         listing_type: "sale",
 
         project: state.project?.value,
@@ -627,13 +630,11 @@ const AddPropertyPage = () => {
         saleBody.agent = state.agent?.value;
       }
 
-      
       if (type == "draft") {
         saleBody.publish = false;
       } else {
         saleBody.publish = true;
       }
-      
 
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
         abortEarly: false,
@@ -654,7 +655,6 @@ const AddPropertyPage = () => {
       //     createImage(id, item, imageLength + index + 1)
       //   );
       // }
-      
 
       if (state.virtual_tour) {
         if (state.virtual_tourList?.length > 0) {
@@ -672,7 +672,6 @@ const AddPropertyPage = () => {
       }
 
       if (state.floorPlans.length > 0) {
-       
         state.floorPlans?.forEach((item, index) => {
           if (item.id) {
             patchFloorPlans(item.id, item, index);
@@ -687,11 +686,9 @@ const AddPropertyPage = () => {
       }
 
       Success("Property Updated Successfully");
-      router.push("/real-estate/property/list/");
-      setState({ btnLoading: false,btnLoading1:false });
+      router.back();
+      setState({ btnLoading: false, btnLoading1: false });
     } catch (error) {
-
-      
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
         error.inner.forEach((err) => {
@@ -713,13 +710,12 @@ const AddPropertyPage = () => {
         } else {
           Failure(error || "Something went wrong");
         }
-      setState({ btnLoading: false,btnLoading1:false });
-
+        setState({ btnLoading: false, btnLoading1: false });
       }
     }
   };
 
-  const createLeaseProperty = async (type:string) => {
+  const createLeaseProperty = async (type: string) => {
     try {
       // setState({ btnLoading: true });
 
@@ -727,8 +723,8 @@ const AddPropertyPage = () => {
         group: state.group,
         title: state.title,
         description: state.description,
-        property_type: state.property_type?.value,
-
+        // property_type: state.property_type?.value,
+        property_type: state.property_type?.map((item) => item?.value),
         listing_type: "lease",
         lease_total_amount: state.lease_total_amount,
         lease_duration: state.lease_duration,
@@ -771,7 +767,6 @@ const AddPropertyPage = () => {
         buyBody.agent = state.agent?.value;
       }
 
-
       if (type == "draft") {
         buyBody.publish = false;
       } else {
@@ -810,7 +805,6 @@ const AddPropertyPage = () => {
       }
 
       if (state.floorPlans?.length > 0) {
-        
         state.floorPlans?.forEach((item, index) => {
           if (item.id) {
             patchFloorPlans(item.id, item, index);
@@ -826,8 +820,7 @@ const AddPropertyPage = () => {
 
       Success("Property Updated Successfully");
       router.push("/real-estate/property/list/");
-      setState({ btnLoading: false,btnLoading1:false });
-
+      setState({ btnLoading: false, btnLoading1: false });
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -851,8 +844,7 @@ const AddPropertyPage = () => {
           Failure(error || "Something went wrong");
         }
         setState({ btnLoading: false });
-      setState({ btnLoading: false,btnLoading1:false });
-
+        setState({ btnLoading: false, btnLoading1: false });
       }
     }
   };
@@ -938,7 +930,6 @@ const AddPropertyPage = () => {
       }
 
       if (state.floorPlans?.length > 0) {
-       
         state.floorPlans?.forEach((item, index) => {
           if (item.id) {
             patchFloorPlans(item.id, item, index);
@@ -953,9 +944,9 @@ const AddPropertyPage = () => {
       }
 
       Success("Property Updated Successfully");
-      router.push("/real-estate/property/list/");
+      router.back();
+
       setState({ btnLoading: false });
-      
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
@@ -982,8 +973,6 @@ const AddPropertyPage = () => {
       }
     }
   };
-
- 
 
   const createImage = async (
     propertyId: number,
@@ -1090,7 +1079,7 @@ const AddPropertyPage = () => {
       };
 
       const res = await Models.virtualTour.create(body);
-     
+
       return res;
     } catch (error) {
       console.log("✌️error --->", error);
@@ -1100,7 +1089,7 @@ const AddPropertyPage = () => {
   const deleteVirtualTour = async (vr_id) => {
     try {
       const res = await Models.virtualTour.delete(vr_id);
-      
+
       return res;
     } catch (error) {
       console.log("✌️error --->", error);
@@ -1112,7 +1101,6 @@ const AddPropertyPage = () => {
     // console.log("plan,", plan);
 
     try {
-
       const body = {
         property: property,
         category: plan.category?.value,
@@ -1120,6 +1108,7 @@ const AddPropertyPage = () => {
         price: plan.price,
         rera_id: plan.reraId,
         floor_no: plan.floorNo,
+        type:plan?.type?.value,
         ...(!isString(plan.image) && { image: plan.image }),
       };
 
@@ -1127,7 +1116,6 @@ const AddPropertyPage = () => {
       const res = await Models.floorPlans.update(formData, property);
       console.log("res", res);
     } catch (error) {
-    
       console.log("✌️error --->", error);
     }
   };
@@ -1142,6 +1130,9 @@ const AddPropertyPage = () => {
         rera_id: plan.reraId,
         floor_no: plan.floorNo,
         image: plan.image,
+        type:plan?.type?.value,
+
+
       };
 
       const formData = buildFormData(body);
@@ -1156,7 +1147,6 @@ const AddPropertyPage = () => {
   };
 
   const deleteFloorPlans = async () => {
-    
     try {
       const res = await Models.floorPlans.delete(state.deleteFloorPlan);
     } catch (error) {
@@ -1213,7 +1203,6 @@ const AddPropertyPage = () => {
   //     });
   //   }
   // };
-
 
   const removeFloorPlan = (index) => {
     if (state.floorPlans.length > 1) {
@@ -1306,6 +1295,7 @@ const AddPropertyPage = () => {
                       options={state.categoryList}
                       error={state.error?.property_type}
                       required
+                      isMulti={true}
                       isClearable={false}
                       loadMore={() => catListLoadMore()}
                     />
@@ -1462,79 +1452,79 @@ const AddPropertyPage = () => {
 
                       {/* {state.property_type?.label ==
                         PROPERTY_TYPE.RESIDENTIAL && ( */}
-                        <>
-                          <TextInput
-                            name="bedrooms"
-                            title="Bedrooms (Number Only)"
-                            placeholder="Enter number of bedrooms"
-                            value={state.bedrooms}
-                            onChange={handleInputChange}
-                          />
-                          <TextInput
-                            name="bathrooms"
-                            title="Bathrooms (Number Only)"
-                            placeholder="Enter number of bathrooms"
-                            value={state.bathrooms}
-                            onChange={handleInputChange}
-                          />
-                          <TextInput
-                            name="balconies"
-                            title="Balconies (Number Only)"
-                            placeholder="Enter number of balconies"
-                            value={state.balconies}
-                            onChange={handleInputChange}
-                          />
-                        </>
+                      <>
+                        <TextInput
+                          name="bedrooms"
+                          title="Bedrooms (Number Only)"
+                          placeholder="Enter number of bedrooms"
+                          value={state.bedrooms}
+                          onChange={handleInputChange}
+                        />
+                        <TextInput
+                          name="bathrooms"
+                          title="Bathrooms (Number Only)"
+                          placeholder="Enter number of bathrooms"
+                          value={state.bathrooms}
+                          onChange={handleInputChange}
+                        />
+                        <TextInput
+                          name="balconies"
+                          title="Balconies (Number Only)"
+                          placeholder="Enter number of balconies"
+                          value={state.balconies}
+                          onChange={handleInputChange}
+                        />
+                      </>
                       {/* )} */}
 
                       {/* {state.property_type?.label !==
                         PROPERTY_TYPE.AGRICULTURAL && (
                         <> */}
-                          <TextInput
-                            name="floor_number"
-                            title="Floor No (Number Only)"
-                            placeholder="Enter floor number"
-                            value={state.floor_number}
-                            onChange={handleInputChange}
-                          />
-                          <TextInput
-                            name="total_floors"
-                            title="Total Floors (Number Only)"
-                            placeholder="Enter total number of floors"
-                            value={state.total_floors}
-                            onChange={handleInputChange}
-                          />
-                          <NumberInput
-                            name="built_year"
-                            title="Built Year"
-                            placeholder="Enter the built year"
-                            value={state.built_year}
-                            onChange={handleInputChange}
-                          />
+                      <TextInput
+                        name="floor_number"
+                        title="Floor No (Number Only)"
+                        placeholder="Enter floor number"
+                        value={state.floor_number}
+                        onChange={handleInputChange}
+                      />
+                      <TextInput
+                        name="total_floors"
+                        title="Total Floors (Number Only)"
+                        placeholder="Enter total number of floors"
+                        value={state.total_floors}
+                        onChange={handleInputChange}
+                      />
+                      <NumberInput
+                        name="built_year"
+                        title="Built Year"
+                        placeholder="Enter the built year"
+                        value={state.built_year}
+                        onChange={handleInputChange}
+                      />
 
-                          <CustomSelect
-                            title="Furnishing Type"
-                            placeholder="Select furnishing type"
-                            options={[
-                              { value: "furnished", label: "Furnished" },
-                              {
-                                value: "semi_furnished",
-                                label: "Semi-Furnished",
-                              },
-                              { value: "unfurnished", label: "Unfurnished" },
-                            ]}
-                            value={state.furnishing}
-                            onChange={(selectedOption) =>
-                              setState({
-                                furnishing: selectedOption,
-                                error: { ...state.error, furnishing: "" },
-                              })
-                            }
-                            required
-                            isClearable
-                            error={state.error?.furnishing}
-                          />
-                        {/* </> */}
+                      <CustomSelect
+                        title="Furnishing Type"
+                        placeholder="Select furnishing type"
+                        options={[
+                          { value: "furnished", label: "Furnished" },
+                          {
+                            value: "semi_furnished",
+                            label: "Semi-Furnished",
+                          },
+                          { value: "unfurnished", label: "Unfurnished" },
+                        ]}
+                        value={state.furnishing}
+                        onChange={(selectedOption) =>
+                          setState({
+                            furnishing: selectedOption,
+                            error: { ...state.error, furnishing: "" },
+                          })
+                        }
+                        required
+                        isClearable
+                        error={state.error?.furnishing}
+                      />
+                      {/* </> */}
                       {/* )} */}
 
                       <CustomSelect
@@ -1725,6 +1715,15 @@ const AddPropertyPage = () => {
                                   ]}
                                 />
 
+                                <CustomSelect
+                                  title="Type"
+                                  value={plan.type}
+                                  onChange={(e) =>
+                                    updateFloorPlan(index, "type", e)
+                                  }
+                                  placeholder="Select type"
+                                  options={PLAN_TYPE}
+                                />
                                 <TextInput
                                   name={`squareFeet-${index}`}
                                   title="Square Feet"
