@@ -777,7 +777,7 @@ export const PROPERTY_STATUS = [
 export const PLAN_TYPE = [
   { value: "Apartment", label: "Apartment" },
   { value: "Villa", label: "Villa" },
-  { value: "Residential", label: "Residential" },
+  { value: "Residential Plot", label: "Residential Plot" },
 ];
 export const FLOOR_FLAN = [
   { value: "plots", label: "Plots" },
