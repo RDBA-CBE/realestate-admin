@@ -23,6 +23,7 @@ import {
 } from "@/utils/function.utils";
 import {
   facingDirection,
+  FLOOR_FLAN,
   FURNISHING_TYPE,
   LISTING_TYPE,
   ListType,
@@ -438,7 +439,7 @@ const AddPropertyPage = () => {
       router.push("/real-estate/property/list/");
       setState({ btnLoading: false, btnLoading1: false });
     } catch (error) {
-console.log('✌️error --->', error);
+      console.log("✌️error --->", error);
       if (error instanceof Yup.ValidationError) {
         const validationErrors: any = {};
         error.inner.forEach((err) => {
@@ -1286,13 +1287,7 @@ console.log('✌️error --->', error);
                                   updateFloorPlan(index, "category", e)
                                 }
                                 placeholder="Select Category"
-                                options={[
-                                  { value: "plots", label: "Plots" },
-                                  { value: "1bhk", label: "1 BHK" },
-                                  { value: "2bhk", label: "2 BHK" },
-                                  { value: "3bhk", label: "3 BHK" },
-                                  { value: "4bhk", label: "4 BHK" },
-                                ]}
+                                options={FLOOR_FLAN}
                               />
 
                               <CustomSelect

@@ -28,6 +28,7 @@ import {
 } from "@/utils/function.utils";
 import {
   facingDirection,
+  FLOOR_FLAN,
   FLOORPLANS_CATEGORY,
   FURNISHING_TYPE,
   LISTING_TYPE,
@@ -211,6 +212,15 @@ const AddPropertyPage = () => {
         }),
       });
 
+      if (res?.facing_direction_details) {
+        setState({
+          facing: {
+            value: res?.facing_direction_details?.key,
+            label: res?.facing_direction_details?.label,
+          },
+        });
+      }
+
       if (res?.property_type?.length > 0) {
         setState({
           property_type: res?.property_type?.map((item) => ({
@@ -311,7 +321,7 @@ const AddPropertyPage = () => {
           reraId: plan?.rera_id, // Fixed: changed from reraId to rera_id
           floorNo: plan?.floor_no,
           image: plan?.image,
-          type:plan?.type?{value:plan?.type,label:plan?.type}:null
+          type: plan?.type ? { value: plan?.type, label: plan?.type } : null,
         }));
 
         setState({
@@ -322,7 +332,6 @@ const AddPropertyPage = () => {
       console.log("✌️error --->", error);
     }
   };
-
 
   const agentList = async (page) => {
     try {
@@ -819,7 +828,7 @@ const AddPropertyPage = () => {
       }
 
       Success("Property Updated Successfully");
-      router.push("/real-estate/property/list/");
+      router.back();
       setState({ btnLoading: false, btnLoading1: false });
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -1108,7 +1117,7 @@ const AddPropertyPage = () => {
         price: plan.price,
         rera_id: plan.reraId,
         floor_no: plan.floorNo,
-        type:plan?.type?.value,
+        type: plan?.type?.value,
         ...(!isString(plan.image) && { image: plan.image }),
       };
 
@@ -1130,9 +1139,7 @@ const AddPropertyPage = () => {
         rera_id: plan.reraId,
         floor_no: plan.floorNo,
         image: plan.image,
-        type:plan?.type?.value,
-
-
+        type: plan?.type?.value,
       };
 
       const formData = buildFormData(body);
@@ -1706,13 +1713,7 @@ const AddPropertyPage = () => {
                                     updateFloorPlan(index, "category", e)
                                   }
                                   placeholder="Select Category"
-                                  options={[
-                                    { value: "plots", label: "Plots" },
-                                    { value: "1bhk", label: "1 BHK" },
-                                    { value: "2bhk", label: "2 BHK" },
-                                    { value: "3bhk", label: "3 BHK" },
-                                    { value: "4bhk", label: "4 BHK" },
-                                  ]}
+                                  options={FLOOR_FLAN}
                                 />
 
                                 <CustomSelect

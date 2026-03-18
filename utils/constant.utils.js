@@ -1,4 +1,3 @@
-
 export const CLIENT_ID =
   "625052261407-4p8ihs05c67d778mr5d91lqjvnvpkd8k.apps.googleusercontent.com";
 
@@ -6,7 +5,6 @@ export const CLIENT_ID =
 
 export const BACKEND_URL = "https://file.boomrealtys.com/api/";
 export const FRONTEND_URL = "https://realestate-front-eight.vercel.app/";
-
 
 // menuConfig.ts
 export const menuConfig = {
@@ -166,7 +164,6 @@ export const menuConfig = {
           icon: "IconMenuCharts",
           label: "Reports",
           href: "/",
-
         },
       ],
     },
@@ -239,12 +236,12 @@ export const menuConfig = {
     //       label: "All Users",
     //       href: "/real-estate/users/list",
     //     },
-        // {
-        //   type: "link",
-        //   icon: "IconMenuScrumboard",
-        //   label: "Create",
-        //   href: "/real-estate/users/create",
-        // },
+    // {
+    //   type: "link",
+    //   icon: "IconMenuScrumboard",
+    //   label: "Create",
+    //   href: "/real-estate/users/create",
+    // },
     //   ],
     // },
     {
@@ -287,7 +284,6 @@ export const menuConfig = {
     //       label: "Inquiries",
     //       href: "/real-estate/inquiry/list",
     //     },
-       
 
     //     {
     //       type: "link",
@@ -665,7 +661,6 @@ export const FURNISHING_TYPE = [
   { value: "unfurnished", label: "Unfurnished" },
 ];
 
-
 export const ListType = [
   { value: "sale", label: "Sale" },
   // { value: "rent", label: "Rent" },
@@ -705,6 +700,8 @@ export const FLOORPLANS_CATEGORY = [
   { value: "2bhk", label: "2 BHK" },
   { value: "3bhk", label: "3 BHK" },
   { value: "4bhk", label: "4 BHK" },
+  { value: "2.5bhk", label: "2.5 BHK" },
+  { value: "3.5bhk", label: "3.5 BHK" },
 ];
 
 export const Property_status = [
@@ -714,10 +711,10 @@ export const Property_status = [
     label: "Sold",
   },
   { value: "rented", label: "Rented" },
-  {value: "off_market", label: "Off Market"},
-  {value:"under_contract", label:"Under Contract"},
-  {value:"pending", label:"pending"}
-]
+  { value: "off_market", label: "Off Market" },
+  { value: "under_contract", label: "Under Contract" },
+  { value: "pending", label: "pending" },
+];
 
 export const ROLES = {
   ADMIN: "admin",
@@ -748,7 +745,7 @@ export const LISTING_TYPE_LIST = {
 };
 
 export const roleList = [
-   {
+  {
     value: "developer",
     label: "Developer",
   },
@@ -760,7 +757,7 @@ export const roleList = [
     value: "seller",
     label: "Seller",
   },
-   {
+  {
     value: "buyer",
     label: "Buyer",
   },
@@ -768,21 +765,29 @@ export const roleList = [
 
 export const PROPERTY_STATUS = [
   {
-   value: "Publish",
-   label: "Publish",
- },
- {
-   value: "Draft",
-   label: "Draft",
- }
+    value: "Publish",
+    label: "Publish",
+  },
+  {
+    value: "Draft",
+    label: "Draft",
+  },
 ];
-
 
 export const PLAN_TYPE = [
   { value: "Apartment", label: "Apartment" },
-  { value: "Villa", label: "Villa" }
+  { value: "Villa", label: "Villa" },
+  { value: "Residential", label: "Residential" },
 ];
-
+export const FLOOR_FLAN = [
+  { value: "plots", label: "Plots" },
+  { value: "1bhk", label: "1 BHK" },
+  { value: "2bhk", label: "2 BHK" },
+  { value: "2.5bhk", label: "2.5 BHK" },
+  { value: "3bhk", label: "3 BHK" },
+  { value: "3.5bhk", label: "3.5 BHK" },
+  { value: "4bhk", label: "4 BHK" },
+];
 
 export const PROPERTY_IMG = [
   "https://www.pexels.com/photo/sun-piercing-of-brown-concrete-house-near-sea-1732414/",
