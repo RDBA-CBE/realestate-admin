@@ -351,7 +351,7 @@ const Timeline = () => {
                                             Map where your photos were taken and discover local points of interest. Map where your photos. Map where your photos were taken and discover.
                                         </p>
                                         <p>
-                                            <button type="button" className="btn btn-primary">
+                                            <button type="button" className="btn btn-dred">
                                                 Read more
                                             </button>
                                         </p>
@@ -435,7 +435,7 @@ const Timeline = () => {
                     Map where your photos were taken and discover local points of interest. Map where your photos. Map where your photos were taken and discover.
                 </p>
                 <p>
-                    <button type="button" className="btn btn-primary">
+                    <button type="button" className="btn btn-dred">
                         Read more
                     </button>
                 </p>

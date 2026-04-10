@@ -134,7 +134,7 @@ const AccountSetting = () => {
                                         </label>
                                     </div>
                                     <div className="mt-3 sm:col-span-2">
-                                        <button type="button" className="btn btn-primary">
+                                        <button type="button" className="btn btn-dred">
                                             Save
                                         </button>
                                     </div>
@@ -220,7 +220,7 @@ const AccountSetting = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <button className="btn btn-primary">Add Address</button>
+                                <button className="btn btn-dred">Add Address</button>
                             </div>
                             <div className="panel">
                                 <div className="mb-5">
@@ -274,7 +274,7 @@ const AccountSetting = () => {
                                         </div>
                                     </div>
                                 </div>
-                                <button className="btn btn-primary">Add Payment Method</button>
+                                <button className="btn btn-dred">Add Payment Method</button>
                             </div>
                         </div>
                         <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
@@ -318,7 +318,7 @@ const AccountSetting = () => {
                                                 <input id="billingZip" type="text" placeholder="Enter Zip" className="form-input" />
                                             </div>
                                         </div>
-                                        <button type="button" className="btn btn-primary">
+                                        <button type="button" className="btn btn-dred">
                                             Add
                                         </button>
                                     </form>
@@ -365,7 +365,7 @@ const AccountSetting = () => {
                                                 <input id="payExp" type="text" placeholder="Card Expiry" className="form-input" />
                                             </div>
                                         </div>
-                                        <button type="button" className="btn btn-primary">
+                                        <button type="button" className="btn btn-dred">
                                             Add
                                         </button>
                                     </form>
@@ -402,7 +402,7 @@ const AccountSetting = () => {
                             <div className="panel space-y-5">
                                 <h5 className="mb-4 text-lg font-semibold">Activity data</h5>
                                 <p>Download your Summary, Task and Payment History Data</p>
-                                <button type="button" className="btn btn-primary">
+                                <button type="button" className="btn btn-dred">
                                     Download Data
                                 </button>
                             </div>

@@ -760,7 +760,7 @@ export default function List() {
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-primary  w-full md:mb-0 md:w-auto"
+            className="btn btn-dred  w-full md:mb-0 md:w-auto"
             onClick={() => router.push("/real-estate/property/create")}
           >
             + Create
@@ -845,7 +845,7 @@ export default function List() {
         {/* 
         <button
           type="button"
-          className="btn btn-primary"
+          className="btn btn-dred"
           onClick={() => clearFilter()}
         >
           Clear Filter
@@ -1100,7 +1100,7 @@ export default function List() {
             disabled={!state?.previous}
             onClick={handlePreviousPage}
             className={`btn ${
-              !state?.previous ? "btn-disabled" : "btn-primary"
+              !state?.previous ? "btn-disabled" : "btn-dred"
             }`}
           >
             <IconArrowBackward />
@@ -1108,7 +1108,7 @@ export default function List() {
           <button
             disabled={!state?.next}
             onClick={handleNextPage}
-            className={`btn ${!state?.next ? "btn-disabled" : "btn-primary"}`}
+            className={`btn ${!state?.next ? "btn-disabled" : "btn-dred"}`}
           >
             <IconArrowForward />
           </button>

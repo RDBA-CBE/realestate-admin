@@ -97,7 +97,7 @@ const Cards = () => {
                                 </div>
                                 <h5 className="mb-4 text-xl font-semibold text-[#3b3f5c] dark:text-white-light">CLI Based</h5>
                                 <p className="text-white-dark">Etiam sed augue ac justo tincidunt posuere. Vivamus euismod eros, nec risus malesuada.</p>
-                                <button type="button" className="btn btn-primary mt-6">
+                                <button type="button" className="btn btn-dred mt-6">
                                     Explore More
                                 </button>
                             </div>
@@ -115,7 +115,7 @@ const Cards = () => {
             </div>
             <h5 className="text-[#3b3f5c] text-xl font-semibold mb-4 dark:text-white-light">CLI Based</h5>
             <p className="text-white-dark">Etiam sed augue ac justo tincidunt posuere. Vivamus euismod eros, nec risus malesuada.</p>
-            <button type="button" className="btn btn-primary mt-6">
+            <button type="button" className="btn btn-dred mt-6">
                 Explore More
             </button>
         </div>

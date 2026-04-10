@@ -1242,7 +1242,7 @@ const Mailbox = () => {
                 >
                     <div className="flex h-full flex-col pb-16">
                         <div className="pb-5">
-                            <button className="btn btn-primary w-full" type="button" onClick={() => openMail('add', null)}>
+                            <button className="btn btn-dred w-full" type="button" onClick={() => openMail('add', null)}>
                                 New Message
                             </button>
                         </div>
@@ -1966,7 +1966,7 @@ const Mailbox = () => {
                                                             <p className="text-[11px] text-gray-400 dark:text-gray-600">{attachment.size}</p>
                                                         </div>
                                                         <div className="absolute top-0 z-[5] hidden h-full w-full rounded-md bg-dark-light/40 group-hover:block ltr:left-0 rtl:right-0"></div>
-                                                        <div className="btn btn-primary absolute left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 rounded-full p-1 group-hover:block">
+                                                        <div className="btn btn-dred absolute left-1/2 top-1/2 z-10 hidden -translate-x-1/2 -translate-y-1/2 rounded-full p-1 group-hover:block">
                                                             <IconDownload className="h-4.5 w-4.5" />
                                                         </div>
                                                     </button>
@@ -2042,7 +2042,7 @@ const Mailbox = () => {
                                     <button type="button" className="btn btn-success ltr:mr-3 rtl:ml-3" onClick={() => saveMail('save', null)}>
                                         Save
                                     </button>
-                                    <button type="button" className="btn btn-primary" onClick={() => saveMail('send', params.id)}>
+                                    <button type="button" className="btn btn-dred" onClick={() => saveMail('send', params.id)}>
                                         Send
                                     </button>
                                 </div>

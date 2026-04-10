@@ -117,7 +117,7 @@ const Validation = () => {
                                         </div>
                                         <button
                                             type="submit"
-                                            className="btn btn-primary !mt-6"
+                                            className="btn btn-dred !mt-6"
                                             onClick={() => {
                                                 if (touched.fullName && !errors.fullName) {
                                                     submitForm();
@@ -170,7 +170,7 @@ const SubmittedForm = Yup.object().shape({
             </div>
             <button
                 type="submit"
-                className="btn btn-primary !mt-6"
+                className="btn btn-dred !mt-6"
                 onClick={() => {
                     if (touched.fullName && !errors.fullName) {
                         submitForm();
@@ -215,7 +215,7 @@ const SubmittedForm = Yup.object().shape({
                                         </div>
                                         <button
                                             type="submit"
-                                            className="btn btn-primary !mt-6"
+                                            className="btn btn-dred !mt-6"
                                             onClick={() => {
                                                 if (touched.email && !errors.email) {
                                                     submitForm();
@@ -269,7 +269,7 @@ const SubmittedForm = Yup.object().shape({
             </div>
             <button
                 type="submit"
-                className="btn btn-primary !mt-6"
+                className="btn btn-dred !mt-6"
                 onClick={() => {
                     if (touched.email && !errors.email) {
                         submitForm();
@@ -324,7 +324,7 @@ const SubmittedForm = Yup.object().shape({
                                         </div>
                                         <button
                                             type="submit"
-                                            className="btn btn-primary !mt-6"
+                                            className="btn btn-dred !mt-6"
                                             onClick={() => {
                                                 if (touched.select && !errors.select) {
                                                     submitForm();
@@ -388,7 +388,7 @@ const SubmittedForm = Yup.object().shape({
             </div>
             <button
                 type="submit"
-                className="btn btn-primary !mt-6"
+                className="btn btn-dred !mt-6"
                 onClick={() => {
                     if (touched.select && !errors.select) {
                         submitForm();
@@ -499,7 +499,7 @@ const SubmittedForm = Yup.object().shape({
 
                                         <button
                                             type="submit"
-                                            className="btn btn-primary !mt-6"
+                                            className="btn btn-dred !mt-6"
                                             onClick={() => {
                                                 if (Object.keys(touched).length !== 0 && Object.keys(errors).length === 0) {
                                                     submitForm();
@@ -624,7 +624,7 @@ const submitForm4 = Yup.object().shape({
 
             <button
                 type="submit"
-                className="btn btn-primary !mt-6"
+                className="btn btn-dred !mt-6"
                 onClick={() => {
                     if (Object.keys(touched).length !== 0 && Object.keys(errors).length === 0) {
                         submitForm();
@@ -698,7 +698,7 @@ const submitForm4 = Yup.object().shape({
                                         Agree to terms and conditions
                                     </label>
                                 </div>
-                                <button type="submit" className="btn btn-primary !mt-6">
+                                <button type="submit" className="btn btn-dred !mt-6">
                                     Submit Form
                                 </button>
                             </form>
@@ -764,7 +764,7 @@ const submitForm = () => {
         <input type="checkbox" id="agree1 className="form-checkbox" required />
         <label htmlFor="agree1" className="text-white-dark font-semibold mb-0">Agree to terms and conditions</label>
     </div>
-    <button type="submit" className="btn btn-primary !mt-6">
+    <button type="submit" className="btn btn-dred !mt-6">
         Submit Form
     </button>
 </form>`}</pre>
@@ -911,7 +911,7 @@ const submitForm = () => {
 
                                         <button
                                             type="submit"
-                                            className="btn btn-primary !mt-6"
+                                            className="btn btn-dred !mt-6"
                                             onClick={() => {
                                                 if (Object.keys(touched).length !== 0 && Object.keys(errors).length === 0) {
                                                     submitForm();
@@ -1080,7 +1080,7 @@ const submitForm4 = Yup.object().shape({
 
             <button
                 type="submit"
-                className="btn btn-primary !mt-6"
+                className="btn btn-dred !mt-6"
                 onClick={() => {
                     if (Object.keys(touched).length !== 0 && Object.keys(errors).length === 0) {
                         submitForm();

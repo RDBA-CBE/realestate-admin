@@ -90,10 +90,10 @@ const Wizards = () => {
                                     <p className="mb-5">{activeTab === 3 && 'Wonderful transition effects.'}</p>
                                 </div>
                                 <div className="flex justify-between">
-                                    <button type="button" className={`btn btn-primary ${activeTab === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab(activeTab === 3 ? 2 : 1)}>
+                                    <button type="button" className={`btn btn-dred ${activeTab === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab(activeTab === 3 ? 2 : 1)}>
                                         Back
                                     </button>
-                                    <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab(activeTab === 1 ? 2 : 3)}>
+                                    <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab(activeTab === 1 ? 2 : 3)}>
                                         {activeTab === 3 ? 'Finish' : 'Next'}
                                     </button>
                                 </div>
@@ -137,10 +137,10 @@ const [activeTab, setActiveTab] = useState<any>(1);
         <p className="mb-5">{activeTab === 3 && 'Wonderful transition effects.'}</p>
     </div>
     <div className="flex justify-between">
-        <button type="button" className={\`btn btn-primary \${activeTab === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab(activeTab === 3 ? 2 : 1)}>
+        <button type="button" className={\`btn btn-dred \${activeTab === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab(activeTab === 3 ? 2 : 1)}>
             Back
         </button>
-        <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab(activeTab === 1 ? 2 : 3)}>
+        <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab(activeTab === 1 ? 2 : 3)}>
             {activeTab === 3 ? 'Finish' : 'Next'}
         </button>
     </div>
@@ -199,10 +199,10 @@ const [activeTab, setActiveTab] = useState<any>(1);
                                     <p className="mb-5">{activeTab1 === 3 && 'Wonderful transition effects.'}</p>
                                 </div>
                                 <div className="flex justify-between">
-                                    <button type="button" className={`btn btn-primary ${activeTab1 === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab1(activeTab1 === 3 ? 2 : 1)}>
+                                    <button type="button" className={`btn btn-dred ${activeTab1 === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab1(activeTab1 === 3 ? 2 : 1)}>
                                         Back
                                     </button>
-                                    <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab1(activeTab1 === 1 ? 2 : 3)}>
+                                    <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab1(activeTab1 === 1 ? 2 : 3)}>
                                         {activeTab1 === 3 ? 'Finish' : 'Next'}
                                     </button>
                                 </div>
@@ -252,10 +252,10 @@ const [activeTab1, setActiveTab1] = useState<any>(1);
         <p className="mb-5">{activeTab1 === 3 && 'Wonderful transition effects.'}</p>
     </div>
     <div className="flex justify-between">
-        <button type="button" className={\`btn btn-primary \${activeTab1 === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab1(activeTab1 === 3 ? 2 : 1)}>
+        <button type="button" className={\`btn btn-dred \${activeTab1 === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab1(activeTab1 === 3 ? 2 : 1)}>
             Back
         </button>
-        <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab1(activeTab1 === 1 ? 2 : 3)}>
+        <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab1(activeTab1 === 1 ? 2 : 3)}>
             {activeTab1 === 3 ? 'Finish' : 'Next'}
         </button>
     </div>
@@ -314,10 +314,10 @@ const [activeTab1, setActiveTab1] = useState<any>(1);
                                     <p className="mb-5">{activeTab2 === 3 && 'Wonderful transition effects.'}</p>
                                 </div>
                                 <div className="flex justify-between">
-                                    <button type="button" className={`btn btn-primary ${activeTab2 === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab2(activeTab2 === 3 ? 2 : 1)}>
+                                    <button type="button" className={`btn btn-dred ${activeTab2 === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab2(activeTab2 === 3 ? 2 : 1)}>
                                         Back
                                     </button>
-                                    <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab2(activeTab2 === 1 ? 2 : 3)}>
+                                    <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab2(activeTab2 === 1 ? 2 : 3)}>
                                         {activeTab2 === 3 ? 'Finish' : 'Next'}
                                     </button>
                                 </div>
@@ -370,10 +370,10 @@ const [activeTab2, setActiveTab2] = useState<any>(1);
         <p className="mb-5">{activeTab2 === 3 && 'Wonderful transition effects.'}</p>
     </div>
     <div className="flex justify-between">
-        <button type="button" className={\`btn btn-primary \${activeTab2 === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab2(activeTab2 === 3 ? 2 : 1)}>
+        <button type="button" className={\`btn btn-dred \${activeTab2 === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab2(activeTab2 === 3 ? 2 : 1)}>
             Back
         </button>
-        <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab2(activeTab2 === 1 ? 2 : 3)}>
+        <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab2(activeTab2 === 1 ? 2 : 3)}>
             {activeTab2 === 3 ? 'Finish' : 'Next'}
         </button>
     </div>
@@ -445,10 +445,10 @@ const [activeTab2, setActiveTab2] = useState<any>(1);
                                     <p className="mb-5">{activeTab3 === 3 && 'Wonderful transition effects.'}</p>
                                 </div>
                                 <div className="flex justify-between">
-                                    <button type="button" className={`btn btn-primary ${activeTab3 === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab3(activeTab3 === 3 ? 2 : 1)}>
+                                    <button type="button" className={`btn btn-dred ${activeTab3 === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab3(activeTab3 === 3 ? 2 : 1)}>
                                         Back
                                     </button>
-                                    <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab3(activeTab3 === 1 ? 2 : 3)}>
+                                    <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab3(activeTab3 === 1 ? 2 : 3)}>
                                         {activeTab3 === 3 ? 'Finish' : 'Next'}
                                     </button>
                                 </div>
@@ -504,10 +504,10 @@ const [activeTab3, setActiveTab3] = useState<any>(1);
         <p className="mb-5">{activeTab3 === 3 && 'Wonderful transition effects.'}</p>
     </div>
     <div className="flex justify-between">
-        <button type="button" className={\`btn btn-primary \${activeTab3 === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab3(activeTab3 === 3 ? 2 : 1)}>
+        <button type="button" className={\`btn btn-dred \${activeTab3 === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab3(activeTab3 === 3 ? 2 : 1)}>
             Back
         </button>
-        <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab3(activeTab3 === 1 ? 2 : 3)}>
+        <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab3(activeTab3 === 1 ? 2 : 3)}>
             {activeTab3 === 3 ? 'Finish' : 'Next'}
         </button>
     </div>
@@ -578,10 +578,10 @@ const [activeTab3, setActiveTab3] = useState<any>(1);
                                     <p className="mb-5">{activeTab4 === 3 && 'Wonderful transition effects.'}</p>
                                 </div>
                                 <div className="flex justify-between">
-                                    <button type="button" className={`btn btn-primary ${activeTab4 === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab4(activeTab4 === 3 ? 2 : 1)}>
+                                    <button type="button" className={`btn btn-dred ${activeTab4 === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab4(activeTab4 === 3 ? 2 : 1)}>
                                         Back
                                     </button>
-                                    <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab4(activeTab4 === 1 ? 2 : 3)}>
+                                    <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab4(activeTab4 === 1 ? 2 : 3)}>
                                         {activeTab4 === 3 ? 'Finish' : 'Next'}
                                     </button>
                                 </div>
@@ -640,10 +640,10 @@ const [activeTab4, setActiveTab4] = useState<any>(1);
         <p className="mb-5">{activeTab4 === 3 && 'Wonderful transition effects.'}</p>
     </div>
     <div className="flex justify-between">
-        <button type="button" className={\`btn btn-primary \${activeTab4 === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab4(activeTab4 === 3 ? 2 : 1)}>
+        <button type="button" className={\`btn btn-dred \${activeTab4 === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab4(activeTab4 === 3 ? 2 : 1)}>
             Back
         </button>
-        <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab4(activeTab4 === 1 ? 2 : 3)}>
+        <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab4(activeTab4 === 1 ? 2 : 3)}>
             {activeTab4 === 3 ? 'Finish' : 'Next'}
         </button>
     </div>
@@ -715,10 +715,10 @@ const [activeTab4, setActiveTab4] = useState<any>(1);
                                     <p className="mb-5">{activeTab5 === 3 && 'Wonderful transition effects.'}</p>
                                 </div>
                                 <div className="flex justify-between">
-                                    <button type="button" className={`btn btn-primary ${activeTab5 === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab5(activeTab5 === 3 ? 2 : 1)}>
+                                    <button type="button" className={`btn btn-dred ${activeTab5 === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab5(activeTab5 === 3 ? 2 : 1)}>
                                         Back
                                     </button>
-                                    <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab5(activeTab5 === 1 ? 2 : 3)}>
+                                    <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab5(activeTab5 === 1 ? 2 : 3)}>
                                         {activeTab5 === 3 ? 'Finish' : 'Next'}
                                     </button>
                                 </div>
@@ -774,10 +774,10 @@ const [activeTab5, setActiveTab5] = useState<any>(1);
         <p className="mb-5">{activeTab5 === 3 && 'Wonderful transition effects.'}</p>
     </div>
     <div className="flex justify-between">
-        <button type="button" className={\`btn btn-primary \${activeTab5 === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab5(activeTab5 === 3 ? 2 : 1)}>
+        <button type="button" className={\`btn btn-dred \${activeTab5 === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab5(activeTab5 === 3 ? 2 : 1)}>
             Back
         </button>
-        <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab5(activeTab5 === 1 ? 2 : 3)}>
+        <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab5(activeTab5 === 1 ? 2 : 3)}>
             {activeTab5 === 3 ? 'Finish' : 'Next'}
         </button>
     </div>
@@ -848,10 +848,10 @@ const [activeTab5, setActiveTab5] = useState<any>(1);
                                     <p className="mb-5">{activeTab6 === 3 && 'Wonderful transition effects.'}</p>
                                 </div>
                                 <div className="flex justify-between">
-                                    <button type="button" className={`btn btn-primary ${activeTab6 === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab6(activeTab6 === 3 ? 2 : 1)}>
+                                    <button type="button" className={`btn btn-dred ${activeTab6 === 1 ? 'hidden' : ''}`} onClick={() => setActiveTab6(activeTab6 === 3 ? 2 : 1)}>
                                         Back
                                     </button>
-                                    <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab6(activeTab6 === 1 ? 2 : 3)}>
+                                    <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab6(activeTab6 === 1 ? 2 : 3)}>
                                         {activeTab6 === 3 ? 'Finish' : 'Next'}
                                     </button>
                                 </div>
@@ -910,10 +910,10 @@ const [activeTab6, setActiveTab6] = useState<any>(1);
         <p className="mb-5">{activeTab6 === 3 && 'Wonderful transition effects.'}</p>
     </div>
     <div className="flex justify-between">
-        <button type="button" className={\`btn btn-primary \${activeTab6 === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab6(activeTab6 === 3 ? 2 : 1)}>
+        <button type="button" className={\`btn btn-dred \${activeTab6 === 1 ? 'hidden' : ''}\`} onClick={() => setActiveTab6(activeTab6 === 3 ? 2 : 1)}>
             Back
         </button>
-        <button type="button" className="btn btn-primary ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab6(activeTab6 === 1 ? 2 : 3)}>
+        <button type="button" className="btn btn-dred ltr:ml-auto rtl:mr-auto" onClick={() => setActiveTab6(activeTab6 === 1 ? 2 : 3)}>
             {activeTab6 === 3 ? 'Finish' : 'Next'}
         </button>
     </div>

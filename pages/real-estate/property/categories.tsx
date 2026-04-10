@@ -213,7 +213,7 @@ export default function list() {
 
   return (
     <>
-      <div className="panel mb-5 flex items-center justify-between gap-5">
+      <div className=" mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
             Category List
@@ -222,7 +222,7 @@ export default function list() {
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-primary  w-full md:mb-0 md:w-auto"
+            className="btn btn-dred border-none w-full md:mb-0 md:w-auto"
             onClick={() => setState({ isOpen: true })}
           >
             + Create
@@ -264,13 +264,13 @@ export default function list() {
         </div>
        
         <div>
-          <button type="button" className="btn btn-primary">
+          <button type="button" className="btn btn-dred">
             Clear Filter
           </button>
         </div>
       </div> */}
 
-      <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
+      <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         {/* <div className="invoice-table"> */}
 
         <div className="datatables pagination-padding">
@@ -327,8 +327,8 @@ export default function list() {
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
-            className={`btn ${
-              !state.previous ? "btn-disabled" : "btn-primary"
+            className={`btn border-none p-2 ${
+              !state.previous ? "btn-disabled" : "btn-dred"
             }`}
           >
             <IconArrowBackward />
@@ -336,7 +336,7 @@ export default function list() {
           <button
             disabled={!state.next}
             onClick={handleNextPage}
-            className={`btn ${!state.next ? "btn-disabled" : "btn-primary"}`}
+            className={`btn border-none p-2 ${!state.next ? "btn-disabled" : "btn-dred"}`}
           >
             <IconArrowForward />
           </button>
@@ -380,7 +380,7 @@ export default function list() {
               <div className="mt-8 flex items-center justify-end">
                 <button
                   type="button"
-                  className="btn btn-outline-primary gap-2"
+                  className="btn border-dred hover:btn-mred gap-2"
                   onClick={() => {
                     clearData();
                   }}
@@ -392,7 +392,7 @@ export default function list() {
                   onClick={() =>
                     state.editId ? updateProject() : createProject()
                   }
-                  className="btn btn-primary ltr:ml-4 rtl:mr-4"
+                  className="btn border-none btn-dred ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
                 </button>

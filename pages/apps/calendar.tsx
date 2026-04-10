@@ -273,7 +273,7 @@ const Calendar = () => {
                             </div>
                         </div>
                     </div>
-                    <button type="button" className="btn btn-primary" onClick={() => editEvent()}>
+                    <button type="button" className="btn btn-dred" onClick={() => editEvent()}>
                         <IconPlus className="ltr:mr-2 rtl:ml-2" />
                         Create Event
                     </button>
@@ -446,7 +446,7 @@ const Calendar = () => {
                                                 <button type="button" className="btn btn-outline-danger" onClick={() => setIsAddEventModal(false)}>
                                                     Cancel
                                                 </button>
-                                                <button type="button" onClick={() => saveEvent()} className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                <button type="button" onClick={() => saveEvent()} className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                     {params.id ? 'Update Event' : 'Create Event'}
                                                 </button>
                                             </div>

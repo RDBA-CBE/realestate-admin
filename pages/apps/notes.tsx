@@ -477,7 +477,7 @@ const Notes = () => {
                         </PerfectScrollbar>
                     </div>
                     <div className="absolute bottom-0 w-full p-4 ltr:left-0 rtl:right-0">
-                        <button className="btn btn-primary w-full" type="button" onClick={() => editNote()}>
+                        <button className="btn btn-dred w-full" type="button" onClick={() => editNote()}>
                             <IconPlus className="w-5 h-5 ltr:mr-2 rtl:ml-2 shrink-0" />
                             Add New Note
                         </button>
@@ -743,7 +743,7 @@ const Notes = () => {
                                                         <button type="button" className="btn btn-outline-danger gap-2" onClick={() => setAddContactModal(false)}>
                                                             Cancel
                                                         </button>
-                                                        <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={saveNote}>
+                                                        <button type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4" onClick={saveNote}>
                                                             {params.id ? 'Update Note' : 'Add Note'}
                                                         </button>
                                                     </div>
@@ -800,7 +800,7 @@ const Notes = () => {
                                                     <button type="button" className="btn btn-outline-danger" onClick={() => setIsDeleteNoteModal(false)}>
                                                         Cancel
                                                     </button>
-                                                    <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={deleteNote}>
+                                                    <button type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4" onClick={deleteNote}>
                                                         Delete
                                                     </button>
                                                 </div>

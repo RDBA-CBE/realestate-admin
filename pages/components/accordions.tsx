@@ -164,7 +164,7 @@ const Accordians = () => {
                                                     butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven&apos;t heard of them accusamus
                                                     labore sustainable VHS.
                                                 </p>
-                                                <button type="button" className="btn btn-primary mt-4">
+                                                <button type="button" className="btn btn-dred mt-4">
                                                     Accept
                                                 </button>
                                             </div>
@@ -268,7 +268,7 @@ const [active, setActive] = useState<string>('1');
                             butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus
                             labore sustainable VHS.
                         </p>
-                        <button type="button" className="btn btn-primary mt-4">
+                        <button type="button" className="btn btn-dred mt-4">
                             Accept
                         </button>
                     </div>
@@ -376,7 +376,7 @@ const [active, setActive] = useState<string>('1');
                                                     butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven&apos;t heard of them accusamus
                                                     labore sustainable VHS.
                                                 </p>
-                                                <button type="button" className="btn btn-primary mt-4">
+                                                <button type="button" className="btn btn-dred mt-4">
                                                     Accept
                                                 </button>
                                             </div>
@@ -482,7 +482,7 @@ const [active1, setActive1] = useState<string>('1');
                             butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus
                             labore sustainable VHS.
                         </p>
-                        <button type="button" className="btn btn-primary mt-4">
+                        <button type="button" className="btn btn-dred mt-4">
                             Accept
                         </button>
                     </div>
@@ -598,7 +598,7 @@ const [active1, setActive1] = useState<string>('1');
                           you probably haven't heard of them accusamus labore
                           sustainable VHS.`}
                                                 </p>
-                                                <button type="button" className="btn btn-primary mt-4">
+                                                <button type="button" className="btn btn-dred mt-4">
                                                     Accept
                                                 </button>
                                             </div>
@@ -705,7 +705,7 @@ const [active2, setActive2] = useState<string>('1');
                             butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus
                             labore sustainable VHS.
                         </p>
-                        <button type="button" className="btn btn-primary mt-4">
+                        <button type="button" className="btn btn-dred mt-4">
                             Accept
                         </button>
                     </div>
@@ -809,7 +809,7 @@ const [active2, setActive2] = useState<string>('1');
                           you probably haven't heard of them accusamus labore
                           sustainable VHS.`}
                                                 </p>
-                                                <button type="button" className="btn btn-primary mt-4">
+                                                <button type="button" className="btn btn-dred mt-4">
                                                     Accept
                                                 </button>
                                             </div>
@@ -904,7 +904,7 @@ const [active3, setActive3] = useState<string>('1');
                             butcher vice lomo. Leggings occaecat craft beer farm-to-table, raw denim aesthetic synth nesciunt you probably haven't heard of them accusamus
                             labore sustainable VHS.
                         </p>
-                        <button type="button" className="btn btn-primary mt-4">
+                        <button type="button" className="btn btn-dred mt-4">
                             Accept
                         </button>
                     </div>

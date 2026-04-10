@@ -710,21 +710,21 @@ const Export = () => {
             <div className="panel mt-6">
                 <div className="mb-4.5 flex flex-col justify-between gap-5 md:flex-row md:items-center">
                     <div className="flex flex-wrap items-center">
-                        <button type="button" onClick={() => exportTable('csv')} className="btn btn-primary btn-sm m-1 ">
+                        <button type="button" onClick={() => exportTable('csv')} className="btn btn-dred btn-sm m-1 ">
                             <IconFile className="w-5 h-5 ltr:mr-2 rtl:ml-2" />
                             CSV
                         </button>
-                        <button type="button" onClick={() => exportTable('txt')} className="btn btn-primary btn-sm m-1">
+                        <button type="button" onClick={() => exportTable('txt')} className="btn btn-dred btn-sm m-1">
                             <IconFile className="w-5 h-5 ltr:mr-2 rtl:ml-2" />
                             TXT
                         </button>
 
-                        <button type="button" className="btn btn-primary btn-sm m-1" onClick={handleDownloadExcel}>
+                        <button type="button" className="btn btn-dred btn-sm m-1" onClick={handleDownloadExcel}>
                             <IconFile className="w-5 h-5 ltr:mr-2 rtl:ml-2" />
                             EXCEL
                         </button>
 
-                        <button type="button" onClick={() => exportTable('print')} className="btn btn-primary btn-sm m-1">
+                        <button type="button" onClick={() => exportTable('print')} className="btn btn-dred btn-sm m-1">
                             <IconPrinter className="ltr:mr-2 rtl:ml-2" />
                             PRINT
                         </button>

@@ -92,7 +92,7 @@ const Clipboard = () => {
                                                 }
                                             }}
                                         >
-                                            <button type="button" className="btn btn-primary">
+                                            <button type="button" className="btn btn-dred">
                                                 <IconCopy className="ltr:mr-2 rtl:ml-2" />
                                                 Copy from Input
                                             </button>
@@ -131,7 +131,7 @@ const [message1, setMessage1] = useState<any>('http://www.admin-dashboard.com');
                 }
             }}
         >
-            <button type="button" className="btn btn-primary">
+            <button type="button" className="btn btn-dred">
                 <svg>...</svg>
                 Copy from Input
             </button>
@@ -179,7 +179,7 @@ const [message1, setMessage1] = useState<any>('http://www.admin-dashboard.com');
                                                 }
                                             }}
                                         >
-                                            <button type="button" className="btn btn-primary" data-clipboard-target="#message2">
+                                            <button type="button" className="btn btn-dred" data-clipboard-target="#message2">
                                                 <IconCopy className="ltr:mr-2 rtl:ml-2" />
                                                 Copy from Input
                                             </button>
@@ -218,7 +218,7 @@ const [message2, setMessage2] = useState<any>('Lorem ipsum dolor sit amet, conse
                 }
             }}
         >
-            <button type="button" className="btn btn-primary" data-clipboard-target="#message2">
+            <button type="button" className="btn btn-dred" data-clipboard-target="#message2">
                 <svg>...</svg>
                 Copy from Input
             </button>
@@ -273,7 +273,7 @@ const [message2, setMessage2] = useState<any>('Lorem ipsum dolor sit amet, conse
                                                 }
                                             }}
                                         >
-                                            <button type="button" className="btn btn-primary" data-clipboard-target="#copyOTP">
+                                            <button type="button" className="btn btn-dred" data-clipboard-target="#copyOTP">
                                                 <IconCopy className="ltr:mr-2 rtl:ml-2" />
                                                 Copy from Paragraph
                                             </button>
@@ -306,7 +306,7 @@ const message3 = '22991';
                 }
             }}
         >
-            <button type="button" className="btn btn-primary" data-clipboard-target="#copyOTP">
+            <button type="button" className="btn btn-dred" data-clipboard-target="#copyOTP">
                 <svg>...</svg>
                 Copy from Paragraph
             </button>
@@ -347,7 +347,7 @@ const message3 = '22991';
                                                 }
                                             }}
                                         >
-                                            <button type="button" className="btn btn-primary">
+                                            <button type="button" className="btn btn-dred">
                                                 <IconCopy className="ltr:mr-2 rtl:ml-2" />
                                                 Copy Link
                                             </button>
@@ -392,7 +392,7 @@ const message4 = 'http://www.admin-dashboard.com/code';
                 }
             }}
         >
-            <button type="button" className="btn btn-primary">
+            <button type="button" className="btn btn-dred">
                 <svg>...</svg>
                 Copy Link
             </button>

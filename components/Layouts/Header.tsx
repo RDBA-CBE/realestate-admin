@@ -575,7 +575,7 @@ const Header = () => {
                       })}
                       <li>
                         <div className="p-4">
-                          <button className="btn btn-primary btn-small block w-full">
+                          <button className="btn btn-dred btn-small block w-full">
                             Read All Notifications
                           </button>
                         </div>

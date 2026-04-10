@@ -533,7 +533,7 @@ export default function View_opportunity(props: any) {
               </div>
               {/* <button
                 type="button"
-                className="btn btn-primary log-btn p-1"
+                className="btn btn-dred log-btn p-1"
                 onClick={() => {
                   setState({ isLogOpen: true });
                 }}

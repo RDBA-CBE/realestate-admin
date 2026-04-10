@@ -101,7 +101,7 @@ const Modals = () => {
                         </div>
                         <div className="mb-5">
                             <div className="flex items-center justify-center">
-                                <button type="button" className="btn btn-primary" onClick={() => setModal1(true)}>
+                                <button type="button" className="btn btn-dred" onClick={() => setModal1(true)}>
                                     Launch modal
                                 </button>
                             </div>
@@ -146,7 +146,7 @@ const Modals = () => {
                                                             <button type="button" className="btn btn-outline-danger" onClick={() => setModal1(false)}>
                                                                 Discard
                                                             </button>
-                                                            <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={() => setModal1(false)}>
+                                                            <button type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4" onClick={() => setModal1(false)}>
                                                                 Save
                                                             </button>
                                                         </div>
@@ -168,7 +168,7 @@ const [modal1, setModal1] = useState(false);
 
 <div className="mb-5">
     <div className="flex items-center justify-center">
-        <button type="button" className="btn btn-primary" onClick={() => setModal1(true)}>
+        <button type="button" className="btn btn-dred" onClick={() => setModal1(true)}>
             Launch modal
         </button>
     </div>
@@ -213,7 +213,7 @@ const [modal1, setModal1] = useState(false);
                                     <button type="button" className="btn btn-outline-danger" onClick={() => setModal1(false)}>
                                         Discard
                                     </button>
-                                    <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={() => setModal1(false)}>
+                                    <button type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4" onClick={() => setModal1(false)}>
                                         Save
                                     </button>
                                 </div>
@@ -289,7 +289,7 @@ const [modal1, setModal1] = useState(false);
                                                             <button type="button" className="btn btn-outline-danger" onClick={() => setModal2(false)}>
                                                                 Discard
                                                             </button>
-                                                            <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={() => setModal2(false)}>
+                                                            <button type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4" onClick={() => setModal2(false)}>
                                                                 Save
                                                             </button>
                                                         </div>
@@ -356,7 +356,7 @@ const [modal2, setModal2] = useState(false);
                                     <button type="button" className="btn btn-outline-danger" onClick={() => setModal2(false)}>
                                         Discard
                                     </button>
-                                    <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={() => setModal2(false)}>
+                                    <button type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4" onClick={() => setModal2(false)}>
                                         Save
                                     </button>
                                 </div>
@@ -431,7 +431,7 @@ const [modal2, setModal2] = useState(false);
                                                             <button type="button" onClick={() => setModal3(false)} className="btn btn-outline-danger">
                                                                 Discard
                                                             </button>
-                                                            <button type="button" onClick={() => setModal3(false)} className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                            <button type="button" onClick={() => setModal3(false)} className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                 Save
                                                             </button>
                                                         </div>
@@ -498,7 +498,7 @@ const [modal3, setModal3] = useState(false);
                                     <button type="button" onClick={() => setModal3(false)} className="btn btn-outline-danger">
                                         Discard
                                     </button>
-                                    <button type="button" onClick={() => setModal3(false)} className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                    <button type="button" onClick={() => setModal3(false)} className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                         Save
                                     </button>
                                 </div>
@@ -564,7 +564,7 @@ const [modal3, setModal3] = useState(false);
                                                         <button onClick={() => setModal4(false)} type="button" className="btn btn-outline-danger">
                                                             Discard
                                                         </button>
-                                                        <button type="button" onClick={() => setModal4(false)} className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                        <button type="button" onClick={() => setModal4(false)} className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                             Save
                                                         </button>
                                                     </div>
@@ -621,7 +621,7 @@ const [modal4, setModal4] = useState(false);
                                 <button onClick={() => setModal4(false)} type="button" className="btn btn-outline-danger">
                                     Discard
                                 </button>
-                                <button type="button" onClick={() => setModal4(false)} className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                <button type="button" onClick={() => setModal4(false)} className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                     Save
                                 </button>
                             </div>
@@ -696,7 +696,7 @@ const [modal4, setModal4] = useState(false);
                                                                     <button onClick={() => setModal5(false)} type="button" className="btn btn-outline-danger">
                                                                         Discard
                                                                     </button>
-                                                                    <button onClick={() => setModal5(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                                    <button onClick={() => setModal5(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                         Save
                                                                     </button>
                                                                 </div>
@@ -755,7 +755,7 @@ const [modal4, setModal4] = useState(false);
                                                                     <button onClick={() => setModal6(false)} type="button" className="btn btn-outline-danger">
                                                                         Discard
                                                                     </button>
-                                                                    <button onClick={() => setModal6(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                                    <button onClick={() => setModal6(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                         Save
                                                                     </button>
                                                                 </div>
@@ -814,7 +814,7 @@ const [modal4, setModal4] = useState(false);
                                                                     <button onClick={() => setModal7(false)} type="button" className="btn btn-outline-danger">
                                                                         Discard
                                                                     </button>
-                                                                    <button onClick={() => setModal7(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                                    <button onClick={() => setModal7(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                         Save
                                                                     </button>
                                                                 </div>
@@ -886,7 +886,7 @@ const [modal7, setModal7] = useState(false);
                                             <button onClick={() => setModal5(false)} type="button" className="btn btn-outline-danger">
                                                 Discard
                                             </button>
-                                            <button onClick={() => setModal5(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                            <button onClick={() => setModal5(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                 Save
                                             </button>
                                         </div>
@@ -946,7 +946,7 @@ const [modal7, setModal7] = useState(false);
                                             <button onClick={() => setModal6(false)} type="button" className="btn btn-outline-danger">
                                                 Discard
                                             </button>
-                                            <button onClick={() => setModal6(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                            <button onClick={() => setModal6(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                 Save
                                             </button>
                                         </div>
@@ -1006,7 +1006,7 @@ const [modal7, setModal7] = useState(false);
                                             <button onClick={() => setModal7(false)} type="button" className="btn btn-outline-danger">
                                                 Discard
                                             </button>
-                                            <button onClick={() => setModal7(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                            <button onClick={() => setModal7(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                 Save
                                             </button>
                                         </div>
@@ -1039,7 +1039,7 @@ const [modal7, setModal7] = useState(false);
                         </div>
                         <div className="mb-5">
                             <div className="flex items-center justify-center">
-                                <button onClick={() => setModal8(true)} type="button" className="btn btn-primary">
+                                <button onClick={() => setModal8(true)} type="button" className="btn btn-dred">
                                     Play Youtube
                                 </button>
                             </div>
@@ -1091,7 +1091,7 @@ const [modal8, setModal8] = useState(false);
 
 <div className="mb-5">
 <div className="flex items-center justify-center">
-    <button onClick={() => setModal8(true)} type="button" className="btn btn-primary">
+    <button onClick={() => setModal8(true)} type="button" className="btn btn-dred">
         Play Youtube
     </button>
 </div>
@@ -1153,7 +1153,7 @@ const [modal8, setModal8] = useState(false);
                             <div className="flex flex-wrap items-center justify-center gap-2">
                                 {/* FadeIn */}
                                 <div>
-                                    <button onClick={() => setModal9(true)} type="button" className="btn btn-primary">
+                                    <button onClick={() => setModal9(true)} type="button" className="btn btn-dred">
                                         FadeIn
                                     </button>
                                     <Transition appear show={modal9} as={Fragment}>
@@ -1188,7 +1188,7 @@ const [modal8, setModal8] = useState(false);
                                                                 <button onClick={() => setModal9(false)} type="button" className="btn btn-outline-danger">
                                                                     Discard
                                                                 </button>
-                                                                <button onClick={() => setModal9(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                                <button onClick={() => setModal9(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                     Save
                                                                 </button>
                                                             </div>
@@ -1236,7 +1236,7 @@ const [modal8, setModal8] = useState(false);
                                                                 <button onClick={() => setModal10(false)} type="button" className="btn btn-outline-danger">
                                                                     Discard
                                                                 </button>
-                                                                <button onClick={() => setModal10(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                                <button onClick={() => setModal10(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                     Save
                                                                 </button>
                                                             </div>
@@ -1284,7 +1284,7 @@ const [modal8, setModal8] = useState(false);
                                                                 <button onClick={() => setModal11(false)} type="button" className="btn btn-outline-danger">
                                                                     Discard
                                                                 </button>
-                                                                <button onClick={() => setModal11(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                                <button onClick={() => setModal11(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                     Save
                                                                 </button>
                                                             </div>
@@ -1332,7 +1332,7 @@ const [modal8, setModal8] = useState(false);
                                                                 <button onClick={() => setModal12(false)} type="button" className="btn btn-outline-danger">
                                                                     Discard
                                                                 </button>
-                                                                <button onClick={() => setModal12(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                                <button onClick={() => setModal12(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                     Save
                                                                 </button>
                                                             </div>
@@ -1384,7 +1384,7 @@ const [modal8, setModal8] = useState(false);
                                                                 <button onClick={() => setModal13(false)} type="button" className="btn btn-outline-danger">
                                                                     Discard
                                                                 </button>
-                                                                <button onClick={() => setModal13(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                                <button onClick={() => setModal13(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                     Save
                                                                 </button>
                                                             </div>
@@ -1436,7 +1436,7 @@ const [modal8, setModal8] = useState(false);
                                                                 <button onClick={() => setModal14(false)} type="button" className="btn btn-outline-danger">
                                                                     Discard
                                                                 </button>
-                                                                <button onClick={() => setModal14(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                                <button onClick={() => setModal14(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                     Save
                                                                 </button>
                                                             </div>
@@ -1488,7 +1488,7 @@ const [modal8, setModal8] = useState(false);
                                                                 <button onClick={() => setModal15(false)} type="button" className="btn btn-outline-danger">
                                                                     Discard
                                                                 </button>
-                                                                <button onClick={() => setModal15(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                                <button onClick={() => setModal15(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                     Save
                                                                 </button>
                                                             </div>
@@ -1501,7 +1501,7 @@ const [modal8, setModal8] = useState(false);
                                 </div>
                                 {/* ZoomIn Up*/}
                                 <div>
-                                    <button onClick={() => setModal16(true)} type="button" className="btn btn-primary">
+                                    <button onClick={() => setModal16(true)} type="button" className="btn btn-dred">
                                         ZoomIn Up
                                     </button>
                                     <Transition appear show={modal16} as={Fragment}>
@@ -1536,7 +1536,7 @@ const [modal8, setModal8] = useState(false);
                                                                 <button onClick={() => setModal16(false)} type="button" className="btn btn-outline-danger">
                                                                     Discard
                                                                 </button>
-                                                                <button onClick={() => setModal16(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                                <button onClick={() => setModal16(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                     Save
                                                                 </button>
                                                             </div>
@@ -1567,7 +1567,7 @@ const [modal16, setModal16] = useState(false);
 <div className="mb-5">
     <div className="flex flex-wrap items-center justify-center gap-2">
         <div>
-            <button onClick={() => setModal9(true)} type="button" className="btn btn-primary">
+            <button onClick={() => setModal9(true)} type="button" className="btn btn-dred">
                 FadeIn
             </button>
             <Transition appear show={modal9} as={Fragment}>
@@ -1602,7 +1602,7 @@ const [modal16, setModal16] = useState(false);
                                         <button onClick={() => setModal9(false)} type="button" className="btn btn-outline-danger">
                                             Discard
                                         </button>
-                                        <button onClick={() => setModal9(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                        <button onClick={() => setModal9(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                             Save
                                         </button>
                                     </div>
@@ -1649,7 +1649,7 @@ const [modal16, setModal16] = useState(false);
                                         <button onClick={() => setModal10(false)} type="button" className="btn btn-outline-danger">
                                             Discard
                                         </button>
-                                        <button onClick={() => setModal10(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                        <button onClick={() => setModal10(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                             Save
                                         </button>
                                     </div>
@@ -1696,7 +1696,7 @@ const [modal16, setModal16] = useState(false);
                                         <button onClick={() => setModal11(false)} type="button" className="btn btn-outline-danger">
                                             Discard
                                         </button>
-                                        <button onClick={() => setModal11(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                        <button onClick={() => setModal11(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                             Save
                                         </button>
                                     </div>
@@ -1743,7 +1743,7 @@ const [modal16, setModal16] = useState(false);
                                         <button onClick={() => setModal12(false)} type="button" className="btn btn-outline-danger">
                                             Discard
                                         </button>
-                                        <button onClick={() => setModal12(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                        <button onClick={() => setModal12(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                             Save
                                         </button>
                                     </div>
@@ -1793,7 +1793,7 @@ const [modal16, setModal16] = useState(false);
                                         <button onClick={() => setModal13(false)} type="button" className="btn btn-outline-danger">
                                             Discard
                                         </button>
-                                        <button onClick={() => setModal13(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                        <button onClick={() => setModal13(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                             Save
                                         </button>
                                     </div>
@@ -1842,7 +1842,7 @@ const [modal16, setModal16] = useState(false);
                                         <button onClick={() => setModal14(false)} type="button" className="btn btn-outline-danger">
                                             Discard
                                         </button>
-                                        <button onClick={() => setModal14(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                        <button onClick={() => setModal14(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                             Save
                                         </button>
                                     </div>
@@ -1891,7 +1891,7 @@ const [modal16, setModal16] = useState(false);
                                         <button onClick={() => setModal15(false)} type="button" className="btn btn-outline-danger">
                                             Discard
                                         </button>
-                                        <button onClick={() => setModal15(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                        <button onClick={() => setModal15(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                             Save
                                         </button>
                                     </div>
@@ -1903,7 +1903,7 @@ const [modal16, setModal16] = useState(false);
             </Transition>
         </div>
         <div>
-            <button onClick={() => setModal16(true)} type="button" className="btn btn-primary">
+            <button onClick={() => setModal16(true)} type="button" className="btn btn-dred">
                 ZoomIn Up
             </button>
             <Transition appear show={modal16} as={Fragment}>
@@ -1938,7 +1938,7 @@ const [modal16, setModal16] = useState(false);
                                         <button onClick={() => setModal16(false)} type="button" className="btn btn-outline-danger">
                                             Discard
                                         </button>
-                                        <button onClick={() => setModal16(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                        <button onClick={() => setModal16(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                             Save
                                         </button>
                                     </div>
@@ -1973,7 +1973,7 @@ const [modal16, setModal16] = useState(false);
                             <div className="flex flex-wrap items-center justify-center gap-2">
                                 {/* standard */}
                                 <div>
-                                    <button type="button" onClick={() => setModal17(true)} className="btn btn-primary">
+                                    <button type="button" onClick={() => setModal17(true)} className="btn btn-dred">
                                         Standard
                                     </button>
                                     <Transition appear show={modal17} as={Fragment}>
@@ -2018,7 +2018,7 @@ const [modal16, setModal16] = useState(false);
                                                                     <button type="button" onClick={() => setModal17(false)} className="btn btn-outline-danger">
                                                                         Discard
                                                                     </button>
-                                                                    <button type="button" onClick={() => setModal17(false)} className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                                    <button type="button" onClick={() => setModal17(false)} className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                         Save
                                                                     </button>
                                                                 </div>
@@ -2165,7 +2165,7 @@ const [modal16, setModal16] = useState(false);
                                                                     <button onClick={() => setModal18(false)} type="button" className="btn btn-outline-danger">
                                                                         Discard
                                                                     </button>
-                                                                    <button onClick={() => setModal18(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                                    <button onClick={() => setModal18(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                                         Save
                                                                     </button>
                                                                 </div>
@@ -2286,7 +2286,7 @@ const [modal16, setModal16] = useState(false);
                                                                         </span>
                                                                         <input type="password" placeholder="Password" className="form-input ltr:pl-10 rtl:pr-10" id="login_password" />
                                                                     </div>
-                                                                    <button type="button" className="btn btn-primary w-full">
+                                                                    <button type="button" className="btn btn-dred w-full">
                                                                         Login
                                                                     </button>
                                                                 </form>
@@ -2380,7 +2380,7 @@ const [modal16, setModal16] = useState(false);
                                                                         </span>
                                                                         <input type="password" placeholder="Password" className="form-input ltr:pl-10 rtl:pr-10" id="password" />
                                                                     </div>
-                                                                    <button type="button" className="btn btn-primary w-full">
+                                                                    <button type="button" className="btn btn-dred w-full">
                                                                         Submit
                                                                     </button>
                                                                 </form>
@@ -2502,7 +2502,7 @@ import { useState, Fragment } from 'react';
     <div className="flex flex-wrap items-center justify-center gap-2">
         {/* standard */}
         <div>
-            <button type="button" onClick={() => setModal17(true)} className="btn btn-primary">
+            <button type="button" onClick={() => setModal17(true)} className="btn btn-dred">
                 Standard
             </button>
             <Transition appear show={modal17} as={Fragment}>
@@ -2547,7 +2547,7 @@ import { useState, Fragment } from 'react';
                                             <button type="button" onClick={() => setModal17(false)} className="btn btn-outline-danger">
                                                 Discard
                                             </button>
-                                            <button type="button" onClick={() => setModal17(false)} className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                            <button type="button" onClick={() => setModal17(false)} className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                 Save
                                             </button>
                                         </div>
@@ -2694,7 +2694,7 @@ import { useState, Fragment } from 'react';
                                             <button onClick={() => setModal18(false)} type="button" className="btn btn-outline-danger">
                                                 Discard
                                             </button>
-                                            <button onClick={() => setModal18(false)} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                            <button onClick={() => setModal18(false)} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                 Save
                                             </button>
                                         </div>
@@ -2815,7 +2815,7 @@ import { useState, Fragment } from 'react';
                                                 </span>
                                                 <input type="password" placeholder="Password" className="form-input ltr:pl-10 rtl:pr-10" id="login_password" />
                                             </div>
-                                            <button type="button" className="btn btn-primary w-full">
+                                            <button type="button" className="btn btn-dred w-full">
                                                 Login
                                             </button>
                                         </form>
@@ -2909,7 +2909,7 @@ import { useState, Fragment } from 'react';
                                                 </span>
                                                 <input type="password" placeholder="Password" className="form-input ltr:pl-10 rtl:pr-10" id="password" />
                                             </div>
-                                            <button type="button" className="btn btn-primary w-full">
+                                            <button type="button" className="btn btn-dred w-full">
                                                 Submit
                                             </button>
                                         </form>

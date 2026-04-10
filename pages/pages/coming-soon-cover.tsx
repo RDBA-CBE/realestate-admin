@@ -132,7 +132,7 @@ const ComingSoonCover = () => {
                                     <input type="email" placeholder="mail@gmail.com" className="form-input mb-5 py-3.5 placeholder:text-base placeholder:text-white-dark sm:mb-0 sm:pe-32" />
                                     <button
                                         type="button"
-                                        className="btn btn-gradient end-1.5 top-1/2 inline-flex border-0 px-4 py-1.5 text-base shadow-none sm:absolute sm:-translate-y-1/2"
+                                        className="btn btn-dred end-1.5 top-1/2 inline-flex border-0 px-4 py-1.5 text-base shadow-none sm:absolute sm:-translate-y-1/2"
                                         onClick={() => router.push('/')}
                                     >
                                         Subscribe

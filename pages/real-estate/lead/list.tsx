@@ -30,7 +30,7 @@ import { useRouter } from "next/navigation";
 import PrivateRouter from "@/hook/privateRouter";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
 import Link from "next/link";
-import { Calendar, Columns, Eye, EyeOff, Table } from "lucide-react";
+import { Calendar, Columns, Eye, EyeOff, Table, X } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import {
   FILTER_ROLES,
@@ -555,7 +555,7 @@ const List = () => {
 
   return (
     <>
-      <div className="panel mb-5 flex items-center justify-between gap-5">
+      <div className=" mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
             Lead List
@@ -564,7 +564,7 @@ const List = () => {
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-primary  w-full md:mb-0 md:w-auto"
+            className="btn btn-dred border-none w-full md:mb-0 md:w-auto"
             onClick={() => router.push("/real-estate/lead/create")}
           >
             + Create
@@ -572,8 +572,8 @@ const List = () => {
         </div>
       </div>
 
-      <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
-        <div className="flex-1">
+      <div className=" mb-5 mt-5 gap-2 md:mt-0 md:flex flex-wrap  xl:gap-4">
+        <div className="">
           <input
             type="text"
             className="w-100 form-input"
@@ -594,7 +594,7 @@ const List = () => {
           />
         </div> */}
 
-        <div className="flex-1">
+        <div className="">
           <CustomSelect
             value={state.lead_source}
             onChange={(e) => setState({ lead_source: e })}
@@ -605,7 +605,7 @@ const List = () => {
           />
         </div>
 
-        <div className="flex-1">
+        <div className="">
           <CustomSelect
             value={state.status}
             onChange={(e) => setState({ status: e })}
@@ -619,7 +619,7 @@ const List = () => {
 
         {state.group == "Admin" && (
           <>
-            <div className="flex-1">
+            <div className="">
               <CustomSelect
                 placeholder="Role"
                 value={state.role}
@@ -631,7 +631,7 @@ const List = () => {
               />
             </div>
 
-            <div className="flex-1">
+            <div className="">
               <CustomSelect
                 placeholder="user"
                 value={state.user}
@@ -642,7 +642,7 @@ const List = () => {
           </>
         )}
 
-        <div className="flex-1">
+        <div className="">
           <CustomeDatePicker
             value={state.date}
             placeholder="Choose Date"
@@ -651,14 +651,14 @@ const List = () => {
           />
         </div>
 
-        <div>
-          <button type="button" className="btn btn-primary">
-            Clear Filter
+        <div className="align-end">
+          <button type="button" className="mt-2 text-dred flex gap-1">
+            <X size={13} className="mt-[2px]" />Clear Filter 
           </button>
         </div>
       </div>
 
-      <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
+      <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
           <div
             style={{
@@ -865,8 +865,8 @@ const List = () => {
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
-            className={`btn ${
-              !state.previous ? "btn-disabled" : "btn-primary"
+            className={`btn border-none p-2${
+              !state.previous ? "btn-disabled" : "btn-dred"
             }`}
           >
             <IconArrowBackward />
@@ -874,7 +874,7 @@ const List = () => {
           <button
             disabled={!state.next}
             onClick={handleNextPage}
-            className={`btn ${!state.next ? "btn-disabled" : "btn-primary"}`}
+            className={`btn border-none p-2${!state.next ? "btn-disabled" : "btn-dred"}`}
           >
             <IconArrowForward />
           </button>
@@ -923,7 +923,7 @@ const List = () => {
               <div className="mt-8 flex items-center justify-end">
                 <button
                   type="button"
-                  className="btn btn-outline-primary gap-2"
+                  className="btn border-dred hover:btn-mred gap-2"
                   onClick={() => {
                     clearData();
                   }}
@@ -935,7 +935,7 @@ const List = () => {
                   onClick={() =>
                     state.editId ? updateProject() : createProject()
                   }
-                  className="btn btn-primary ltr:ml-4 rtl:mr-4"
+                  className="btn border-none btn-dred ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
                 </button>

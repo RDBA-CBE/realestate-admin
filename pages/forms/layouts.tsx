@@ -60,7 +60,7 @@ const Layouts = () => {
                                     <span className="text-white-dark">Subscribe to weekly newsletter</span>
                                 </label>
                             </div>
-                            <button type="submit" className="btn btn-primary !mt-6">
+                            <button type="submit" className="btn btn-dred !mt-6">
                                 Submit
                             </button>
                         </form>
@@ -81,7 +81,7 @@ const Layouts = () => {
             <span className="text-white-dark">Subscribe to weekly newsletter</span>
         </label>
     </div>
-    <button type="submit" className="btn btn-primary !mt-6">
+    <button type="submit" className="btn btn-dred !mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -144,7 +144,7 @@ const Layouts = () => {
                                     <span className="text-white-dark">Terms Conditions</span>
                                 </label>
                             </div>
-                            <button type="submit" className="btn btn-primary !mt-6">
+                            <button type="submit" className="btn btn-dred !mt-6">
                                 Submit
                             </button>
                         </form>
@@ -194,7 +194,7 @@ const Layouts = () => {
             <span className="text-white-dark">Terms Conditions</span>
         </label>
     </div>
-    <button type="submit" className="btn btn-primary !mt-6">
+    <button type="submit" className="btn btn-dred !mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -233,7 +233,7 @@ const Layouts = () => {
                                     <span className="text-white-dark">Subscribe to weekly newsletter</span>
                                 </label>
                             </div>
-                            <button type="submit" className="btn btn-primary !mt-6">
+                            <button type="submit" className="btn btn-dred !mt-6">
                                 Submit
                             </button>
                         </form>
@@ -259,7 +259,7 @@ const Layouts = () => {
             <span className="text-white-dark">Subscribe to weekly newsletter</span>
         </label>
     </div>
-    <button type="submit" className="btn btn-primary !mt-6">
+    <button type="submit" className="btn btn-dred !mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -292,7 +292,7 @@ const Layouts = () => {
                             <div className="!mt-2">
                                 <span className="inline-block text-[11px] text-white-dark">*Required Fields</span>
                             </div>
-                            <button type="submit" className="btn btn-primary !mt-6">
+                            <button type="submit" className="btn btn-dred !mt-6">
                                 Submit
                             </button>
                         </form>
@@ -312,7 +312,7 @@ const Layouts = () => {
     <div className="!mt-2">
         <span className="text-white-dark text-[11px] inline-block">*Required Fields</span>
     </div>
-    <button type="submit" className="btn btn-primary !mt-6">
+    <button type="submit" className="btn btn-dred !mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -374,7 +374,7 @@ const Layouts = () => {
                                     <span className="text-white-dark">Check me out</span>
                                 </label>
                             </div>
-                            <button type="submit" className="btn btn-primary !mt-6">
+                            <button type="submit" className="btn btn-dred !mt-6">
                                 Submit
                             </button>
                         </form>
@@ -424,7 +424,7 @@ const Layouts = () => {
             <span className="text-white-dark">Check me out</span>
         </label>
     </div>
-    <button type="submit" className="btn btn-primary !mt-6">
+    <button type="submit" className="btn btn-dred !mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -459,7 +459,7 @@ const Layouts = () => {
                                         <span className="text-white-dark">Remember me</span>
                                     </label>
                                 </div>
-                                <button type="submit" className="btn btn-primary py-2.5">
+                                <button type="submit" className="btn btn-dred py-2.5">
                                     Submit
                                 </button>
                             </div>
@@ -482,7 +482,7 @@ const Layouts = () => {
                 <span className="text-white-dark">Remember me</span>
             </label>
         </div>
-        <button type="submit" className="btn btn-primary py-2.5">
+        <button type="submit" className="btn btn-dred py-2.5">
             Submit
         </button>
     </div>
@@ -518,7 +518,7 @@ const Layouts = () => {
                                         <span className="text-white-dark">Remember me</span>
                                     </label>
                                 </div>
-                                <button type="submit" className="btn btn-primary py-2.5">
+                                <button type="submit" className="btn btn-dred py-2.5">
                                     Submit
                                 </button>
                             </div>
@@ -541,7 +541,7 @@ const Layouts = () => {
                 <span className="text-white-dark">Remember me</span>
             </label>
         </div>
-        <button type="submit" className="btn btn-primary py-2.5">
+        <button type="submit" className="btn btn-dred py-2.5">
             Submit
         </button>
     </div>
@@ -588,7 +588,7 @@ const Layouts = () => {
                                 <label htmlFor="actionCpass">Confirm Password:</label>
                                 <input id="actionCpass" type="password" placeholder="Enter Confirm Password" className="form-input" />
                             </div>
-                            <button type="submit" className="btn btn-primary !mt-6">
+                            <button type="submit" className="btn btn-dred !mt-6">
                                 Submit
                             </button>
                         </form>
@@ -621,7 +621,7 @@ const Layouts = () => {
         <label htmlFor="actionCpass">Confirm Password:</label>
         <input id="actionCpass" type="password" placeholder="Enter Confirm Password" className="form-input" />
     </div>
-    <button type="submit" className="btn btn-primary !mt-6">
+    <button type="submit" className="btn btn-dred !mt-6">
         Submit
     </button>
 </form>`}</pre>

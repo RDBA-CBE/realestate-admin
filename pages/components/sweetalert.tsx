@@ -293,7 +293,7 @@ const SweetAlert = () => {
                         </div>
                         <div className="mb-5">
                             <div className="flex items-center justify-center">
-                                <button type="button" className="btn btn-primary" onClick={() => showAlert(1)}>
+                                <button type="button" className="btn btn-dred" onClick={() => showAlert(1)}>
                                     Basic message
                                 </button>
                             </div>
@@ -315,7 +315,7 @@ const showAlert = async (type: number) => {
 
 <div className="mb-5">
 <div className="flex items-center justify-center">
-    <button type="button" className="btn btn-primary" onClick={() => showAlert(1)}>
+    <button type="button" className="btn btn-dred" onClick={() => showAlert(1)}>
         Basic message
     </button>
 </div>
@@ -362,7 +362,7 @@ const showAlert = async (type: number) => {
 
 <div className="mb-5">
 <div className="flex items-center justify-center">
-    <button type="button" className="btn btn-primary" onClick={() => showAlert(1)}>
+    <button type="button" className="btn btn-dred" onClick={() => showAlert(1)}>
         Basic message
     </button>
 </div>
@@ -643,7 +643,7 @@ const showAlert = async (type: number) => {
                         </div>
                         <div className="mb-5">
                             <div className="flex items-center justify-center">
-                                <button type="button" className="btn btn-primary" onClick={() => showAlert(7)}>
+                                <button type="button" className="btn btn-dred" onClick={() => showAlert(7)}>
                                     Message timer
                                 </button>
                             </div>
@@ -681,7 +681,7 @@ const showAlert = async (type: number) => {
 
 <div className="mb-5">
     <div className="flex items-center justify-center">
-        <button type="button" className="btn btn-primary" onClick={() => showAlert(7)}>
+        <button type="button" className="btn btn-dred" onClick={() => showAlert(7)}>
             Message timer
         </button>
     </div>
@@ -1022,7 +1022,7 @@ const showAlert = async (type: number) => {
                         </div>
                         <div className="mb-5">
                             <div className="flex items-center justify-center" id="rtl-container">
-                                <button type="button" className="btn btn-primary" onClick={() => showAlert(14)}>
+                                <button type="button" className="btn btn-dred" onClick={() => showAlert(14)}>
                                     RTL
                                 </button>
                             </div>
@@ -1048,7 +1048,7 @@ const showAlert = async (type: number) => {
 
 <div className="mb-5">
     <div className="flex items-center justify-center" id="rtl-container">
-        <button type="button" className="btn btn-primary" onClick={() => showAlert(14)}>
+        <button type="button" className="btn btn-dred" onClick={() => showAlert(14)}>
             RTL
         </button>
     </div>

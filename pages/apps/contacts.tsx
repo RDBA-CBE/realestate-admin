@@ -288,7 +288,7 @@ const Contacts = () => {
                 <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row sm:items-center sm:gap-3">
                     <div className="flex gap-3">
                         <div>
-                            <button type="button" className="btn btn-primary" onClick={() => editUser()}>
+                            <button type="button" className="btn btn-dred" onClick={() => editUser()}>
                                 <IconUserPlus className="ltr:mr-2 rtl:ml-2" />
                                 Add Contact
                             </button>
@@ -511,7 +511,7 @@ const Contacts = () => {
                                                 <button type="button" className="btn btn-outline-danger" onClick={() => setAddContactModal(false)}>
                                                     Cancel
                                                 </button>
-                                                <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={saveUser}>
+                                                <button type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4" onClick={saveUser}>
                                                     {params.id ? 'Update' : 'Add'}
                                                 </button>
                                             </div>

@@ -418,7 +418,7 @@ const Add = () => {
                     </div>
                     <div className="mt-6 flex flex-col justify-between px-4 sm:flex-row">
                         <div className="mb-6 sm:mb-0">
-                            <button type="button" className="btn btn-primary" onClick={() => addItem()}>
+                            <button type="button" className="btn btn-dred" onClick={() => addItem()}>
                                 Add Item
                             </button>
                         </div>
@@ -499,7 +499,7 @@ const Add = () => {
                             Send Invoice
                         </button>
 
-                        <Link href="/apps/invoice/preview" className="btn btn-primary w-full gap-2">
+                        <Link href="/apps/invoice/preview" className="btn btn-dred w-full gap-2">
                             <IconEye className="ltr:mr-2 rtl:ml-2 shrink-0" />
                             Preview
                         </Link>

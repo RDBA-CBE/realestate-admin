@@ -170,7 +170,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper';
                           typesetting industry. Lorem Ipsum has been the
                           industry's standard.`}
                                                 </div>
-                                                <button type="button" className="btn btn-primary mt-4">
+                                                <button type="button" className="btn btn-dred mt-4">
                                                     Learn more
                                                 </button>
                                             </div>
@@ -215,7 +215,7 @@ import { Navigation, Pagination, Autoplay } from 'swiper';
                         <div className="sm:mt-5 mt-1 w-4/5 text-base sm:block hidden font-medium">
                             Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard.
                         </div>
-                        <button type="button" className="mt-4 btn btn-primary">
+                        <button type="button" className="mt-4 btn btn-dred">
                             Learn more
                         </button>
                     </div>

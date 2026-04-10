@@ -758,7 +758,7 @@ const Todolist = () => {
                             </div>
                         </PerfectScrollbar>
                         <div className="absolute bottom-0 w-full p-4 ltr:left-0 rtl:right-0">
-                            <button className="btn btn-primary w-full" type="button" onClick={() => addEditTask()}>
+                            <button className="btn btn-dred w-full" type="button" onClick={() => addEditTask()}>
                                 <IconPlus className="ltr:mr-2 rtl:ml-2 shrink-0" />
                                 Add New Task
                             </button>
@@ -1120,7 +1120,7 @@ const Todolist = () => {
                                                     <button type="button" className="btn btn-outline-danger" onClick={() => setAddTaskModal(false)}>
                                                         Cancel
                                                     </button>
-                                                    <button type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4" onClick={() => saveTask()}>
+                                                    <button type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4" onClick={() => saveTask()}>
                                                         {params.id ? 'Update' : 'Add'}
                                                     </button>
                                                 </div>

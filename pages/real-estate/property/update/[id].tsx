@@ -2329,7 +2329,7 @@ const AddPropertyPage = () => {
                 <button
                   type="button"
                   onClick={() => createAmenity()}
-                  className="btn btn-primary ltr:ml-4 rtl:mr-4"
+                  className="btn btn-dred ltr:ml-4 rtl:mr-4"
                 >
                   {state.amenityLoading ? <IconLoader /> : "Confirm"}
                 </button>

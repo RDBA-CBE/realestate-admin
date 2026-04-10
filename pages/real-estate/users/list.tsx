@@ -311,7 +311,7 @@ const List = () => {
 
   return (
     <>
-      <div className="panel mb-5 flex items-center justify-between gap-5">
+      <div className=" mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
             User List
@@ -320,7 +320,7 @@ const List = () => {
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-primary  w-full md:mb-0 md:w-auto"
+            className="btn btn-dred  border-none w-full md:mb-0 md:w-auto"
             onClick={() => setState({ isOpen: true })}
           >
             + Create
@@ -328,9 +328,9 @@ const List = () => {
         </div>
       </div>
 
-      <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
+      <div className=" mb-5 mt-5 gap-2  md:mt-0 md:flex  xl:gap-4">
         {/* Search Input */}
-        <div className="flex-1">
+        <div className="">
           <input
             type="text"
             className="w-100 form-input"
@@ -341,7 +341,7 @@ const List = () => {
         </div>
 
         {/* Category Dropdown */}
-        <div className="flex-1">
+        <div className="">
           <CustomSelect
             placeholder="Select Role"
             value={state.role}
@@ -352,21 +352,21 @@ const List = () => {
 
         {/* <button
           type="button"
-          className="btn btn-primary"
+          className="btn btn-dred"
           onClick={() => usersList(1)}
         >
           Apply Filter
         </button>
         <button
           type="button"
-          className="btn btn-primary"
+          className="btn btn-dred"
           onClick={() => clearFilter()}
         >
           Clear Filter
         </button> */}
       </div>
 
-      <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
+      <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         {/* <div className="invoice-table"> */}
 
         <div className="datatables pagination-padding">
@@ -423,12 +423,12 @@ const List = () => {
                     >
                       <IconEdit className="h-4.5 w-4.5" />
                     </button>
-                    <Link
+                    {/* <Link
                       href="/real-estate/profile"
                       className="flex hover:text-primary"
                     >
                       <IconEye />
-                    </Link>
+                    </Link> */}
                     <button
                       type="button"
                       className="flex hover:text-danger"
@@ -455,8 +455,8 @@ const List = () => {
           <button
             disabled={!state?.previous}
             onClick={handlePreviousPage}
-            className={`btn ${
-              !state?.previous ? "btn-disabled" : "btn-primary"
+            className={`btn border-none p-2 ${
+              !state?.previous ? "btn-disabled" : "btn-dred"
             }`}
           >
             <IconArrowBackward />
@@ -464,7 +464,7 @@ const List = () => {
           <button
             disabled={!state?.next}
             onClick={handleNextPage}
-            className={`btn ${!state?.next ? "btn-disabled" : "btn-primary"}`}
+            className={`btn border-none p-2 ${!state?.next ? "btn-disabled" : "btn-dred"}`}
           >
             <IconArrowForward />
           </button>
@@ -567,7 +567,7 @@ const List = () => {
               <div className="mt-8 flex items-center justify-end">
                 <button
                   type="button"
-                  className="btn btn-outline-primary gap-2"
+                  className="btn border-dred hover:btn-mred gap-2"
                   onClick={() => {
                     clearData();
                   }}
@@ -577,7 +577,7 @@ const List = () => {
                 <button
                   type="button"
                   onClick={() => (state.editId ? updateUsers() : createUser())}
-                  className="btn btn-primary ltr:ml-4 rtl:mr-4"
+                  className="btn border-none btn-dred ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
                 </button>

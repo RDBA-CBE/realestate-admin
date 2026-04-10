@@ -33,7 +33,7 @@ const Typography = () => {
                                 <h5 className="text-base dark:text-white-light">Nunito</h5>
                                 <button className="text-[13px] text-primary">Google Fonts</button>
                                 <div className="mt-7 flex justify-center">
-                                    <button className="btn btn-primary">View Family</button>
+                                    <button className="btn btn-dred">View Family</button>
                                 </div>
                             </div>
                         </div>

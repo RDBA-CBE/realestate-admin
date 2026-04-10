@@ -121,7 +121,7 @@ const Search = () => {
                                         className="form-input h-11 rounded-full bg-white shadow-[0_0_4px_2px_rgb(31_45_61_/_10%)] placeholder:tracking-wider ltr:pr-11 rtl:pl-11"
                                         onChange={(e) => setSearch(e.target.value)}
                                     />
-                                    <button type="button" className="btn btn-primary absolute inset-y-0 m-auto flex h-9 w-9 items-center justify-center rounded-full p-0 ltr:right-1 rtl:left-1">
+                                    <button type="button" className="btn btn-dred absolute inset-y-0 m-auto flex h-9 w-9 items-center justify-center rounded-full p-0 ltr:right-1 rtl:left-1">
                                         <IconSearch className="mx-auto" />
                                     </button>
                                 </div>
@@ -214,7 +214,7 @@ useEffect(() => {
                 className="form-input shadow-[0_0_4px_2px_rgb(31_45_61_/_10%)] bg-white rounded-full h-11 placeholder:tracking-wider ltr:pr-11 rtl:pl-11"
                 onChange={(e) => setSearch(e.target.value)}
             />
-            <button type="button" className="btn btn-primary absolute ltr:right-1 rtl:left-1 inset-y-0 m-auto rounded-full w-9 h-9 p-0 flex items-center justify-center">
+            <button type="button" className="btn btn-dred absolute ltr:right-1 rtl:left-1 inset-y-0 m-auto rounded-full w-9 h-9 p-0 flex items-center justify-center">
                 <svg>...</svg>
             </button>
         </div>

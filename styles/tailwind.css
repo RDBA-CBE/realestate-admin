@@ -87,11 +87,11 @@
 
     .sidebar .nav-item > button,
     .sidebar .nav-item > a {
-        @apply mb-1 flex w-full items-center justify-between overflow-hidden whitespace-nowrap rounded-md p-2.5 text-[#506690] hover:bg-[#000]/[0.08] hover:text-black dark:hover:bg-[#181f32] dark:hover:text-white-dark;
+        @apply mb-1 flex w-full items-center justify-between overflow-hidden whitespace-nowrap rounded-md p-2.5 text-[#506690] hover:bg-[#fff6f6] hover:text-black dark:hover:bg-[#181f32] dark:hover:text-white-dark;
     }
     .sidebar .nav-item > button.active,
     .sidebar .nav-item > a.active {
-        @apply bg-[#000]/[0.08] text-black dark:bg-[#181f32] dark:text-white-dark;
+        @apply bg-[#faeaea] text-black dark:bg-[#181f32] dark:text-white-dark;
     }
 
     .sidebar .nav-item > button.active > div > span,
@@ -101,12 +101,12 @@
 
     .sidebar ul.sub-menu li button,
     .sidebar ul.sub-menu li a {
-        @apply flex w-full items-center px-9 py-2.5 before:h-0.5 before:w-2 before:rounded before:bg-gray-300 hover:bg-gray-100
-hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark:before:bg-gray-500 dark:hover:bg-gray-900 dark:hover:text-primary;
+        @apply flex w-full items-center px-9 py-2.5 before:h-0.5 before:w-2 before:rounded before:bg-gray-300 rounded-md hover:bg-[#fff6f6]
+hover:text-[#000] hover:before:!bg-[#000] ltr:before:mr-2 rtl:before:ml-2 dark:before:bg-gray-500 dark:hover:bg-gray-900 dark:hover:text-primary;
     }
     .sidebar ul.sub-menu li button.active,
     .sidebar ul.sub-menu li a.active {
-        @apply text-primary before:bg-primary;
+        @apply text-[#000] before:bg-[#000];
     }
 
     .sidebar .nav-item a div:first-child svg,
@@ -276,7 +276,7 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
         @apply cursor-not-allowed opacity-60;
     }
 
-    .btn-primary {
+    .btn-dred {
         @apply border-primary bg-primary text-white shadow-primary/60;
     }
     .btn-outline-primary {
@@ -326,9 +326,9 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
         @apply border-dark text-dark shadow-none hover:bg-dark hover:text-white;
     }
 
-    .btn-gradient {
+    /* .btn-dred {
         @apply bg-gradient-to-r from-[#EF1262] to-[#4361EE] text-white hover:from-[#4361EE] hover:to-[#EF1262];
-    }
+    } */
 
     /* Badge */
     .badge {
@@ -546,6 +546,41 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
     pre {
         direction: ltr;
     }
+
+    /* ------------------- real estate styles  */
+
+    .page-ti {
+    font-size: 24px;
+    color: #000;
+    }
+
+    .bg-mred{
+        background-color: #faeaea;
+    }
+
+    .bg-lred{
+        background-color: #fff6f6;
+    }
+
+    .bg-dred{
+        background-color: #9b0f09;
+    }
+
+    .border-dred{
+        border: 1px solid #ffb1b1;
+    }
+
+    .btn-dred{
+        background-color: #9b0f09;
+    }
+
+    .btn-mred{
+        background-color: #ffb1b1;
+    }
+
+    .text-dred{
+        color: #9b0f09 !important;
+    }
 }
 
 /* perfect scrollbar */
@@ -707,7 +742,9 @@ pre.hljs {
 .swal2-container .swal2-popup.swal2-toast.color-success {
     @apply bg-success;
 }
-.page-ti {
-    font-size: 24px;
-    color: #000;
-  }
+
+
+.datatables table thead tr th{ 
+    background-color: #faeaea !important;   
+}
+

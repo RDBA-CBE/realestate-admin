@@ -22,7 +22,7 @@ const Error404 = () => {
                     className="mx-auto -mt-10 w-full max-w-xs object-cover md:-mt-14 md:max-w-xl"
                 />
                 <p className="mt-5 text-base dark:text-white">The page you requested was not found!</p>
-                <Link href="/" className="btn btn-gradient mx-auto !mt-7 w-max border-0 uppercase shadow-none">
+                <Link href="/" className="btn btn-dred mx-auto !mt-7 w-max border-0 uppercase shadow-none">
                     Home
                 </Link>
                 </div>

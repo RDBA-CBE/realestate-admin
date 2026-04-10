@@ -248,7 +248,7 @@ const Scrumboard = () => {
             <div>
                 <button
                     type="button"
-                    className="btn btn-primary flex"
+                    className="btn btn-dred flex"
                     onClick={() => {
                         addEditProject();
                     }}
@@ -363,7 +363,7 @@ const Scrumboard = () => {
                                         })}
                                     </ReactSortable>
                                     <div className="pt-3">
-                                        <button type="button" className="btn btn-primary mx-auto" onClick={() => addEditTask(project.id)}>
+                                        <button type="button" className="btn btn-dred mx-auto" onClick={() => addEditTask(project.id)}>
                                             <IconPlus />
                                             Add Task
                                         </button>
@@ -415,7 +415,7 @@ const Scrumboard = () => {
                                                 <button type="button" className="btn btn-outline-danger" onClick={() => setIsAddProjectModal(false)}>
                                                     Cancel
                                                 </button>
-                                                <button type="submit" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                                <button type="submit" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                     {params.id ? 'Update' : 'Add'}
                                                 </button>
                                             </div>
@@ -466,7 +466,7 @@ const Scrumboard = () => {
                                             <button onClick={() => setIsAddTaskModal(false)} type="button" className="btn btn-outline-danger">
                                                 Cancel
                                             </button>
-                                            <button type="submit" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                            <button type="submit" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                 {paramsTask.id ? 'Update' : 'Add'}
                                             </button>
                                         </div>
@@ -521,7 +521,7 @@ const Scrumboard = () => {
                                             >
                                                 Cancel
                                             </button>
-                                            <button onClick={deleteTask} type="button" className="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                            <button onClick={deleteTask} type="button" className="btn btn-dred ltr:ml-4 rtl:mr-4">
                                                 Delete
                                             </button>
                                         </div>

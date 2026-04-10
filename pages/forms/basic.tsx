@@ -47,7 +47,7 @@ const Basic = () => {
                     <div className="mb-5">
                         <form>
                             <input type="text" placeholder="Some Text..." className="form-input" required />
-                            <button type="submit" className="btn btn-primary mt-6">
+                            <button type="submit" className="btn btn-dred mt-6">
                                 Submit
                             </button>
                         </form>
@@ -56,7 +56,7 @@ const Basic = () => {
                         <CodeHighlight>
                             <pre className="language-xml">{`<form>
     <input type="text" placeholder="Some Text..." className="form-input" required />
-    <button type="submit" className="btn btn-primary mt-6">
+    <button type="submit" className="btn btn-dred mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -78,7 +78,7 @@ const Basic = () => {
                     <div className="mb-5">
                         <form>
                             <input type="password" placeholder="Enter Password" className="form-input" required />
-                            <button type="submit" className="btn btn-primary mt-6">
+                            <button type="submit" className="btn btn-dred mt-6">
                                 Submit
                             </button>
                         </form>
@@ -87,7 +87,7 @@ const Basic = () => {
                         <CodeHighlight>
                             <pre className="language-xml">{`<form>
     <input type="password" placeholder="Enter Password" className="form-input" required />
-    <button type="submit" className="btn btn-primary mt-6">
+    <button type="submit" className="btn btn-dred mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -109,7 +109,7 @@ const Basic = () => {
                     <div className="mb-5">
                         <form>
                             <input type="email" placeholder="email@mail.com" className="form-input" required />
-                            <button type="submit" className="btn btn-primary mt-6">
+                            <button type="submit" className="btn btn-dred mt-6">
                                 Submit
                             </button>
                         </form>
@@ -118,7 +118,7 @@ const Basic = () => {
                         <CodeHighlight>
                             <pre className="language-xml">{`<form>
     <input type="email" placeholder="email@mail.com" className="form-input" required />
-    <button type="submit" className="btn btn-primary mt-6">
+    <button type="submit" className="btn btn-dred mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -140,7 +140,7 @@ const Basic = () => {
                     <div className="mb-5">
                         <form>
                             <input type="url" placeholder="https://dummyurl.com" className="form-input" required />
-                            <button type="submit" className="btn btn-primary mt-6">
+                            <button type="submit" className="btn btn-dred mt-6">
                                 Submit
                             </button>
                         </form>
@@ -149,7 +149,7 @@ const Basic = () => {
                         <CodeHighlight>
                             <pre className="language-xml">{`<form>
     <input type="url" placeholder="https://dummyurl.com" className="form-input" required />
-    <button type="submit" className="btn btn-primary mt-6">
+    <button type="submit" className="btn btn-dred mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -170,7 +170,7 @@ const Basic = () => {
                     <div className="mb-5">
                         <form>
                             <input type="tel" placeholder="6-(666)-111-7777" className="form-input" required />
-                            <button type="submit" className="btn btn-primary mt-6">
+                            <button type="submit" className="btn btn-dred mt-6">
                                 Submit
                             </button>
                         </form>
@@ -179,7 +179,7 @@ const Basic = () => {
                         <CodeHighlight>
                             <pre className="language-xml">{`<form>
     <input type="tel" placeholder="6-(666)-111-7777" className="form-input" required />
-    <button type="submit" className="btn btn-primary mt-6">
+    <button type="submit" className="btn btn-dred mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -201,7 +201,7 @@ const Basic = () => {
                     <div className="mb-5">
                         <form>
                             <input type="search" placeholder="Search..." className="form-input" required />
-                            <button type="button" className="btn btn-primary mt-6">
+                            <button type="button" className="btn btn-dred mt-6">
                                 Submit
                             </button>
                         </form>
@@ -210,7 +210,7 @@ const Basic = () => {
                         <CodeHighlight>
                             <pre className="language-xml">{`<form>
     <input type="search" placeholder="Search..." className="form-input" required />
-    <button type="button" className="btn btn-primary mt-6">
+    <button type="button" className="btn btn-dred mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -318,7 +318,7 @@ const Basic = () => {
                                     required
                                 />
                             </div>
-                            <button type="submit" className="btn btn-primary !mt-6">
+                            <button type="submit" className="btn btn-dred !mt-6">
                                 Submit
                             </button>
                         </form>
@@ -361,7 +361,7 @@ const Basic = () => {
             required
         />
     </div>
-    <button type="submit" className="btn btn-primary !mt-6">
+    <button type="submit" className="btn btn-dred !mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -385,7 +385,7 @@ const Basic = () => {
                                 <input type="text" placeholder="Enter First Name" className="form-input" />
                                 <input type="text" placeholder="Enter Last Name" className="form-input" />
                             </div>
-                            <button type="button" className="btn btn-primary mt-6">
+                            <button type="button" className="btn btn-dred mt-6">
                                 Submit
                             </button>
                         </form>
@@ -397,7 +397,7 @@ const Basic = () => {
         <input type="text" placeholder="Enter First Name" className="form-input" />
         <input type="text" placeholder="Enter Last Name" className="form-input" />
     </div>
-    <button type="button" className="btn btn-primary mt-6">
+    <button type="button" className="btn btn-dred mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -420,7 +420,7 @@ const Basic = () => {
                                 <input type="text" placeholder="Enter First Name" className="form-input" />
                                 <input type="text" placeholder="Enter Last Name" className="form-input" />
                             </div>
-                            <button type="button" className="btn btn-primary mt-6">
+                            <button type="button" className="btn btn-dred mt-6">
                                 Submit
                             </button>
                         </form>
@@ -432,7 +432,7 @@ const Basic = () => {
         <input type="text" placeholder="Enter First Name" className="form-input" />
         <input type="text" placeholder="Enter Last Name" className="form-input" />
     </div>
-    <button type="button" className="btn btn-primary mt-6">
+    <button type="button" className="btn btn-dred mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -459,7 +459,7 @@ const Basic = () => {
                                 <label htmlFor="groupLname">Last Name</label>
                                 <input id="groupLname" type="text" placeholder="Enter Last Name" className="form-input" />
                             </div>
-                            <button type="button" className="btn btn-primary !mt-6">
+                            <button type="button" className="btn btn-dred !mt-6">
                                 Submit
                             </button>
                         </form>
@@ -475,7 +475,7 @@ const Basic = () => {
         <label htmlFor="groupLname">Last Name</label>
         <input id="groupLname" type="text" placeholder="Enter Last Name" className="form-input" />
     </div>
-    <button type="button" className="btn btn-primary !mt-6">
+    <button type="button" className="btn btn-dred !mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -499,7 +499,7 @@ const Basic = () => {
                                 <input type="text" placeholder="Enter State" className="form-input" />
                                 <input type="text" placeholder="Enter Zip" className="form-input" />
                             </div>
-                            <button type="button" className="btn btn-primary mt-6">
+                            <button type="button" className="btn btn-dred mt-6">
                                 Submit
                             </button>
                         </form>
@@ -512,7 +512,7 @@ const Basic = () => {
         <input type="text" placeholder="Enter State" className="form-input" />
         <input type="text" placeholder="Enter Zip" className="form-input" />
     </div>
-    <button type="button" className="btn btn-primary mt-6">
+    <button type="button" className="btn btn-dred mt-6">
         Submit
     </button>
 </form>`}</pre>
@@ -883,7 +883,7 @@ const Basic = () => {
                                     <span className="text-white-dark">{`Can't check this`}</span>
                                 </label>
                             </div>
-                            <button type="submit" className="btn btn-primary !mt-6 disabled:pointer-events-none disabled:opacity-60" disabled>
+                            <button type="submit" className="btn btn-dred !mt-6 disabled:pointer-events-none disabled:opacity-60" disabled>
                                 Submit
                             </button>
                         </form>
@@ -920,7 +920,7 @@ const Basic = () => {
             <span className="text-white-dark">Can't check this</span>
         </label>
     </div>
-    <button type="submit" className="btn btn-primary !mt-6 disabled:pointer-events-none disabled:opacity-60" disabled>
+    <button type="submit" className="btn btn-dred !mt-6 disabled:pointer-events-none disabled:opacity-60" disabled>
         Submit
     </button>
 </form>`}</pre>

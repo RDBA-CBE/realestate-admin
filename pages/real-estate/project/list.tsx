@@ -163,7 +163,7 @@ export default function list() {
       clearData();
       setState({ btnLoading: false });
       projectList(1);
-      Success("Preject created succssfully");
+      Success("Project created succssfully");
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors = {};
@@ -195,7 +195,7 @@ export default function list() {
       setState({ btnLoading: false });
       projectList(state.page);
 
-      Success("Preject updated succssfully");
+      Success("Project updated succssfully");
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors = {};
@@ -221,7 +221,7 @@ export default function list() {
       setState({ btnLoading: false });
       projectList(state.page);
 
-      Success("Preject deleted succssfully");
+      Success("Project deleted succssfully");
     } catch (error) {}
   };
 
@@ -322,7 +322,7 @@ console.log("state.userId", state.userId);
 
   return (
     <>
-      <div className="panel mb-5 flex items-center justify-between gap-5">
+      <div className=" mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
             Project List
@@ -331,7 +331,7 @@ console.log("state.userId", state.userId);
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-primary  w-full md:mb-0 md:w-auto"
+            className="btn btn-dred border-none w-full md:mb-0 md:w-auto text-white"
             onClick={() => setState({ isOpen: true })}
           >
             + Create
@@ -339,7 +339,7 @@ console.log("state.userId", state.userId);
         </div>
       </div>
 
-      <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
+      <div className=" mb-5 mt-5 gap-2 md:mt-0 md:flex md:justify-between xl:gap-4">
         {/* Search Input */}
         <div className="flex-1">
           <TextInput
@@ -380,13 +380,13 @@ console.log("state.userId", state.userId);
         )}
 
         {/* <div>
-          <button type="button" className="btn btn-primary" onClick={clearFilter}>
+          <button type="button" className="btn btn-dred" onClick={clearFilter}>
             Clear Filter
           </button>
         </div> */}
       </div>
 
-      <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
+      <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding"></div>
         <DataTable
           className="table-responsive"
@@ -436,8 +436,8 @@ console.log("state.userId", state.userId);
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
-            className={`btn ${
-              !state.previous ? "btn-disabled" : "btn-primary"
+            className={`btn border-none p-2 ${
+              !state.previous ? "btn-disabled" : "btn-dred"
             }`}
           >
             <IconArrowBackward />
@@ -445,7 +445,7 @@ console.log("state.userId", state.userId);
           <button
             disabled={!state.next}
             onClick={handleNextPage}
-            className={`btn ${!state.next ? "btn-disabled" : "btn-primary"}`}
+            className={`btn border-none p-2  ${!state.next ? "btn-disabled" : "btn-dred"}`}
           >
             <IconArrowForward />
           </button>
@@ -494,7 +494,7 @@ console.log("state.userId", state.userId);
               <div className="mt-8 flex items-center justify-end">
                 <button
                   type="button"
-                  className="btn btn-outline-primary gap-2"
+                  className="btn border-dred hover:btn-mred gap-2"
                   onClick={() => {
                     clearData();
                   }}
@@ -506,7 +506,7 @@ console.log("state.userId", state.userId);
                   onClick={() =>
                     state.editId ? updateProject() : createProject()
                   }
-                  className="btn btn-primary ltr:ml-4 rtl:mr-4"
+                  className="btn border-none btn-dred ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
                 </button>

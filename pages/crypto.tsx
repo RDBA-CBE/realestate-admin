@@ -947,7 +947,7 @@ const Crypto = () => {
                                 </div>
                             </div>
                         </div>
-                        <button type="button" className="btn btn-primary self-end">
+                        <button type="button" className="btn btn-dred self-end">
                             Buy
                         </button>
                     </div>

@@ -529,7 +529,7 @@ const List = () => {
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-primary  w-full md:mb-0 md:w-auto"
+            className="btn btn-dred  w-full md:mb-0 md:w-auto"
             onClick={() => router.push("/real-estate/lead/create")}
           >
             + Create
@@ -617,7 +617,7 @@ const List = () => {
         </div>
 
         <div>
-          <button type="button" className="btn btn-primary">
+          <button type="button" className="btn btn-dred">
             Clear Filter
           </button>
         </div>
@@ -831,7 +831,7 @@ const List = () => {
             disabled={!state.previous}
             onClick={handlePreviousPage}
             className={`btn ${
-              !state.previous ? "btn-disabled" : "btn-primary"
+              !state.previous ? "btn-disabled" : "btn-dred"
             }`}
           >
             <IconArrowBackward />
@@ -839,7 +839,7 @@ const List = () => {
           <button
             disabled={!state.next}
             onClick={handleNextPage}
-            className={`btn ${!state.next ? "btn-disabled" : "btn-primary"}`}
+            className={`btn ${!state.next ? "btn-disabled" : "btn-dred"}`}
           >
             <IconArrowForward />
           </button>
@@ -900,7 +900,7 @@ const List = () => {
                   onClick={() =>
                     state.editId ? updateProject() : createProject()
                   }
-                  className="btn btn-primary ltr:ml-4 rtl:mr-4"
+                  className="btn btn-dred ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
                 </button>

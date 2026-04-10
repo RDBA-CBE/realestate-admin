@@ -293,7 +293,7 @@ const Badges = () => {
                     </div>
                     <div className="mb-5">
                         <div className="flex flex-wrap items-center justify-center gap-3">
-                            <button type="button" className="btn btn-primary my-4">
+                            <button type="button" className="btn btn-dred my-4">
                                 <span className="flex items-center">
                                     <IconFacebook className="w-4.5 h-4.5 ltr:mr-1 rtl:ml-1 shrink-0" />
                                     Facebook
@@ -330,7 +330,7 @@ const Badges = () => {
                     {codeArr.includes('code6') && (
                         <CodeHighlight>
                             <pre className="language-xml">
-                                {`<button type="button" className="btn btn-primary my-4">
+                                {`<button type="button" className="btn btn-dred my-4">
     <span className="flex items-center">
         <svg>...</svg>
         Facebook

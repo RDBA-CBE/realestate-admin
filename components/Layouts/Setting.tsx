@@ -45,17 +45,17 @@ const Setting = () => {
                         <h5 className="mb-1 text-base leading-none dark:text-white">Color Scheme</h5>
                         <p className="text-xs text-white-dark">Overall light or dark presentation.</p>
                         <div className="mt-3 grid grid-cols-3 gap-2">
-                            <button type="button" className={`${themeConfig.theme === 'light' ? 'btn-primary' : 'btn-outline-primary'} btn`} onClick={() => dispatch(toggleTheme('light'))}>
+                            <button type="button" className={`${themeConfig.theme === 'light' ? 'btn-dred' : 'btn-outline-primary'} btn`} onClick={() => dispatch(toggleTheme('light'))}>
                                 <IconSun className="w-5 h-5 shrink-0 ltr:mr-2 rtl:ml-2" />
                                 Light
                             </button>
 
-                            <button type="button" className={`${themeConfig.theme === 'dark' ? 'btn-primary' : 'btn-outline-primary'} btn`} onClick={() => dispatch(toggleTheme('dark'))}>
+                            <button type="button" className={`${themeConfig.theme === 'dark' ? 'btn-dred' : 'btn-outline-primary'} btn`} onClick={() => dispatch(toggleTheme('dark'))}>
                                 <IconMoon className="w-5 h-5 shrink-0 ltr:mr-2 rtl:ml-2" />
                                 Dark
                             </button>
 
-                            <button type="button" className={`${themeConfig.theme === 'system' ? 'btn-primary' : 'btn-outline-primary'} btn`} onClick={() => dispatch(toggleTheme('system'))}>
+                            <button type="button" className={`${themeConfig.theme === 'system' ? 'btn-dred' : 'btn-outline-primary'} btn`} onClick={() => dispatch(toggleTheme('system'))}>
                                 <IconLaptop className="w-5 h-5 shrink-0 ltr:mr-2 rtl:ml-2" />
                                 System
                             </button>
@@ -66,17 +66,17 @@ const Setting = () => {
                         <h5 className="mb-1 text-base leading-none dark:text-white">Navigation Position</h5>
                         <p className="text-xs text-white-dark">Select the primary navigation paradigm for your app.</p>
                         <div className="mt-3 grid grid-cols-3 gap-2">
-                            <button type="button" className={`${themeConfig.menu === 'horizontal' ? 'btn-primary' : 'btn-outline-primary'} btn`} onClick={() => dispatch(toggleMenu('horizontal'))}>
+                            <button type="button" className={`${themeConfig.menu === 'horizontal' ? 'btn-dred' : 'btn-outline-primary'} btn`} onClick={() => dispatch(toggleMenu('horizontal'))}>
                                 Horizontal
                             </button>
 
-                            <button type="button" className={`${themeConfig.menu === 'vertical' ? 'btn-primary' : 'btn-outline-primary'} btn`} onClick={() => dispatch(toggleMenu('vertical'))}>
+                            <button type="button" className={`${themeConfig.menu === 'vertical' ? 'btn-dred' : 'btn-outline-primary'} btn`} onClick={() => dispatch(toggleMenu('vertical'))}>
                                 Vertical
                             </button>
 
                             <button
                                 type="button"
-                                className={`${themeConfig.menu === 'collapsible-vertical' ? 'btn-primary' : 'btn-outline-primary'} btn`}
+                                className={`${themeConfig.menu === 'collapsible-vertical' ? 'btn-dred' : 'btn-outline-primary'} btn`}
                                 onClick={() => dispatch(toggleMenu('collapsible-vertical'))}
                             >
                                 Collapsible
@@ -96,13 +96,13 @@ const Setting = () => {
                         <div className="mt-3 flex gap-2">
                             <button
                                 type="button"
-                                className={`${themeConfig.layout === 'boxed-layout' ? 'btn-primary' : 'btn-outline-primary'} btn flex-auto`}
+                                className={`${themeConfig.layout === 'boxed-layout' ? 'btn-dred' : 'btn-outline-primary'} btn flex-auto`}
                                 onClick={() => dispatch(toggleLayout('boxed-layout'))}
                             >
                                 Box
                             </button>
 
-                            <button type="button" className={`${themeConfig.layout === 'full' ? 'btn-primary' : 'btn-outline-primary'} btn flex-auto`} onClick={() => dispatch(toggleLayout('full'))}>
+                            <button type="button" className={`${themeConfig.layout === 'full' ? 'btn-dred' : 'btn-outline-primary'} btn flex-auto`} onClick={() => dispatch(toggleLayout('full'))}>
                                 Full
                             </button>
                         </div>
@@ -112,11 +112,11 @@ const Setting = () => {
                         <h5 className="mb-1 text-base leading-none dark:text-white">Direction</h5>
                         <p className="text-xs text-white-dark">Select the direction for your app.</p>
                         <div className="mt-3 flex gap-2">
-                            <button type="button" className={`${themeConfig.rtlClass === 'ltr' ? 'btn-primary' : 'btn-outline-primary'} btn flex-auto`} onClick={() => dispatch(toggleRTL('ltr'))}>
+                            <button type="button" className={`${themeConfig.rtlClass === 'ltr' ? 'btn-dred' : 'btn-outline-primary'} btn flex-auto`} onClick={() => dispatch(toggleRTL('ltr'))}>
                                 LTR
                             </button>
 
-                            <button type="button" className={`${themeConfig.rtlClass === 'rtl' ? 'btn-primary' : 'btn-outline-primary'} btn flex-auto`} onClick={() => dispatch(toggleRTL('rtl'))}>
+                            <button type="button" className={`${themeConfig.rtlClass === 'rtl' ? 'btn-dred' : 'btn-outline-primary'} btn flex-auto`} onClick={() => dispatch(toggleRTL('rtl'))}>
                                 RTL
                             </button>
                         </div>

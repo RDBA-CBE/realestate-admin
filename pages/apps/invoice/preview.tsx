@@ -81,7 +81,7 @@ const Preview = () => {
                     Send Invoice
                 </button>
 
-                <button type="button" className="btn btn-primary gap-2" onClick={() => exportTable()}>
+                <button type="button" className="btn btn-dred gap-2" onClick={() => exportTable()}>
                     <IconPrinter />
                     Print
                 </button>

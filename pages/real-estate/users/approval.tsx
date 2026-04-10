@@ -144,36 +144,37 @@ const List = () => {
 
   return (
     <>
-      <div className="panel mb-5 flex items-center justify-between gap-5">
+      <div className=" mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
             Waiting For User Approval List
           </h5>
         </div>
-        <div className="flex gap-5">
+        {/* <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-primary  w-full md:mb-0 md:w-auto"
+            className="btn btn-dred border-none w-full md:mb-0 md:w-auto"
             onClick={() => setState({ isOpen: true })}
           >
             + Create
           </button>
-        </div>
+        </div> */}
       </div>
 
-      <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
-        <div className="flex-1">
+      <div className=" mb-5 mt-5 gap-2 md:mt-0 md:flex  xl:gap-4">
+        <div className="">
           <input
             type="text"
-            className="w-100 form-input"
+            className="min-w-[150px] w-fit form-input"
             placeholder="Search..."
             value={state.search}
             onChange={(e) => setState({ search: e.target.value })}
           />
         </div>
 
-        <div className="flex-1">
+        <div className="">
           <CustomSelect
+          className="min-w-[200px] w-fit"
             placeholder="Role"
             value={state.role}
             onChange={(e) => setState({ role: e })}
@@ -183,21 +184,21 @@ const List = () => {
 
         {/* <button
           type="button"
-          className="btn btn-primary"
+          className="btn btn-dred"
           onClick={() => usersList(1)}
         >
           Apply Filter
         </button>
         <button
           type="button"
-          className="btn btn-primary"
+          className="btn btn-dred"
           onClick={() => clearFilter()}
         >
           Clear Filter
         </button> */}
       </div>
 
-      <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
+      <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
           <DataTable
             className="table-hover whitespace-nowrap"
@@ -272,8 +273,8 @@ const List = () => {
           <button
             disabled={!state?.previous}
             onClick={handlePreviousPage}
-            className={`btn ${
-              !state?.previous ? "btn-disabled" : "btn-primary"
+            className={`btn border-none p-2 ${
+              !state?.previous ? "btn-disabled" : "btn-dred"
             }`}
           >
             <IconArrowBackward />
@@ -281,7 +282,7 @@ const List = () => {
           <button
             disabled={!state?.next}
             onClick={handleNextPage}
-            className={`btn ${!state?.next ? "btn-disabled" : "btn-primary"}`}
+            className={`btn border-none p-2 ${!state?.next ? "btn-disabled" : "btn-dred"}`}
           >
             <IconArrowForward />
           </button>

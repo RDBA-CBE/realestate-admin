@@ -167,7 +167,7 @@ const KnowledgeBase = () => {
                     <form action="" method="" className="mb-6">
                         <div className="relative mx-auto max-w-[580px]">
                             <input type="text" placeholder="Ask a question" className="form-input py-3 ltr:pr-[100px] rtl:pl-[100px]" />
-                            <button type="button" className="btn btn-primary absolute top-1 shadow-none ltr:right-1 rtl:left-1">
+                            <button type="button" className="btn btn-dred absolute top-1 shadow-none ltr:right-1 rtl:left-1">
                                 Search
                             </button>
                         </div>
@@ -485,10 +485,10 @@ const KnowledgeBase = () => {
                     Our specialists are always happy to help. Contact us during standard business hours or email us24/7 and we'll get back to you.
                 </div>
                 <div className="mt-8 flex flex-col items-center justify-center gap-6 sm:flex-row">
-                    <button type="button" className="btn btn-primary">
+                    <button type="button" className="btn btn-dred">
                         Contact Us
                     </button>
-                    <button type="button" className="btn btn-primary">
+                    <button type="button" className="btn btn-dred">
                         Visit our community
                     </button>
                 </div>
@@ -498,7 +498,7 @@ const KnowledgeBase = () => {
                     <h3 className="mb-2 text-xl font-bold dark:text-white md:text-2xl">Didn’t find any solutions?</h3>
                     <div className="text-lg font-medium text-white-dark">Loaded with awesome features like documentation, knowledge base forum, domain transfer, affiliates etc.</div>
                     <div className="mt-8 flex justify-center md:justify-start lg:mt-16">
-                        <button type="button" className="btn btn-primary">
+                        <button type="button" className="btn btn-dred">
                             Raise support tickets
                         </button>
                     </div>

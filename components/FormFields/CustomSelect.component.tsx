@@ -96,7 +96,7 @@ const CustomSelect = (props: SelectProps) => {
   };
 
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`min-w-[200px] w-fit ${className}`}>
       {title && (
         <label className="block text-sm font-bold text-gray-700 mb-1">
           {title} {required && <span className="text-red-500">*</span>}

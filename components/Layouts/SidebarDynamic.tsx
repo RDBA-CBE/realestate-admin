@@ -64,7 +64,7 @@ const SidebarDynamic = () => {
         return (
           <div key={idx}>
             <h2 className="-mx-4 mb-1 flex items-center bg-white-light/30 px-7 py-3 font-extrabold uppercase dark:bg-dark dark:bg-opacity-[0.08]">
-              <IconMinus className="hidden h-5 w-4 flex-none" />
+              <IconMinus className="hidden h-5 w-4 flex-none text-dred" />
               <span>{t(item.label)}</span>
             </h2>
             <li className="nav-item">
@@ -84,9 +84,9 @@ const SidebarDynamic = () => {
             >
               <div className="flex items-center">
                 {Icon && (
-                  <Icon className="shrink-0 group-hover:!text-primary" />
+                  <Icon className="shrink-0 text-dred" />
                 )}
-                <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">
+                <span className="text-black dark:text-[#506690]  ltr:pl-3 rtl:pr-3">
                   {t(item.label)}
                 </span>
               </div>
@@ -107,9 +107,9 @@ const SidebarDynamic = () => {
             >
               <div className="flex items-center">
                 {Icon && (
-                  <Icon className="shrink-0 group-hover:!text-primary" />
+                  <Icon className="shrink-0  text-dred" />
                 )}
-                <span className="text-black dark:text-[#506690] dark:group-hover:text-white-dark ltr:pl-3 rtl:pr-3">
+                <span className="text-black dark:text-[#506690]  ltr:pl-3 rtl:pr-3">
                   {t(item.label)}
                 </span>
               </div>
@@ -118,7 +118,7 @@ const SidebarDynamic = () => {
                   currentMenu !== item.key ? "-rotate-90 rtl:rotate-90" : ""
                 }
               >
-                <IconCaretDown />
+                <IconCaretDown className="text-dred"/>
               </div>
             </button>
 
@@ -169,10 +169,10 @@ const SidebarDynamic = () => {
             </Link>
             <button
               type="button"
-              className="collapse-icon flex h-8 w-8 items-center rounded-full transition duration-300 hover:bg-gray-500/10 dark:text-white-light dark:hover:bg-dark-light/10 rtl:rotate-180"
+              className="collapse-icon flex h-8 w-8 items-center rounded-full transition duration-300 hover:bg-[#fff6f6] dark:text-white-light  rtl:rotate-180"
               onClick={() => dispatch(toggleSidebar())}
             >
-              <IconCaretsDown className="m-auto rotate-90" />
+              <IconCaretsDown className="m-auto rotate-90 text-dred" />
             </button>
           </div>
 

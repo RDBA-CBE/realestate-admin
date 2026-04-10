@@ -64,7 +64,7 @@ const Popovers = () => {
                         <div className="mb-5">
                             <div className="flex w-full justify-center gap-4">
                                 <Tippy trigger="click" content="Popover using ANCHOR tag">
-                                    <button type="button" className="btn btn-primary bg-primary">
+                                    <button type="button" className="btn btn-dred bg-primary">
                                         Link
                                     </button>
                                 </Tippy>
@@ -82,7 +82,7 @@ const Popovers = () => {
 import 'tippy.js/dist/tippy.css';
 
 <Tippy trigger="click" content="Popover using ANCHOR tag">
-    <button type="button" className="btn bg-primary btn-primary">
+    <button type="button" className="btn bg-primary btn-dred">
         Link
     </button>
 </Tippy>
@@ -228,7 +228,7 @@ import 'tippy.js/dist/tippy.css';
                         <div className="mb-5">
                             <div className="flex w-full flex-wrap justify-center gap-4">
                                 <Tippy trigger="mouseenter focus" content="On Hover">
-                                    <button type="button" data-trigger="mouseenter" className="btn btn-primary">
+                                    <button type="button" data-trigger="mouseenter" className="btn btn-dred">
                                         On Hover
                                     </button>
                                 </Tippy>
@@ -256,7 +256,7 @@ import 'tippy.js/dist/tippy.css';
 import 'tippy.js/dist/tippy.css';
 
 <Tippy trigger="mouseenter focus" content="On Hover">
-    <button type="button" data-trigger="mouseenter" className="btn btn-primary">
+    <button type="button" data-trigger="mouseenter" className="btn btn-dred">
         On Hover
     </button>
 </Tippy>
@@ -301,7 +301,7 @@ import 'tippy.js/dist/tippy.css';
                         <div className="mb-5">
                             <div className="flex w-full flex-wrap justify-center gap-4">
                                 <Tippy trigger="click" content="Primary" theme="primary">
-                                    <button type="button" className="btn btn-primary">
+                                    <button type="button" className="btn btn-dred">
                                         Primary
                                     </button>
                                 </Tippy>
@@ -344,7 +344,7 @@ import 'tippy.js/dist/tippy.css';
 import 'tippy.js/dist/tippy.css';
 
 <Tippy trigger="click" content="Primary" theme="primary">
-    <button type="button" className="btn btn-primary">
+    <button type="button" className="btn btn-dred">
         Primary
     </button>
 </Tippy>

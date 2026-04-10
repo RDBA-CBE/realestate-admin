@@ -609,7 +609,7 @@ export default function list() {
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-primary  w-full md:mb-0 md:w-auto"
+            className="btn btn-dred  w-full md:mb-0 md:w-auto"
             onClick={() => router.push("/real-estate/property/create")}
           >
             + Create
@@ -662,14 +662,14 @@ export default function list() {
 
         {/* <button
           type="button"
-          className="btn btn-primary"
+          className="btn btn-dred"
           // onClick={() => usersList(1)}
         >
           Apply Filter
         </button>
         <button
           type="button"
-          className="btn btn-primary"
+          className="btn btn-dred"
           // onClick={() => clearFilter()}
         >
           Clear Filter
@@ -924,7 +924,7 @@ export default function list() {
             disabled={!state?.previous}
             onClick={handlePreviousPage}
             className={`btn ${
-              !state?.previous ? "btn-disabled" : "btn-primary"
+              !state?.previous ? "btn-disabled" : "btn-dred"
             }`}
           >
             <IconArrowBackward />
@@ -932,7 +932,7 @@ export default function list() {
           <button
             disabled={!state?.next}
             onClick={handleNextPage}
-            className={`btn ${!state?.next ? "btn-disabled" : "btn-primary"}`}
+            className={`btn ${!state?.next ? "btn-disabled" : "btn-dred"}`}
           >
             <IconArrowForward />
           </button>
@@ -993,7 +993,7 @@ export default function list() {
                   onClick={() =>
                     state.editId ? updateProject() : createProject()
                   }
-                  className="btn btn-primary ltr:ml-4 rtl:mr-4"
+                  className="btn btn-dred ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
                 </button>

@@ -633,11 +633,11 @@ const onSide = (render: any, handle: any, value: any, un: any, percent: any) => 
                                 <div className="mb-10 font-bold text-primary" id="locking_slider2_value"></div>
                                 <div className="ltr:text-right rtl:text-left">
                                     {disabled === false ? (
-                                        <button type="button" className="btn btn-primary" onClick={changeValue} id="lockbutton">
+                                        <button type="button" className="btn btn-dred" onClick={changeValue} id="lockbutton">
                                             Lock
                                         </button>
                                     ) : (
-                                        <button type="button" className="btn btn-primary" onClick={changeValue} id="unlockbutton">
+                                        <button type="button" className="btn btn-dred" onClick={changeValue} id="unlockbutton">
                                             Unlock
                                         </button>
                                     )}
@@ -681,11 +681,11 @@ const changeValue = () => {
  <div className="text-primary font-bold mb-10" id="locking_slider2_value"></div>
  <div className="ltr:text-right rtl:text-left">
      {disabled === false ? (
-         <button type="button" className="btn btn-primary" onClick={changeValue} id="lockbutton">
+         <button type="button" className="btn btn-dred" onClick={changeValue} id="lockbutton">
              Lock
          </button>
      ) : (
-         <button type="button" className="btn btn-primary" onClick={changeValue} id="unlockbutton">
+         <button type="button" className="btn btn-dred" onClick={changeValue} id="unlockbutton">
              Unlock
          </button>
      )}

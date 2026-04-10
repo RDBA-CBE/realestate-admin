@@ -657,7 +657,7 @@ const CreateOpportunities = () => {
         </button>
         <button
           type="button"
-          className="btn btn-primary w-full md:w-auto"
+          className="btn btn-dred w-full md:w-auto"
           onClick={() => handleSubmit()}
         >
           {state.submitLoad ? (

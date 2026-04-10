@@ -196,7 +196,7 @@ const Notification = () => {
                         </div>
                         <div className="mb-5">
                             <div className="flex items-center justify-center">
-                                <button type="button" className="btn btn-primary" onClick={showMessage}>
+                                <button type="button" className="btn btn-dred" onClick={showMessage}>
                                     Open Toast
                                 </button>
                             </div>
@@ -221,7 +221,7 @@ const showMessage = () => {
 };
 <div className="mb-5">
     <div className="flex items-center justify-center">
-        <button type="button" className="btn btn-primary" onClick={showMessage}>
+        <button type="button" className="btn btn-dred" onClick={showMessage}>
             Open Toast
         </button>
     </div>
@@ -260,7 +260,7 @@ const showMessage = () => {
                                 <button type="button" className="btn btn-dark" onClick={showMessage4}>
                                     Bottom Left
                                 </button>
-                                <button type="button" className="btn btn-primary" onClick={showMessage5}>
+                                <button type="button" className="btn btn-dred" onClick={showMessage5}>
                                     Bottom Center
                                 </button>
                                 <button type="button" className="btn btn-secondary" onClick={showMessage6}>
@@ -359,7 +359,7 @@ const MySwal = withReactContent(Swal);
         <button type="button" className="btn btn-dark" onClick={showMessage4}>
             Bottom Left
         </button>
-        <button type="button" className="btn btn-primary" onClick={showMessage5}>
+        <button type="button" className="btn btn-dred" onClick={showMessage5}>
             Bottom Center
         </button>
         <button type="button" className="btn btn-secondary" onClick={showMessage6}>
@@ -538,7 +538,7 @@ const showMessage8 = () => {
                         <div className="mb-5">
                             <div className="colored-toast grid grid-cols-2 items-center justify-center gap-2 sm:flex sm:grid-cols-1">
                                 <div>
-                                    <button type="button" className="btn btn-primary" onClick={() => coloredToast('primary')}>
+                                    <button type="button" className="btn btn-dred" onClick={() => coloredToast('primary')}>
                                         Primary
                                     </button>
                                     <div id="primary-toast"></div>
@@ -599,7 +599,7 @@ const coloredToast = (color: any) => {
 <div className="mb-5">
     <div className="grid grid-cols-2 sm:grid-cols-1 sm:flex items-center justify-center gap-2 colored-toast">
         <div>
-            <button type="button" className="btn btn-primary" onClick={() => coloredToast('primary')}>
+            <button type="button" className="btn btn-dred" onClick={() => coloredToast('primary')}>
                 Primary
             </button>
             <div id="primary-toast"></div>

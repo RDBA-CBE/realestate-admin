@@ -301,7 +301,7 @@ const PricingTable = () => {
                                             <li>2 TB Premium Bandwidth</li>
                                         </ul>
                                     </div>
-                                    <button type="button" className="btn btn-primary w-full">
+                                    <button type="button" className="btn btn-dred w-full">
                                         Buy Now
                                     </button>
                                 </div>
@@ -382,7 +382,7 @@ const PricingTable = () => {
                         <li>2 TB Premium Bandwidth</li>
                     </ul>
                 </div>
-                <button type="button" className="btn btn-primary w-full">
+                <button type="button" className="btn btn-dred w-full">
                     Buy Now
                 </button>
             </div>
@@ -441,7 +441,7 @@ const PricingTable = () => {
                                             <li>2 hours of support</li>
                                             <li>5GB of storage space</li>
                                         </ul>
-                                        <button type="button" className="btn btn-primary w-full">
+                                        <button type="button" className="btn btn-dred w-full">
                                             Buy Now
                                         </button>
                                     </div>
@@ -461,7 +461,7 @@ const PricingTable = () => {
                                             <li>10 hours of support</li>
                                             <li>10GB of storage space</li>
                                         </ul>
-                                        <button type="button" className="btn btn-primary w-full">
+                                        <button type="button" className="btn btn-dred w-full">
                                             Buy Now
                                         </button>
                                     </div>
@@ -481,7 +481,7 @@ const PricingTable = () => {
                                             <li>Unlimited hours of support</li>
                                             <li>1TB of storage space</li>
                                         </ul>
-                                        <button type="button" className="btn btn-primary w-full">
+                                        <button type="button" className="btn btn-dred w-full">
                                             Buy Now
                                         </button>
                                     </div>
@@ -510,7 +510,7 @@ const PricingTable = () => {
                         <li>2 hours of support</li>
                         <li>5GB of storage space</li>
                     </ul>
-                    <button type="button" className="btn btn-primary w-full">
+                    <button type="button" className="btn btn-dred w-full">
                         Buy Now
                     </button>
                 </div>
@@ -530,7 +530,7 @@ const PricingTable = () => {
                         <li>10 hours of support</li>
                         <li>10GB of storage space</li>
                     </ul>
-                    <button type="button" className="btn btn-primary w-full">
+                    <button type="button" className="btn btn-dred w-full">
                         Buy Now
                     </button>
                 </div>
@@ -550,7 +550,7 @@ const PricingTable = () => {
                         <li>Unlimited hours of support</li>
                         <li>1TB of storage space</li>
                     </ul>
-                    <button type="button" className="btn btn-primary w-full">
+                    <button type="button" className="btn btn-dred w-full">
                         Buy Now
                     </button>
                 </div>

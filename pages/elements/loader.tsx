@@ -107,7 +107,7 @@ const Loader = () => {
                         <div className="flex w-full flex-wrap">
                             <div className="mb-3 flex w-full flex-wrap items-center justify-center text-center sm:mb-0 sm:w-1/2">
                                 <p className="mb-2 w-full">Default Button</p>
-                                <button type="button" className="btn btn-primary btn-lg">
+                                <button type="button" className="btn btn-dred btn-lg">
                                     <IconLoader className="animate-[spin_2s_linear_infinite] inline-block align-middle ltr:mr-2 rtl:ml-2 shrink-0" />
                                     Loading
                                 </button>
@@ -126,7 +126,7 @@ const Loader = () => {
                             <pre className="language-xml">
                                 {`<div className="flex flex-wrap items-center justify-center w-full sm:w-1/2 text-center mb-3 sm:mb-0">
     <p className="w-full mb-2">Default Button</p>
-    <button type="button" className="btn btn-primary btn-lg">
+    <button type="button" className="btn btn-dred btn-lg">
         <svg>...</svg>
         Loading
     </button>

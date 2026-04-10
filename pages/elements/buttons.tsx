@@ -55,7 +55,7 @@ const Buttons = () => {
                     <div className="mb-5">
                         <div className="flex w-full">
                             <div className="flex w-1/2 items-center justify-center">
-                                <button type="button" className="btn btn-primary">
+                                <button type="button" className="btn btn-dred">
                                     Primary
                                 </button>
                             </div>
@@ -71,7 +71,7 @@ const Buttons = () => {
                             <pre className="language-xml">
                                 {`{/*Default*/}
 
-<button type="button" className="btn btn-primary">Primary</button>
+<button type="button" className="btn btn-dred">Primary</button>
 
 <button type="button" className="btn btn-outline-primary">Primary</button>
 `}
@@ -98,7 +98,7 @@ const Buttons = () => {
                     <div className="mb-5">
                         <div className="flex w-full">
                             <div className="flex w-1/2 items-center justify-center">
-                                <button type="button" className="btn btn-primary rounded-full">
+                                <button type="button" className="btn btn-dred rounded-full">
                                     Primary
                                 </button>
                             </div>
@@ -114,7 +114,7 @@ const Buttons = () => {
                             <pre className="language-xml">
                                 {`{/*Rounded*/}
 
-<button type="button" className="btn btn-primary rounded-full">Primary</button>
+<button type="button" className="btn btn-dred rounded-full">Primary</button>
 
 <button type="button" className="btn btn-outline-primary rounded-full">Primary</button>`}
                             </pre>
@@ -139,7 +139,7 @@ const Buttons = () => {
                     </div>
                     <div className="mb-5">
                         <div className="flex flex-wrap items-center justify-center gap-2">
-                            <button type="button" className="btn btn-primary">
+                            <button type="button" className="btn btn-dred">
                                 Primary
                             </button>
                             <button type="button" className="btn btn-info">
@@ -167,7 +167,7 @@ const Buttons = () => {
                             <pre className="language-xml">
                                 {`{/*Solid*/}
 
-<button type="button" className="btn btn-primary">Primary</button>
+<button type="button" className="btn btn-dred">Primary</button>
 
 <button type="button" className="btn btn-info">Info</button>
 
@@ -265,7 +265,7 @@ const Buttons = () => {
                     </div>
                     <div className="mb-5">
                         <div className="flex flex-wrap items-center justify-center gap-2">
-                            <button type="button" className="btn btn-primary btn-lg">
+                            <button type="button" className="btn btn-dred btn-lg">
                                 Primary
                             </button>
                             <button type="button" className="btn btn-info">
@@ -284,7 +284,7 @@ const Buttons = () => {
                             <pre className="language-xml">
                                 {`{/*Button Sizes*/}
 
-<button type="button" className="btn btn-primary btn-lg">Primary</button>
+<button type="button" className="btn btn-dred btn-lg">Primary</button>
 
 <button type="button" className="btn btn-info">Info</button>
 
@@ -313,7 +313,7 @@ const Buttons = () => {
                     </div>
                     <div className="mb-5">
                         <div className="flex flex-wrap items-center justify-center gap-2">
-                            <button type="button" className="btn btn-primary">
+                            <button type="button" className="btn btn-dred">
                                 <IconSettings className="w-5 h-5 ltr:mr-1.5 rtl:ml-1.5 shrink-0" />
                                 Left
                             </button>
@@ -334,7 +334,7 @@ const Buttons = () => {
                             <pre className="language-xml">
                                 {`{/*Button with Icons*/}
 
-<button type="button" className="btn btn-primary"><svg> ... </svg>Left</button>
+<button type="button" className="btn btn-dred"><svg> ... </svg>Left</button>
 
 <button type="button" className="btn btn-warning rounded-full">Right<svg> ... </svg></button>
 
@@ -363,7 +363,7 @@ const Buttons = () => {
                     </div>
                     <div className="mb-5">
                         <div className="flex flex-col gap-4">
-                            <button type="button" className="btn btn-primary w-full">
+                            <button type="button" className="btn btn-dred w-full">
                                 Button
                             </button>
                             <button type="button" className="btn btn-info w-full">
@@ -379,7 +379,7 @@ const Buttons = () => {
                             <pre className="language-xml">
                                 {`{/*Block Buttons*/}
 
-<button type="button" className="btn btn-primary w-full"> Button</button>
+<button type="button" className="btn btn-dred w-full"> Button</button>
 
 <button type="button" className="btn btn-info w-full">Button</button>
 

@@ -71,7 +71,7 @@ const DropdownPage = () => {
                                     <div className="dropdown">
                                         <Dropdown
                                             placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                            btnClassName="btn btn-primary dropdown-toggle"
+                                            btnClassName="btn btn-dred dropdown-toggle"
                                             button={
                                                 <>
                                                     Action
@@ -141,7 +141,7 @@ const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) ===
 <div className="dropdown">
     <Dropdown
         placement={\`\${isRtl ? 'bottom-start' : 'bottom-end'}\`}
-        btnClassName="btn btn-primary dropdown-toggle"
+        btnClassName="btn btn-dred dropdown-toggle"
         button={
             <>
                 Action
@@ -1261,11 +1261,11 @@ const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) ===
                             <div className="flex w-full flex-wrap justify-around gap-7">
                                 <div className="flex items-center justify-center">
                                     <div className="inline-flex">
-                                        <button className="btn btn-primary ltr:rounded-r-none rtl:rounded-l-none">Action</button>
+                                        <button className="btn btn-dred ltr:rounded-r-none rtl:rounded-l-none">Action</button>
                                         <div className="dropdown">
                                             <Dropdown
                                                 placement={`${isRtl ? 'bottom-start' : 'bottom-end'}`}
-                                                btnClassName="btn dropdown-toggle btn-primary ltr:rounded-l-none rtl:rounded-r-none border-l-[#4468fd] before:border-[5px] before:border-l-transparent before:border-r-transparent before:border-t-inherit before:border-b-0 before:inline-block before:border-t-white-light h-full"
+                                                btnClassName="btn dropdown-toggle btn-dred ltr:rounded-l-none rtl:rounded-r-none border-l-[#4468fd] before:border-[5px] before:border-l-transparent before:border-r-transparent before:border-t-inherit before:border-b-0 before:inline-block before:border-t-white-light h-full"
                                                 button={<span className="sr-only">Toggle dropdown</span>}
                                             >
                                                 <ul className="!min-w-[170px]">
@@ -1324,11 +1324,11 @@ const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) ===
 const isRtl = useSelector((state: IRootState) => state.themeConfig.rtlClass) === 'rtl' ? true : false;
 
 <div className="inline-flex">
-    <button className="btn btn-primary ltr:rounded-r-none rtl:rounded-l-none">Action</button>
+    <button className="btn btn-dred ltr:rounded-r-none rtl:rounded-l-none">Action</button>
     <div className="dropdown">
         <Dropdown
             placement={\`\${isRtl ? 'bottom-start' : 'bottom-end'}\`}
-            btnClassName="btn dropdown-toggle btn-primary ltr:rounded-l-none rtl:rounded-r-none border-l-[#4468fd] before:border-[5px] before:border-l-transparent before:border-r-transparent before:border-t-inherit before:border-b-0 before:inline-block before:border-t-white-light h-full"
+            btnClassName="btn dropdown-toggle btn-dred ltr:rounded-l-none rtl:rounded-r-none border-l-[#4468fd] before:border-[5px] before:border-l-transparent before:border-r-transparent before:border-t-inherit before:border-b-0 before:inline-block before:border-t-white-light h-full"
             button={<span className="sr-only">Toggle dropdown</span>}
         >
             <ul className="!min-w-[170px]">
