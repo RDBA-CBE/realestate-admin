@@ -339,9 +339,9 @@ console.log("state.userId", state.userId);
         </div>
       </div>
 
-      <div className=" mb-5 mt-5 gap-2 md:mt-0 md:flex md:justify-between xl:gap-4">
+      <div className=" mb-5 mt-5 gap-2 md:mt-0 md:flex xl:gap-4">
         {/* Search Input */}
-        <div className="flex-1">
+        <div className="">
           <TextInput
             type="text"
             className=" form-input"
@@ -353,7 +353,7 @@ console.log("state.userId", state.userId);
 
         {state.group == "Admin" && (
           <>
-            <div className="flex-1">
+            <div className="">
               <CustomSelect
                 placeholder="Select Role"
                 value={state.role}
@@ -368,7 +368,7 @@ console.log("state.userId", state.userId);
               />
             </div>
 
-            <div className="flex-1">
+            <div className="">
               <CustomSelect
                 placeholder="Select user"
                 value={state.user}

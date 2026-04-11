@@ -543,7 +543,7 @@ export default function List() {
 
   return (
     <>
-      <div className="panel mb-5 flex items-center justify-between gap-5">
+      <div className=" mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
             Approval Property List
@@ -552,7 +552,7 @@ export default function List() {
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-dred  w-full md:mb-0 md:w-auto"
+            className="btn btn-dred border-none w-full md:mb-0 md:w-auto"
             onClick={() => router.push("/real-estate/property/create")}
           >
             + Create
@@ -560,8 +560,8 @@ export default function List() {
         </div>
       </div>
 
-      <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
-        <div className="flex-1">
+      <div className=" mb-2 mt-5 gap-2 md:mt-0 md:flex xl:gap-4">
+        <div className="">
           <input
             type="text"
             className="w-100 form-input"
@@ -571,7 +571,7 @@ export default function List() {
           />
         </div>
 
-        <div className="flex-1">
+        <div className="">
           <CustomSelect
             placeholder="Property Type"
             value={state.property_type}
@@ -583,7 +583,7 @@ export default function List() {
           />
         </div>
 
-        <div className="flex-1">
+        <div className="">
           <CustomSelect
             placeholder="Offer Type"
             value={state.offer_type}
@@ -592,7 +592,7 @@ export default function List() {
           />
         </div>
 
-        <div className="flex-1">
+        <div className="">
           <CustomSelect
             placeholder="Property Status"
             value={state.status}
@@ -601,7 +601,7 @@ export default function List() {
           />
         </div>
 
-        <div className="flex-1">
+        <div className="">
           <CustomSelect
             placeholder="Publish or Draft"
             value={state.publish}
@@ -615,7 +615,7 @@ export default function List() {
         </button> */}
       </div>
 
-      <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
+      <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
           {state?.loading ? (
             <div className="flex h-[400px] items-center justify-center">
@@ -639,14 +639,14 @@ export default function List() {
                   gap: "10px",
                 }}
               >
-                <div className="flex items-center gap-3 rounded-md border bg-white px-3  shadow-sm">
+                <div className="flex items-center gap-1 rounded-md ">
                   <button
                     onClick={() => setState({ viewMode: "table" })}
                     className={`rounded-md p-2 transition-all duration-200 `}
                   >
                     <Table
                       size={18}
-                      color={state.viewMode == "table" ? "blue" : "grey"}
+                      color={state.viewMode == "table" ? "#9b0f09" : "grey"}
                     />
                   </button>
 
@@ -658,7 +658,7 @@ export default function List() {
                   >
                     <Calendar
                       size={18}
-                      color={state.viewMode == "image" ? "blue" : "grey"}
+                      color={state.viewMode == "image" ? "#9b0f09" : "grey"}
                     />
                   </button>
                 </div>
@@ -694,7 +694,7 @@ export default function List() {
                         style={{
                           width: "20px",
                           height: "20px",
-                          backgroundColor: "#3b82f6",
+                          backgroundColor: "#9b0f09",
                           borderRadius: "50%",
                           display: "flex",
                           alignItems: "center",
@@ -799,7 +799,7 @@ export default function List() {
                             }}
                           >
                             <Checkbox
-                              checked={column.visible ?? true}
+                              checked={column.visible ?? true}                            
                               onChange={() => toggleColumn(column.accessor)}
                               disabled={column.toggleable === false}
                               size="sm"

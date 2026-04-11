@@ -837,7 +837,7 @@ const AddPropertyPage = () => {
 
   return (
     <>
-      <div className="panel mb-5 flex flex flex-col justify-between gap-5  md:flex-row md:items-center">
+      <div className=" mb-5 flex flex flex-col justify-between gap-5  md:flex-row md:items-center">
         <h5 className="text-lg font-semibold dark:text-white-light ">
           Add New Property
         </h5>

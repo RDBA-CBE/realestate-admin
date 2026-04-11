@@ -150,13 +150,13 @@ const SidebarDynamic = () => {
   return (
     <div className={semidark ? "dark" : ""}>
       <nav
-        className={`sidebar fixed bottom-0 top-0 z-50 h-full min-h-screen w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] transition-all duration-300 ${
+        className={`sidebar fixed bottom-0 top-0 z-50 h-full w-[230px] transition-all duration-300 lg:top-[57px] lg:max-h-[calc(100vh-57px)]${
           semidark ? "text-white-dark" : ""
         }`}
       >
         <div className="h-full bg-white dark:bg-black">
           {/* Logo */}
-          <div className="flex items-center justify-between px-4 py-3">
+          {/* <div className="flex items-center justify-between px-4 py-3">
             <Link href="/" className="main-logo flex shrink-0 items-center">
               <img
                 className="ml-[5px] w-8 flex-none"
@@ -174,11 +174,11 @@ const SidebarDynamic = () => {
             >
               <IconCaretsDown className="m-auto rotate-90 text-dred" />
             </button>
-          </div>
+          </div> */}
 
           {/* Menu */}
-          <PerfectScrollbar className="relative h-[calc(100vh-80px)]">
-            <ul className="relative space-y-0.5 p-4 py-0 font-semibold">
+          <PerfectScrollbar className="relative h-[calc(100vh-80px)] border-e">
+            <ul className="relative space-y-0.5 px-2 py-2 font-semibold ">
               {getUserMenu()?.length > 0 && renderMenu(getUserMenu())}
             </ul>
           </PerfectScrollbar>
