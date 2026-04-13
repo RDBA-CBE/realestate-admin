@@ -65,7 +65,7 @@ const List = () => {
     assigned_to_user: null,
     created_by_user: null,
     leadType: "created",
-    group:null
+    group: null,
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -89,21 +89,21 @@ const List = () => {
     state.lead_source,
     state.status,
     state.date,
-    state.role
+    state.role,
   ]);
 
   console.log("created_by_user", state.created_by_user);
 
   useEffect(() => {
     const group = localStorage.getItem("group");
-   
+
     setState({
-      group, 
+      group,
       assignmentTitle: group == "Admin" ? "Assigned To" : "Assigned From",
     });
   }, []);
 
-   console.log("✌️group --->", state.group);
+  console.log("✌️group --->", state.group);
 
   const categoryList = async (page) => {
     try {
@@ -156,10 +156,10 @@ const List = () => {
         assigned_to: item?.assigned_to_details
           ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
           : "",
-          assigned_by: item?.assigned_by_details
+        assigned_by: item?.assigned_by_details
           ? `${item?.assigned_by_details?.first_name} ${item?.assigned_by_details?.last_name}`
           : "",
-          created_by: item?.created_by
+        created_by: item?.created_by,
       }));
       const group = localStorage.getItem("group");
 
@@ -264,7 +264,7 @@ const List = () => {
       () => {
         Swal.fire("Cancelled", "Your Record is safe :)", "info");
       },
-      "Are you sure want to delete project?"
+      "Are you sure want to delete project?",
     );
   };
 
@@ -273,7 +273,7 @@ const List = () => {
       const res: any = await Models.user.groups();
       const droprdown = Dropdown(res?.results, "name");
       const filter = droprdown?.filter(
-        (item) => item?.label != "Admin" && item?.label != "Buyer"
+        (item) => item?.label != "Admin" && item?.label != "Buyer",
       );
 
       setState({
@@ -461,7 +461,7 @@ const List = () => {
 
   const toggleColumn = (accessor: string) => {
     const updatedColumns = state.visibleColumns?.map((col) =>
-      col.accessor === accessor ? { ...col, visible: !col.visible } : col
+      col.accessor === accessor ? { ...col, visible: !col.visible } : col,
     );
     setState({ visibleColumns: updatedColumns });
   };
@@ -484,12 +484,32 @@ const List = () => {
       title: "Date",
       visible: true,
       toggleable: true,
+      render: (row) => (
+        <div
+          className="w-fit cursor-pointer "
+          onClick={(e) => {
+            router.push(`/real-estate/lead/view/${row?.id}`);
+          }}
+        >
+          <div>{row?.date}</div>
+        </div>
+      ),
     },
     {
       accessor: "property",
       title: "Property",
       visible: true,
       toggleable: true,
+      render: (row) => (
+        <div
+          className="w-fit cursor-pointer "
+          onClick={(e) => {
+            router.push(`/real-estate/lead/view/${row?.id}`);
+          }}
+        >
+          <div>{row?.property}</div>
+        </div>
+      ),
     },
     {
       accessor: "property_type",
@@ -513,7 +533,7 @@ const List = () => {
       toggleable: true,
     },
 
-     {
+    {
       accessor: "created_by",
       title: "Created By",
       visible: true,
@@ -578,20 +598,21 @@ const List = () => {
           <button
             className="flex hover:text-info"
             onClick={(e) => {
+              router.push(`/real-estate/lead/view/${row?.id}`);
+            }}
+          >
+            <Eye className="h-4.5 w-4.5" />
+          </button>
+
+          <button
+            className="flex hover:text-info"
+            onClick={(e) => {
               handleEdit(row);
             }}
           >
             <IconEdit className="h-4.5 w-4.5" />
           </button>
 
-          <button
-            className="flex hover:text-info"
-            onClick={(e) => {
-              router.push(`/real-estate/lead/view/${row?.id}`);
-            }}
-          >
-            <Eye className="h-4.5 w-4.5" />
-          </button>
           <button
             type="button"
             className="flex hover:text-danger"
@@ -605,11 +626,11 @@ const List = () => {
   ];
 
   const visibleCount = state.visibleColumns?.filter(
-    (col) => col.visible
+    (col) => col.visible,
   ).length;
 
   const totalToggleable = state.visibleColumns?.filter(
-    (col) => col?.toggleable !== false
+    (col) => col?.toggleable !== false,
   ).length;
 
   return (
@@ -632,7 +653,7 @@ const List = () => {
       </div>
 
       <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
-        {(state.group !== "Admin") && (state.group !== "Seller") ? (
+        {state.group !== "Admin" && state.group !== "Seller" ? (
           <>
             <div className="mt-2">
               <CheckboxInput
@@ -660,7 +681,9 @@ const List = () => {
               />
             </div>
           </>
-        ) : []}
+        ) : (
+          []
+        )}
 
         <div className="flex-1">
           <input
@@ -965,9 +988,7 @@ const List = () => {
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
-            className={`btn ${
-              !state.previous ? "btn-disabled" : "btn-dred"
-            }`}
+            className={`btn ${!state.previous ? "btn-disabled" : "btn-dred"}`}
           >
             <IconArrowBackward />
           </button>

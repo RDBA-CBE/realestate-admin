@@ -54,8 +54,8 @@ export const menuConfig = {
             },
             {
               type: "link",
-              label: "Catergories",
-              href: "/real-estate/property/categories",
+              label: "Property Types",
+              href: "/real-estate/property/property-type",
             },
             {
               type: "link",
@@ -167,6 +167,36 @@ export const menuConfig = {
         },
       ],
     },
+     {
+      type: "section",
+      label: "Master Data",
+      children: [
+        {
+          type: "link",
+          icon: "IconMenuTables",
+          label: "Property Types",
+          href: "/real-estate/property/property-type",
+        },
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Amenities",
+          href: "/real-estate/property/amenities",
+        },
+        {
+          type: "link",
+          icon: "IconMenuScrumboard",
+          label: "Furnishing Types",
+          href: "/real-estate/masters/furnishing-type",
+        },
+        {
+          type: "link",
+          icon: "IconMenuPages",
+          label: "Bookings",
+          href: "/real-estate/inquiry/bookingList",
+        },
+      ],
+    },
   ],
 
   Agent: [
@@ -204,8 +234,8 @@ export const menuConfig = {
             },
             {
               type: "link",
-              label: "Catergories",
-              href: "/real-estate/property/categories",
+              label: "Property Types",
+              href: "/real-estate/property/property-type",
             },
             {
               type: "link",
@@ -342,8 +372,8 @@ export const menuConfig = {
             },
             {
               type: "link",
-              label: "Catergories",
-              href: "/real-estate/property/categories",
+              label: "Property Types",
+              href: "/real-estate/property/property-type",
             },
             {
               type: "link",
@@ -510,8 +540,8 @@ export const menuConfig = {
             },
             {
               type: "link",
-              label: "Catergories",
-              href: "/real-estate/property/categories",
+              label: "Property Types",
+              href: "/real-estate/property/property-type",
             },
             {
               type: "link",

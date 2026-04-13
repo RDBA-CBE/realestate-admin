@@ -379,7 +379,9 @@ const List = () => {
                 title: "Name",
 
                 render: (row) => (
-                  <div className="flex items-center font-semibold">
+                  <div className="flex items-center font-semibold w-fit"  onClick={(e) => {
+                        handleEdit(row);
+                      }}>
                     <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
                       <img
                         className="h-8 w-8 cursor-pointer rounded-full object-cover"
@@ -387,12 +389,12 @@ const List = () => {
                         alt=""
                       />
                     </div>
-                    <Link
+                    <div
                       className="cursor-pointer"
-                      href={`/real-estate/profile/${row.id}/`}
+                     
                     >
                       {row.first_name} {row.last_name}
-                    </Link>
+                    </div>
                   </div>
                 ),
               },

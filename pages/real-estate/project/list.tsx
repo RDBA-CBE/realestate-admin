@@ -374,6 +374,7 @@ console.log("state.userId", state.userId);
                 value={state.user}
                 onChange={(e) => setState({ user: e })}
                 options={state.userList}
+                disabled={!state.role}
               />
             </div>
           </>
@@ -392,7 +393,18 @@ console.log("state.userId", state.userId);
           className="table-responsive"
           records={state.tableList || []}
           columns={[
-            { accessor: "name", title: "Project Name" },
+            {
+              accessor: "name",
+              title: "Project Name",
+              render: (row: any) => (
+                <span
+                  className="cursor-pointer "
+                  onClick={(e) => handleEdit(row)}
+                >
+                  {row.name}
+                </span>
+              ),
+            },
             { accessor: "properties" },
 
             { accessor: "location" },

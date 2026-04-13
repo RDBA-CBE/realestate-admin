@@ -30,6 +30,7 @@ import { SimpleGrid } from "@mantine/core";
 import moment from "moment";
 import IconMail from "@/components/Icon/IconMail";
 import {
+  FRONTEND_URL,
   LEAD_SOURCE_OPTIONS,
   LISTING_TYPE_LIST,
   ROLES,
@@ -61,13 +62,13 @@ const CreateOpportunities = () => {
     propertyPage: 1,
     propertyList: [],
     hasMoreProperty: false,
-     error: {},
+    error: {},
   });
 
-  useEffect(()=>{
-    const userId = localStorage.getItem("userId")
-    setState({userId})
-  },[])
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    setState({ userId });
+  }, []);
 
   useEffect(() => {
     if (id) {
@@ -99,7 +100,7 @@ const CreateOpportunities = () => {
           assigned_to: {
             value: res?.assigned_to_details?.id,
             label: `${capitalizeFLetter(
-              res?.assigned_to_details?.first_name
+              res?.assigned_to_details?.first_name,
             )} ${capitalizeFLetter(res?.assigned_to_details?.last_name)} `,
           },
         });
@@ -228,7 +229,7 @@ const CreateOpportunities = () => {
             date: commonDateFormat(res?.created_at),
             location: capitalizeFLetter(res?.city),
             developer: `${capitalizeFLetter(
-              res?.developer?.first_name
+              res?.developer?.first_name,
             )} ${capitalizeFLetter(res?.developer?.last_name)}`,
             project: capitalizeFLetter(res?.project?.name),
 
@@ -258,7 +259,9 @@ const CreateOpportunities = () => {
         email: state.email,
         interested_property: state.property_name?.value,
         lead_source: state.lead_source?.value,
-        assigned_to: state.assigned_to ?  state.assigned_to?.value : state.userId,
+        assigned_to: state.assigned_to
+          ? state.assigned_to?.value
+          : state.userId,
         // lead_source_details: state.lead_source_details,
         next_follow_up: state.next_follow_up
           ? moment(state.next_follow_up).format("YYYY-MM-DD")
@@ -273,7 +276,7 @@ const CreateOpportunities = () => {
       const res = await Models.lead.update(body, id);
       setState({ btnLoading: false });
       Success("Lead Updated Successfully");
-      router.back()
+      router.back();
       console.log("✌️res --->", res);
     } catch (error: any) {
       if (error instanceof Yup.ValidationError) {
@@ -325,7 +328,7 @@ const CreateOpportunities = () => {
       visible: true,
       toggleable: true,
       render: (row) => (
-        <div className="flex gap-3 font-semibold">
+        <Link className="flex gap-3 font-semibold w-fit cursor-pointer"  href={`${FRONTEND_URL}/property-detail/${row?.id}`}>
           <div className="h-28 w-44 rounded-md bg-white-dark/30  ltr:mr-2 rtl:ml-2">
             <img
               className="h-full w-full cursor-pointer rounded-md object-cover"
@@ -340,20 +343,21 @@ const CreateOpportunities = () => {
                 <IconMapPin className="h-4 w-4" />
                 {row.location}
               </div>
-              <Link
-                className="cursor-pointer text-lg font-bold"
-                href={`/real-estate/profile/${row.id}/`}
-              >
+              <div className="cursor-pointer text-lg font-bold">
                 {row.title}
-              </Link>
+              </div>
             </div>
             <div>
-              <Link className="flex gap-1 text-primary" href={"/detail"}>
+              <Link
+                className="flex gap-1 text-primary"
+                href={`${FRONTEND_URL}/property-detail/${row?.id}`}
+                target="_blank"
+              >
                 <LucideHome className="h-4 w-4 text-black " /> View Details
               </Link>
             </div>
           </div>
-        </div>
+        </Link>
       ),
     },
 
@@ -565,7 +569,12 @@ const CreateOpportunities = () => {
               <TextInput
                 title="First Name"
                 value={state.first_name}
-                onChange={(e) => setState({ first_name: e.target.value, error: { ...state.error, first_name: "" } })}
+                onChange={(e) =>
+                  setState({
+                    first_name: e.target.value,
+                    error: { ...state.error, first_name: "" },
+                  })
+                }
                 placeholder={"First Name"}
                 error={state.error?.first_name}
                 icon={<User2 height={15} width={15} />}
@@ -575,7 +584,12 @@ const CreateOpportunities = () => {
               <TextInput
                 title="Last Name"
                 value={state.last_name}
-                onChange={(e) => setState({ last_name: e.target.value, error: { ...state.error, last_name: "" } })}
+                onChange={(e) =>
+                  setState({
+                    last_name: e.target.value,
+                    error: { ...state.error, last_name: "" },
+                  })
+                }
                 placeholder={"Last Name"}
                 error={state.error?.last_name}
                 icon={<User2 height={15} width={15} />}
@@ -584,7 +598,12 @@ const CreateOpportunities = () => {
               <TextInput
                 title="Email"
                 value={state.email}
-                onChange={(e) => setState({ email: e.target.value,  error: { ...state.error, email: "" } })}
+                onChange={(e) =>
+                  setState({
+                    email: e.target.value,
+                    error: { ...state.error, email: "" },
+                  })
+                }
                 placeholder={"Email"}
                 error={state.error?.email}
                 icon={<IconMail fill={false} />}
@@ -593,7 +612,12 @@ const CreateOpportunities = () => {
 
               <CustomPhoneInput
                 value={state.phone}
-                onChange={(value) => setState({ phone: value, error: { ...state.error, phone: "" } })}
+                onChange={(value) =>
+                  setState({
+                    phone: value,
+                    error: { ...state.error, phone: "" },
+                  })
+                }
                 title="Phone Number"
                 name="phone"
                 required

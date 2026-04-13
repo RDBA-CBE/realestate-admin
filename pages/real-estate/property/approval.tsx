@@ -68,7 +68,8 @@ export default function List() {
             <div>
               <Link
                 className="cursor-pointer text-sm"
-                href={`/real-estate/profile/${row.id}/`}
+                href={`${FRONTEND_URL}/property-detail/${row?.id}`}
+                target="_blank"
               >
                 {row.title}
               </Link>
@@ -170,7 +171,7 @@ export default function List() {
       visible: true,
       toggleable: true,
       render: (row) => (
-        <div className="flex gap-3 font-semibold">
+        <Link className="flex gap-3 font-semibold" href={`${FRONTEND_URL}/property-detail/${row?.id}`} target="__blank">
           <div className="h-28 w-44 rounded-md bg-white-dark/30  ltr:mr-2 rtl:ml-2">
             <img
               className="h-full w-full cursor-pointer rounded-md object-cover"
@@ -185,12 +186,12 @@ export default function List() {
                 <IconMapPin className="h-4 w-4" />
                 {row.location}
               </div>
-              <Link
+              <div
                 className="cursor-pointer text-lg font-bold"
-                href={`/real-estate/profile/${row.id}/`}
+                
               >
                 {row.title}
-              </Link>
+              </div>
             </div>
             <div
               className={`inline-block w-fit rounded-full px-3 py-1 text-xs font-semibold ${
@@ -211,7 +212,7 @@ export default function List() {
               </Link>
             </div>
           </div>
-        </div>
+        </Link>
       ),
     },
 
@@ -359,7 +360,7 @@ export default function List() {
         status: capitalizeFLetter(item?.status),
         id: item?.id,
         total_area: item?.total_area,
-        property_type: item?.property_type?.name,
+        property_type: item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)).join(", "),
         listing_type: {
           type: capitalizeFLetter(item?.listing_type),
           color:
@@ -560,7 +561,7 @@ export default function List() {
         </div>
       </div>
 
-      <div className=" mb-2 mt-5 gap-2 md:mt-0 md:flex xl:gap-4">
+      <div className=" mb-2 mt-5 gap-2 md:mt-0 md:flex flex-wrap xl:gap-4">
         <div className="">
           <input
             type="text"
@@ -663,7 +664,7 @@ export default function List() {
                   </button>
                 </div>
 
-                <Popover
+                {/* <Popover
                   position="bottom-end"
                   withArrow
                   shadow="md"
@@ -841,7 +842,7 @@ export default function List() {
                       {visibleCount} of {totalToggleable} columns visible
                     </div>
                   </Popover.Dropdown>
-                </Popover>
+                </Popover> */}
               </div>
 
               <DataTable

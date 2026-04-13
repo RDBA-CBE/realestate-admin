@@ -160,7 +160,7 @@ export default function list() {
       () => {
         Swal.fire("Cancelled", "Your Record is safe :)", "info");
       },
-      "Are you sure want to delete category?"
+      "Are you sure want to delete category?",
     );
   };
 
@@ -216,13 +216,13 @@ export default function list() {
       <div className=" mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
-            Category List
+            Furnishing Types List
           </h5>
         </div>
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-dred border-none w-full md:mb-0 md:w-auto"
+            className="btn btn-dred w-full border-none md:mb-0 md:w-auto"
             onClick={() => setState({ isOpen: true })}
           >
             + Create
@@ -284,7 +284,22 @@ export default function list() {
             className="table-responsive"
             records={state.tableList || []}
             columns={[
-              { accessor: "name", title: "Category Name" },
+              {
+                accessor: "name",
+                title: "Furnishing Types Names",
+                render: (row: any) => (
+                  <div>
+                    <div
+                      className="cursor-pointer w-fit"
+                      onClick={(e) => {
+                        handleEdit(row);
+                      }}
+                    >
+                      {row.name}
+                    </div>
+                  </div>
+                ),
+              },
               { accessor: "properties_count", title: "No of Properties" },
 
               {
@@ -336,7 +351,9 @@ export default function list() {
           <button
             disabled={!state.next}
             onClick={handleNextPage}
-            className={`btn border-none p-2 ${!state.next ? "btn-disabled" : "btn-dred"}`}
+            className={`btn border-none p-2 ${
+              !state.next ? "btn-disabled" : "btn-dred"
+            }`}
           >
             <IconArrowForward />
           </button>
@@ -392,7 +409,7 @@ export default function list() {
                   onClick={() =>
                     state.editId ? updateProject() : createProject()
                   }
-                  className="btn border-none btn-dred ltr:ml-4 rtl:mr-4"
+                  className="btn btn-dred border-none ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
                 </button>

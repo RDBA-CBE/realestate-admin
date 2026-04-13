@@ -40,17 +40,17 @@ export default function list() {
   const debouncedSearch = useDebounce(state.search, 500);
 
   useEffect(() => {
-    amenityList(1);
+    categoryList(1);
   }, [debouncedSearch]);
 
-  const amenityList = async (page) => {
+  const categoryList = async (page) => {
     try {
       const body = bodyData();
-      const res: any = await Models.amenity.list(page, body);
-      const data = res?.map((item) => ({
+      const res: any = await Models.category.list(page, body);
+      const data = res?.results?.map((item) => ({
         name: item?.name,
         location: item?.location,
-        status: item?.status,
+        properties_count: item?.properties_count,
         id: item?.id,
       }));
 
@@ -77,14 +77,14 @@ export default function list() {
         description: state.description,
         developer: 3,
       };
-      await Utils.Validation.amenity.validate(body, { abortEarly: false });
+      await Utils.Validation.category.validate(body, { abortEarly: false });
 
-      const res = await Models.amenity.create(body);
+      const res = await Models.category.create(body);
 
       clearData();
       setState({ btnLoading: false });
-      amenityList(1);
-      Success("Amenity created succssfully");
+      categoryList(1);
+      Success("Category created succssfully");
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors = {};
@@ -95,13 +95,7 @@ export default function list() {
 
         setState({ error: validationErrors, btnLoading: false });
       } else {
-        if (Array.isArray(error.name)) {
-          if (error.name.length > 0) {
-            Failure(error.name?.[0]);
-          }
-        }else{
         Failure(error?.error);
-      }
         setState({ btnLoading: false });
       }
     }
@@ -118,13 +112,13 @@ export default function list() {
       };
       await Utils.Validation.category.validate(body, { abortEarly: false });
 
-      const res = await Models.amenity.update(body, state.editId);
+      const res = await Models.category.update(body, state.editId);
       console.log("createProject --->", res);
       clearData();
       setState({ btnLoading: false });
-      amenityList(state.page);
+      categoryList(state.page);
 
-      Success("Amenity updated succssfully");
+      Success("Category updated succssfully");
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
         const validationErrors = {};
@@ -145,12 +139,12 @@ export default function list() {
     try {
       setState({ btnLoading: true });
 
-      const res = await Models.amenity.delete(row?.id);
+      const res = await Models.category.delete(row?.id);
       clearData();
       setState({ btnLoading: false });
-      amenityList(state.page);
+      categoryList(state.page);
 
-      Success("Amenity deleted succssfully");
+      Success("Category deleted succssfully");
     } catch (error) {
       setState({ btnLoading: false });
 
@@ -166,7 +160,7 @@ export default function list() {
       () => {
         Swal.fire("Cancelled", "Your Record is safe :)", "info");
       },
-      "Are you sure want to delete Amenity?"
+      "Are you sure want to delete category?",
     );
   };
 
@@ -206,15 +200,14 @@ export default function list() {
   const handleNextPage = () => {
     if (state.next) {
       const newPage = state.page + 1;
-
-      amenityList(newPage);
+      categoryList(newPage);
     }
   };
 
   const handlePreviousPage = () => {
     if (state.previous) {
       const newPage = state.page - 1;
-      amenityList(newPage);
+      categoryList(newPage);
     }
   };
 
@@ -223,13 +216,13 @@ export default function list() {
       <div className=" mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
-            Amenity List
+            Property Types List
           </h5>
         </div>
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-dred border-none w-full md:mb-0 md:w-auto"
+            className="btn btn-dred w-full border-none md:mb-0 md:w-auto"
             onClick={() => setState({ isOpen: true })}
           >
             + Create
@@ -256,7 +249,7 @@ export default function list() {
             value={state.role}
             onChange={(e) => setState({ role: e })}
             options={state.roleList}
-            
+            // error={state.errors?.tags}
           />
         </div>
 
@@ -266,13 +259,10 @@ export default function list() {
             value={state.role}
             onChange={(e) => setState({ role: e })}
             options={state.roleList}
-           
+            // error={state.errors?.tags}
           />
         </div>
-        
-
        
-
         <div>
           <button type="button" className="btn btn-dred">
             Clear Filter
@@ -283,63 +273,76 @@ export default function list() {
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         {/* <div className="invoice-table"> */}
 
-        <div className="datatables pagination-padding"></div>
-        <DataTable
-          className="table-responsive"
-          records={state.tableList || []}
-          columns={[
-            { accessor: "name", title: "Amenity Name" , render: (row: any) => (
-              
-              <div >
-                <div className="cursor-pointer w-fit"
-                onClick={(e) => {
-                  handleEdit(row);
-                }}>
-                   {row.name}
-                </div>               
-              </div>
-            )},
-            { accessor: "status", title: "status" },
+        <div className="datatables pagination-padding">
+          {/* <div className="flex items-center justify-end pb-2 pr-3">
+            <div className="rounded-lg bg-gray-300 p-1 font-semibold">
+              {state.page}-{Math.min(state.page * 10, state.totalRecords)} of{" "}
+              {state.totalRecords}
+            </div>
+          </div> */}
+          <DataTable
+            className="table-responsive"
+            records={state.tableList || []}
+            columns={[
+              {
+                accessor: "name",
+                title: "Property Types Names",
+                render: (row: any) => (
+                  <div>
+                    <div
+                      className="cursor-pointer w-fit"
+                      onClick={(e) => {
+                        handleEdit(row);
+                      }}
+                    >
+                      {row.name}
+                    </div>
+                  </div>
+                ),
+              },
+              { accessor: "properties_count", title: "No of Properties" },
 
-            {
-              accessor: "actions",
-              title: "Actions",
-              render: (row: any) => (
-                <div className="mx-auto flex w-max items-center gap-4">
-                  <button
-                    className="flex hover:text-primary"
-                    onClick={(e) => {
-                      handleEdit(row);
-                    }}
-                  >
-                    <IconEdit className="h-4.5 w-4.5" />
-                  </button>
-                  <button
-                    className="flex text-danger hover:text-primary"
-                    onClick={() => handleDelete(row)}
-                  >
-                    <IconTrash />
-                  </button>
-                </div>
-              ),
-            },
-          ]}
-          highlightOnHover
-          totalRecords={state.taskList?.length}
-          recordsPerPage={state.pageSize}
-          minHeight={200}
-          page={null}
-          onPageChange={(p) => {}}
-          withBorder={true}
-          paginationText={({ from, to, totalRecords }) =>
-            `Showing  ${from} to ${to} of ${totalRecords} entries`
-          }
-        />
+              {
+                accessor: "actions",
+                title: "Actions",
+                render: (row: any) => (
+                  <div className="mx-auto flex w-max items-center gap-4">
+                    <button
+                      className="flex text-primary"
+                      onClick={(e) => {
+                        handleEdit(row);
+                      }}
+                    >
+                      <IconEdit className="h-4.5 w-4.5" />
+                    </button>
+                    <button
+                      className="flex text-danger hover:text-primary"
+                      onClick={() => handleDelete(row)}
+                    >
+                      <IconTrash />
+                    </button>
+                  </div>
+                ),
+              },
+            ]}
+            highlightOnHover
+            totalRecords={state.taskList?.length}
+            recordsPerPage={state.pageSize}
+            minHeight={200}
+            page={null}
+            onPageChange={(p) => {}}
+            withBorder={true}
+            paginationText={({ from, to, totalRecords }) =>
+              `Showing  ${from} to ${to} of ${totalRecords} entries`
+            }
+          />
+        </div>
+
         <div className="mt-5 flex justify-end gap-3">
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
-            className={`btn border-none p-2  ${
+            className={`btn border-none p-2 ${
               !state.previous ? "btn-disabled" : "btn-dred"
             }`}
           >
@@ -348,7 +351,9 @@ export default function list() {
           <button
             disabled={!state.next}
             onClick={handleNextPage}
-            className={`btn border-none p-2  ${!state.next ? "btn-disabled" : "btn-dred"}`}
+            className={`btn border-none p-2 ${
+              !state.next ? "btn-disabled" : "btn-dred"
+            }`}
           >
             <IconArrowForward />
           </button>
@@ -356,7 +361,7 @@ export default function list() {
       </div>
 
       <Modal
-        addHeader={state.editId ? "Update Amenity" : "Create Amenity"}
+        addHeader={state.editId ? "Update Category" : "Create Category"}
         open={state.isOpen}
         close={() => {
           clearData();
@@ -367,8 +372,8 @@ export default function list() {
               <div className=" w-full space-y-5">
                 <TextInput
                   name="name"
-                  title="Amenity Name"
-                  placeholder="Enter amenity name"
+                  title="Category Name"
+                  placeholder="Enter category name"
                   value={state.name}
                   onChange={(e) => {
                     setState({
@@ -404,7 +409,7 @@ export default function list() {
                   onClick={() =>
                     state.editId ? updateProject() : createProject()
                   }
-                  className="btn border-none btn-dred ltr:ml-4 rtl:mr-4"
+                  className="btn btn-dred border-none ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
                 </button>

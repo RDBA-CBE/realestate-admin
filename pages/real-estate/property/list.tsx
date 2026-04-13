@@ -51,6 +51,7 @@ import {
   EyeOff,
   Table,
   Calendar,
+  CircleCheck,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
@@ -74,18 +75,18 @@ export default function List() {
       visible: true,
       toggleable: true,
       render: (row) => (
-        <div className="flex gap-3 font-semibold">
+        <Link className="flex gap-3 font-semibold" href={`${FRONTEND_URL}/property-detail/${row?.id}`} target="_blank">
           <div className="flex flex-col justify-between ">
             <div>
-              <Link
+              <div
                 className="cursor-pointer text-sm"
-                href={`/real-estate/profile/${row.id}/`}
+                
               >
                 {row.title}
-              </Link>
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
       ),
     },
 
@@ -153,7 +154,7 @@ export default function List() {
       render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
           <button
-            className="flex hover:text-info"
+            className="flex text-primary"
             onClick={(e) => {
               handleEdit(row);
             }}
@@ -161,8 +162,14 @@ export default function List() {
             <IconEdit className="h-4.5 w-4.5" />
           </button>
           <button
+            className="flex text-success hover:text-success"
+            onClick={() => handleStatus(row)}
+          >
+            <CircleCheck className="h-4.5 w-4.5 " />
+          </button>
+          <button
             type="button"
-            className="flex hover:text-danger"
+            className="flex text-danger"
             onClick={(e) => handleDelete(row)}
           >
             <IconTrashLines />
@@ -182,7 +189,7 @@ export default function List() {
         const group = localStorage.getItem("group");
 
         return (
-          <div className="flex gap-3 font-semibold">
+          <Link className="flex gap-3 font-semibold"  href={`${FRONTEND_URL}/property-detail/${row?.id}`} target="_blank">
             <div className="h-28 w-44 rounded-md bg-white-dark/30 ltr:mr-2 rtl:ml-2">
               <img
                 className="h-full w-full cursor-pointer rounded-md object-cover"
@@ -196,12 +203,12 @@ export default function List() {
                   <IconMapPin className="h-4 w-4" />
                   {row.location}
                 </div>
-                <Link
+                <div
                   className="cursor-pointer text-lg font-bold"
-                  href={`/real-estate/profile/${row.id}/`}
+                
                 >
                   {row.title}
-                </Link>
+                </div>
               </div>
               {group == "Seller" ? (
                 <div className="flex items-center justify-center gap-2">
@@ -246,7 +253,7 @@ export default function List() {
                 </Link>
               </div>
             </div>
-          </div>
+          </Link>
         );
       },
     },
@@ -317,13 +324,19 @@ export default function List() {
       render: (row) => (
         <div className="mx-auto flex w-max items-center gap-4">
           <button
-            className="flex hover:text-info"
+            className="flex text-primary"
             onClick={() => handleEdit(row)}
           >
-            <IconEdit className="h-4.5 w-4.5" />
+            <IconEdit className="h-4.5 w-4.5 " />
           </button>
           <button
-            className="flex hover:text-danger"
+            className="flex text-success hover:text-success"
+            onClick={() => handleStatus(row)}
+          >
+            <CircleCheck className="h-4.5 w-4.5 " />
+          </button>
+          <button
+            className="flex text-danger hover:text-danger"
             onClick={() => handleDelete(row)}
           >
             <IconTrashLines />
@@ -427,7 +440,8 @@ export default function List() {
         status: capitalizeFLetter(item?.status),
         id: item?.id,
         total_area: item?.total_area,
-        property_type: item?.property_type?.name,
+        // property_type: item?.property_type?.name,
+        property_type: item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)).join(", "),
         listing_type: {
           type: capitalizeFLetter(item?.listing_type),
           color:
@@ -474,6 +488,9 @@ export default function List() {
       setState({ loading: false });
     }
   };
+
+  console.log("tableList", state?.tableList);
+  
 
   const categoryList = async (page) => {
     try {
@@ -681,6 +698,28 @@ export default function List() {
     router.push(`/real-estate/property/update/${row?.id}`);
   };
 
+  const handleStatus = async (row) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to change the status of this property?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, change it!",
+      cancelButtonText: "Cancel",
+      padding: "2em",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setState({ btnLoading: true });
+      const body = { is_approved: true };
+      await Models.property.update(body, row?.id);
+      propertyList(state.page);
+      Success("Property Approved successfully");
+    } catch (error) {}
+  }
+
   const clearData = () => {
     setState({
       editId: null,
@@ -745,7 +784,7 @@ export default function List() {
 
   return (
     <>
-      <div className="panel mb-5 flex items-center justify-between gap-5">
+      <div className=" mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
             {state.group == "Admin"
@@ -760,7 +799,7 @@ export default function List() {
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-dred  w-full md:mb-0 md:w-auto"
+            className="btn btn-dred border-none  w-full md:mb-0 md:w-auto"
             onClick={() => router.push("/real-estate/property/create")}
           >
             + Create
@@ -768,18 +807,18 @@ export default function List() {
         </div>
       </div>
 
-      <div className="panel mb-5 mt-5 flex flex-col gap-2 gap-y-4 px-2 md:mt-0 md:flex-row md:justify-between xl:gap-4">
-        <div className="flex-1">
+      <div className=" mb-5 mt-5 flex  flex-wrap gap-2 gap-y-4  md:mt-0 md:flex-row xl:gap-4">
+        <div className="">
           <input
             type="text"
-            className="w-100 form-input"
+            className="min-w-[200px] form-input"
             placeholder="Search..."
             value={state.search}
             onChange={(e) => setState({ search: e.target.value })}
           />
         </div>
 
-        <div className="flex-1">
+        <div className="">
           <CustomSelect
             placeholder="Property Type"
             value={state.property_type}
@@ -791,7 +830,7 @@ export default function List() {
           />
         </div>
 
-        <div className="flex-1">
+        <div className="">
           <CustomSelect
             placeholder="Offer Type"
             value={state.offer_type}
@@ -802,7 +841,7 @@ export default function List() {
 
         {state.group == "Admin" && (
           <>
-            <div className="flex-1">
+            <div className="">
               <CustomSelect
                 placeholder="Select Role"
                 value={state.role}
@@ -814,7 +853,7 @@ export default function List() {
               />
             </div>
 
-            <div className="flex-1">
+            <div className="">
               <CustomSelect
                 placeholder="Select user"
                 value={state.user}
@@ -825,7 +864,7 @@ export default function List() {
           </>
         )}
 
-        <div className="flex-1">
+        <div className="">
           <CustomSelect
             placeholder="Property Status"
             value={state.status}
@@ -834,7 +873,7 @@ export default function List() {
           />
         </div>
 
-        <div className="flex-1">
+        <div className="">
           <CustomSelect
             placeholder="Publish or Draft"
             value={state.publish}
@@ -852,7 +891,7 @@ export default function List() {
         </button> */}
       </div>
 
-      <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
+      <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
           {state?.loading ? (
             <div className="flex h-[400px] items-center justify-center">
@@ -876,14 +915,14 @@ export default function List() {
                   gap: "10px",
                 }}
               >
-                <div className="flex items-center gap-3 rounded-md border bg-white px-3  shadow-sm">
+                <div className="flex items-center gap-1  ">
                   <button
                     onClick={() => setState({ viewMode: "table" })}
                     className={`rounded-md p-2 transition-all duration-200 `}
                   >
                     <Table
                       size={18}
-                      color={state.viewMode == "table" ? "blue" : "grey"}
+                      color={state.viewMode == "table" ? "#9b0f09" : "grey"}
                     />
                   </button>
 
@@ -895,12 +934,12 @@ export default function List() {
                   >
                     <Calendar
                       size={18}
-                      color={state.viewMode == "image" ? "blue" : "grey"}
+                      color={state.viewMode == "image" ? "#9b0f09" : "grey"}
                     />
                   </button>
                 </div>
 
-                <Popover
+                {/* <Popover
                   position="bottom-end"
                   withArrow
                   shadow="md"
@@ -1078,7 +1117,7 @@ export default function List() {
                       {visibleCount} of {totalToggleable} columns visible
                     </div>
                   </Popover.Dropdown>
-                </Popover>
+                </Popover> */}
               </div>
 
               <DataTable

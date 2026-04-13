@@ -209,7 +209,7 @@ const List = () => {
                 title: "Name",
 
                 render: (row) => (
-                  <div className="flex items-center font-semibold">
+                  <div className="flex items-center font-semibold w-fit">
                     <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
                       <img
                         className="h-8 w-8 cursor-pointer rounded-full object-cover"

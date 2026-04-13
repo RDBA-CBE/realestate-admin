@@ -40,6 +40,7 @@ import {
 } from "@/utils/constant.utils";
 import CustomeDatePicker from "@/components/datePicker";
 import { group } from "console";
+import { render } from "@fullcalendar/core/preact";
 
 const List = () => {
   const router = useRouter();
@@ -439,12 +440,28 @@ const List = () => {
       title: "Date",
       visible: true,
       toggleable: true,
+      render: (row) => ( 
+      <div className="w-fit cursor-pointer" onClick={(e) => {
+              router.push(`/real-estate/lead/view/${row?.id}`);
+            }}>
+              <div>
+                {row?.date}
+              </div>
+            </div>  )
     },
     {
       accessor: "property",
       title: "Property",
       visible: true,
       toggleable: true,
+      render: (row) => ( 
+      <div className="w-fit cursor-pointer" onClick={(e) => {
+              router.push(`/real-estate/lead/view/${row?.id}`);
+            }}>
+              <div>
+                {row?.property}
+              </div>
+            </div>  )
     },
     {
       accessor: "property_type",
@@ -519,20 +536,22 @@ const List = () => {
           <button
             className="flex hover:text-info"
             onClick={(e) => {
+              router.push(`/real-estate/lead/view/${row?.id}`);
+            }}
+          >
+            <Eye className="h-4.5 w-4.5" />
+          </button>
+
+          <button
+            className="flex hover:text-info"
+            onClick={(e) => {
               handleEdit(row);
             }}
           >
             <IconEdit className="h-4.5 w-4.5" />
           </button>
 
-          <button
-            className="flex hover:text-info"
-            onClick={(e) => {
-              router.push(`/real-estate/lead/view/${row?.id}`);
-            }}
-          >
-            <Eye className="h-4.5 w-4.5" />
-          </button>
+          
           <button
             type="button"
             className="flex hover:text-danger"
@@ -669,7 +688,7 @@ const List = () => {
               gap: "10px",
             }}
           >
-            <Popover position="bottom-end" withArrow shadow="md" width={220}>
+            {/* <Popover position="bottom-end" withArrow shadow="md" width={220}>
               <Popover.Target>
                 <div
                   style={{
@@ -842,7 +861,7 @@ const List = () => {
                   {visibleCount} of {totalToggleable} columns visible
                 </div>
               </Popover.Dropdown>
-            </Popover>
+            </Popover> */}
           </div>
           <DataTable
             className="table-responsive"

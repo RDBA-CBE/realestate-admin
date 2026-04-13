@@ -38,6 +38,7 @@ import {
   STATUS_OPTIONS,
 } from "@/utils/constant.utils";
 import CustomeDatePicker from "@/components/datePicker";
+import { render } from "@fullcalendar/core/preact";
 
 const List = () => {
   const router = useRouter();
@@ -405,12 +406,26 @@ const List = () => {
       title: "Date",
       visible: true,
       toggleable: true,
+      render:(row)=> (
+        <div className="w-fit cursor-pointer" onClick={(e) => {
+          router.push(`/real-estate/lead/view/${row?.id}`);
+        }}>
+          <div>{row?.date}</div>
+        </div>
+      )
     },
     {
       accessor: "property",
       title: "Property",
       visible: true,
       toggleable: true,
+      render:(row)=> (
+        <div className="w-fit cursor-pointer" onClick={(e) => {
+          router.push(`/real-estate/lead/view/${row?.id}`);
+        }}>
+          <div>{row?.property}</div>
+        </div>
+      )
     },
     {
       accessor: "property_type",
@@ -482,6 +497,15 @@ const List = () => {
       textAlignment: "center",
       render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
+           <button
+            className="flex hover:text-info"
+            onClick={(e) => {
+              router.push(`/real-estate/lead/view/${row?.id}`);
+            }}
+          >
+            <Eye className="h-4.5 w-4.5" />
+          </button>
+
           <button
             className="flex hover:text-info"
             onClick={(e) => {
@@ -491,14 +515,7 @@ const List = () => {
             <IconEdit className="h-4.5 w-4.5" />
           </button>
 
-          <button
-            className="flex hover:text-info"
-            onClick={(e) => {
-              router.push(`/real-estate/lead/view/${row?.id}`);
-            }}
-          >
-            <Eye className="h-4.5 w-4.5" />
-          </button>
+         
           <button
             type="button"
             className="flex hover:text-danger"
@@ -520,7 +537,7 @@ const List = () => {
 
   return (
     <>
-      <div className="panel mb-5 flex items-center justify-between gap-5">
+      <div className=" mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
             Assign Lead List
@@ -537,7 +554,7 @@ const List = () => {
         </div>
       </div>
 
-      <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
+      <div className=" mb-5 mt-5 gap-2  md:mt-0 md:flex md:justify-between xl:gap-4">
         <div className="flex-1">
           <input
             type="text"
@@ -623,9 +640,9 @@ const List = () => {
         </div>
       </div>
 
-      <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
+      <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
-          <div
+          {/* <div
             style={{
               display: "flex",
               justifyContent: "end",
@@ -808,7 +825,7 @@ const List = () => {
                 </div>
               </Popover.Dropdown>
             </Popover>
-          </div>
+          </div> */}
           <DataTable
             className="table-responsive"
             records={state.tableList || []}

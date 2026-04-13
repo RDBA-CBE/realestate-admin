@@ -168,7 +168,7 @@ export default function list() {
         const group = localStorage.getItem("group");
 
         return (
-          <div className="flex gap-3 font-semibold">
+          <Link className="flex gap-3 font-semibold w-fit"  href={`${FRONTEND_URL}/property-detail/${row?.id}`}>
             <div className="h-28 w-44 rounded-md bg-white-dark/30 ltr:mr-2 rtl:ml-2">
               <img
                 className="h-full w-full cursor-pointer rounded-md object-cover"
@@ -182,12 +182,12 @@ export default function list() {
                   <IconMapPin className="h-4 w-4" />
                   {row.location}
                 </div>
-                <Link
+                <div
                   className="cursor-pointer text-lg font-bold"
-                  href={`/real-estate/profile/${row.id}/`}
+                  
                 >
                   {row.title}
-                </Link>
+                </div>
               </div>
               {group !== "Admin" ? (
                 <div className="flex items-center justify-center gap-2">
@@ -231,7 +231,7 @@ export default function list() {
                 </Link>
               </div>
             </div>
-          </div>
+          </Link>
         );
       },
     },
@@ -600,7 +600,7 @@ export default function list() {
 
   return (
     <>
-      <div className="panel mb-5 flex items-center justify-between gap-5">
+      <div className=" mb-5 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
             My Property List
@@ -617,7 +617,7 @@ export default function list() {
         </div>
       </div>
 
-      <div className="panel mb-5 mt-5 gap-2 px-2 md:mt-0 md:flex md:justify-between xl:gap-4">
+      <div className=" mb-5 mt-5 gap-2 md:mt-0 md:flex md:justify-between xl:gap-4">
         <div className="flex-1">
           <input
             type="text"
@@ -676,7 +676,7 @@ export default function list() {
         </button> */}
       </div>
 
-      <div className="panel border-white-light px-0 dark:border-[#1b2e4b]">
+      <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
           {state?.loading ? (
             <div className="flex h-[400px] items-center justify-center">
@@ -724,7 +724,7 @@ export default function list() {
                   </button>
                 </div>
 
-                <Popover
+                {/* <Popover
                   position="bottom-end"
                   withArrow
                   shadow="md"
@@ -902,7 +902,7 @@ export default function list() {
                       {visibleCount} of {totalToggleable} columns visible
                     </div>
                   </Popover.Dropdown>
-                </Popover>
+                </Popover> */}
               </div>
 
               <DataTable
