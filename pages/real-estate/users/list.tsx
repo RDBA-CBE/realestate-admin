@@ -19,6 +19,7 @@ import {
   Success,
   Dropdown,
   useSetState,
+  truncateText,
 } from "@/utils/function.utils";
 import moment from "moment";
 import Swal from "sweetalert2";
@@ -30,6 +31,7 @@ import IconLoader from "@/components/Icon/IconLoader";
 import Utils from "@/imports/utils.import";
 import * as Yup from "yup";
 import { FILTER_ROLES, roleList } from "@/utils/constant.utils";
+import { Briefcase, CheckCircle, Clock, Hourglass } from "lucide-react";
 
 const List = () => {
   const [state, setState] = useSetState({
@@ -151,7 +153,7 @@ const List = () => {
         address: state?.address,
         account_status: "approved",
         approved_by: state.userId,
-        industry:state.industry
+        industry: state.industry,
       };
 
       console.log("create body", body);
@@ -190,7 +192,7 @@ const List = () => {
         phone: state?.phone,
         role: state?.role?.value,
         address: state?.address,
-        industry:state.industry
+        industry: state.industry,
       };
 
       const res = await Models.user.update(body, state.editId);
@@ -262,7 +264,7 @@ const List = () => {
       email: row?.email,
       phone: row?.phone,
       role: state?.groupList?.find(
-        (item) => item.label.toLowerCase() === row?.user_type?.toLowerCase()
+        (item) => item.label.toLowerCase() === row?.user_type?.toLowerCase(),
       ),
       address: row?.address,
       editId: row?.id,
@@ -291,7 +293,7 @@ const List = () => {
       () => {
         Swal.fire("Cancelled", "Your Record is safe :)", "info");
       },
-      "Are you sure want to delete user?"
+      "Are you sure want to delete user?",
     );
   };
 
@@ -311,7 +313,7 @@ const List = () => {
 
   return (
     <>
-      <div className=" mb-5 flex items-center justify-between gap-5">
+      <div className=" mb-3 flex items-center justify-between gap-5">
         <div className="flex items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
             User List
@@ -320,7 +322,7 @@ const List = () => {
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-dred  border-none w-full md:mb-0 md:w-auto"
+            className="btn btn-dred  w-full border-none md:mb-0 md:w-auto"
             onClick={() => setState({ isOpen: true })}
           >
             + Create
@@ -328,29 +330,107 @@ const List = () => {
         </div>
       </div>
 
-      <div className=" mb-5 mt-5 gap-2  md:mt-0 md:flex  xl:gap-4">
-        {/* Search Input */}
-        <div className="">
-          <input
-            type="text"
-            className="w-100 form-input"
-            placeholder="Search..."
-            value={state.search}
-            onChange={(e) => setState({ search: e.target.value })}
-          />
-        </div>
+      <div className="mb-6 flex gap-4">
+        <div
+          onClick={() => {
+            setState({ statusFilter: null });
+          }}
+          className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+        >
+          <div className="flex items-center gap-5">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <Briefcase className="text-dblue h-10 w-10" />
+            </div>
 
-        {/* Category Dropdown */}
-        <div className="">
-          <CustomSelect
-            placeholder="Select Role"
-            value={state.role}
-            onChange={(e) => setState({ role: e })}
-            options={roleList}
-          />
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.total || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Total Users
+              </p>
+            </div>
+          </div>
         </div>
+        <div
+          onClick={() =>
+            setState({ statusFilter: { value: "approved", label: "Approved" } })
+          }
+          className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+        >
+          <div className="flex items-center gap-5 ">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <CheckCircle className="h-10 w-10 text-green-600" />
+            </div>
 
-        {/* <button
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.total || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Developers
+              </p>
+            </div>
+          </div>
+        </div>
+        <div
+          onClick={() =>
+            setState({ statusFilter: { value: "pending", label: "Pending" } })
+          }
+          className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+        >
+          <div className="flex items-center gap-5">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <Hourglass className="h-10 w-10 text-yellow-600" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.total || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Agents</p>
+            </div>
+          </div>
+        </div>
+        <div className="rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700">
+          <div className="flex items-center gap-5">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <Clock className="h-10 w-10 text-red-600" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.total || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Buyers</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-5 rounded-2xl">
+        <div className="flex  items-center  gap-5">
+          {/* Search Input */}
+          <div className="w-fit">
+            <TextInput
+              type="text"
+              placeholder="Search..."
+              value={state.search}
+              onChange={(e) => setState({ search: e.target.value })}
+            />
+          </div>
+
+          {/* Category Dropdown */}
+          <div className="w-fit">
+            <CustomSelect
+              placeholder="Choose Role"
+              value={state.role}
+              onChange={(e) => setState({ role: e })}
+              options={roleList}
+            />
+          </div>
+
+          {/* <button
           type="button"
           className="btn btn-dred"
           onClick={() => usersList(1)}
@@ -364,9 +444,23 @@ const List = () => {
         >
           Clear Filter
         </button> */}
+        </div>
       </div>
 
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "end",
+            alignItems: "center",
+            marginBottom: "16px",
+            gap: "10px",
+          }}
+        >
+          <div className="text-sm text-black">
+            {state.total} Properties found
+          </div>
+        </div>
         {/* <div className="invoice-table"> */}
 
         <div className="datatables pagination-padding">
@@ -379,9 +473,12 @@ const List = () => {
                 title: "Name",
 
                 render: (row) => (
-                  <div className="flex items-center font-semibold w-fit"  onClick={(e) => {
-                        handleEdit(row);
-                      }}>
+                  <div
+                    className="flex w-fit items-center font-semibold"
+                    onClick={(e) => {
+                      handleEdit(row);
+                    }}
+                  >
                     <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
                       <img
                         className="h-8 w-8 cursor-pointer rounded-full object-cover"
@@ -391,14 +488,20 @@ const List = () => {
                     </div>
                     <div
                       className="cursor-pointer"
-                     
+                      title={row.first_name + " " + row.last_name}
                     >
-                      {row.first_name} {row.last_name}
+                      {truncateText(row.first_name + " " + row.last_name)}
                     </div>
                   </div>
                 ),
               },
-              { accessor: "email", title: "Email" },
+              {
+                accessor: "email",
+                title: "Email",
+                render: (row) => (
+                  <span title={row.email}>{truncateText(row.email)}</span>
+                ),
+              },
               { accessor: "date", title: "Date" },
 
               {
@@ -418,12 +521,12 @@ const List = () => {
                 render: (row: any) => (
                   <div className="mx-auto flex w-max items-center gap-4">
                     <button
-                      className="flex hover:text-info"
+                      className="flex text-primary"
                       onClick={(e) => {
                         handleEdit(row);
                       }}
                     >
-                      <IconEdit className="h-4.5 w-4.5" />
+                      <IconEdit className="h-4 w-4" />
                     </button>
                     {/* <Link
                       href="/real-estate/profile"
@@ -433,10 +536,10 @@ const List = () => {
                     </Link> */}
                     <button
                       type="button"
-                      className="flex hover:text-danger"
+                      className="flex text-danger"
                       onClick={(e) => handleDelete(row)}
                     >
-                      <IconTrashLines />
+                      <IconTrashLines className="h-4 w-4" />
                     </button>
                   </div>
                 ),
@@ -466,7 +569,9 @@ const List = () => {
           <button
             disabled={!state?.next}
             onClick={handleNextPage}
-            className={`btn border-none p-2 ${!state?.next ? "btn-disabled" : "btn-dred"}`}
+            className={`btn border-none p-2 ${
+              !state?.next ? "btn-disabled" : "btn-dred"
+            }`}
           >
             <IconArrowForward />
           </button>
@@ -547,7 +652,7 @@ const List = () => {
                   onChange={(e) => setState({ role: e })}
                   options={state.groupList}
                 />
-<TextInput
+                <TextInput
                   name="industry"
                   type="text"
                   title="Industry"
@@ -579,7 +684,7 @@ const List = () => {
                 <button
                   type="button"
                   onClick={() => (state.editId ? updateUsers() : createUser())}
-                  className="btn border-none btn-dred ltr:ml-4 rtl:mr-4"
+                  className="btn btn-dred border-none ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
                 </button>

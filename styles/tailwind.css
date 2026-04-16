@@ -280,7 +280,7 @@ hover:text-[#000] hover:before:!bg-[#000] ltr:before:mr-2 rtl:before:ml-2 dark:b
         @apply border-primary bg-primary text-white shadow-primary/60;
     }
     .btn-outline-primary {
-        @apply border-primary text-primary shadow-none hover:bg-primary hover:text-white;
+        @apply border-dred text-dred shadow-none hover:bg-dred hover:text-white hover:shadow-none;
     }
 
     .btn-secondary {
@@ -750,4 +750,8 @@ pre.hljs {
 
 .mantine-ea2swe.mantine-ea2swe thead tr th {
     background-color: #faeaea !important; 
+}
+
+.main-content{
+    margin-left: 230px !important;
 }

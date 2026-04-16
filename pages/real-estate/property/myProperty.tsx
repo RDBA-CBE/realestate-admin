@@ -12,6 +12,7 @@ import {
   formatToINR,
   showDeleteAlert,
   Success,
+  truncateText,
   useSetState,
 } from "@/utils/function.utils";
 import CustomSelect from "@/components/FormFields/CustomSelect.component";
@@ -42,12 +43,18 @@ import { FaHome } from "react-icons/fa";
 import { RotatingLines } from "react-loader-spinner";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import {
+  Briefcase,
   Calendar,
+  CheckCircle,
+  CircleCheck,
   Columns,
   Eye,
   EyeOff,
+  Hourglass,
   LucideHome,
+  SlidersHorizontal,
   Table,
+  X,
 } from "lucide-react";
 
 export default function list() {
@@ -60,18 +67,19 @@ export default function list() {
       visible: true,
       toggleable: true,
       render: (row) => (
-        <div className="flex gap-3 font-semibold">
+        <Link
+          className="flex gap-3 font-semibold"
+          href={`${FRONTEND_URL}/property-detail/${row?.id}`}
+          target="_blank"
+        >
           <div className="flex flex-col justify-between ">
             <div>
-              <Link
-                className="cursor-pointer text-sm"
-                href={`/real-estate/profile/${row.id}/`}
-              >
-                {row.title}
-              </Link>
+              <div className="cursor-pointer text-sm" title={"row.title"}>
+                {truncateText(row.title)}
+              </div>
             </div>
           </div>
-        </div>
+        </Link>
       ),
     },
 
@@ -86,24 +94,82 @@ export default function list() {
       title: "Project",
       visible: true,
       toggleable: true,
+      render: (row) => (
+        <span title={row.project}>{truncateText(row.project)}</span>
+      ),
     },
     {
       accessor: "developer",
       title: "Developer",
       visible: true,
       toggleable: true,
+      render: (row) => (
+        <span title={row.developer}>{truncateText(row.developer)}</span>
+      ),
     },
     {
       accessor: "agent",
       title: "Agent",
       visible: true,
       toggleable: true,
+      render: (row) => <span title={row.agent}>{truncateText(row.agent)}</span>,
     },
     {
       accessor: "property_type",
       title: "Property Type",
       visible: true,
       toggleable: true,
+      render: (row: any) => {
+        const property_type = row.property_type;
+        if (!property_type || property_type?.length === 0) {
+          return <span className="text-gray-400">-</span>;
+        }
+
+        const firstType = property_type[0];
+        const others = property_type.slice(1);
+        const maxShow = 3;
+        const remaining = others.length - maxShow;
+        const visibleTypes = others.slice(0, maxShow);
+        const hiddenTypes = others.slice(maxShow);
+
+        return (
+          <div className="flex items-center gap-2">
+            {/* First type text */}
+            <span
+              title={firstType}
+              className="text-sm text-gray-700 dark:text-gray-300"
+            >
+              {truncateText(firstType)}
+            </span>
+
+            {/* Avatars */}
+            <div className="flex items-center -space-x-2">
+              {visibleTypes?.map((type: string, index: number) => (
+                <div key={index} className="group relative z-10">
+                  <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
+                    {type?.slice(0, 2)?.toUpperCase()}
+                  </div>
+                  {/* Tooltip */}
+                  <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+                    {type}
+                  </div>
+                </div>
+              ))}
+              {remaining > 0 && (
+                <div className="group relative z-10">
+                  <div className="flex h-7 w-7  items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
+                    +{remaining}
+                  </div>
+                  {/* Remaining tooltip */}
+                  <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+                    {hiddenTypes.join(", ")}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      },
     },
     {
       accessor: "role",
@@ -139,19 +205,34 @@ export default function list() {
       render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
           <button
-            className="flex hover:text-info"
+            className="text-dred flex"
+            onClick={(e) => {
+              handleView(row);
+            }}
+          >
+            <Eye className="h-3.5 w-3.5" />
+          </button>
+
+          <button
+            className="flex text-primary"
             onClick={(e) => {
               handleEdit(row);
             }}
           >
-            <IconEdit className="h-4.5 w-4.5" />
+            <IconEdit className="h-3.5 w-3.5" />
+          </button>
+           <button
+            className="flex text-success"
+            onClick={() => handleStatus(row)}
+          >
+            <CircleCheck className="h-3.5 w-3.5 " />
           </button>
           <button
             type="button"
-            className="flex hover:text-danger"
+            className="flex text-danger"
             onClick={(e) => handleDelete(row)}
           >
-            <IconTrashLines />
+            <IconTrashLines  className="h-3.5 w-3.5" />
           </button>
         </div>
       ),
@@ -168,25 +249,28 @@ export default function list() {
         const group = localStorage.getItem("group");
 
         return (
-          <Link className="flex gap-3 font-semibold w-fit"  href={`${FRONTEND_URL}/property-detail/${row?.id}`}>
-            <div className="h-28 w-44 rounded-md bg-white-dark/30 ltr:mr-2 rtl:ml-2">
+          <Link
+            className="flex w-fit gap-3 font-semibold"
+            href={`${FRONTEND_URL}/property-detail/${row?.id}`} target="__blank"
+          >
+            <div className="h-20 w-20 rounded-md bg-white-dark/30 ltr:mr-2 rtl:ml-2">
               <img
                 className="h-full w-full cursor-pointer rounded-md object-cover"
                 src={row.image}
                 alt=""
               />
             </div>
-            <div className="flex flex-col justify-between py-2">
+            <div className="flex flex-col justify-between ">
               <div>
                 <div className="flex gap-1">
-                  <IconMapPin className="h-4 w-4" />
-                  {row.location}
+                  <IconMapPin className="h-3 w-3" />
+                  <span className="mt-[-2px] text-xs">{row.location}</span>
                 </div>
                 <div
-                  className="cursor-pointer text-lg font-bold"
-                  
+                  className="text-md cursor-pointer font-bold"
+                  title={row.title}
                 >
-                  {row.title}
+                  {truncateText(row.title)}
                 </div>
               </div>
               {group !== "Admin" ? (
@@ -201,7 +285,7 @@ export default function list() {
                     {row?.is_approved ? "Approved" : "Waiting For Approval"}
                   </span>
                   <div
-                    className={`inline-block w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+                    className={`inline-block w-fit rounded-full px-2 text-xs font-semibold ${
                       row?.publish == "Published"
                         ? "bg-green-100 text-green-700"
                         : "bg-gray-200 text-gray-700"
@@ -212,7 +296,7 @@ export default function list() {
                 </div>
               ) : (
                 <div
-                  className={`inline-block w-fit rounded-full px-3 py-1 text-xs font-semibold ${
+                  className={`inline-block w-fit rounded-full px-2 text-xs font-semibold ${
                     row?.publish == "Published"
                       ? "bg-green-100 text-green-700"
                       : "bg-gray-200 text-gray-700"
@@ -227,7 +311,8 @@ export default function list() {
                   href={`${FRONTEND_URL}/property-detail/${row?.id}`}
                   target="_blank"
                 >
-                  <LucideHome className="h-4 w-4 text-black" /> View Details
+                  <LucideHome className="h-4 w-4 text-black" />
+                  <span className="mt-[2px] text-xs">View Details</span>
                 </Link>
               </div>
             </div>
@@ -247,24 +332,82 @@ export default function list() {
       title: "Project",
       visible: true,
       toggleable: true,
+      render: (row) => (
+        <span title={row.project}>{truncateText(row.project)}</span>
+      ),
     },
     {
       accessor: "developer",
       title: "Developer",
       visible: true,
       toggleable: true,
+      render: (row) => (
+        <span title={row.developer}>{truncateText(row.developer)}</span>
+      ),
     },
     {
       accessor: "agent",
       title: "Agent",
       visible: true,
       toggleable: true,
+      render: (row) => <span title={row.agent}>{truncateText(row.agent)}</span>,
     },
     {
       accessor: "property_type",
       title: "Property Type",
       visible: true,
       toggleable: true,
+      render: (row: any) => {
+        const property_type = row.property_type;
+        if (!property_type || property_type?.length === 0) {
+          return <span className="text-gray-400">-</span>;
+        }
+
+        const firstType = property_type[0];
+        const others = property_type.slice(1);
+        const maxShow = 3;
+        const remaining = others.length - maxShow;
+        const visibleTypes = others.slice(0, maxShow);
+        const hiddenTypes = others.slice(maxShow);
+
+        return (
+          <div className="flex items-center gap-2">
+            {/* First type text */}
+            <span
+              title={firstType}
+              className="text-sm text-gray-700 dark:text-gray-300"
+            >
+              {truncateText(firstType)}
+            </span>
+
+            {/* Avatars */}
+            <div className="flex items-center -space-x-2">
+              {visibleTypes?.map((type: string, index: number) => (
+                <div key={index} className="group relative z-10">
+                  <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
+                    {type?.slice(0, 2)?.toUpperCase()}
+                  </div>
+                  {/* Tooltip */}
+                  <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+                    {type}
+                  </div>
+                </div>
+              ))}
+              {remaining > 0 && (
+                <div className="group relative z-10">
+                  <div className="flex h-7 w-7  items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
+                    +{remaining}
+                  </div>
+                  {/* Remaining tooltip */}
+                  <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+                    {hiddenTypes.join(", ")}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      },
     },
     {
       accessor: "role",
@@ -300,19 +443,34 @@ export default function list() {
       render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
           <button
-            className="flex hover:text-info"
+            className="text-dred flex"
+            onClick={(e) => {
+              handleView(row);
+            }}
+          >
+            <Eye className="h-3.5 w-3.5" />
+          </button>
+
+          <button
+            className="flex text-primary"
             onClick={(e) => {
               handleEdit(row);
             }}
           >
-            <IconEdit className="h-4.5 w-4.5" />
+            <IconEdit className="h-3.5 w-3.5" />
+          </button>
+           <button
+            className="flex text-success"
+            onClick={() => handleStatus(row)}
+          >
+            <CircleCheck className="h-3.5 w-3.5 " />
           </button>
           <button
             type="button"
-            className="flex hover:text-danger"
+            className="flex text-danger"
             onClick={(e) => handleDelete(row)}
           >
-            <IconTrashLines />
+            <IconTrashLines  className="h-3.5 w-3.5" />
           </button>
         </div>
       ),
@@ -335,12 +493,13 @@ export default function list() {
     loading: false,
     userId: null,
     visibleColumns: allColumns,
-    viewMode: "image",
+    viewMode: "table",
+    showFilterModal: false,
   });
 
   const visibleCount = state.visibleColumns.filter((col) => col.visible).length;
   const totalToggleable = state.visibleColumns.filter(
-    (col) => col.toggleable !== false
+    (col) => col.toggleable !== false,
   ).length;
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -394,7 +553,8 @@ export default function list() {
         status: capitalizeFLetter(item?.status),
         id: item?.id,
         total_area: item?.total_area,
-        property_type: item?.property_type?.name,
+       property_type:
+                 item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
         listing_type: {
           type: capitalizeFLetter(item?.listing_type),
           color:
@@ -410,17 +570,17 @@ export default function list() {
         date: commonDateFormat(item?.created_at),
         location: capitalizeFLetter(item?.city),
         developer: `${capitalizeFLetter(
-          item?.developer?.first_name
+          item?.developer?.first_name,
         )} ${capitalizeFLetter(item?.developer?.last_name)}`,
         agent: `${capitalizeFLetter(
-          item?.agent?.first_name
+          item?.agent?.first_name,
         )} ${capitalizeFLetter(item?.agent?.last_name)}`,
         project: capitalizeFLetter(item?.project?.name),
 
         // price: formatToINR(item?.price),
         price: formatPriceRange(
           item?.price_range?.minimum_price,
-          item?.price_range?.maximum_price
+          item?.price_range?.maximum_price,
         ),
 
         is_approved: item?.is_approved,
@@ -443,6 +603,49 @@ export default function list() {
       setState({ loading: false });
     }
   };
+
+  const handleApprove = async (row: any) => {
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: "Do you want to approve this property?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, approve it!",
+        cancelButtonText: "Cancel",
+        padding: "2em",
+      });
+  
+      if (!result.isConfirmed) return;
+  
+      try {
+        setState({ btnLoading: true });
+        const body = {
+          is_approved: true,
+        };
+        await Models.property.update(body, row?.id);
+        propertyList(state.page);
+        Success("Property Approved successfully");
+      } catch (error) {
+        console.error("Approval error:", error);
+        Failure("Something went wrong while approving the property.");
+      } finally {
+        setState({ btnLoading: false });
+      }
+    };
+  
+    const handleClear = () => {
+      setState({
+        property_type: null,
+        offer_type: null,
+        status: null,
+        publish: null,
+        search: "",
+        role: { value: "developer", label: "Developer" },
+        user: "",
+        developer: "",
+        agent: "",
+      });
+    };
 
   const categoryList = async (page) => {
     try {
@@ -478,6 +681,8 @@ export default function list() {
     }
   };
 
+
+
   const deleteDecord = async (row: any) => {
     try {
       setState({ btnLoading: true });
@@ -499,7 +704,7 @@ export default function list() {
       () => {
         Swal.fire("Cancelled", "Your Record is safe :)", "info");
       },
-      "Are you sure want to delete project?"
+      "Are you sure want to delete project?",
     );
   };
 
@@ -534,6 +739,32 @@ export default function list() {
   const handleEdit = (row) => {
     router.push(`/real-estate/property/update/${row?.id}`);
     console.log("✌️row --->", row);
+  };
+
+  const handleView = async (row) => {
+    window.open(`${FRONTEND_URL}/property-detail/${row?.id}`, "_blank");
+  };
+
+  const handleStatus = async (row) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to change the status of this property?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, change it!",
+      cancelButtonText: "Cancel",
+      padding: "2em",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setState({ btnLoading: true });
+      const body = { is_approved: true };
+      await Models.property.update(body, row?.id);
+      propertyList(state.page);
+      Success("Property Approved successfully");
+    } catch (error) {}
   };
 
   const clearData = () => {
@@ -576,7 +807,7 @@ export default function list() {
 
   const toggleColumn = (accessor: string) => {
     const updatedColumns = state.visibleColumns?.map((col) =>
-      col.accessor === accessor ? { ...col, visible: !col.visible } : col
+      col.accessor === accessor ? { ...col, visible: !col.visible } : col,
     );
     setState({ visibleColumns: updatedColumns });
   };
@@ -600,16 +831,19 @@ export default function list() {
 
   return (
     <>
-      <div className=" mb-5 flex items-center justify-between gap-5">
-        <div className="flex items-center gap-5">
+      <div className=" mb-3 flex items-center justify-between gap-5">
+        <div className=" items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
             My Property List
           </h5>
+          <p className="text-gray-600 dark:text-gray-400">
+            Manage property listings and status
+          </p>
         </div>
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-dred  w-full md:mb-0 md:w-auto"
+            className="btn btn-dred border-none  w-full md:mb-0 md:w-auto"
             onClick={() => router.push("/real-estate/property/create")}
           >
             + Create
@@ -617,18 +851,102 @@ export default function list() {
         </div>
       </div>
 
-      <div className=" mb-5 mt-5 gap-2 md:mt-0 md:flex md:justify-between xl:gap-4">
-        <div className="flex-1">
-          <input
+       <div className="mb-6 flex gap-4">
+        <div
+          onClick={() => {
+            setState({ statusFilter: null });
+          }}
+          className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+        >
+          <div className="flex items-center gap-5">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <Briefcase className="text-dblue h-10 w-10" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.total || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Total Properties
+              </p>
+            </div>
+          </div>
+        </div>
+        <div
+          onClick={() =>
+            setState({ statusFilter: { value: "approved", label: "Approved" } })
+          }
+          className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+        >
+          <div className="flex items-center gap-5 ">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <CheckCircle className="h-10 w-10 text-green-600" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.total || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Sale Properties
+              </p>
+            </div>
+          </div>
+        </div>
+        <div
+          onClick={() =>
+            setState({ statusFilter: { value: "pending", label: "Pending" } })
+          }
+          className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+        >
+          <div className="flex items-center gap-5">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <Hourglass className="h-10 w-10 text-yellow-600" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.total || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Lease Properties
+              </p>
+            </div>
+          </div>
+        </div>
+        {/* <div className="rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700">
+          <div className="flex items-center gap-5">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <Clock className="h-10 w-10 text-red-600" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.jobList?.filter((job) => job.priority == "0 - 30 Days")
+                  ?.length || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Urgent Job
+              </p>
+            </div>
+          </div>
+        </div> */}
+      </div>
+
+      <div className="mb-5 rounded-2xl ">
+        <div className="flex items-center justify-between gap-5">
+       
+          <TextInput
             type="text"
-            className="w-100 form-input"
+            
             placeholder="Search..."
             value={state.search}
             onChange={(e) => setState({ search: e.target.value })}
           />
-        </div>
+       
 
-        <div className="flex-1">
+       
           <CustomSelect
             placeholder="Property Type"
             value={state.property_type}
@@ -638,24 +956,31 @@ export default function list() {
             isMulti
             loadMore={() => catListLoadMore()}
           />
-        </div>
+       
 
-        <div className="flex-1">
+        
           <CustomSelect
             placeholder="Select Offer Type"
             value={state.offer_type}
             onChange={(e) => setState({ offer_type: e })}
             options={ListType}
           />
-        </div>
-        <div className="flex-1">
+       
+        
           <CustomSelect
             placeholder="Publish or Draft"
             value={state.publish}
             onChange={(e) => setState({ publish: e })}
             options={PROPERTY_STATUS}
           />
-        </div>
+           {/* <button
+            onClick={() => setState({ showFilterModal: true })}
+            className="flex items-center gap-4 rounded-lg border bg-white p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 "
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            Filter
+          </button> */}
+     
         {/* Status Dropdown */}
 
         {/* Bulk Actions Dropdown */}
@@ -674,6 +999,7 @@ export default function list() {
         >
           Clear Filter
         </button> */}
+        </div>
       </div>
 
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
@@ -700,14 +1026,14 @@ export default function list() {
                   gap: "10px",
                 }}
               >
-                <div className="flex items-center gap-3 rounded-md border bg-white px-3  shadow-sm">
+                <div className="flex items-center gap-1">
                   <button
                     onClick={() => setState({ viewMode: "table" })}
                     className={`rounded-md p-2 transition-all duration-200 `}
                   >
                     <Table
                       size={18}
-                      color={state.viewMode == "table" ? "blue" : "grey"}
+                      color={state.viewMode == "table" ? "#9b0f09" : "grey"}
                     />
                   </button>
 
@@ -719,9 +1045,12 @@ export default function list() {
                   >
                     <Calendar
                       size={18}
-                      color={state.viewMode == "image" ? "blue" : "grey"}
+                      color={state.viewMode == "image" ? "#9b0f09" : "grey"}
                     />
                   </button>
+                </div>
+                <div className="text-sm text-black">
+                  {state.total} Properties found
                 </div>
 
                 {/* <Popover
@@ -913,7 +1242,7 @@ export default function list() {
               />
             </>
           ) : (
-            <div className="flex h-[400px] items-center justify-center">
+            <div className="mt-5 flex h-[400px] items-center justify-center">
               <p>No Records Found</p>
             </div>
           )}
@@ -923,21 +1252,77 @@ export default function list() {
           <button
             disabled={!state?.previous}
             onClick={handlePreviousPage}
-            className={`btn ${
-              !state?.previous ? "btn-disabled" : "btn-dred"
-            }`}
+            className={`btn  border-none p-2 ${!state?.previous ? "btn-disabled" : "btn-dred"}`}
           >
             <IconArrowBackward />
           </button>
           <button
             disabled={!state?.next}
             onClick={handleNextPage}
-            className={`btn ${!state?.next ? "btn-disabled" : "btn-dred"}`}
+            className={`btn  border-none p-2  ${!state?.next ? "btn-disabled" : "btn-dred"}`}
           >
             <IconArrowForward />
           </button>
         </div>
       </div>
+
+        <Modal
+              open={state.showFilterModal}
+              close={() => setState({ showFilterModal: false })}
+              maxWidth="!w-[800px]"
+              renderComponent={() => (
+                <div>
+                  <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold">More Filters</h2>
+                    <button
+                      onClick={() => setState({ showFilterModal: false })}
+                      className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 gap-4 py-3 md:grid-cols-2">
+                    {state.group == "Admin" && (
+                      <>
+                       
+                        <CustomSelect
+                          placeholder="Select User"
+                          value={state.user}
+                          onChange={(e) => setState({ user: e })}
+                          options={state.userList}
+                        />
+                      </>
+                    )}
+                    <CustomSelect
+                      placeholder="Publish or Draft"
+                      value={state.publish}
+                      onChange={(e) => setState({ publish: e })}
+                      options={PROPERTY_STATUS}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between py-3">
+                    <button
+                      onClick={() =>
+                        setState({
+                          role: { value: "developer", label: "Developer" },
+                          user: null,
+                          publish: null,
+                        })
+                      }
+                      className="rounded px-3 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      Clear All
+                    </button>
+                    <button
+                      onClick={() => setState({ showFilterModal: false })}
+                      className="btn btn-dred border-none"
+                    >
+                      Apply Filters
+                    </button>
+                  </div>
+                </div>
+              )}
+            />
 
       {/* <Modal
         addHeader={state.editId ? "Update Project" : "Create Project"}
