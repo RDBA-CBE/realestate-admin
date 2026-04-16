@@ -47,7 +47,7 @@ export default function list() {
     try {
       const body = bodyData();
       const res: any = await Models.amenity.list(page, body);
-      const data = res?.map((item) => ({
+      const data = res?.results?.map((item) => ({
         name: item?.name,
         location: item?.location,
         status: item?.status,
@@ -280,10 +280,39 @@ export default function list() {
         </div>
       </div> */}
 
+       <div className="mb-5 rounded-2xl ">
+        <div className="flex items-center justify-between gap-5">
+          <div>
+            <TextInput
+            type="text"
+            placeholder="Search..."
+            className="min-w-[300px]"
+            value={state.search}
+            onChange={(e) => setState({ search: e.target.value })}
+          />
+          </div>
+          
+        </div>
+       </div>
+
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         {/* <div className="invoice-table"> */}
 
-        <div className="datatables pagination-padding"></div>
+        <div className="datatables pagination-padding">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "end",
+              alignItems: "center",
+              marginBottom: "16px",
+              gap: "10px",
+            }}
+          >
+           <div className="text-sm text-black">
+            {state.total} Properties types found
+          </div>
+          </div>
+        </div>
         <DataTable
           className="table-responsive"
           records={state.tableList || []}

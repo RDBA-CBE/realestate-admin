@@ -73,6 +73,7 @@ const List = () => {
   useEffect(() => {
     usersList(1);
     groupsList(1);
+     statCount()
   }, []);
 
   useEffect(() => {
@@ -95,6 +96,25 @@ const List = () => {
   };
 
   console.log("groupList", state.groupList);
+
+  const statCount = async()=> {
+          try {
+            const body = {
+             account_status : "approved"
+            }
+             const res: any = await Models.user.count(body);
+             console.log("count res", res);
+      
+             setState({
+              statCount:res
+             })
+             
+            
+          } catch (error) {
+            console.log("✌️error --->", error);
+            setState({ loading: false });
+          }
+        }
 
   const usersList = async (page: any) => {
     try {
@@ -333,7 +353,7 @@ const List = () => {
       <div className="mb-6 flex gap-4">
         <div
           onClick={() => {
-            setState({ statusFilter: null });
+            setState({ role: null });
           }}
           className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -344,7 +364,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+               {state.statCount?.total || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Total Users
@@ -354,7 +374,7 @@ const List = () => {
         </div>
         <div
           onClick={() =>
-            setState({ statusFilter: { value: "approved", label: "Approved" } })
+             setState({ role: { value: "developer", label: "Developer" } })
           }
           className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -365,7 +385,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                 {state.statCount?.developers || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Developers
@@ -375,7 +395,7 @@ const List = () => {
         </div>
         <div
           onClick={() =>
-            setState({ statusFilter: { value: "pending", label: "Pending" } })
+            setState({ role: { value: "agent", label: "Agent" } })
           }
           className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -386,13 +406,16 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                 {state.statCount?.agents || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Agents</p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700">
+        <div className="cursor-pointer rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+         onClick={() =>
+                  setState({ role: { value: "buyer", label: "Buyer" } })
+                }>
           <div className="flex items-center gap-5">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
               <Clock className="h-10 w-10 text-red-600" />
@@ -400,7 +423,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+               {state.statCount?.buyers || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Buyers</p>
             </div>

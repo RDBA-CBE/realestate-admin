@@ -189,12 +189,7 @@ export const menuConfig = {
           label: "Furnishing Types",
           href: "/real-estate/masters/furnishing-type",
         },
-        {
-          type: "link",
-          icon: "IconMenuPages",
-          label: "Bookings",
-          href: "/real-estate/inquiry/bookingList",
-        },
+       
       ],
     },
   ],

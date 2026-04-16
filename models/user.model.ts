@@ -177,6 +177,30 @@ const user = {
     return promise;
   },
 
+  count: (body: any) => {
+      let url = "users/counts";
+      const params: any = new URLSearchParams();
+  
+      if (body?.account_status) {
+        params.append("account_status", body.account_status);
+      }
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+  
+      return instance()
+        .get(url)
+        .then((res) => res.data)
+        .catch((error) => {
+          if (error.response) {
+            return Promise.reject(error.response.message);
+          }
+          return Promise.reject(error);
+        });
+    },
+  
+
 };
 
 export default user;

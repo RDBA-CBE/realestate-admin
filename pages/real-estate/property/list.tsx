@@ -61,6 +61,7 @@ import {
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
+import { clear } from "console";
 
 export default function List() {
   const router = useRouter();
@@ -545,24 +546,26 @@ export default function List() {
 
     setState({
       group: group,
-      role: group == "Admin" && {
-        value: "developer",
-        label: "Developer",
-      },
+      // role: group == "Admin" && {
+      //   value: "developer",
+      //   label: "Developer",
+      // },
     });
   }, [state.group]);
 
   useEffect(() => {
     categoryList(1);
     developerList(1);
+    statCount()
   }, []);
 
   useEffect(() => {
     const group = localStorage.getItem("group");
     if (group == "Admin") {
-      if (state.role != null) {
-        propertyList(1);
-      }
+      // if (state.role != null) {
+      //   propertyList(1);
+      // }
+      propertyList(1)
     } else {
       propertyList(1);
     }
@@ -589,6 +592,23 @@ export default function List() {
       });
     }
   }, [state.viewMode]);
+
+  const statCount = async()=> {
+    try {
+      const body = bodyData();
+       const res: any = await Models.property.count(body);
+       console.log("count res", res);
+
+       setState({
+        statCount:res
+       })
+       
+      
+    } catch (error) {
+      console.log("✌️error --->", error);
+      setState({ loading: false });
+    }
+  }
 
   const propertyList = async (page) => {
     try {
@@ -961,7 +981,7 @@ export default function List() {
       property_type: "",
       offer_type: "",
       status: "",
-      role: { value: "developer", label: "Developer" },
+      role: null,
       user: "",
       // developer: "",
       // agent: "",
@@ -1030,7 +1050,7 @@ export default function List() {
       <div className="mb-6 flex gap-4">
         <div
           onClick={() => {
-            setState({ statusFilter: null });
+            setState({ offer_type: null });
           }}
           className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -1041,7 +1061,7 @@ export default function List() {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.total || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Total Properties
@@ -1051,7 +1071,7 @@ export default function List() {
         </div>
         <div
           onClick={() =>
-            setState({ statusFilter: { value: "approved", label: "Approved" } })
+            setState({ offer_type: { value: "sale", label: "Sale" } })
           }
           className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -1062,7 +1082,7 @@ export default function List() {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.sale_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Sale Properties
@@ -1072,7 +1092,7 @@ export default function List() {
         </div>
         <div
           onClick={() =>
-            setState({ statusFilter: { value: "pending", label: "Pending" } })
+            setState({ offer_type: { value: "lease", label: "Lease" } })
           }
           className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -1083,7 +1103,7 @@ export default function List() {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.lease_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Lease Properties
@@ -1462,13 +1482,7 @@ export default function List() {
             </div>
             <div className="flex items-center justify-between py-3">
               <button
-                onClick={() =>
-                  setState({
-                    role: { value: "developer", label: "Developer" },
-                    user: null,
-                    publish: null,
-                  })
-                }
+                onClick={ clearFilter}
                 className="rounded px-3 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 Clear All

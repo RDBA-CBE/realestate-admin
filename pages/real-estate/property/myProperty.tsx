@@ -221,7 +221,7 @@ export default function list() {
           >
             <IconEdit className="h-3.5 w-3.5" />
           </button>
-           <button
+          <button
             className="flex text-success"
             onClick={() => handleStatus(row)}
           >
@@ -232,7 +232,7 @@ export default function list() {
             className="flex text-danger"
             onClick={(e) => handleDelete(row)}
           >
-            <IconTrashLines  className="h-3.5 w-3.5" />
+            <IconTrashLines className="h-3.5 w-3.5" />
           </button>
         </div>
       ),
@@ -251,7 +251,8 @@ export default function list() {
         return (
           <Link
             className="flex w-fit gap-3 font-semibold"
-            href={`${FRONTEND_URL}/property-detail/${row?.id}`} target="__blank"
+            href={`${FRONTEND_URL}/property-detail/${row?.id}`}
+            target="__blank"
           >
             <div className="h-20 w-20 rounded-md bg-white-dark/30 ltr:mr-2 rtl:ml-2">
               <img
@@ -459,7 +460,7 @@ export default function list() {
           >
             <IconEdit className="h-3.5 w-3.5" />
           </button>
-           <button
+          <button
             className="flex text-success"
             onClick={() => handleStatus(row)}
           >
@@ -470,7 +471,7 @@ export default function list() {
             className="flex text-danger"
             onClick={(e) => handleDelete(row)}
           >
-            <IconTrashLines  className="h-3.5 w-3.5" />
+            <IconTrashLines className="h-3.5 w-3.5" />
           </button>
         </div>
       ),
@@ -518,6 +519,12 @@ export default function list() {
 
   useEffect(() => {
     if (state.userId !== null) {
+      statCount();
+    }
+  }, [ state.userId,]);
+
+  useEffect(() => {
+    if (state.userId !== null) {
       propertyList(1);
     }
   }, [
@@ -541,6 +548,23 @@ export default function list() {
     }
   }, [state.viewMode]);
 
+  const statCount = async () => {
+    try {
+      const body = {
+        userId: state.userId,
+      };
+      const res: any = await Models.property.count(body);
+      console.log("count res", res);
+
+      setState({
+        statCount: res,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+      setState({ loading: false });
+    }
+  };
+
   const propertyList = async (page) => {
     try {
       setState({ loading: true });
@@ -553,8 +577,8 @@ export default function list() {
         status: capitalizeFLetter(item?.status),
         id: item?.id,
         total_area: item?.total_area,
-       property_type:
-                 item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
+        property_type:
+          item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
         listing_type: {
           type: capitalizeFLetter(item?.listing_type),
           color:
@@ -605,47 +629,47 @@ export default function list() {
   };
 
   const handleApprove = async (row: any) => {
-      const result = await Swal.fire({
-        title: "Are you sure?",
-        text: "Do you want to approve this property?",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "Yes, approve it!",
-        cancelButtonText: "Cancel",
-        padding: "2em",
-      });
-  
-      if (!result.isConfirmed) return;
-  
-      try {
-        setState({ btnLoading: true });
-        const body = {
-          is_approved: true,
-        };
-        await Models.property.update(body, row?.id);
-        propertyList(state.page);
-        Success("Property Approved successfully");
-      } catch (error) {
-        console.error("Approval error:", error);
-        Failure("Something went wrong while approving the property.");
-      } finally {
-        setState({ btnLoading: false });
-      }
-    };
-  
-    const handleClear = () => {
-      setState({
-        property_type: null,
-        offer_type: null,
-        status: null,
-        publish: null,
-        search: "",
-        role: { value: "developer", label: "Developer" },
-        user: "",
-        developer: "",
-        agent: "",
-      });
-    };
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "Do you want to approve this property?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, approve it!",
+      cancelButtonText: "Cancel",
+      padding: "2em",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setState({ btnLoading: true });
+      const body = {
+        is_approved: true,
+      };
+      await Models.property.update(body, row?.id);
+      propertyList(state.page);
+      Success("Property Approved successfully");
+    } catch (error) {
+      console.error("Approval error:", error);
+      Failure("Something went wrong while approving the property.");
+    } finally {
+      setState({ btnLoading: false });
+    }
+  };
+
+  const handleClear = () => {
+    setState({
+      property_type: null,
+      offer_type: null,
+      status: null,
+      publish: null,
+      search: "",
+      role: { value: "developer", label: "Developer" },
+      user: "",
+      developer: "",
+      agent: "",
+    });
+  };
 
   const categoryList = async (page) => {
     try {
@@ -680,8 +704,6 @@ export default function list() {
       console.log("error: ", error);
     }
   };
-
-
 
   const deleteDecord = async (row: any) => {
     try {
@@ -843,7 +865,7 @@ export default function list() {
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-dred border-none  w-full md:mb-0 md:w-auto"
+            className="btn btn-dred w-full  border-none md:mb-0 md:w-auto"
             onClick={() => router.push("/real-estate/property/create")}
           >
             + Create
@@ -851,10 +873,10 @@ export default function list() {
         </div>
       </div>
 
-       <div className="mb-6 flex gap-4">
+      <div className="mb-6 flex gap-4">
         <div
           onClick={() => {
-            setState({ statusFilter: null });
+            setState({ offer_type: null });
           }}
           className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -865,7 +887,7 @@ export default function list() {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.total || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Total Properties
@@ -875,7 +897,7 @@ export default function list() {
         </div>
         <div
           onClick={() =>
-            setState({ statusFilter: { value: "approved", label: "Approved" } })
+            setState({ offer_type: { value: "sale", label: "Sale" } })
           }
           className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -886,7 +908,7 @@ export default function list() {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.sale_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Sale Properties
@@ -896,7 +918,7 @@ export default function list() {
         </div>
         <div
           onClick={() =>
-            setState({ statusFilter: { value: "pending", label: "Pending" } })
+            setState({ offer_type: { value: "lease", label: "Lease" } })
           }
           className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -907,7 +929,7 @@ export default function list() {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.lease_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Lease Properties
@@ -936,17 +958,13 @@ export default function list() {
 
       <div className="mb-5 rounded-2xl ">
         <div className="flex items-center justify-between gap-5">
-       
           <TextInput
             type="text"
-            
             placeholder="Search..."
             value={state.search}
             onChange={(e) => setState({ search: e.target.value })}
           />
-       
 
-       
           <CustomSelect
             placeholder="Property Type"
             value={state.property_type}
@@ -956,36 +974,33 @@ export default function list() {
             isMulti
             loadMore={() => catListLoadMore()}
           />
-       
 
-        
           <CustomSelect
             placeholder="Select Offer Type"
             value={state.offer_type}
             onChange={(e) => setState({ offer_type: e })}
             options={ListType}
           />
-       
-        
+
           <CustomSelect
             placeholder="Publish or Draft"
             value={state.publish}
             onChange={(e) => setState({ publish: e })}
             options={PROPERTY_STATUS}
           />
-           {/* <button
+          {/* <button
             onClick={() => setState({ showFilterModal: true })}
             className="flex items-center gap-4 rounded-lg border bg-white p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 "
           >
             <SlidersHorizontal className="h-4 w-4" />
             Filter
           </button> */}
-     
-        {/* Status Dropdown */}
 
-        {/* Bulk Actions Dropdown */}
+          {/* Status Dropdown */}
 
-        {/* <button
+          {/* Bulk Actions Dropdown */}
+
+          {/* <button
           type="button"
           className="btn btn-dred"
           // onClick={() => usersList(1)}
@@ -1252,77 +1267,80 @@ export default function list() {
           <button
             disabled={!state?.previous}
             onClick={handlePreviousPage}
-            className={`btn  border-none p-2 ${!state?.previous ? "btn-disabled" : "btn-dred"}`}
+            className={`btn  border-none p-2 ${
+              !state?.previous ? "btn-disabled" : "btn-dred"
+            }`}
           >
             <IconArrowBackward />
           </button>
           <button
             disabled={!state?.next}
             onClick={handleNextPage}
-            className={`btn  border-none p-2  ${!state?.next ? "btn-disabled" : "btn-dred"}`}
+            className={`btn  border-none p-2  ${
+              !state?.next ? "btn-disabled" : "btn-dred"
+            }`}
           >
             <IconArrowForward />
           </button>
         </div>
       </div>
 
-        <Modal
-              open={state.showFilterModal}
-              close={() => setState({ showFilterModal: false })}
-              maxWidth="!w-[800px]"
-              renderComponent={() => (
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold">More Filters</h2>
-                    <button
-                      onClick={() => setState({ showFilterModal: false })}
-                      className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 gap-4 py-3 md:grid-cols-2">
-                    {state.group == "Admin" && (
-                      <>
-                       
-                        <CustomSelect
-                          placeholder="Select User"
-                          value={state.user}
-                          onChange={(e) => setState({ user: e })}
-                          options={state.userList}
-                        />
-                      </>
-                    )}
-                    <CustomSelect
-                      placeholder="Publish or Draft"
-                      value={state.publish}
-                      onChange={(e) => setState({ publish: e })}
-                      options={PROPERTY_STATUS}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between py-3">
-                    <button
-                      onClick={() =>
-                        setState({
-                          role: { value: "developer", label: "Developer" },
-                          user: null,
-                          publish: null,
-                        })
-                      }
-                      className="rounded px-3 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
-                    >
-                      Clear All
-                    </button>
-                    <button
-                      onClick={() => setState({ showFilterModal: false })}
-                      className="btn btn-dred border-none"
-                    >
-                      Apply Filters
-                    </button>
-                  </div>
-                </div>
+      <Modal
+        open={state.showFilterModal}
+        close={() => setState({ showFilterModal: false })}
+        maxWidth="!w-[800px]"
+        renderComponent={() => (
+          <div>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">More Filters</h2>
+              <button
+                onClick={() => setState({ showFilterModal: false })}
+                className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 gap-4 py-3 md:grid-cols-2">
+              {state.group == "Admin" && (
+                <>
+                  <CustomSelect
+                    placeholder="Select User"
+                    value={state.user}
+                    onChange={(e) => setState({ user: e })}
+                    options={state.userList}
+                  />
+                </>
               )}
-            />
+              <CustomSelect
+                placeholder="Publish or Draft"
+                value={state.publish}
+                onChange={(e) => setState({ publish: e })}
+                options={PROPERTY_STATUS}
+              />
+            </div>
+            <div className="flex items-center justify-between py-3">
+              <button
+                onClick={() =>
+                  setState({
+                    role: { value: "developer", label: "Developer" },
+                    user: null,
+                    publish: null,
+                  })
+                }
+                className="rounded px-3 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                Clear All
+              </button>
+              <button
+                onClick={() => setState({ showFilterModal: false })}
+                className="btn btn-dred border-none"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        )}
+      />
 
       {/* <Modal
         addHeader={state.editId ? "Update Project" : "Create Project"}

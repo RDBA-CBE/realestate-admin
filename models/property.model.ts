@@ -27,13 +27,13 @@ const properties = {
 
       if (body?.assigned_to_developer) {
         url += `&assigned_to_developer=${encodeURIComponent(
-          body?.assigned_to_developer
+          body?.assigned_to_developer,
         )}`;
       }
 
       if (body?.assigned_to_agent) {
         url += `&assigned_to_agent=${encodeURIComponent(
-          body?.assigned_to_agent
+          body?.assigned_to_agent,
         )}`;
       }
 
@@ -201,6 +201,33 @@ const properties = {
         });
     });
     return promise;
+  },
+
+  count: (body: any) => {
+    let url = "properties/counts";
+    const params: any = new URLSearchParams();
+
+    if (body?.userId) {
+      params.append("created_by", body.userId);
+    }
+
+    if (body?.publish === "Yes") {
+      params.append("publish", true);
+    }
+
+    if (params.toString()) {
+      url += `?${params.toString()}`;
+    }
+
+    return instance()
+      .get(url)
+      .then((res) => res.data)
+      .catch((error) => {
+        if (error.response) {
+          return Promise.reject(error.response.message);
+        }
+        return Promise.reject(error);
+      });
   },
 };
 

@@ -270,6 +270,17 @@ export default function list() {
         </div>
       </div> */}
 
+      {/* <div className="mb-5 rounded-2xl ">
+        <div className="flex items-center justify-between gap-5">
+          <TextInput
+            type="text"
+            placeholder="Search..."
+            value={state.search}
+            onChange={(e) => setState({ search: e.target.value })}
+          />
+        </div>
+       </div> */}
+
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         {/* <div className="invoice-table"> */}
 
@@ -280,6 +291,20 @@ export default function list() {
               {state.totalRecords}
             </div>
           </div> */}
+
+           <div
+            style={{
+              display: "flex",
+              justifyContent: "end",
+              alignItems: "center",
+              marginBottom: "16px",
+              gap: "10px",
+            }}
+          >
+           <div className="text-sm text-black">
+            {state.total} Properties types found
+          </div>
+          </div>
           <DataTable
             className="table-responsive"
             records={state.tableList || []}

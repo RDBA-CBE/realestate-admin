@@ -675,7 +675,7 @@ const CreateOpportunities = () => {
         <button
           type="button"
           className="btn btn-outline-danger w-full border md:w-auto"
-          onClick={() => router.push("/contacts")}
+          onClick={() => router.back()}
         >
           Cancel
         </button>

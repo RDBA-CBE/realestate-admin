@@ -469,6 +469,7 @@ export default function List() {
   useEffect(() => {
     propertyList(1);
     categoryList(1);
+    statCount()
   }, []);
 
   useEffect(() => {
@@ -492,6 +493,25 @@ export default function List() {
       });
     }
   }, [state.viewMode]);
+
+   const statCount = async()=> {
+      try {
+        const body = {
+          publish : "Yes"
+        }
+         const res: any = await Models.property.count(body);
+         console.log("count res", res);
+  
+         setState({
+          statCount:res
+         })
+         
+        
+      } catch (error) {
+        console.log("✌️error --->", error);
+        setState({ loading: false });
+      }
+    }
 
   const propertyList = async (page) => {
     console.log("✌️page --->", page);
@@ -737,7 +757,7 @@ export default function List() {
       <div className="mb-6 flex gap-4">
         <div
         onClick={() => {
-          setState({ statusFilter:null})
+          setState({ offer_type:null})
 
         }}
         className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700">
@@ -748,7 +768,7 @@ export default function List() {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.total || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Total Properties
@@ -758,7 +778,7 @@ export default function List() {
         </div>
         <div
           onClick={() =>
-            setState({ statusFilter: { value: "approved", label: "Approved" } })
+            setState({ offer_type: { value: "sale", label: "Sale" } })
           }
           className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -769,7 +789,7 @@ export default function List() {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.sale_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                  Sale Properties
@@ -779,7 +799,7 @@ export default function List() {
         </div>
         <div
           onClick={() =>
-            setState({ statusFilter: { value: "pending", label: "Pending" } })
+             setState({ offer_type: { value: "lease", label: "Lease" } })
           }
           className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -790,7 +810,7 @@ export default function List() {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.lease_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Lease Properties
@@ -869,11 +889,11 @@ export default function List() {
           />
         
 
-         <div className="align-end min-w-[200px]">
+         {/* <div className="align-end min-w-[200px]">
           <button type="button" className="mt-2 text-dred flex gap-1" onClick={handleClear}>
             <X size={13} className="mt-[2px]" />Clear Filter 
           </button>
-        </div>
+        </div> */}
         </div>
       </div>
 

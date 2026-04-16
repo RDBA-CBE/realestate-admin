@@ -11,6 +11,7 @@ import {
   Failure,
   showDeleteAlert,
   Success,
+  truncateText,
   useSetState,
 } from "@/utils/function.utils";
 import CustomSelect from "@/components/FormFields/CustomSelect.component";
@@ -30,7 +31,19 @@ import { useRouter } from "next/navigation";
 import PrivateRouter from "@/hook/privateRouter";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
 import Link from "next/link";
-import { Calendar, Columns, Eye, EyeOff, Table, X } from "lucide-react";
+import {
+  Briefcase,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Columns,
+  Eye,
+  EyeOff,
+  Hourglass,
+  SlidersHorizontal,
+  Table,
+  X,
+} from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import {
   FILTER_ROLES,
@@ -39,8 +52,9 @@ import {
   STATUS_OPTIONS,
 } from "@/utils/constant.utils";
 import CustomeDatePicker from "@/components/datePicker";
-import { group } from "console";
+import { clear, group } from "console";
 import { render } from "@fullcalendar/core/preact";
+import user from "@/models/user.model";
 
 const List = () => {
   const router = useRouter();
@@ -61,6 +75,8 @@ const List = () => {
     role: null,
     groupList: [],
     group: null,
+    showFilterModal: false,
+    showStatusModal: false,
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -104,7 +120,7 @@ const List = () => {
       const res: any = await Models.user.groups();
       const droprdown = Dropdown(res?.results, "name");
       const filter = droprdown?.filter(
-        (item) => item?.label != "Admin" && item?.label != "Buyer"
+        (item) => item?.label != "Admin" && item?.label != "Buyer",
       );
 
       setState({
@@ -147,7 +163,8 @@ const List = () => {
         date: commonDateFormat(item?.created_at),
         email: item?.email,
         property: item?.property_details?.title,
-        property_type: item?.property_details?.property_type?.name,
+        property_type:
+                  item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
         requirements: item?.requirements,
         assigned_to: item?.assigned_to_details
           ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
@@ -259,7 +276,7 @@ const List = () => {
       () => {
         Swal.fire("Cancelled", "Your Record is safe :)", "info");
       },
-      "Are you sure want to delete project?"
+      "Are you sure want to delete project?",
     );
   };
 
@@ -399,6 +416,23 @@ const List = () => {
     });
   };
 
+  const handleStatus = async (row) => {
+    setState({ statusRow: row, showStatusModal: true, newStatus: null });
+  };
+
+  const confirmStatus = async () => {
+    if (!state.newStatus) return;
+    try {
+      setState({ btnLoading: true });
+      await Models.lead.update({ status: state.newStatus?.value }, state.statusRow?.id);
+      setState({ showStatusModal: false, btnLoading: false });
+      leadList(state.page);
+      Success("Lead status updated successfully");
+    } catch (error) {
+      setState({ btnLoading: false });
+    }
+  };
+
   const handleNextPage = () => {
     if (state.next) {
       const newPage = state.page + 1;
@@ -413,9 +447,23 @@ const List = () => {
     }
   };
 
+  const clearFilter = () =>{
+    console.log("clearFilter");
+    
+    setState({
+      search: "",
+      lead_source: null,
+      property_type: null,
+      status: null,
+      date: null,
+      role: null,
+      user: null,
+    })
+  }
+
   const toggleColumn = (accessor: string) => {
     const updatedColumns = state.visibleColumns?.map((col) =>
-      col.accessor === accessor ? { ...col, visible: !col.visible } : col
+      col.accessor === accessor ? { ...col, visible: !col.visible } : col,
     );
     setState({ visibleColumns: updatedColumns });
   };
@@ -432,49 +480,108 @@ const List = () => {
     ?.filter((col) => col.visible !== false)
     ?.map(({ visible, toggleable, ...col }) => col);
 
-  
-
   const columns = [
     {
       accessor: "date",
       title: "Date",
       visible: true,
       toggleable: true,
-      render: (row) => ( 
-      <div className="w-fit cursor-pointer" onClick={(e) => {
-              router.push(`/real-estate/lead/view/${row?.id}`);
-            }}>
-              <div>
-                {row?.date}
-              </div>
-            </div>  )
+      render: (row) => (
+        <div
+          className="w-fit cursor-pointer"
+          onClick={(e) => {
+            router.push(`/real-estate/lead/view/${row?.id}`);
+          }}
+        >
+          <div>{row?.date}</div>
+        </div>
+      ),
     },
     {
       accessor: "property",
       title: "Property",
       visible: true,
       toggleable: true,
-      render: (row) => ( 
-      <div className="w-fit cursor-pointer" onClick={(e) => {
-              router.push(`/real-estate/lead/view/${row?.id}`);
-            }}>
-              <div>
-                {row?.property}
-              </div>
-            </div>  )
+      render: (row) => (
+        <div
+          className="w-fit cursor-pointer"
+          onClick={(e) => {
+            router.push(`/real-estate/lead/view/${row?.id}`);
+          }}
+          title={row?.property}
+        >
+          <div >{truncateText(row?.property)}</div>
+        </div>
+      ),
     },
-    {
-      accessor: "property_type",
-      title: "Property Type",
-      visible: true,
-      toggleable: true,
-    },
+    // {
+    //   accessor: "property_type",
+    //   title: "Property Type",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => {
+    //     const property_type = row.property_type;
+    //     if (!property_type || property_type?.length === 0) {
+    //       return <span className="text-gray-400">-</span>;
+    //     }
+
+    //     const firstType = property_type[0];
+    //     const others = property_type.slice(1);
+    //     const maxShow = 3;
+    //     const remaining = others.length - maxShow;
+    //     const visibleTypes = others.slice(0, maxShow);
+    //     const hiddenTypes = others.slice(maxShow);
+
+    //     return (
+    //       <div className="flex items-center gap-2">
+    //         {/* First type text */}
+    //         <span
+    //           title={firstType}
+    //           className="text-sm text-gray-700 dark:text-gray-300"
+    //         >
+    //           {truncateText(firstType)}
+    //         </span>
+
+    //         {/* Avatars */}
+    //         <div className="flex items-center -space-x-2">
+    //           {visibleTypes?.map((type: string, index: number) => (
+    //             <div key={index} className="group relative z-10">
+    //               <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
+    //                 {type?.slice(0, 2)?.toUpperCase()}
+    //               </div>
+    //               {/* Tooltip */}
+    //               <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+    //                 {type}
+    //               </div>
+    //             </div>
+    //           ))}
+    //           {remaining > 0 && (
+    //             <div className="group relative z-10">
+    //               <div className="flex h-7 w-7  items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
+    //                 +{remaining}
+    //               </div>
+    //               {/* Remaining tooltip */}
+    //               <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+    //                 {hiddenTypes.join(", ")}
+    //               </div>
+    //             </div>
+    //           )}
+    //         </div>
+    //       </div>
+    //     );
+    //   },
+    // },
 
     {
       accessor: "full_name",
       title: "Customer Name",
       visible: true,
       toggleable: true,
+      render:(row)=>(
+        <span title={row?.full_name}>
+          {truncateText(row?.full_name)}
+        </span>
+      )
     },
 
     {
@@ -483,6 +590,11 @@ const List = () => {
 
       visible: true,
       toggleable: true,
+      render:(row)=>(
+        <span title={row?.email}>
+          {truncateText(row?.email)}
+        </span>
+      )
     },
 
     {
@@ -490,6 +602,11 @@ const List = () => {
       title: "Assigned To",
       visible: true,
       toggleable: true,
+      render:(row)=>(
+        <span title={row?.assigned_to}>
+          {truncateText(row?.assigned_to)}
+        </span>
+      )
     },
 
     {
@@ -497,6 +614,11 @@ const List = () => {
       title: "Lead Source",
       visible: true,
       toggleable: true,
+      render:(row)=>(
+        <span title={row?.lead_source}>
+          {truncateText(row?.lead_source)}
+        </span>
+      )
     },
     {
       accessor: "status",
@@ -504,6 +626,11 @@ const List = () => {
 
       visible: true,
       toggleable: true,
+       render:(row)=>(
+        <span title={row?.status}>
+          {truncateText(row?.status)}
+        </span>
+      )
     },
 
     {
@@ -534,30 +661,41 @@ const List = () => {
       render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
           <button
-            className="flex hover:text-info"
+            className="text-dred flex"
             onClick={(e) => {
               router.push(`/real-estate/lead/view/${row?.id}`);
             }}
+            title  = "View Lead Details"
           >
-            <Eye className="h-4.5 w-4.5" />
+            <Eye className="h-4 w-4" />
           </button>
 
           <button
-            className="flex hover:text-info"
+            className="text-success flex"
+            onClick={(e) => handleStatus(row)}
+            title="Change Lead Status"
+          >
+            <CheckCircle className="h-4 w-4" />
+          </button>
+
+          <button
+            className="flex text-primary"
             onClick={(e) => {
               handleEdit(row);
             }}
+            title = "Edit Lead"
           >
-            <IconEdit className="h-4.5 w-4.5" />
+            <IconEdit className="h-4 w-4" />
           </button>
-
           
+
           <button
             type="button"
-            className="flex hover:text-danger"
+            className="flex text-danger"
             onClick={(e) => handleDelete(row)}
+            title="Delete Lead"
           >
-            <IconTrashLines />
+            <IconTrashLines className="h-4 w-4" />
           </button>
         </div>
       ),
@@ -565,25 +703,28 @@ const List = () => {
   ];
 
   const visibleCount = state.visibleColumns?.filter(
-    (col) => col.visible
+    (col) => col.visible,
   ).length;
 
   const totalToggleable = state.visibleColumns?.filter(
-    (col) => col?.toggleable !== false
+    (col) => col?.toggleable !== false,
   ).length;
 
   return (
     <>
-      <div className=" mb-5 flex items-center justify-between gap-5">
-        <div className="flex items-center gap-5">
+      <div className=" mb-3 flex items-center justify-between gap-5">
+        <div className=" items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
             Lead List
           </h5>
+          <p className="text-gray-600 dark:text-gray-400">
+            Manage Lead listings and opportunities
+          </p>
         </div>
         <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-dred border-none w-full md:mb-0 md:w-auto"
+            className="btn btn-dred w-full border-none md:mb-0 md:w-auto"
             onClick={() => router.push("/real-estate/lead/create")}
           >
             + Create
@@ -591,18 +732,98 @@ const List = () => {
         </div>
       </div>
 
-      <div className=" mb-5 mt-5 gap-2 md:mt-0 md:flex flex-wrap  xl:gap-4">
-        <div className="">
-          <input
+      <div className="mb-6 flex gap-4">
+        <div
+          onClick={() => {
+            setState({ statusFilter: null });
+          }}
+          className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+        >
+          <div className="flex items-center gap-5">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <Briefcase className="text-dblue h-10 w-10" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.total || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Total Leads
+              </p>
+            </div>
+          </div>
+        </div>
+        <div
+          onClick={() =>
+            setState({ statusFilter: { value: "approved", label: "Approved" } })
+          }
+          className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+        >
+          <div className="flex items-center gap-5 ">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <CheckCircle className="h-10 w-10 text-green-600" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.total || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Won Leads
+              </p>
+            </div>
+          </div>
+        </div>
+        {/* <div
+          onClick={() =>
+            setState({ statusFilter: { value: "pending", label: "Pending" } })
+          }
+          className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+        >
+          <div className="flex items-center gap-5">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <Hourglass className="h-10 w-10 text-yellow-600" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.total || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Lost Leads
+              </p>
+            </div>
+          </div>
+        </div> */}
+        <div className="rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700">
+          <div className="flex items-center gap-5">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <Clock className="h-10 w-10 text-red-600" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.total || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Lost Leads
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-5 rounded-2xl ">
+        <div className="flex items-center justify-between gap-5">
+          <TextInput
             type="text"
-            className="w-100 form-input"
             placeholder="Search..."
             value={state.search}
             onChange={(e) => setState({ search: e.target.value })}
           />
-        </div>
 
-        {/* <div className="flex-1">
+          {/* <div className="flex-1">
           <CustomSelect
             placeholder="Select Property Type"
             value={state.}
@@ -613,7 +834,6 @@ const List = () => {
           />
         </div> */}
 
-        <div className="">
           <CustomSelect
             value={state.lead_source}
             onChange={(e) => setState({ lead_source: e })}
@@ -622,9 +842,7 @@ const List = () => {
             error={state.errors?.lead_source}
             isClearable={true}
           />
-        </div>
 
-        <div className="">
           <CustomSelect
             value={state.status}
             onChange={(e) => setState({ status: e })}
@@ -634,11 +852,9 @@ const List = () => {
             required
             className="w-full"
           />
-        </div>
 
-        {state.group == "Admin" && (
-          <>
-            <div className="">
+          {/* {state.group == "Admin" && (
+            <>
               <CustomSelect
                 placeholder="Role"
                 value={state.role}
@@ -648,34 +864,41 @@ const List = () => {
                 }}
                 options={state.groupList}
               />
-            </div>
 
-            <div className="">
               <CustomSelect
                 placeholder="user"
                 value={state.user}
                 onChange={(e) => setState({ user: e })}
                 options={state.userList}
+                disabled={!state.role}
               />
-            </div>
-          </>
-        )}
+            </>
+          )} */}
 
-        <div className="">
           <CustomeDatePicker
             value={state.date}
             placeholder="Choose Date"
             onChange={(e) => setState({ date: e })}
             showTimeSelect={false}
           />
-        </div>
 
+          <button
+            onClick={() => setState({ showFilterModal: true })}
+            className="flex items-center gap-4 rounded-lg border bg-white p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 "
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            Filter
+          </button>
+          {/*        
         <div className="align-end">
           <button type="button" className="mt-2 text-dred flex gap-1">
             <X size={13} className="mt-[2px]" />Clear Filter 
           </button>
+        </div> */}
         </div>
       </div>
+
+      
 
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
@@ -688,180 +911,9 @@ const List = () => {
               gap: "10px",
             }}
           >
-            {/* <Popover position="bottom-end" withArrow shadow="md" width={220}>
-              <Popover.Target>
-                <div
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "8px 16px",
-                    backgroundColor: "white",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: 500,
-                    color: "#475569",
-                    transition: "all 0.2s ease",
-                    boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-                  }}
-                  className="hover:border-gray-400 hover:shadow-sm"
-                >
-                  <Columns size={16} color="#64748b" />
-                  <span>Show Columns</span>
-                  <div
-                    style={{
-                      width: "20px",
-                      height: "20px",
-                      backgroundColor: "#3b82f6",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      color: "white",
-                    }}
-                  >
-                    {visibleCount}
-                  </div>
-                </div>
-              </Popover.Target>
-
-              <Popover.Dropdown
-                style={{
-                  padding: "16px",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "8px",
-                }}
-              >
-                <div style={{ marginBottom: "16px" }}>
-                  <Text
-                    size="sm"
-                    fw={600}
-                    style={{ color: "#1e293b", marginBottom: "12px" }}
-                  >
-                    Show Columns
-                  </Text>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "8px",
-                      marginBottom: "16px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "6px 12px",
-                        backgroundColor: "#f8fafc",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontSize: "13px",
-                        color: "#475569",
-                        transition: "all 0.2s ease",
-                      }}
-                      className="hover:border-gray-300 hover:bg-gray-50"
-                      onClick={() => toggleAllColumns(true)}
-                    >
-                      <Eye size={14} color="#475569" />
-                      <span>All</span>
-                    </div>
-                    <div
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "6px 12px",
-                        backgroundColor: "#f8fafc",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontSize: "13px",
-                        color: "#475569",
-                        transition: "all 0.2s ease",
-                      }}
-                      className="hover:border-gray-300 hover:bg-gray-50"
-                      onClick={() => toggleAllColumns(false)}
-                    >
-                      <EyeOff size={14} color="#475569" />
-                      <span>None</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    maxHeight: "200px",
-                    overflowY: "auto",
-                    marginBottom: "12px",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "12px",
-                    }}
-                  >
-                    {state.visibleColumns?.map((column) => (
-                      <div
-                        key={column.accessor}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        <Checkbox
-                          checked={column.visible ?? true}
-                          onChange={() => toggleColumn(column.accessor)}
-                          disabled={column.toggleable === false}
-                          size="sm"
-                          style={{ flexShrink: 0 }}
-                        />
-                        <Text
-                          size="sm"
-                          style={{
-                            color:
-                              column.toggleable === false
-                                ? "#94a3b8"
-                                : "#475569",
-                            cursor:
-                              column.toggleable === false
-                                ? "not-allowed"
-                                : "pointer",
-                          }}
-                          onClick={() =>
-                            column.toggleable !== false &&
-                            toggleColumn(column.accessor)
-                          }
-                        >
-                          {column.title}
-                        </Text>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    borderTop: "1px solid #f1f5f9",
-                    paddingTop: "12px",
-                    fontSize: "12px",
-                    color: "#64748b",
-                    textAlign: "center",
-                  }}
-                >
-                  {visibleCount} of {totalToggleable} columns visible
-                </div>
-              </Popover.Dropdown>
-            </Popover> */}
+           <div className="text-sm text-black">
+            {state.total} Leads found
+          </div>
           </div>
           <DataTable
             className="table-responsive"
@@ -884,7 +936,7 @@ const List = () => {
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
-            className={`btn border-none p-2${
+            className={`btn border-none p-2 ${
               !state.previous ? "btn-disabled" : "btn-dred"
             }`}
           >
@@ -893,7 +945,9 @@ const List = () => {
           <button
             disabled={!state.next}
             onClick={handleNextPage}
-            className={`btn border-none p-2${!state.next ? "btn-disabled" : "btn-dred"}`}
+            className={`btn border-none p-2 ${
+              !state.next ? "btn-disabled" : "btn-dred"
+            }`}
           >
             <IconArrowForward />
           </button>
@@ -954,12 +1008,111 @@ const List = () => {
                   onClick={() =>
                     state.editId ? updateProject() : createProject()
                   }
-                  className="btn border-none btn-dred ltr:ml-4 rtl:mr-4"
+                  className="btn btn-dred border-none ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
                 </button>
               </div>
             </form>
+          </div>
+        )}
+      />
+
+      <Modal
+        open={state.showFilterModal}
+        close={() => setState({ showFilterModal: false })}
+        maxWidth="!w-[800px]"
+        renderComponent={() => (
+          <div>
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">More Filters</h2>
+              <button
+                onClick={() => setState({ showFilterModal: false })}
+                className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="grid grid-cols-1 gap-4 py-3 md:grid-cols-2">
+               {state.group == "Admin" && (
+            <>
+              <CustomSelect
+                placeholder="Role"
+                value={state.role}
+                onChange={(e) => {
+                  getuserList(e);
+                  setState({ userList: [] });
+                }}
+                options={state.groupList}
+              />
+
+              <CustomSelect
+                placeholder="user"
+                value={state.user}
+                onChange={(e) => setState({ user: e })}
+                options={state.userList}
+                 disabled={!state.role}
+              />
+            </>
+          )}
+             
+            </div>
+            <div className="flex items-center justify-between py-3">
+              <button
+                onClick={clearFilter}
+                className="rounded px-3 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                Clear All
+              </button>
+              <button
+                onClick={() => setState({ showFilterModal: false })}
+                className="btn btn-dred border-none"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        )}
+      />
+
+      <Modal
+        open={state.showStatusModal}
+        close={() => setState({ showStatusModal: false })}
+        maxWidth="!w-[500px]"
+        renderComponent={() => (
+          <div className=" pb-0">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Change Lead Status</h2>
+              <button
+                onClick={() => setState({ showStatusModal: false })}
+                className="rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="py-4">
+              <CustomSelect
+                value={state.newStatus}
+                onChange={(e) => setState({ newStatus: e })}
+                className="z-100"
+                placeholder="Select Status"
+                options={STATUS_OPTIONS}
+              />
+            </div>
+            <div className="flex items-center justify-end gap-3 pt-16 pb-0">
+              <button
+                onClick={() => setState({ showStatusModal: false })}
+                className="btn border-dred hover:btn-mred"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmStatus}
+                className="btn btn-dred border-none"
+              >
+                {state.btnLoading ? <IconLoader /> : "Confirm"}
+              </button>
+            </div>
           </div>
         )}
       />
