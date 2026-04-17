@@ -39,6 +39,7 @@ import {
   Columns,
   Eye,
   EyeOff,
+  Hourglass,
   SlidersHorizontal,
   Table,
   X,
@@ -70,6 +71,8 @@ const List = () => {
     group: null,
     showFilterModal: false,
     showStatusModal: false,
+    sortBy: "",
+    sortOrder: "asc",
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -79,6 +82,7 @@ const List = () => {
     categoryList(1);
     groupList();
     setState({ visibleColumns: columns });
+    statCount();
   }, []);
 
   useEffect(() => {
@@ -194,9 +198,32 @@ const List = () => {
     }
   };
 
-  const leadList = async (page) => {
+  const statCount = async () => {
+      try {
+        const userId = localStorage.getItem("userId");
+  
+        const body = {
+          assigned_to: state.user ? state.user?.value : userId,
+        };
+  
+        const res: any = await Models.lead.count(body);
+        console.log("count res", res);
+  
+        setState({
+          statCount: res,
+        });
+      } catch (error) {
+        console.log("✌️error --->", error);
+        setState({ loading: false });
+      }
+    };
+
+  const leadList = async (page, sortBy = state.sortBy, sortOrder = state.sortOrder) => {
     try {
       const body = bodyData();
+      if (sortBy) {
+        body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
+      }
       const res: any = await Models.lead.list(page, body);
       const data = res?.results?.map((item) => ({
         full_name: item?.full_name,
@@ -357,6 +384,11 @@ const List = () => {
       }
     }
 
+     if (state.sortBy) {
+      body.ordering =
+        state.sortOrder === "desc" ? `-${state.sortBy}` : state.sortBy;
+    }
+
     // body.assigned_to = userId;
 
     console.log("✌️body --->", body);
@@ -454,6 +486,7 @@ const List = () => {
       title: "Date",
       visible: true,
       toggleable: true,
+      sortable:true,
       render: (row) => (
         <div
           className="w-fit cursor-pointer"
@@ -470,6 +503,7 @@ const List = () => {
       title: "Property",
       visible: true,
       toggleable: true,
+      sortable:true,
       render: (row) => (
         <div
           className="w-fit cursor-pointer"
@@ -495,6 +529,7 @@ const List = () => {
       title: "Customer Name",
       visible: true,
       toggleable: true,
+      sortable:true,
       render: (row) => (
         <span title={row?.full_name}>{truncateText(row?.full_name)}</span>
       ),
@@ -506,6 +541,7 @@ const List = () => {
 
       visible: true,
       toggleable: true,
+      sortable:true,
       render: (row) => (
         <span title={row?.email}>{truncateText(row?.email)}</span>
       ),
@@ -641,7 +677,7 @@ const List = () => {
       <div className="mb-6 flex gap-4">
         <div
           onClick={() => {
-            setState({ statusFilter: null });
+            setState({ status: null });
           }}
           className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -652,7 +688,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                 {state.statCount?.total || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Total Leads
@@ -662,7 +698,7 @@ const List = () => {
         </div>
         <div
           onClick={() =>
-            setState({ statusFilter: { value: "approved", label: "Approved" } })
+           setState({ status: { value: "won", label: "Won" } })
           }
           className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -673,7 +709,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.won_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Won Leads
@@ -681,9 +717,9 @@ const List = () => {
             </div>
           </div>
         </div>
-        {/* <div
+        <div
           onClick={() =>
-            setState({ statusFilter: { value: "pending", label: "Pending" } })
+            setState({ status: { value: "contacted", label: "Contacted" } })
           }
           className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -694,15 +730,18 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.contacted_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Lost Leads
+                Contacted Leads
               </p>
             </div>
           </div>
-        </div> */}
-        <div className="rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700">
+        </div>
+        <div className="cursor-pointer rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+         onClick={() =>
+            setState({ status: { value: "lost", label: "Lost" } })
+          }>
           <div className="flex items-center gap-5">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
               <Clock className="h-10 w-10 text-red-600" />
@@ -710,7 +749,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.lost_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Lost Leads
@@ -835,6 +874,18 @@ const List = () => {
             paginationText={({ from, to, totalRecords }) =>
               `Showing  ${from} to ${to} of ${totalRecords} entries`
             }
+            sortStatus={{
+                  columnAccessor: state.sortBy,
+                  direction: state.sortOrder as "asc" | "desc",
+                }}
+                onSortStatusChange={({ columnAccessor, direction }) => {
+                  setState({
+                    sortBy: columnAccessor,
+                    sortOrder: direction,
+                    page: 1,
+                  });
+                  leadList(1, columnAccessor, direction);
+                }}
             style={{ zIndex: 0 }}
           />
         </div>

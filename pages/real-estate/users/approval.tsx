@@ -41,6 +41,8 @@ const List = () => {
     address: "",
     isOpen: false,
     error: {},
+    sortBy: "",
+    sortOrder: "asc",
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -73,9 +75,12 @@ const List = () => {
         }
       }
 
-  const usersList = async (page: any) => {
+  const usersList = async (page: any, sortBy = state.sortBy, sortOrder = state.sortOrder) => {
     try {
       const body = bodyData();
+      if (sortBy) {
+        body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
+      }
       console.log("body", body);
 
       const res: any = await Models.user.list(page, body);
@@ -125,6 +130,11 @@ const List = () => {
       body.user_type = state.role.value;
     }
     body.account_status = "pending_review";
+
+     if (state.sortBy) {
+      body.ordering =
+        state.sortOrder === "desc" ? `-${state.sortBy}` : state.sortBy;
+    }
 
     return body;
   };
@@ -336,6 +346,7 @@ const List = () => {
               {
                 accessor: "name",
                 title: "Name",
+                sortable:true,
 
                 render: (row) => (
                   <div className="flex w-fit items-center font-semibold">
@@ -356,7 +367,8 @@ const List = () => {
                   </div>
                 ),
               },
-              { accessor: "email", title: "Email" , 
+              { accessor: "email", title: "Email" ,
+                sortable:true, 
                 render: (row) => (
                   <span title={row.email}>
                     {truncateText(row.email)}
@@ -402,6 +414,18 @@ const List = () => {
             paginationText={({ from, to, totalRecords }) =>
               `Showing  ${from} to ${to} of ${totalRecords} entries`
             }
+            sortStatus={{
+                  columnAccessor: state.sortBy,
+                  direction: state.sortOrder as "asc" | "desc",
+                }}
+                onSortStatusChange={({ columnAccessor, direction }) => {
+                  setState({
+                    sortBy: columnAccessor,
+                    sortOrder: direction,
+                    page: 1,
+                  });
+                  usersList(1, columnAccessor, direction);
+                }}
           />
         </div>
 

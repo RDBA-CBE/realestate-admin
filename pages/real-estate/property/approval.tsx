@@ -59,16 +59,18 @@ import {
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
 import { render } from "@fullcalendar/core/preact";
+import PrivateRouter from "@/hook/privateRouter";
 
-export default function List() {
+const List = () => {
   const router = useRouter();
 
   const tableColumns = [
     {
-      accessor: "name",
+      accessor: "title",
       title: "Property Info",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row) => (
         <Link className="flex gap-3 font-semibold" href={`${FRONTEND_URL}/property-detail/${row?.id}`}
                 target="_blank">
@@ -97,6 +99,7 @@ export default function List() {
       title: "Project",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row)=>(
       <span title={row.project}>
         {truncateText(row.project)}
@@ -146,7 +149,7 @@ export default function List() {
       render: (row: any) => {
         const property_type = row.property_type;
         if (!property_type || property_type?.length === 0) {
-          return <span className="text-gray-400">-</span>;
+          return <span className="">-</span>;
         }
 
         const firstType = property_type[0];
@@ -241,10 +244,11 @@ export default function List() {
 
   const allColumns = [
     {
-      accessor: "name",
+      accessor: "title",
       title: "Property Info",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row) => (
         <Link className="flex gap-3 font-semibold" href={`${FRONTEND_URL}/property-detail/${row?.id}`} target="__blank">
           <div className="h-20 w-20 rounded-md bg-white-dark/30  ltr:mr-2 rtl:ml-2">
@@ -303,6 +307,7 @@ export default function List() {
       title: "Project",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row) => ( 
         <span title={row.project}>
           {truncateText(row.project)}
@@ -351,7 +356,7 @@ export default function List() {
       render: (row: any) => {
         const property_type = row.property_type;
         if (!property_type || property_type?.length === 0) {
-          return <span className="text-gray-400">-</span>;
+          return <span className="">-</span>;
         }
 
         const firstType = property_type[0];
@@ -457,6 +462,8 @@ export default function List() {
     loading: false,
     visibleColumns: allColumns,
     viewMode: "table",
+    sortBy: "",
+    sortOrder: "asc",
   });
 
   const visibleCount = state.visibleColumns.filter((col) => col.visible).length;
@@ -513,11 +520,16 @@ export default function List() {
       }
     }
 
-  const propertyList = async (page) => {
+  const propertyList = async (page, sortBy = state.sortBy, sortOrder = state.sortOrder) => {
     console.log("✌️page --->", page);
     try {
       setState({ loading: true });
       const body = bodyData();
+
+      if (sortBy) {
+        body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
+      }
+
       console.log("✌️body --->", body);
       const res: any = await Models.property.list(page, body);
       const data = res?.results?.map((item) => ({
@@ -664,6 +676,11 @@ export default function List() {
       body.publish = state.publish.value == "Publish" ? "Yes" : "No";
     } else {
       body.publish = "Yes";
+    }
+
+     if (state.sortBy) {
+      body.ordering =
+        state.sortOrder === "desc" ? `-${state.sortBy}` : state.sortBy;
     }
 
     return body;
@@ -1137,6 +1154,19 @@ export default function List() {
                 records={state.tableList || []}                
                 columns={filteredColumns}
                 highlightOnHover
+
+                 sortStatus={{
+                  columnAccessor: state.sortBy,
+                  direction: state.sortOrder as "asc" | "desc",
+                }}
+                onSortStatusChange={({ columnAccessor, direction }) => {
+                  setState({
+                    sortBy: columnAccessor,
+                    sortOrder: direction,
+                    page: 1,
+                  });
+                  propertyList(1, columnAccessor, direction);
+                }}
                 
               />
             </>
@@ -1169,3 +1199,5 @@ export default function List() {
     </>
   );
 }
+
+export default PrivateRouter(List)

@@ -23,8 +23,9 @@ import * as Yup from "yup";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
 import { FILTER_ROLES, ROLES } from "@/utils/constant.utils";
+import PrivateRouter from "@/hook/privateRouter";
 
-export default function list() {
+const list = () => {
   const [state, setState] = useSetState({
     isOpen: false,
     btnLoading: false,
@@ -38,7 +39,9 @@ export default function list() {
     error: {},
     userList: [],
     role: null,
-    userId:null
+    userId:null,
+    sortBy: "",
+    sortOrder: "asc",
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -117,9 +120,13 @@ export default function list() {
   
   
 
-  const projectList = async (page) => {
+  const projectList = async (page, sortBy = state.sortBy, sortOrder = state.sortOrder) => {
     try {
       const body = bodyData();
+
+      if (sortBy) {
+        body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
+      }
 
       console.log("body", body);
       
@@ -254,7 +261,13 @@ console.log("state.userId", state.userId);
 
     if (state.user?.value || (state.role == null  && state.userId) ) {
       body.created_by = state.user?.value ? state.user?.value : state.userId ;
-    } 
+    }
+    
+    if (state.sortBy) {
+      body.ordering =
+        state.sortOrder === "desc" ? `-${state.sortBy}` : state.sortBy;
+    }
+
     // else {
     //   body.created_by = userId;
     // }
@@ -396,6 +409,7 @@ console.log("state.userId", state.userId);
             {
               accessor: "name",
               title: "Project Name",
+              sortable:true,
               render: (row: any) => (
                 <span
                   className="cursor-pointer "
@@ -407,7 +421,7 @@ console.log("state.userId", state.userId);
             },
             { accessor: "properties" },
 
-            { accessor: "location" },
+            { accessor: "location", sortable:true, },
             { accessor: "status" },
 
             {
@@ -443,6 +457,18 @@ console.log("state.userId", state.userId);
           paginationText={({ from, to, totalRecords }) =>
             `Showing  ${from} to ${to} of ${totalRecords} entries`
           }
+          sortStatus={{
+                  columnAccessor: state.sortBy,
+                  direction: state.sortOrder as "asc" | "desc",
+                }}
+                onSortStatusChange={({ columnAccessor, direction }) => {
+                  setState({
+                    sortBy: columnAccessor,
+                    sortOrder: direction,
+                    page: 1,
+                  });
+                  projectList(1, columnAccessor, direction);
+                }}
         />
         <div className="mt-5 flex justify-end gap-3">
           <button
@@ -530,3 +556,8 @@ console.log("state.userId", state.userId);
     </>
   );
 }
+
+export default PrivateRouter(list)
+
+
+

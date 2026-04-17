@@ -18,6 +18,11 @@ const user = {
       if (body?.account_status) {
         url += `&account_status=${encodeURIComponent(body?.account_status)}`;
       }
+
+      if (body?.ordering) {
+        url += `&sort_by=${body?.ordering}`;
+      }
+      
       instance()
         .get(url)
         .then((res) => {

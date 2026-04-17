@@ -8,6 +8,9 @@ const category = {
       if (body?.search) {
         url += `&name=${encodeURIComponent(body.search)}`;
       }
+       if (body?.ordering) {
+        url += `&sort_by=${body?.ordering}`;
+      }
       instance()
         .get(url, body)
         .then((res) => {

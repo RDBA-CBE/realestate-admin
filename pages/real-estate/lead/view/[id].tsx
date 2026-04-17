@@ -28,8 +28,9 @@ import { LucideHome } from "lucide-react";
 import { LISTING_TYPE_LIST } from "@/utils/constant.utils";
 import CustomSelect from "@/components/FormFields/CustomSelect.component";
 import CustomeDatePicker from "@/components/datePicker";
+import PrivateRouter from "@/hook/privateRouter";
 
-export default function View_opportunity(props: any) {
+const View_opportunity = (props: any) => {
   const router = useRouter();
 
   const id = router?.query?.id;
@@ -557,3 +558,5 @@ export default function View_opportunity(props: any) {
     </div>
   );
 }
+
+export default PrivateRouter(View_opportunity)

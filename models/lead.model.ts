@@ -36,6 +36,10 @@ const lead = {
         url += `&created_after=${encodeURIComponent(body.date)}`;
       }
 
+       if (body?.ordering) {
+        url += `&sort_by=${body?.ordering}`;
+      }
+
       instance()
         .get(url)
         .then((res) => {
@@ -190,6 +194,32 @@ const lead = {
     });
     return promise;
   },
+
+  count: (body: any) => {
+        let url = "leads/counts";
+        const params: any = new URLSearchParams();
+    
+        if (body?.created_by) {
+          params.append("created_by", body.created_by);
+        }
+         if (body?.assigned_to) {
+          params.append("assigned_to", body.assigned_to);
+        }
+  
+        if (params.toString()) {
+          url += `?${params.toString()}`;
+        }
+    
+        return instance()
+          .get(url)
+          .then((res) => res.data)
+          .catch((error) => {
+            if (error.response) {
+              return Promise.reject(error.response.message);
+            }
+            return Promise.reject(error);
+          });
+      },
 };
 
 export default lead;

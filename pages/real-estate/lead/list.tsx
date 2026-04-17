@@ -77,6 +77,8 @@ const List = () => {
     group: null,
     showFilterModal: false,
     showStatusModal: false,
+    sortBy: "",
+    sortOrder: "asc",
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -86,6 +88,7 @@ const List = () => {
     categoryList(1);
     groupList();
     setState({ visibleColumns: columns });
+    statCount();
   }, []);
 
   useEffect(() => {
@@ -151,9 +154,32 @@ const List = () => {
     }
   };
 
-  const leadList = async (page) => {
+  const statCount = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+
+      const body = {
+        created_by: state.user ? state.user?.value : userId,
+      };
+
+      const res: any = await Models.lead.count(body);
+      console.log("count res", res);
+
+      setState({
+        statCount: res,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+      setState({ loading: false });
+    }
+  };
+
+  const leadList = async (page, sortBy = state.sortBy, sortOrder = state.sortOrder) => {
     try {
       const body = bodyData();
+      if (sortBy) {
+        body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
+      }
       const res: any = await Models.lead.list(page, body);
       const data = res?.results?.map((item) => ({
         full_name: item?.full_name,
@@ -164,7 +190,7 @@ const List = () => {
         email: item?.email,
         property: item?.property_details?.title,
         property_type:
-                  item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
+          item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
         requirements: item?.requirements,
         assigned_to: item?.assigned_to_details
           ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
@@ -380,6 +406,11 @@ const List = () => {
       }
     }
 
+    if (state.sortBy) {
+      body.ordering =
+        state.sortOrder === "desc" ? `-${state.sortBy}` : state.sortBy;
+    }
+
     // if (group == capitalizeFLetter(ROLES.ADMIN)) {
     //   body = { ...body, ...adminBody() };
     // }
@@ -424,7 +455,10 @@ const List = () => {
     if (!state.newStatus) return;
     try {
       setState({ btnLoading: true });
-      await Models.lead.update({ status: state.newStatus?.value }, state.statusRow?.id);
+      await Models.lead.update(
+        { status: state.newStatus?.value },
+        state.statusRow?.id,
+      );
       setState({ showStatusModal: false, btnLoading: false });
       leadList(state.page);
       Success("Lead status updated successfully");
@@ -447,9 +481,9 @@ const List = () => {
     }
   };
 
-  const clearFilter = () =>{
+  const clearFilter = () => {
     console.log("clearFilter");
-    
+
     setState({
       search: "",
       lead_source: null,
@@ -458,8 +492,8 @@ const List = () => {
       date: null,
       role: null,
       user: null,
-    })
-  }
+    });
+  };
 
   const toggleColumn = (accessor: string) => {
     const updatedColumns = state.visibleColumns?.map((col) =>
@@ -482,10 +516,11 @@ const List = () => {
 
   const columns = [
     {
-      accessor: "date",
+      accessor: "created_at",
       title: "Date",
       visible: true,
       toggleable: true,
+      sortable:true,
       render: (row) => (
         <div
           className="w-fit cursor-pointer"
@@ -498,10 +533,11 @@ const List = () => {
       ),
     },
     {
-      accessor: "property",
+      accessor: "title",
       title: "Property",
       visible: true,
       toggleable: true,
+      sortable:true,
       render: (row) => (
         <div
           className="w-fit cursor-pointer"
@@ -510,7 +546,7 @@ const List = () => {
           }}
           title={row?.property}
         >
-          <div >{truncateText(row?.property)}</div>
+          <div>{truncateText(row?.property)}</div>
         </div>
       ),
     },
@@ -577,11 +613,10 @@ const List = () => {
       title: "Customer Name",
       visible: true,
       toggleable: true,
-      render:(row)=>(
-        <span title={row?.full_name}>
-          {truncateText(row?.full_name)}
-        </span>
-      )
+      sortable:true,
+      render: (row) => (
+        <span title={row?.full_name}>{truncateText(row?.full_name)}</span>
+      ),
     },
 
     {
@@ -590,11 +625,10 @@ const List = () => {
 
       visible: true,
       toggleable: true,
-      render:(row)=>(
-        <span title={row?.email}>
-          {truncateText(row?.email)}
-        </span>
-      )
+      sortable:true,
+      render: (row) => (
+        <span title={row?.email}>{truncateText(row?.email)}</span>
+      ),
     },
 
     {
@@ -602,11 +636,9 @@ const List = () => {
       title: "Assigned To",
       visible: true,
       toggleable: true,
-      render:(row)=>(
-        <span title={row?.assigned_to}>
-          {truncateText(row?.assigned_to)}
-        </span>
-      )
+      render: (row) => (
+        <span title={row?.assigned_to}>{truncateText(row?.assigned_to)}</span>
+      ),
     },
 
     {
@@ -614,11 +646,9 @@ const List = () => {
       title: "Lead Source",
       visible: true,
       toggleable: true,
-      render:(row)=>(
-        <span title={row?.lead_source}>
-          {truncateText(row?.lead_source)}
-        </span>
-      )
+      render: (row) => (
+        <span title={row?.lead_source}>{truncateText(row?.lead_source)}</span>
+      ),
     },
     {
       accessor: "status",
@@ -626,11 +656,9 @@ const List = () => {
 
       visible: true,
       toggleable: true,
-       render:(row)=>(
-        <span title={row?.status}>
-          {truncateText(row?.status)}
-        </span>
-      )
+      render: (row) => (
+        <span title={row?.status}>{truncateText(row?.status)}</span>
+      ),
     },
 
     {
@@ -665,13 +693,13 @@ const List = () => {
             onClick={(e) => {
               router.push(`/real-estate/lead/view/${row?.id}`);
             }}
-            title  = "View Lead Details"
+            title="View Lead Details"
           >
             <Eye className="h-4 w-4" />
           </button>
 
           <button
-            className="text-success flex"
+            className="flex text-success"
             onClick={(e) => handleStatus(row)}
             title="Change Lead Status"
           >
@@ -683,11 +711,10 @@ const List = () => {
             onClick={(e) => {
               handleEdit(row);
             }}
-            title = "Edit Lead"
+            title="Edit Lead"
           >
             <IconEdit className="h-4 w-4" />
           </button>
-          
 
           <button
             type="button"
@@ -735,7 +762,7 @@ const List = () => {
       <div className="mb-6 flex gap-4">
         <div
           onClick={() => {
-            setState({ statusFilter: null });
+            setState({ status: null });
           }}
           className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -746,7 +773,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.total || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Total Leads
@@ -756,7 +783,7 @@ const List = () => {
         </div>
         <div
           onClick={() =>
-            setState({ statusFilter: { value: "approved", label: "Approved" } })
+            setState({ status: { value: "won", label: "Won" } })
           }
           className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -767,7 +794,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.won_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Won Leads
@@ -775,9 +802,9 @@ const List = () => {
             </div>
           </div>
         </div>
-        {/* <div
+        <div
           onClick={() =>
-            setState({ statusFilter: { value: "pending", label: "Pending" } })
+            setState({ status: { value: "contacted", label: "Contacted" } })
           }
           className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -788,15 +815,18 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.contacted_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Lost Leads
+                Contacted Leads
               </p>
             </div>
           </div>
-        </div> */}
-        <div className="rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700">
+        </div>
+        <div className="cursor-pointer rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700" 
+         onClick={() =>
+            setState({ status: { value: "lost", label: "Lost" } })
+          }>
           <div className="flex items-center gap-5">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
               <Clock className="h-10 w-10 text-red-600" />
@@ -804,7 +834,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                 {state.statCount?.lost_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Lost Leads
@@ -898,8 +928,6 @@ const List = () => {
         </div>
       </div>
 
-      
-
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
           <div
@@ -911,9 +939,7 @@ const List = () => {
               gap: "10px",
             }}
           >
-           <div className="text-sm text-black">
-            {state.total} Leads found
-          </div>
+            <div className="text-sm text-black">{state.total} Leads found</div>
           </div>
           <DataTable
             className="table-responsive"
@@ -929,6 +955,18 @@ const List = () => {
             paginationText={({ from, to, totalRecords }) =>
               `Showing  ${from} to ${to} of ${totalRecords} entries`
             }
+            sortStatus={{
+                  columnAccessor: state.sortBy,
+                  direction: state.sortOrder as "asc" | "desc",
+                }}
+                onSortStatusChange={({ columnAccessor, direction }) => {
+                  setState({
+                    sortBy: columnAccessor,
+                    sortOrder: direction,
+                    page: 1,
+                  });
+                  leadList(1, columnAccessor, direction);
+                }}
             style={{ zIndex: 0 }}
           />
         </div>
@@ -1034,28 +1072,27 @@ const List = () => {
               </button>
             </div>
             <div className="grid grid-cols-1 gap-4 py-3 md:grid-cols-2">
-               {state.group == "Admin" && (
-            <>
-              <CustomSelect
-                placeholder="Role"
-                value={state.role}
-                onChange={(e) => {
-                  getuserList(e);
-                  setState({ userList: [] });
-                }}
-                options={state.groupList}
-              />
+              {state.group == "Admin" && (
+                <>
+                  <CustomSelect
+                    placeholder="Role"
+                    value={state.role}
+                    onChange={(e) => {
+                      getuserList(e);
+                      setState({ userList: [] });
+                    }}
+                    options={state.groupList}
+                  />
 
-              <CustomSelect
-                placeholder="user"
-                value={state.user}
-                onChange={(e) => setState({ user: e })}
-                options={state.userList}
-                 disabled={!state.role}
-              />
-            </>
-          )}
-             
+                  <CustomSelect
+                    placeholder="user"
+                    value={state.user}
+                    onChange={(e) => setState({ user: e })}
+                    options={state.userList}
+                    disabled={!state.role}
+                  />
+                </>
+              )}
             </div>
             <div className="flex items-center justify-between py-3">
               <button
@@ -1099,7 +1136,7 @@ const List = () => {
                 options={STATUS_OPTIONS}
               />
             </div>
-            <div className="flex items-center justify-end gap-3 pt-16 pb-0">
+            <div className="flex items-center justify-end gap-3 pb-0 pt-16">
               <button
                 onClick={() => setState({ showStatusModal: false })}
                 className="btn border-dred hover:btn-mred"

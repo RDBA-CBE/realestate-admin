@@ -12,6 +12,11 @@ const amenity = {
        if (body?.pagination) {
         url += `&pagination=${encodeURIComponent(false)}`;
       }
+
+       if (body?.ordering) {
+        url += `&sort_by=${body?.ordering}`;
+      }
+      
       instance()
         .get(url, body)
         .then((res) => {

@@ -22,8 +22,9 @@ import Utils from "@/imports/utils.import";
 import * as Yup from "yup";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
+import PrivateRouter from "@/hook/privateRouter";
 
-export default function list() {
+const  list = () => {
   const [state, setState] = useSetState({
     isOpen: false,
     btnLoading: false,
@@ -35,6 +36,8 @@ export default function list() {
     description: "",
     search: "",
     error: {},
+    sortBy: "",
+    sortOrder: "asc",
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -43,9 +46,12 @@ export default function list() {
     amenityList(1);
   }, [debouncedSearch]);
 
-  const amenityList = async (page) => {
+  const amenityList = async (page, sortBy = state.sortBy, sortOrder = state.sortOrder) => {
     try {
       const body = bodyData();
+      if (sortBy) {
+        body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
+      }
       const res: any = await Models.amenity.list(page, body);
       const data = res?.results?.map((item) => ({
         name: item?.name,
@@ -175,6 +181,11 @@ export default function list() {
 
     if (state.search) {
       body.search = state.search;
+    }
+
+     if (state.sortBy) {
+      body.ordering =
+        state.sortOrder === "desc" ? `-${state.sortBy}` : state.sortBy;
     }
 
     console.log("✌️body --->", body);
@@ -317,7 +328,7 @@ export default function list() {
           className="table-responsive"
           records={state.tableList || []}
           columns={[
-            { accessor: "name", title: "Amenity Name" , render: (row: any) => (
+            { accessor: "name", title: "Amenity Name" ,sortable:true, render: (row: any) => (
               
               <div >
                 <div className="cursor-pointer w-fit"
@@ -363,6 +374,18 @@ export default function list() {
           paginationText={({ from, to, totalRecords }) =>
             `Showing  ${from} to ${to} of ${totalRecords} entries`
           }
+          sortStatus={{
+                  columnAccessor: state.sortBy,
+                  direction: state.sortOrder as "asc" | "desc",
+                }}
+                onSortStatusChange={({ columnAccessor, direction }) => {
+                  setState({
+                    sortBy: columnAccessor,
+                    sortOrder: direction,
+                    page: 1,
+                  });
+                  amenityList(1, columnAccessor, direction);
+                }}
         />
         <div className="mt-5 flex justify-end gap-3">
           <button
@@ -445,3 +468,5 @@ export default function list() {
     </>
   );
 }
+
+export default PrivateRouter(list);

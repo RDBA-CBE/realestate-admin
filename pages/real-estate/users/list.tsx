@@ -58,6 +58,8 @@ const List = () => {
     address: "",
     isOpen: false,
     error: {},
+    sortBy: "",
+    sortOrder: "asc",
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -73,7 +75,7 @@ const List = () => {
   useEffect(() => {
     usersList(1);
     groupsList(1);
-     statCount()
+    statCount();
   }, []);
 
   useEffect(() => {
@@ -97,29 +99,31 @@ const List = () => {
 
   console.log("groupList", state.groupList);
 
-  const statCount = async()=> {
-          try {
-            const body = {
-             account_status : "approved"
-            }
-             const res: any = await Models.user.count(body);
-             console.log("count res", res);
-      
-             setState({
-              statCount:res
-             })
-             
-            
-          } catch (error) {
-            console.log("✌️error --->", error);
-            setState({ loading: false });
-          }
-        }
+  const statCount = async () => {
+    try {
+      const body = {
+        account_status: "approved",
+      };
+      const res: any = await Models.user.count(body);
+      console.log("count res", res);
 
-  const usersList = async (page: any) => {
+      setState({
+        statCount: res,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+      setState({ loading: false });
+    }
+  };
+
+  const usersList = async (page: any, sortBy = state.sortBy, sortOrder = state.sortOrder) => {
     try {
       const body = bodyData();
       console.log("body", body);
+
+       if (sortBy) {
+        body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
+      }
 
       const res: any = await Models.user.list(page, body);
       const data = res?.results?.map((item: any) => ({
@@ -250,6 +254,11 @@ const List = () => {
     }
     body.account_status = "approved";
 
+    if (state.sortBy) {
+      body.ordering =
+        state.sortOrder === "desc" ? `-${state.sortBy}` : state.sortBy;
+    }
+
     return body;
   };
 
@@ -364,7 +373,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-               {state.statCount?.total || 0}
+                {state.statCount?.total || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Total Users
@@ -374,7 +383,7 @@ const List = () => {
         </div>
         <div
           onClick={() =>
-             setState({ role: { value: "developer", label: "Developer" } })
+            setState({ role: { value: "developer", label: "Developer" } })
           }
           className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -385,7 +394,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                 {state.statCount?.developers || 0}
+                {state.statCount?.developers || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Developers
@@ -394,9 +403,7 @@ const List = () => {
           </div>
         </div>
         <div
-          onClick={() =>
-            setState({ role: { value: "agent", label: "Agent" } })
-          }
+          onClick={() => setState({ role: { value: "agent", label: "Agent" } })}
           className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
           <div className="flex items-center gap-5">
@@ -406,16 +413,16 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                 {state.statCount?.agents || 0}
+                {state.statCount?.agents || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Agents</p>
             </div>
           </div>
         </div>
-        <div className="cursor-pointer rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
-         onClick={() =>
-                  setState({ role: { value: "buyer", label: "Buyer" } })
-                }>
+        <div
+          className="cursor-pointer rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+          onClick={() => setState({ role: { value: "buyer", label: "Buyer" } })}
+        >
           <div className="flex items-center gap-5">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
               <Clock className="h-10 w-10 text-red-600" />
@@ -423,7 +430,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-               {state.statCount?.buyers || 0}
+                {state.statCount?.buyers || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">Buyers</p>
             </div>
@@ -494,7 +501,7 @@ const List = () => {
               {
                 accessor: "name",
                 title: "Name",
-
+                sortable:true,
                 render: (row) => (
                   <div
                     className="flex w-fit items-center font-semibold"
@@ -521,6 +528,7 @@ const List = () => {
               {
                 accessor: "email",
                 title: "Email",
+                sortable:true,
                 render: (row) => (
                   <span title={row.email}>{truncateText(row.email)}</span>
                 ),
@@ -576,6 +584,18 @@ const List = () => {
             paginationText={({ from, to, totalRecords }) =>
               `Showing  ${from} to ${to} of ${totalRecords} entries`
             }
+            sortStatus={{
+                  columnAccessor: state.sortBy,
+                  direction: state.sortOrder as "asc" | "desc",
+                }}
+                onSortStatusChange={({ columnAccessor, direction }) => {
+                  setState({
+                    sortBy: columnAccessor,
+                    sortOrder: direction,
+                    page: 1,
+                  });
+                  usersList(1, columnAccessor, direction);
+                }}
           />
         </div>
 

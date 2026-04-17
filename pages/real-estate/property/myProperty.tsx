@@ -50,22 +50,25 @@ import {
   Columns,
   Eye,
   EyeOff,
+  Globe,
   Hourglass,
   LucideHome,
   SlidersHorizontal,
   Table,
   X,
 } from "lucide-react";
+import PrivateRouter from "@/hook/privateRouter";
 
-export default function list() {
+const  list = () => {
   const router = useRouter();
 
   const tableColumns = [
     {
-      accessor: "name",
+      accessor: "title",
       title: "Property Info",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row) => (
         <Link
           className="flex gap-3 font-semibold"
@@ -88,12 +91,14 @@ export default function list() {
       title: "Price Range",
       visible: true,
       toggleable: true,
+      
     },
     {
       accessor: "project",
       title: "Project",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row) => (
         <span title={row.project}>{truncateText(row.project)}</span>
       ),
@@ -122,7 +127,7 @@ export default function list() {
       render: (row: any) => {
         const property_type = row.property_type;
         if (!property_type || property_type?.length === 0) {
-          return <span className="text-gray-400">-</span>;
+          return <span className="">-</span>;
         }
 
         const firstType = property_type[0];
@@ -196,6 +201,20 @@ export default function list() {
     },
 
     {
+      accessor: "publish",
+      title: "Publish",
+      visible: true,
+      toggleable: true,
+      render: (row: any) => (
+        <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+          row?.publish === "Published" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-700"
+        }`}>
+          {row?.publish}
+        </span>
+      ),
+    },
+
+    {
       accessor: "action",
       title: "Actions",
       visible: true,
@@ -227,6 +246,16 @@ export default function list() {
           >
             <CircleCheck className="h-3.5 w-3.5 " />
           </button>
+
+          <button
+            type="button"
+            className={`flex ${ row?.publish === "Published" ? "text-warning" : "text-info" }`}
+            onClick={() => handlePublish(row)}
+            title={row?.publish === "Published" ? "Unpublish" : "Publish"}
+          >
+            <Globe className="h-3.5 w-3.5" />
+          </button>
+
           <button
             type="button"
             className="flex text-danger"
@@ -241,10 +270,11 @@ export default function list() {
 
   const allColumns = [
     {
-      accessor: "name",
+      accessor: "title",
       title: "Property Info",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row) => {
         const group = localStorage.getItem("group");
 
@@ -333,6 +363,7 @@ export default function list() {
       title: "Project",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row) => (
         <span title={row.project}>{truncateText(row.project)}</span>
       ),
@@ -361,7 +392,7 @@ export default function list() {
       render: (row: any) => {
         const property_type = row.property_type;
         if (!property_type || property_type?.length === 0) {
-          return <span className="text-gray-400">-</span>;
+          return <span className="">-</span>;
         }
 
         const firstType = property_type[0];
@@ -433,6 +464,19 @@ export default function list() {
       visible: true,
       toggleable: true,
     },
+    // {
+    //   accessor: "publish",
+    //   title: "Publish",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => (
+    //     <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+    //       row?.publish === "Published" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-700"
+    //     }`}>
+    //       {row?.publish}
+    //     </span>
+    //   ),
+    // },
 
     {
       accessor: "action",
@@ -466,6 +510,15 @@ export default function list() {
           >
             <CircleCheck className="h-3.5 w-3.5 " />
           </button>
+
+            <button
+                      type="button"
+                      className={`flex ${ row?.publish === "Published" ? "text-warning" : "text-info" }`}
+                      onClick={() => handlePublish(row)}
+                      title={row?.publish === "Published" ? "Unpublish" : "Publish"}
+                    >
+                      <Globe className="h-3.5 w-3.5" />
+                    </button>
           <button
             type="button"
             className="flex text-danger"
@@ -496,6 +549,8 @@ export default function list() {
     visibleColumns: allColumns,
     viewMode: "table",
     showFilterModal: false,
+     sortBy: "",
+    sortOrder: "asc",
   });
 
   const visibleCount = state.visibleColumns.filter((col) => col.visible).length;
@@ -565,10 +620,14 @@ export default function list() {
     }
   };
 
-  const propertyList = async (page) => {
+  const propertyList = async (page, sortBy = state.sortBy, sortOrder = state.sortOrder) => {
     try {
       setState({ loading: true });
       const body = bodyData();
+
+       if (sortBy) {
+        body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
+      }
       const res: any = await Models.property.list(page, body);
       const data = res?.results?.map((item) => ({
         publish: item?.publish == true ? "Published" : "Draft",
@@ -755,6 +814,11 @@ export default function list() {
       body.publish = state.publish?.value == "Publish" ? "Yes" : "No";
     }
 
+     if (state.sortBy) {
+      body.ordering =
+        state.sortOrder === "desc" ? `-${state.sortBy}` : state.sortBy;
+    }
+
     return body;
   };
 
@@ -788,6 +852,32 @@ export default function list() {
       Success("Property Approved successfully");
     } catch (error) {}
   };
+
+  const handlePublish = async (row) => {
+      const isPublished = row?.publish === "Published";
+      const result = await Swal.fire({
+        title: "Are you sure?",
+        text: `Do you want to ${isPublished ? "unpublish" : "publish"} this property?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, do it!",
+        cancelButtonText: "Cancel",
+        padding: "2em",
+      });
+  
+      if (!result.isConfirmed) return;
+  
+      try {
+        setState({ btnLoading: true });
+        const formData = new FormData();
+        formData.append("publish", isPublished ? "false" : "true");
+        await Models.property.update(formData, row?.id);
+        propertyList(state.page);
+        Success(`Property ${isPublished ? "unpublished" : "published"} successfully`);
+      } catch (error) {
+        setState({ btnLoading: false });
+      }
+    };
 
   const clearData = () => {
     setState({
@@ -1254,6 +1344,18 @@ export default function list() {
                 records={state.tableList || []}
                 columns={filteredColumns}
                 highlightOnHover
+                sortStatus={{
+                  columnAccessor: state.sortBy,
+                  direction: state.sortOrder as "asc" | "desc",
+                }}
+                onSortStatusChange={({ columnAccessor, direction }) => {
+                  setState({
+                    sortBy: columnAccessor,
+                    sortOrder: direction,
+                    page: 1,
+                  });
+                  propertyList(1, columnAccessor, direction);
+                }}
               />
             </>
           ) : (
@@ -1408,3 +1510,5 @@ export default function list() {
     </>
   );
 }
+
+export default PrivateRouter(list)

@@ -122,17 +122,45 @@ const AddPropertyPage = () => {
   }, [state.group]);
 
   useEffect(() => {
-    amenityList(1);
+    amenityList();
     categoryList(1);
     projectList(1);
     developerList(1);
     agentList(1);
   }, []);
 
-  const amenityList = async (page) => {
+  // const amenityList = async (page) => {
+  //   try {
+  //     const res: any = await Models.amenity.list(page, {});
+  //     const dropdown = Dropdown(res?.results, "name");
+  //     setState({
+  //       amenityList: dropdown,
+  //     });
+  //   } catch (error) {
+  //     console.log("✌️error --->", error);
+  //   }
+  // };
+
+  const amenityList = async () => {
     try {
-      const res: any = await Models.amenity.list(page, {});
-      const dropdown = Dropdown(res, "name");
+      let page = 1;
+      let hasNext = true;
+      let allAmenities: any[] = [];
+
+      while (hasNext) {
+        const res: any = await Models.amenity.list(page, {});
+
+        allAmenities = [...allAmenities, ...(res?.results || [])];
+
+        if (res?.next) {
+          page += 1;
+        } else {
+          hasNext = false;
+        }
+      }
+
+      const dropdown = Dropdown(allAmenities, "name");
+
       setState({
         amenityList: dropdown,
       });
@@ -267,7 +295,7 @@ const AddPropertyPage = () => {
         description: "",
         amenityLoading: false,
       });
-      amenityList(1);
+      amenityList();
       Success("Amenity created succssfully");
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -427,7 +455,7 @@ const AddPropertyPage = () => {
 
       if (state.floorPlans.length > 0) {
         state.floorPlans?.map((item, index) =>
-          createFloorPlans(res?.id, item, index)
+          createFloorPlans(res?.id, item, index),
         );
       }
 
@@ -552,7 +580,7 @@ const AddPropertyPage = () => {
 
       if (state.floorPlans?.length > 0) {
         state.floorPlans?.map((item, index) =>
-          createFloorPlans(res?.id, item, index)
+          createFloorPlans(res?.id, item, index),
         );
       }
 
@@ -665,7 +693,7 @@ const AddPropertyPage = () => {
 
       if (state.floorPlans.length > 0) {
         state.floorPlans?.map((item, index) =>
-          createFloorPlans(res?.id, item, index)
+          createFloorPlans(res?.id, item, index),
         );
       }
 
@@ -822,7 +850,7 @@ const AddPropertyPage = () => {
   const updateFloorPlan = (index, field, value) => {
     setState({
       floorPlans: state.floorPlans.map((plan, i) =>
-        i === index ? { ...plan, [field]: value } : plan
+        i === index ? { ...plan, [field]: value } : plan,
       ),
     });
   };
@@ -856,22 +884,22 @@ const AddPropertyPage = () => {
             className="grid grid-cols-1 gap-6 md:gap-5 xl:grid-cols-10"
           >
             <div className="relative flex items-start xl:col-span-2">
-              <div className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-300 bg-white text-gray-500">
+              <div className="bg-mred text-dred relative z-10 flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#9b0f09]">
                 <step.icon size={18} />
               </div>
 
               {index !== steps.length - 1 && (
-                <div className="absolute left-5 top-11 h-full w-0.5 bg-gray-300" />
+                <div className="absolute left-5 top-11 h-full w-0.5 bg-[#9b0f09]" />
               )}
 
-              <span className="text-md ml-4 mt-2 font-bold text-gray-700">
+              <span className="text-md text-dred ml-4 mt-2 font-bold">
                 {step.title}
               </span>
             </div>
 
             <div className="xl:col-span-8">
               {step.id === 1 && (
-                <div className="panel rounded-lg">
+                <div className="panel rounded-lg border shadow-none">
                   <h2 className="mb-4 text-lg font-semibold">Basic Detail</h2>
                   <div className={`${"mt-4 grid grid-cols-2 gap-4"}`}>
                     <CustomSelect
@@ -964,7 +992,7 @@ const AddPropertyPage = () => {
               )}
 
               {step.id === 2 && (
-                <div className="panel rounded-lg p-6">
+                <div className="panel rounded-lg border p-6 shadow-none">
                   <h2 className="text-lg font-semibold">
                     Property Information
                   </h2>
@@ -1239,7 +1267,7 @@ const AddPropertyPage = () => {
 
               {/* {state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL && */}
               {step.id === 5 && (
-                <div className="panel rounded-lg p-6">
+                <div className="panel rounded-lg border p-6 shadow-none">
                   <h2 className="text-lg font-semibold">Floor Plans</h2>
 
                   <div className="mt-4">
@@ -1310,7 +1338,7 @@ const AddPropertyPage = () => {
                                   updateFloorPlan(
                                     index,
                                     "squareFeet",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 required={plan.category ? true : false}
@@ -1326,7 +1354,7 @@ const AddPropertyPage = () => {
                                   updateFloorPlan(
                                     index,
                                     "price",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 required={plan.category ? true : false}
@@ -1356,7 +1384,7 @@ const AddPropertyPage = () => {
                                   updateFloorPlan(
                                     index,
                                     "floorNo",
-                                    e.target.value
+                                    e.target.value,
                                   )
                                 }
                                 required={plan.category ? true : false}
@@ -1377,21 +1405,21 @@ const AddPropertyPage = () => {
                                 e.preventDefault();
                                 e.currentTarget.classList.add(
                                   "border-blue-400",
-                                  "bg-blue-50"
+                                  "bg-blue-50",
                                 );
                               }}
                               onDragLeave={(e) => {
                                 e.preventDefault();
                                 e.currentTarget.classList.remove(
                                   "border-blue-400",
-                                  "bg-blue-50"
+                                  "bg-blue-50",
                                 );
                               }}
                               onDrop={(e) => {
                                 e.preventDefault();
                                 e.currentTarget.classList.remove(
                                   "border-blue-400",
-                                  "bg-blue-50"
+                                  "bg-blue-50",
                                 );
 
                                 const files = e.dataTransfer.files;
@@ -1485,7 +1513,7 @@ const AddPropertyPage = () => {
               )}
 
               {step.id === 7 && (
-                <div className="panel rounded-lg p-6">
+                <div className="panel rounded-lg border p-6 shadow-none">
                   <h2 className="text-lg font-semibold">
                     Upload photos of your property
                   </h2>
@@ -1532,7 +1560,7 @@ const AddPropertyPage = () => {
 
               {/* Step 3: Price */}
               {step.id === 3 && (
-                <div className="panel rounded-lg p-6">
+                <div className="panel rounded-lg border p-6 shadow-none">
                   <h2 className="mb-4 text-lg font-semibold">Location</h2>
                   <TextArea
                     name="Address"
@@ -1686,10 +1714,28 @@ const AddPropertyPage = () => {
 
               {/* Step 4: Features & Amenities */}
               {step.id === 4 && (
-                <div className="panel rounded-lg">
-                  <h2 className="mb-4 text-lg font-semibold">
-                    Features & Amenities
-                  </h2>
+                <div className="panel rounded-lg border shadow-none">
+                  <div className="mb-6 flex justify-between">
+                    <h2 className="mb-4 text-lg font-semibold">
+                      Features & Amenities
+                    </h2>
+                    <div className=" flex justify-end">
+                      <button
+                        type="button"
+                        className="btn btn-dred w-full border-none py-1 md:mb-0 md:w-auto"
+                        onClick={() =>
+                          setState({
+                            isOpenAmenit: true,
+                            name: "",
+                            description: "",
+                            amenityLoading: false,
+                          })
+                        }
+                      >
+                        New Amenities
+                      </button>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-4 gap-4">
                     {state.amenityList?.map((amenity) => (
                       <CheckboxInput
@@ -1700,10 +1746,10 @@ const AddPropertyPage = () => {
                         checked={state.amenities?.includes(amenity.value)}
                         onChange={() => {
                           const updatedAmenities = state.amenities?.includes(
-                            amenity.value
+                            amenity.value,
                           )
                             ? state.amenities.filter(
-                                (item) => item !== amenity.value
+                                (item) => item !== amenity.value,
                               )
                             : [...(state.amenities || []), amenity.value];
                           setState({
@@ -1722,27 +1768,12 @@ const AddPropertyPage = () => {
                       {state.error?.amenities}
                     </p>
                   )}
-                  <div className="mt-6 flex justify-end">
-                    <PrimaryButton
-                      type="button"
-                      text="New Amenities"
-                      className="!mt-6 border-0 shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
-                      onClick={() =>
-                        setState({
-                          isOpenAmenit: true,
-                          name: "",
-                          description: "",
-                          amenityLoading: false,
-                        })
-                      }
-                    />
-                  </div>
                 </div>
               )}
 
               {/* Step 6: Contact Information */}
               {step.id === 6 && (
-                <div className="panel rounded-lg">
+                <div className="panel rounded-lg border shadow-none">
                   <h2 className="mb-4 text-lg font-semibold">
                     Contact Information
                   </h2>

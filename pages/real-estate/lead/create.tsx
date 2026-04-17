@@ -43,6 +43,7 @@ import CustomPhoneInput from "@/components/phoneInput";
 import Link from "next/link";
 import IconMapPin from "@/components/Icon/IconMapPin";
 import Utils from "@/imports/utils.import";
+import PrivateRouter from "@/hook/privateRouter";
 
 const CreateOpportunities = () => {
   const dispatch = useDispatch();
@@ -640,4 +641,4 @@ const CreateOpportunities = () => {
   );
 };
 
-export default CreateOpportunities;
+export default PrivateRouter(CreateOpportunities);

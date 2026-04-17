@@ -69,6 +69,10 @@ const properties = {
         url += `&agent=${body?.agent}`;
       }
 
+      if (body?.ordering) {
+        url += `&sort_by=${body?.ordering}`;
+      }
+
       instance()
         .get(url, body)
         .then((res) => {

@@ -80,6 +80,8 @@ const List = () => {
     group: null,
     showFilterModal: false,
     showStatusModal: false,
+    sortBy: "",
+    sortOrder: "asc",
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -153,9 +155,12 @@ const List = () => {
     }
   };
 
-  const leadList = async (page) => {
+  const leadList = async (page, sortBy = state.sortBy, sortOrder = state.sortOrder) => {
     try {
       const body = bodyData();
+      if (sortBy) {
+        body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
+      }
       const res: any = await Models.lead.list(page, body);
       const data = res?.results?.map((item) => ({
         full_name: item?.full_name,
@@ -434,6 +439,11 @@ const List = () => {
       }
     }
 
+     if (state.sortBy) {
+      body.ordering =
+        state.sortOrder === "desc" ? `-${state.sortBy}` : state.sortBy;
+    }
+
     console.log("userId", userId);
 
     console.log("state.leadType", state.leadType);
@@ -533,6 +543,7 @@ const List = () => {
       title: "Date",
       visible: true,
       toggleable: true,
+      sortable:true,
       render: (row) => (
         <div
           className="w-fit cursor-pointer "
@@ -549,6 +560,7 @@ const List = () => {
       title: "Property",
       visible: true,
       toggleable: true,
+      sortable:true,
       render: (row) => (
         <div
           className="w-fit cursor-pointer "
@@ -573,6 +585,7 @@ const List = () => {
       title: "Customer Name",
       visible: true,
       toggleable: true,
+      sortable:true,
       render: (row) => (
         <span title={row?.full_name}>{truncateText(row?.full_name)}</span>
       ),
@@ -584,6 +597,7 @@ const List = () => {
 
       visible: true,
       toggleable: true,
+      sortable:true,
       render: (row) => (
         <span title={row?.email}>{truncateText(row?.email)}</span>
       ),
@@ -737,7 +751,7 @@ const List = () => {
         </div>
       </div>
 
-      <div className="mb-6 flex gap-4">
+      {/* <div className="mb-6 flex gap-4">
         <div
           onClick={() => {
             setState({ statusFilter: null });
@@ -780,7 +794,7 @@ const List = () => {
             </div>
           </div>
         </div>
-        {/* <div
+        <div
           onClick={() =>
             setState({ statusFilter: { value: "pending", label: "Pending" } })
           }
@@ -800,7 +814,7 @@ const List = () => {
               </p>
             </div>
           </div>
-        </div> */}
+        </div>
         <div className="rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700">
           <div className="flex items-center gap-5">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
@@ -817,7 +831,7 @@ const List = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="mb-5 rounded-2xl ">
         <div className="flex items-center justify-between gap-5">
@@ -1154,6 +1168,18 @@ const List = () => {
             paginationText={({ from, to, totalRecords }) =>
               `Showing  ${from} to ${to} of ${totalRecords} entries`
             }
+             sortStatus={{
+                  columnAccessor: state.sortBy,
+                  direction: state.sortOrder as "asc" | "desc",
+                }}
+                onSortStatusChange={({ columnAccessor, direction }) => {
+                  setState({
+                    sortBy: columnAccessor,
+                    sortOrder: direction,
+                    page: 1,
+                  });
+                  leadList(1, columnAccessor, direction);
+                }}
             style={{ zIndex: 0 }}
           />
         </div>

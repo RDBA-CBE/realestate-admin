@@ -19,6 +19,11 @@ const project = {
        if (body?.group) {
         url += `&group=${encodeURIComponent(body.group)}`;
       }
+
+      if (body?.ordering) {
+        url += `&sort_by=${body?.ordering}`;
+      }
+      
       // if (body?.developer) {
       //   url += `&developers=${encodeURIComponent(body.developer)}`;
       // }

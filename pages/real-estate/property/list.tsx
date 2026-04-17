@@ -58,12 +58,14 @@ import {
   Hourglass,
   X,
   SlidersHorizontal,
+  Globe,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
 import { clear } from "console";
+import PrivateRouter from "@/hook/privateRouter";
 
-export default function List() {
+ const  List =() =>{
   const router = useRouter();
 
   // const [group, setGroup] = useState(null);
@@ -77,10 +79,11 @@ export default function List() {
 
   const tableColumns = [
     {
-      accessor: "name",
+      accessor: "title",
       title: "Property Info",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row) => (
         <Link
           className="flex gap-3 font-semibold"
@@ -102,13 +105,14 @@ export default function List() {
       accessor: "price",
       title: "Price Range",
       visible: true,
-      toggleable: true,
+      toggleable: true,     
     },
     {
       accessor: "project",
       title: "Project",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row) => (
         <span title={row.project}>{truncateText(row.project)}</span>
       ),
@@ -117,7 +121,7 @@ export default function List() {
       accessor: "created_by",
       title: "Created By",
       visible: true,
-      toggleable: true,
+      toggleable: true,     
       render: (row) => (
         <span title={row.created_by}>{truncateText(row.created_by)}</span>
       ),
@@ -126,7 +130,7 @@ export default function List() {
       accessor: "developer",
       title: "Developer",
       visible: true,
-      toggleable: true,
+      toggleable: true,      
       render: (row) => (
         <span title={row.developer}>{truncateText(row.developer)}</span>
       ),
@@ -135,7 +139,7 @@ export default function List() {
       accessor: "agent",
       title: "Agent",
       visible: true,
-      toggleable: true,
+      toggleable: true,    
       render: (row) => <span title={row.agent}>{truncateText(row.agent)}</span>,
     },
     {
@@ -146,7 +150,7 @@ export default function List() {
       render: (row: any) => {
         const property_type = row.property_type;
         if (!property_type || property_type?.length === 0) {
-          return <span className="text-gray-400">-</span>;
+          return <span className="">-</span>;
         }
 
         const firstType = property_type[0];
@@ -218,6 +222,19 @@ export default function List() {
       visible: true,
       toggleable: true,
     },
+    {
+      accessor: "publish",
+      title: "Publish",
+      visible: true,
+      toggleable: true,
+      render: (row: any) => (
+        <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+          row?.publish === "Published" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-700"
+        }`}>
+          {row?.publish}
+        </span>
+      ),
+    },
 
     {
       accessor: "action",
@@ -253,6 +270,14 @@ export default function List() {
           </button>
           <button
             type="button"
+            className={`flex ${ row?.publish === "Published" ? "text-warning" : "text-info" }`}
+            onClick={() => handlePublish(row)}
+            title={row?.publish === "Published" ? "Unpublish" : "Publish"}
+          >
+            <Globe className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
             className="flex text-danger"
             onClick={(e) => handleDelete(row)}
           >
@@ -265,10 +290,11 @@ export default function List() {
 
   const allColumns = [
     {
-      accessor: "name",
+      accessor: "title",
       title: "Property Info",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row) => {
         const group = localStorage.getItem("group");
 
@@ -358,6 +384,7 @@ export default function List() {
       title: "Project",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row) => (
         <span title={row.project}>{truncateText(row.project)}</span>
       ),
@@ -396,7 +423,7 @@ export default function List() {
       render: (row: any) => {
         const property_type = row.property_type;
         if (!property_type || property_type?.length === 0) {
-          return <span className="text-gray-400">-</span>;
+          return <span className="">-</span>;
         }
 
         const firstType = property_type[0];
@@ -468,6 +495,19 @@ export default function List() {
       visible: true,
       toggleable: true,
     },
+    // {
+    //   accessor: "publish",
+    //   title: "Publish",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => (
+    //     <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+    //       row?.publish === "Published" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-700"
+    //     }`}>
+    //       {row?.publish}
+    //     </span>
+    //   ),
+    // },
 
     // ...(group == "Admin" || group == "Seller"
     //   ? [
@@ -497,6 +537,14 @@ export default function List() {
             onClick={() => handleStatus(row)}
           >
             <CircleCheck className="h-3.5 w-3.5 " />
+          </button>
+          <button
+            type="button"
+            className={`flex ${ row?.publish === "Published" ? "text-warning" : "text-info" }`}
+            onClick={() => handlePublish(row)}
+            title={row?.publish === "Published" ? "Unpublish" : "Publish"}
+          >
+            <Globe className="h-3.5 w-3.5" />
           </button>
           <button
             className="flex text-danger hover:text-danger"
@@ -532,6 +580,8 @@ export default function List() {
     viewMode: "table",
     role: null,
     showFilterModal: false,
+    sortBy: "",
+    sortOrder: "asc",
   });
 
   const visibleCount = state.visibleColumns.filter((col) => col.visible).length;
@@ -556,7 +606,7 @@ export default function List() {
   useEffect(() => {
     categoryList(1);
     developerList(1);
-    statCount()
+    statCount();
   }, []);
 
   useEffect(() => {
@@ -565,7 +615,7 @@ export default function List() {
       // if (state.role != null) {
       //   propertyList(1);
       // }
-      propertyList(1)
+      propertyList(1);
     } else {
       propertyList(1);
     }
@@ -593,28 +643,30 @@ export default function List() {
     }
   }, [state.viewMode]);
 
-  const statCount = async()=> {
+  const statCount = async () => {
     try {
       const body = bodyData();
-       const res: any = await Models.property.count(body);
-       console.log("count res", res);
+      const res: any = await Models.property.count(body);
+      console.log("count res", res);
 
-       setState({
-        statCount:res
-       })
-       
-      
+      setState({
+        statCount: res,
+      });
     } catch (error) {
       console.log("✌️error --->", error);
       setState({ loading: false });
     }
-  }
+  };
 
-  const propertyList = async (page) => {
+  const propertyList = async (page, sortBy = state.sortBy, sortOrder = state.sortOrder) => {
     try {
       setState({ loading: true });
 
       const body = bodyData();
+
+      if (sortBy) {
+        body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
+      }
 
       const res: any = await Models.property.list(page, body);
       const data = res?.results?.map((item) => ({
@@ -643,6 +695,12 @@ export default function List() {
         developer: `${capitalizeFLetter(
           item?.developer?.first_name,
         )} ${capitalizeFLetter(item?.developer?.last_name)}`,
+        created_by:
+          item.created_by?.first_name || item.created_by?.last_name
+            ? `${item.created_by?.first_name || ""} ${
+                item.created_by?.last_name || ""
+              }`.trim()
+            : item.created_by || "-",
         agent: `${capitalizeFLetter(
           item?.agent?.first_name,
         )} ${capitalizeFLetter(item?.agent?.last_name)}`,
@@ -876,6 +934,13 @@ export default function List() {
     } else if (group == capitalizeFLetter(ROLES.SELLER)) {
       body = { ...body, ...sellerBody() };
     }
+
+
+    if (state.sortBy) {
+      body.ordering =
+        state.sortOrder === "desc" ? `-${state.sortBy}` : state.sortBy;
+    }
+
     return body;
   };
 
@@ -948,6 +1013,32 @@ export default function List() {
       propertyList(state.page);
       Success("Property Approved successfully");
     } catch (error) {}
+  };
+
+  const handlePublish = async (row) => {
+    const isPublished = row?.publish === "Published";
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `Do you want to ${isPublished ? "unpublish" : "publish"} this property?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, do it!",
+      cancelButtonText: "Cancel",
+      padding: "2em",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setState({ btnLoading: true });
+      const formData = new FormData();
+      formData.append("publish", isPublished ? "false" : "true");
+      await Models.property.update(formData, row?.id);
+      propertyList(state.page);
+      Success(`Property ${isPublished ? "unpublished" : "published"} successfully`);
+    } catch (error) {
+      setState({ btnLoading: false });
+    }
   };
 
   const clearData = () => {
@@ -1169,8 +1260,6 @@ export default function List() {
           </button>
         </div>
       </div>
-
-    
 
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
@@ -1409,6 +1498,18 @@ export default function List() {
                 records={state.tableList || []}
                 columns={filteredColumns}
                 highlightOnHover
+                sortStatus={{
+                  columnAccessor: state.sortBy,
+                  direction: state.sortOrder as "asc" | "desc",
+                }}
+                onSortStatusChange={({ columnAccessor, direction }) => {
+                  setState({
+                    sortBy: columnAccessor,
+                    sortOrder: direction,
+                    page: 1,
+                  });
+                  propertyList(1, columnAccessor, direction);
+                }}
               />
             </>
           ) : (
@@ -1440,7 +1541,7 @@ export default function List() {
         </div>
       </div>
 
-        <Modal
+      <Modal
         open={state.showFilterModal}
         close={() => setState({ showFilterModal: false })}
         maxWidth="!w-[800px]"
@@ -1482,7 +1583,7 @@ export default function List() {
             </div>
             <div className="flex items-center justify-between py-3">
               <button
-                onClick={ clearFilter}
+                onClick={clearFilter}
                 className="rounded px-3 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 Clear All
@@ -1500,3 +1601,5 @@ export default function List() {
     </>
   );
 }
+
+export default PrivateRouter(List);

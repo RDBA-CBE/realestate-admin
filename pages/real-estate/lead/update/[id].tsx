@@ -43,6 +43,7 @@ import Link from "next/link";
 import IconMapPin from "@/components/Icon/IconMapPin";
 import { useRouter, useSearchParams } from "next/navigation";
 import Utils from "@/imports/utils.import";
+import PrivateRouter from "@/hook/privateRouter";
 
 const CreateOpportunities = () => {
   const dispatch = useDispatch();
@@ -698,4 +699,4 @@ const CreateOpportunities = () => {
   );
 };
 
-export default CreateOpportunities;
+export default PrivateRouter(CreateOpportunities);

@@ -52,16 +52,16 @@ export const menuConfig = {
               label: "Create Property",
               href: "/real-estate/property/create",
             },
-            {
-              type: "link",
-              label: "Property Types",
-              href: "/real-estate/property/property-type",
-            },
-            {
-              type: "link",
-              label: "Amenities",
-              href: "/real-estate/property/amenities",
-            },
+            // {
+            //   type: "link",
+            //   label: "Property Types",
+            //   href: "/real-estate/property/property-type",
+            // },
+            // {
+            //   type: "link",
+            //   label: "Amenities",
+            //   href: "/real-estate/property/amenities",
+            // },
             // { type: "link", label: "City", href: "/apps/invoice/edit" },
             // { type: "link", label: "Media", href: "/apps/invoice/edit" },
             // { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
@@ -155,18 +155,18 @@ export const menuConfig = {
     //     },
     //   ],
     // },
-    {
-      type: "section",
-      label: "Reports",
-      children: [
-        {
-          type: "link",
-          icon: "IconMenuCharts",
-          label: "Reports",
-          href: "/",
-        },
-      ],
-    },
+    // {
+    //   type: "section",
+    //   label: "Reports",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuCharts",
+    //       label: "Reports",
+    //       href: "/",
+    //     },
+    //   ],
+    // },
      {
       type: "section",
       label: "Master Data",
@@ -183,12 +183,12 @@ export const menuConfig = {
           label: "Amenities",
           href: "/real-estate/property/amenities",
         },
-        {
-          type: "link",
-          icon: "IconMenuScrumboard",
-          label: "Furnishing Types",
-          href: "/real-estate/masters/furnishing-type",
-        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuScrumboard",
+        //   label: "Furnishing Types",
+        //   href: "/real-estate/masters/furnishing-type",
+        // },
        
       ],
     },
@@ -227,16 +227,16 @@ export const menuConfig = {
               label: "Create Property",
               href: "/real-estate/property/create",
             },
-            {
-              type: "link",
-              label: "Property Types",
-              href: "/real-estate/property/property-type",
-            },
-            {
-              type: "link",
-              label: "Amenities",
-              href: "/real-estate/property/amenities",
-            },
+            // {
+            //   type: "link",
+            //   label: "Property Types",
+            //   href: "/real-estate/property/property-type",
+            // },
+            // {
+            //   type: "link",
+            //   label: "Amenities",
+            //   href: "/real-estate/property/amenities",
+            // },
             // { type: "link", label: "City", href: "/apps/invoice/edit" },
             // { type: "link", label: "Media", href: "/apps/invoice/edit" },
             // { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
@@ -318,16 +318,41 @@ export const menuConfig = {
     //     },
     //   ],
     // },
-    {
+    // {
+    //   type: "section",
+    //   label: "Reports",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuCharts",
+    //       label: "Reports",
+    //       href: "/real-estate/report",
+    //     },
+    //   ],
+    // },
+     {
       type: "section",
-      label: "Reports",
+      label: "Master Data",
       children: [
         {
           type: "link",
-          icon: "IconMenuCharts",
-          label: "Reports",
-          href: "/real-estate/report",
+          icon: "IconMenuTables",
+          label: "Property Types",
+          href: "/real-estate/property/property-type",
         },
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Amenities",
+          href: "/real-estate/property/amenities",
+        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuScrumboard",
+        //   label: "Furnishing Types",
+        //   href: "/real-estate/masters/furnishing-type",
+        // },
+       
       ],
     },
   ],
@@ -365,16 +390,16 @@ export const menuConfig = {
               label: "Create Property",
               href: "/real-estate/property/create",
             },
-            {
-              type: "link",
-              label: "Property Types",
-              href: "/real-estate/property/property-type",
-            },
-            {
-              type: "link",
-              label: "Amenities",
-              href: "/real-estate/property/amenities",
-            },
+            // {
+            //   type: "link",
+            //   label: "Property Types",
+            //   href: "/real-estate/property/property-type",
+            // },
+            // {
+            //   type: "link",
+            //   label: "Amenities",
+            //   href: "/real-estate/property/amenities",
+            // },
             // { type: "link", label: "City", href: "/apps/invoice/edit" },
             // { type: "link", label: "Media", href: "/apps/invoice/edit" },
             // { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
@@ -486,16 +511,41 @@ export const menuConfig = {
     //     },
     //   ],
     // },
-    {
+    // {
+    //   type: "section",
+    //   label: "Reports",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuCharts",
+    //       label: "Reports",
+    //       href: "/real-estate/report",
+    //     },
+    //   ],
+    // },
+     {
       type: "section",
-      label: "Reports",
+      label: "Master Data",
       children: [
         {
           type: "link",
-          icon: "IconMenuCharts",
-          label: "Reports",
-          href: "/real-estate/report",
+          icon: "IconMenuTables",
+          label: "Property Types",
+          href: "/real-estate/property/property-type",
         },
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Amenities",
+          href: "/real-estate/property/amenities",
+        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuScrumboard",
+        //   label: "Furnishing Types",
+        //   href: "/real-estate/masters/furnishing-type",
+        // },
+       
       ],
     },
   ],
@@ -533,16 +583,16 @@ export const menuConfig = {
               label: "Create Property",
               href: "/real-estate/property/create",
             },
-            {
-              type: "link",
-              label: "Property Types",
-              href: "/real-estate/property/property-type",
-            },
-            {
-              type: "link",
-              label: "Amenities",
-              href: "/real-estate/property/amenities",
-            },
+            // {
+            //   type: "link",
+            //   label: "Property Types",
+            //   href: "/real-estate/property/property-type",
+            // },
+            // {
+            //   type: "link",
+            //   label: "Amenities",
+            //   href: "/real-estate/property/amenities",
+            // },
             // { type: "link", label: "City", href: "/apps/invoice/edit" },
             // { type: "link", label: "Media", href: "/apps/invoice/edit" },
             // { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
@@ -654,16 +704,41 @@ export const menuConfig = {
         },
       ],
     },
-    {
+    // {
+    //   type: "section",
+    //   label: "Reports",
+    //   children: [
+    //     {
+    //       type: "link",
+    //       icon: "IconMenuCharts",
+    //       label: "Reports",
+    //       href: "/real-estate/report",
+    //     },
+    //   ],
+    // },
+     {
       type: "section",
-      label: "Reports",
+      label: "Master Data",
       children: [
         {
           type: "link",
-          icon: "IconMenuCharts",
-          label: "Reports",
-          href: "/real-estate/report",
+          icon: "IconMenuTables",
+          label: "Property Types",
+          href: "/real-estate/property/property-type",
         },
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Amenities",
+          href: "/real-estate/property/amenities",
+        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuScrumboard",
+        //   label: "Furnishing Types",
+        //   href: "/real-estate/masters/furnishing-type",
+        // },
+       
       ],
     },
   ],
