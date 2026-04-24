@@ -351,7 +351,7 @@ const CreateOpportunities = () => {
                 <IconMapPin className="h-3 w-3" />
                  <span className="mt-[-2px] text-xs">{row.location}</span>
               </div>
-              <div className="text-md cursor-pointer text-lg font-bold"
+              <div className="text-md cursor-pointer font-bold"
                title={row.title}>
                  {truncateText(row.title)}
               </div>

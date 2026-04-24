@@ -236,13 +236,13 @@ const View_opportunity = (props: any) => {
                 <IconMapPin className="h-3 w-3" />
                  <span className="mt-[-2px] text-xs">{row.location}</span>
               </div>
-              <Link
-                className=" text-md cursor-pointer text-lg font-bold"
-                href={`/real-estate/profile/${row.id}/`}
+              <div
+                className=" text-md cursor-pointer font-bold"
+               
                 title={row.title}
               >
                 {truncateText(row.title)}
-              </Link>
+              </div>
             </div>
             <div>
                <Link className="flex gap-1 text-primary"  href={`${FRONTEND_URL}/property-detail/${row?.id}`} target="_blank">
@@ -530,7 +530,7 @@ const View_opportunity = (props: any) => {
           </div>
         </div>
       </div>
-      <div className="panel border shadow-none col-span-12 mt-2 flex flex-col  rounded-2xl p-3 md:col-span-12">
+      <div className="panel border shadow-none col-span-12  flex flex-col  rounded-xl  md:col-span-12">
         <div className="flex justify-between">
           <div className="log-history flex w-full flex-wrap justify-between">
             <div
@@ -544,7 +544,7 @@ const View_opportunity = (props: any) => {
                   <img src={"/assets/images/arrowUp.png"} height={10} />
                 )}
               </div>
-              <div className="text-xl font-bold ">Log History</div>
+              <div className="text-lg font-bold ">Log History</div>
 
               <div
                 className=" flex h-5 w-6 items-center justify-center rounded-sm  bg-primary font-bold text-white"
