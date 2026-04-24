@@ -6,7 +6,7 @@ const amenity = {
       let url = `amenities?page=${page}`;
 
       if (body?.search) {
-        url += `&name=${encodeURIComponent(body.search)}`;
+        url += `&search=${encodeURIComponent(body.search)}`;
       }
 
        if (body?.pagination) {

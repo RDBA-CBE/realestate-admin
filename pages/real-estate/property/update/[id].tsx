@@ -46,6 +46,7 @@ import CheckboxInput from "@/components/FormFields/CheckBoxInput.component";
 import TextArea from "@/components/FormFields/TextArea.component";
 import NumberInput from "@/components/FormFields/NumberInputs.component";
 import { useEffect } from "react";
+import useDebounce from "@/hook/useDebounce";
 import Utils from "@/imports/utils.import";
 import * as Yup from "yup";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -156,14 +157,22 @@ const AddPropertyPage = () => {
     agentList(1);
   }, []);
 
-  const amenityList = async () => {
+  const debouncedAmenitySearch = useDebounce(state.amenitySearch, 500);
+
+  useEffect(() => {
+    amenityList(state.amenitySearch || "");
+  }, [debouncedAmenitySearch]);
+
+  const amenityList = async (search = "") => {
     try {
       let page = 1;
       let hasNext = true;
       let allAmenities: any[] = [];
 
       while (hasNext) {
-        const res: any = await Models.amenity.list(page, {});
+        const body: any = {};
+        if (search) body.search = search;
+        const res: any = await Models.amenity.list(page, body);
 
         allAmenities = [...allAmenities, ...(res?.results || [])];
 
@@ -1277,12 +1286,12 @@ const AddPropertyPage = () => {
         <h5 className="text-lg font-semibold dark:text-white-light ">
           Update Property
         </h5>
-        {/* <PrimaryButton
+         <PrimaryButton
           type="submit"
-          text="Post Property"
-          className="border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
-          onClick={onSubmit}
-        /> */}
+          text="Go back"
+          className="border-0  shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
+          onClick={()=>router.back()}
+        />
       </div>
 
       <div className="space-y-5">
@@ -2147,10 +2156,17 @@ const AddPropertyPage = () => {
                     <h2 className="mb-4 text-lg font-semibold">
                       Features & Amenities
                     </h2>
-                    <div className="flex justify-end">
+                    <div className="flex justify-end gap-3">
+                      <TextInput
+                        type="text"
+                        className="form-input py-1 min-w-[300px]"
+                        placeholder="Search amenities..."
+                        value={state.amenitySearch || ""}
+                        onChange={(e) => setState({ amenitySearch: e.target.value })}
+                      />
                       <button
                         type="button"
-                        className="btn btn-dred w-full border-none py-1 md:mb-0 md:w-auto"
+                        className="btn btn-dred w-full border-none py-1 md:mb-0 md:w-auto whitespace-nowrap  !h-9"
                         onClick={() =>
                           setState({
                             isOpenAmenit: true,
@@ -2165,7 +2181,9 @@ const AddPropertyPage = () => {
                     </div>
                   </div>
                   <div className="grid grid-cols-4 gap-4">
-                    {state.amenityList?.map((amenity) => (
+                     {state.amenityList?.filter((amenity) =>
+                      amenity.label?.toLowerCase().includes((state.amenitySearch || "").toLowerCase())
+                    )?.map((amenity) => (
                       <CheckboxInput
                         key={amenity.value}
                         type="checkbox"
@@ -2288,7 +2306,7 @@ const AddPropertyPage = () => {
                     <PrimaryButton
                       type="submit"
                       text="Draft Property"
-                      className="!mt-6 border border-black !bg-transparent !font-black uppercase !text-black"
+                      className="!mt-6 border border-black !bg-transparent !font-black  !text-black"
                       onClick={() => onSubmit("draft")}
                       loading={state.btnLoading1}
                     />
@@ -2296,7 +2314,7 @@ const AddPropertyPage = () => {
                     <PrimaryButton
                       type="submit"
                       text="Publish Property"
-                      className="!mt-6 border-0 uppercase shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
+                      className="!mt-6 border-0  shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
                       onClick={() => onSubmit("publish")}
                       loading={state.btnLoading}
                     />
@@ -2360,7 +2378,7 @@ const AddPropertyPage = () => {
                 <button
                   type="button"
                   onClick={() => createAmenity()}
-                  className="btn btn-dred ltr:ml-4 rtl:mr-4"
+                  className="btn btn-dred ltr:ml-4 rtl:mr-4 border-none"
                 >
                   {state.amenityLoading ? <IconLoader /> : "Confirm"}
                 </button>

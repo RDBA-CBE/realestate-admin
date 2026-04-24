@@ -19,13 +19,14 @@ import {
   formatPriceRange,
   formatToINR,
   objIsEmpty,
+  truncateText,
   useSetState,
 } from "@/utils/function.utils";
 import { DataTable } from "mantine-datatable";
 import IconMapPin from "@/components/Icon/IconMapPin";
 import Link from "next/link";
 import { LucideHome } from "lucide-react";
-import { LISTING_TYPE_LIST } from "@/utils/constant.utils";
+import { FRONTEND_URL, LISTING_TYPE_LIST } from "@/utils/constant.utils";
 import CustomSelect from "@/components/FormFields/CustomSelect.component";
 import CustomeDatePicker from "@/components/datePicker";
 import PrivateRouter from "@/hook/privateRouter";
@@ -88,7 +89,8 @@ const View_opportunity = (props: any) => {
             status: capitalizeFLetter(res?.status),
             id: res?.id,
             total_area: res?.total_area,
-            property_type: res?.property_type?.name,
+             property_type:
+                      res?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
             listing_type: {
               type: capitalizeFLetter(res?.listing_type),
               color:
@@ -215,36 +217,40 @@ const View_opportunity = (props: any) => {
       title: "Property Info",
       visible: true,
       toggleable: true,
+      
       render: (row) => (
-        <div className="flex gap-3 font-semibold">
-          <div className="h-28 w-44 rounded-md bg-white-dark/30  ltr:mr-2 rtl:ml-2">
+         <Link className="flex gap-3 font-semibold"
+        href={`${FRONTEND_URL}/property-detail/${row?.id}`}
+                    target="_blank">
+          <div className="h-20 w-20 rounded-md bg-white-dark/30  ltr:mr-2 rtl:ml-2">
             <img
               className="h-full w-full cursor-pointer rounded-md object-cover"
               src={row.image}
               alt=""
             />
           </div>
-          <div className="flex flex-col justify-between py-2">
+          <div className="flex flex-col justify-between">
             <div>
               <div className="flex gap-1">
                 {" "}
-                <IconMapPin className="h-4 w-4" />
-                {row.location}
+                <IconMapPin className="h-3 w-3" />
+                 <span className="mt-[-2px] text-xs">{row.location}</span>
               </div>
               <Link
-                className="cursor-pointer text-lg font-bold"
+                className=" text-md cursor-pointer text-lg font-bold"
                 href={`/real-estate/profile/${row.id}/`}
+                title={row.title}
               >
-                {row.title}
+                {truncateText(row.title)}
               </Link>
             </div>
             <div>
-              <Link className="flex gap-1 text-primary" href={"/detail"}>
-                <LucideHome className="h-4 w-4 text-black " /> View Details
+               <Link className="flex gap-1 text-primary"  href={`${FRONTEND_URL}/property-detail/${row?.id}`} target="_blank">
+                <LucideHome className="h-3 w-3 text-black " /> <span className="mt-[-2px] text-xs">View Details</span>
               </Link>
             </div>
           </div>
-        </div>
+        </Link>
       ),
     },
 
@@ -259,12 +265,18 @@ const View_opportunity = (props: any) => {
       title: "Project",
       visible: true,
       toggleable: true,
+       render: (row) => (
+              <span title={row.project}>{truncateText(row.project)}</span>
+            ),
     },
     {
       accessor: "developer",
       title: "Developer",
       visible: true,
       toggleable: true,
+      render: (row) => (
+              <span title={row.developer}>{truncateText(row.developer)}</span>
+            ),
     },
     {
       accessor: "agent",
@@ -277,6 +289,57 @@ const View_opportunity = (props: any) => {
       title: "Property Type",
       visible: true,
       toggleable: true,
+       render: (row: any) => {
+              const property_type = row.property_type;
+              if (!property_type || property_type?.length === 0) {
+                return <span className="">-</span>;
+              }
+      
+              const firstType = property_type[0];
+              const others = property_type.slice(1);
+              const maxShow = 3;
+              const remaining = others.length - maxShow;
+              const visibleTypes = others.slice(0, maxShow);
+              const hiddenTypes = others.slice(maxShow);
+      
+              return (
+                <div className="flex items-center gap-2">
+                  {/* First type text */}
+                  <span
+                    title={firstType}
+                    className="text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    {truncateText(firstType)}
+                  </span>
+      
+                  {/* Avatars */}
+                  <div className="flex items-center -space-x-2">
+                    {visibleTypes?.map((type: string, index: number) => (
+                      <div key={index} className="group relative z-10">
+                        <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
+                          {type?.slice(0, 2)?.toUpperCase()}
+                        </div>
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+                          {type}
+                        </div>
+                      </div>
+                    ))}
+                    {remaining > 0 && (
+                      <div className="group relative z-10">
+                        <div className="flex h-7 w-7  items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
+                          +{remaining}
+                        </div>
+                        {/* Remaining tooltip */}
+                        <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+                          {hiddenTypes.join(", ")}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            },
     },
     {
       accessor: "role",
@@ -304,9 +367,9 @@ const View_opportunity = (props: any) => {
   ];
 
   return (
-    <div className="  relative  h-auto bg-[#dbe7ff] bg-cover p-2 ">
-      <div className=" panel mt-2 flex flex-wrap items-center justify-between gap-5 pl-3 pr-3 ">
-        <div className="flex items-center gap-5">
+    <div className="  relative  h-auto   ">
+      <div className="  flex flex-wrap justify-between gap-5 ">
+        <div className=" items-center gap-5">
           {/* <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-200">
             <img
               src="/assets/images/profile-1.jpeg"
@@ -316,6 +379,9 @@ const View_opportunity = (props: any) => {
           <h5 className="text-lg font-semibold dark:text-white-light">
             Lead Details
           </h5>
+          <p className="text-gray-600 dark:text-gray-400">
+            Manage property listings and status
+          </p>
         </div>
 
         <div className="flex items-center gap-5">
@@ -335,7 +401,7 @@ const View_opportunity = (props: any) => {
           )}
         </div>
       </div>
-      <div className="panel mt-2 rounded-2xl ">
+      <div className="panel border shadow-none mt-2 rounded-xl ">
         <div
           className=" cursor-pointer items-center gap-3"
           onClick={() => setState({ isOpenLeadInfo: !state.isOpenLeadInfo })}
@@ -443,7 +509,7 @@ const View_opportunity = (props: any) => {
         </div>
       </div>
 
-      <div className=" panel mt-2 w-full rounded-2xl">
+      <div className="   mt-5 w-full rounded-xl">
         <div className=" col-span-12 flex flex-col   md:col-span-5">
           <div className=" flex flex-col gap-5 rounded-2xl  pb-5">
             <div className="flex items-center gap-3">
@@ -464,7 +530,7 @@ const View_opportunity = (props: any) => {
           </div>
         </div>
       </div>
-      <div className="panel col-span-12 mt-2 flex flex-col  rounded-2xl p-3 md:col-span-12">
+      <div className="panel border shadow-none col-span-12 mt-2 flex flex-col  rounded-2xl p-3 md:col-span-12">
         <div className="flex justify-between">
           <div className="log-history flex w-full flex-wrap justify-between">
             <div

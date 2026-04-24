@@ -18,7 +18,7 @@ const PrimaryButton: React.FC<CustomButtonProps> = ({
 }) => {
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-md bg-dred px-4 py-2 font-medium text-white shadow hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={`inline-flex items-center justify-center rounded-md bg-dred px-4 py-2 font-medium text-white shadow disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
       disabled={loading || disabled}
       {...props}
     >
