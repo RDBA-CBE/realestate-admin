@@ -67,11 +67,11 @@ const Header = () => {
 
   useEffect(() => {
     const selector = document.querySelector(
-      'ul.horizontal-menu a[href="' + window.location.pathname + '"]'
+      'ul.horizontal-menu a[href="' + window.location.pathname + '"]',
     );
     if (selector) {
       const all: any = document.querySelectorAll(
-        "ul.horizontal-menu .nav-link.active"
+        "ul.horizontal-menu .nav-link.active",
       );
       for (let i = 0; i < all.length; i++) {
         all[0]?.classList.remove("active");
@@ -255,7 +255,7 @@ const Header = () => {
       }`}
     >
       <div className="">
-        <div className="relative flex w-full items-center bg-mred border-b  px-5 py-2.5 z-2">
+        <div className="bg-mred z-2 relative flex w-full items-center  border-b px-5 py-2.5">
           <div className="horizontal-logo flex items-center justify-between ltr:mr-2 rtl:ml-2">
             <Link href="/" className="main-logo flex shrink-0 items-center">
               <img
@@ -269,10 +269,10 @@ const Header = () => {
             </Link>
             <button
               type="button"
-              className="side-arrow-icon collapse-icon flex h-8 w-8 items-center rounded-full transition duration-300 hover:bg-[#fff6f6] dark:text-white-light  rtl:rotate-180 hidden lg:block"
+              className="side-arrow-icon collapse-icon flex hidden h-8 w-8 items-center rounded-full transition duration-300 hover:bg-[#fff6f6]  dark:text-white-light lg:block rtl:rotate-180"
               onClick={() => dispatch(toggleSidebar())}
             >
-              <IconCaretsDown className="m-auto rotate-90 text-dred" />
+              <IconCaretsDown className="text-dred m-auto rotate-90" />
             </button>
             <button
               type="button"
@@ -348,7 +348,7 @@ const Header = () => {
                 <IconSearch className="mx-auto h-4.5 w-4.5 dark:text-[#d0d2d6]" />
               </button> */}
             </div>
-            <div>
+            {/* <div>
               {themeConfig.theme === "light" ? (
                 <button
                   className={`${
@@ -384,7 +384,7 @@ const Header = () => {
                   <IconLaptop />
                 </button>
               )}
-            </div>
+            </div> */}
             {/* <div className="dropdown shrink-0">
               <Dropdown
                 offset={[0, 8]}
@@ -508,7 +508,7 @@ const Header = () => {
                 </ul>
               </Dropdown>
             </div> */}
-            <div className="dropdown shrink-0">
+            {/* <div className="dropdown shrink-0">
               <Dropdown
                 offset={[0, 8]}
                 placement={`${isRtl ? "bottom-start" : "bottom-end"}`}
@@ -607,28 +607,34 @@ const Header = () => {
                   )}
                 </ul>
               </Dropdown>
-            </div>
+            </div> */}
             <div className="dropdown flex shrink-0">
               <Dropdown
                 offset={[0, 8]}
                 placement={`${isRtl ? "bottom-start" : "bottom-end"}`}
                 btnClassName="relative group block"
                 button={
-                  <img
-                    className="h-9 w-9 rounded-full object-cover saturate-50 group-hover:saturate-100"
-                    src="/assets/images/user-profile.jpeg"
-                    alt="userProfile"
-                  />
+                  // <img
+                  //   className="h-9 w-9 rounded-full object-cover saturate-50 group-hover:saturate-100"
+                  //   src="/assets/images/user-profile.jpeg"
+                  //   alt="userProfile"
+                  // />
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full  bg-[#9b0f09] text-xl font-semibold text-white shadow">
+                    {state.name?.charAt(0)?.toUpperCase() || "U"}
+                  </div>
                 }
               >
                 <ul className="w-[230px] !py-0 font-semibold text-dark dark:text-white-dark dark:text-white-light/90">
                   <li>
                     <div className="flex items-center px-4 py-4">
-                      <img
+                      {/* <img
                         className="h-10 w-10 rounded-md object-cover"
                         src="/assets/images/user-profile.jpeg"
                         alt="userProfile"
-                      />
+                      /> */}
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full  bg-[#9b0f09] text-xl font-semibold text-white shadow">
+                        {state.name?.charAt(0)?.toUpperCase() || "U"}
+                      </div>
                       <div className="truncate ltr:pl-4 rtl:pr-4">
                         <h4 className="text-base">
                           {state.name}
@@ -640,7 +646,7 @@ const Header = () => {
                           type="button"
                           className="text-black/60 hover:text-primary dark:text-dark-light/60 dark:hover:text-white"
                         >
-                         {state.email}
+                          {state.email}
                         </button>
                       </div>
                     </div>

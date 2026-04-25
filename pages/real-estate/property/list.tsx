@@ -32,6 +32,7 @@ import { useRouter } from "next/navigation";
 import IconMapPin from "@/components/Icon/IconMapPin";
 import Link from "next/link";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
+import FilterChips from "@/components/FilterChips/FilterChips.component";
 import {
   FILTER_ROLES,
   FRONTEND_URL,
@@ -65,7 +66,7 @@ import moment from "moment";
 import { clear } from "console";
 import PrivateRouter from "@/hook/privateRouter";
 
- const  List =() =>{
+const List = () => {
   const router = useRouter();
 
   // const [group, setGroup] = useState(null);
@@ -105,7 +106,7 @@ import PrivateRouter from "@/hook/privateRouter";
       accessor: "price",
       title: "Price Range",
       visible: true,
-      toggleable: true,     
+      toggleable: true,
     },
     {
       accessor: "project",
@@ -121,7 +122,7 @@ import PrivateRouter from "@/hook/privateRouter";
       accessor: "created_by",
       title: "Created By",
       visible: true,
-      toggleable: true,     
+      toggleable: true,
       render: (row) => (
         <span title={row.created_by}>{truncateText(row.created_by)}</span>
       ),
@@ -130,7 +131,7 @@ import PrivateRouter from "@/hook/privateRouter";
       accessor: "developer",
       title: "Developer",
       visible: true,
-      toggleable: true,      
+      toggleable: true,
       render: (row) => (
         <span title={row.developer}>{truncateText(row.developer)}</span>
       ),
@@ -139,7 +140,7 @@ import PrivateRouter from "@/hook/privateRouter";
       accessor: "agent",
       title: "Agent",
       visible: true,
-      toggleable: true,    
+      toggleable: true,
       render: (row) => <span title={row.agent}>{truncateText(row.agent)}</span>,
     },
     {
@@ -950,8 +951,10 @@ import PrivateRouter from "@/hook/privateRouter";
     if (state.user) {
       if (state.role?.value == "developer") {
         body.assigned_to_developer = state.user?.value;
+        // body.created_by = state.user?.value;
       } else if (state.role?.value == "agent") {
         body.assigned_to_agent = state.user?.value;
+        // body.created_by = state.user?.value;
       } else if (state.role?.value == "seller") {
         body.created_by = state.user?.value;
       }
@@ -1274,45 +1277,128 @@ import PrivateRouter from "@/hook/privateRouter";
                 ariaLabel="rotating-lines-loading"
               />
             </div>
-          ) : state.tableList.length > 0 ? (
+          ) :(
             <>
               <div
                 style={{
                   display: "flex",
-                  justifyContent: "end",
+                  justifyContent: "space-between",
                   alignItems: "center",
                   marginBottom: "16px",
                   gap: "10px",
                 }}
               >
-                <div className="flex items-center gap-1  ">
-                  <button
-                    onClick={() => setState({ viewMode: "table" })}
-                    className={`rounded-md p-2 transition-all duration-200 `}
-                  >
-                    <Table
-                      size={18}
-                      color={state.viewMode == "table" ? "#9b0f09" : "grey"}
-                    />
-                  </button>
+                <FilterChips
+                  chips={[
+                    ...(state.search
+                      ? [
+                          {
+                            label: `Search: ${state.search}`,
+                            onRemove: () => setState({ search: "" }),
+                          },
+                        ]
+                      : []),
+                    ...(state.property_type?.length > 0
+                      ? state.property_type.map((pt: any) => ({
+                          label: `Type: ${pt.label}`,
+                          onRemove: () =>
+                            setState({
+                              property_type: state.property_type.filter(
+                                (t: any) => t.value !== pt.value,
+                              ),
+                            }),
+                        }))
+                      : []),
+                    ...(state.offer_type
+                      ? [
+                          {
+                            label: `Offer: ${state.offer_type.label}`,
+                            onRemove: () => setState({ offer_type: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.status
+                      ? [
+                          {
+                            label: `Status: ${state.status.label}`,
+                            onRemove: () => setState({ status: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.publish
+                      ? [
+                          {
+                            label: `Publish: ${state.publish.label}`,
+                            onRemove: () => setState({ publish: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.role && state.group === "Admin"
+                      ? [
+                          {
+                            label: `Role: ${state.role.label}`,
+                            onRemove: () =>
+                              setState({
+                                role: {
+                                  value: "developer",
+                                  label: "Developer",
+                                },
+                                user: null,
+                              }),
+                          },
+                        ]
+                      : []),
+                    ...(state.user
+                      ? [
+                          {
+                            label: `User: ${state.user.label}`,
+                            onRemove: () => setState({ user: null }),
+                          },
+                        ]
+                      : []),
+                  ]}
+                  onClearAll={() =>
+                    setState({
+                      search: "",
+                      property_type: null,
+                      offer_type: null,
+                      status: null,
+                      publish: null,
+                      role: null,
+                      user: null,
+                    })
+                  }
+                />
 
-                  <div className="h-6 w-px bg-gray-300" />
+                <div className="ml-auto flex items-center gap-3">
+                  <div className="flex items-center gap-1  ">
+                    <button
+                      onClick={() => setState({ viewMode: "table" })}
+                      className={`rounded-md p-2 transition-all duration-200 `}
+                    >
+                      <Table
+                        size={18}
+                        color={state.viewMode == "table" ? "#9b0f09" : "grey"}
+                      />
+                    </button>
 
-                  <button
-                    onClick={() => setState({ viewMode: "image" })}
-                    className={`rounded-md p-2 transition-all duration-200 `}
-                  >
-                    <Calendar
-                      size={18}
-                      color={state.viewMode == "image" ? "#9b0f09" : "grey"}
-                    />
-                  </button>
-                </div>
-                <div className="text-sm text-black">
-                  {state.total} Properties found
-                </div>
+                    <div className="h-6 w-px bg-gray-300" />
 
-                {/* <Popover
+                    <button
+                      onClick={() => setState({ viewMode: "image" })}
+                      className={`rounded-md p-2 transition-all duration-200 `}
+                    >
+                      <Calendar
+                        size={18}
+                        color={state.viewMode == "image" ? "#9b0f09" : "grey"}
+                      />
+                    </button>
+                  </div>
+                  <div className="text-sm text-black">
+                    {state.total} Properties found
+                  </div>
+
+                  {/* <Popover
                   position="bottom-end"
                   withArrow
                   shadow="md"
@@ -1491,13 +1577,15 @@ import PrivateRouter from "@/hook/privateRouter";
                     </div>
                   </Popover.Dropdown>
                 </Popover> */}
+                </div>
               </div>
 
               <DataTable
-                className="table-hover whitespace-nowrap"
+                className="table-responsive"
                 records={state.tableList || []}
                 columns={filteredColumns}
                 highlightOnHover
+                minHeight={200}
                 sortStatus={{
                   columnAccessor: state.sortBy,
                   direction: state.sortOrder as "asc" | "desc",
@@ -1512,11 +1600,13 @@ import PrivateRouter from "@/hook/privateRouter";
                 }}
               />
             </>
-          ) : (
-            <div className="mt-5 flex h-[400px] items-center justify-center">
-              <p>No Records Found</p>
-            </div>
-          )}
+          ) 
+          // : (
+          //   <div className="mt-5 flex h-[400px] items-center justify-center">
+          //     <p>No Records Found</p>
+          //   </div>
+          // )
+          }
         </div>
 
         <div className="me-2 mt-5 flex justify-end gap-3">

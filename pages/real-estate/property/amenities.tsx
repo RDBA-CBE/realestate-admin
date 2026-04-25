@@ -339,13 +339,14 @@ const  list = () => {
                 </div>               
               </div>
             )},
-            { accessor: "status", title: "status" },
+            // { accessor: "status", title: "status" },
 
             {
               accessor: "actions",
               title: "Actions",
+              textAlignment: "center",
               render: (row: any) => (
-                <div className="mx-auto flex w-max items-center gap-4">
+                <div className="mx-auto flex w-max items-center gap-4 text-center">
                   <button
                     className="flex hover:text-primary"
                     onClick={(e) => {

@@ -334,7 +334,7 @@ const CreateOpportunities = () => {
       title: "Property Info",
       visible: true,
       toggleable: true,
-      sortable: true,
+     
       render: (row) => (
         <Link className="flex gap-3 font-semibold w-fit cursor-pointer"  href={`${FRONTEND_URL}/property-detail/${row?.id}`}>
           <div className="h-20 w-20 rounded-md bg-white-dark/30  ltr:mr-2 rtl:ml-2">
@@ -382,7 +382,7 @@ const CreateOpportunities = () => {
       title: "Project",
       visible: true,
       toggleable: true,
-       sortable: true,
+      
        render: (row) => (
               <span title={row.project}>{truncateText(row.project)}</span>
             ),

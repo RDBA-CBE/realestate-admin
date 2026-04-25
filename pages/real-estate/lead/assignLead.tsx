@@ -52,6 +52,7 @@ import {
 } from "@/utils/constant.utils";
 import CustomeDatePicker from "@/components/datePicker";
 import { render } from "@fullcalendar/core/preact";
+import FilterChips from "@/components/FilterChips/FilterChips.component";
 
 const List = () => {
   const router = useRouter();
@@ -846,18 +847,19 @@ const List = () => {
 
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "end",
-              alignItems: "center",
-              marginBottom: "16px",
-              gap: "10px",
-            }}
-          >
-            <div className="text-sm text-black">
-              {state.total} Leads found
-            </div>
+          <div className="flex items-start justify-between mb-4">
+            <FilterChips
+              chips={[
+                ...(state.search ? [{ label: `Search: ${state.search}`, onRemove: () => setState({ search: "" }) }] : []),
+                ...(state.lead_source ? [{ label: `Source: ${state.lead_source.label}`, onRemove: () => setState({ lead_source: null }) }] : []),
+                ...(state.status ? [{ label: `Status: ${state.status.label}`, onRemove: () => setState({ status: null }) }] : []),
+                ...(state.date ? [{ label: `Date: ${commonDateFormat(state.date)}`, onRemove: () => setState({ date: null }) }] : []),
+                ...(state.role ? [{ label: `Role: ${state.role.label}`, onRemove: () => setState({ role: null, user: null }) }] : []),
+                ...(state.user ? [{ label: `User: ${state.user.label}`, onRemove: () => setState({ user: null }) }] : []),
+              ]}
+              onClearAll={() => setState({ search: "", lead_source: null, status: null, date: null, role: null, user: null })}
+            />
+            <div className="ml-auto text-sm text-black">{state.total} Leads found</div>
           </div>
 
           <DataTable

@@ -15,6 +15,7 @@ import { roleList } from "@/utils/constant.utils";
 import Swal from "sweetalert2";
 import TextInput from "@/components/FormFields/TextInput.component";
 import { Briefcase, CheckCircle, Clock, Hourglass } from "lucide-react";
+import FilterChips from "@/components/FilterChips/FilterChips.component";
 
 const List = () => {
   const [state, setState] = useSetState<any>({
@@ -325,22 +326,19 @@ const List = () => {
       </div>
 
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "end",
-            alignItems: "center",
-            marginBottom: "16px",
-            gap: "10px",
-          }}
-        >
-          <div className="text-sm text-black">
-            {state.total} Properties found
-          </div>
+        <div className="flex items-start justify-between mb-4">
+          <FilterChips
+            chips={[
+              ...(state.search ? [{ label: `Search: ${state.search}`, onRemove: () => setState({ search: "" }) }] : []),
+              ...(state.role ? [{ label: `Role: ${state.role.label}`, onRemove: () => setState({ role: null }) }] : []),
+            ]}
+            onClearAll={() => setState({ search: "", role: null })}
+          />
+          <div className="ml-auto text-sm text-black">{state.total} Users found</div>
         </div>
         <div className="datatables pagination-padding">
           <DataTable
-            className="table-hover whitespace-nowrap"
+            className="table-responsive"
             records={state?.tableList || []}
             columns={[
               {
@@ -351,11 +349,14 @@ const List = () => {
                 render: (row) => (
                   <div className="flex w-fit items-center font-semibold">
                     <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
-                      <img
+                      {/* <img
                         className="h-8 w-8 cursor-pointer rounded-full object-cover"
                         src={`/assets/images/profile-${row.id}.jpeg`}
                         alt=""
-                      />
+                      /> */}
+                      <div className=" flex h-8 w-8 items-center justify-center rounded-full bg-[#9b0f09] text-sm text-white shadow ltr:mr-2 rtl:ml-2">
+                        {row?.first_name?.charAt(0)?.toUpperCase() || "U"}
+                      </div>
                     </div>
                     <div
                       className="cursor-pointer"
@@ -414,6 +415,7 @@ const List = () => {
             paginationText={({ from, to, totalRecords }) =>
               `Showing  ${from} to ${to} of ${totalRecords} entries`
             }
+            minHeight={200}
             sortStatus={{
                   columnAccessor: state.sortBy,
                   direction: state.sortOrder as "asc" | "desc",

@@ -755,3 +755,11 @@ pre.hljs {
 .main-content{
     margin-left: 230px !important;
 }
+
+.table-responsive {
+    border: 1px solid #dee2e6;
+}
+
+.datatables table thead tr th{
+    background-color: #faeaea !important; 
+}

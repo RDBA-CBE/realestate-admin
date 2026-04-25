@@ -24,6 +24,7 @@ import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
 import { FILTER_ROLES, ROLES } from "@/utils/constant.utils";
 import PrivateRouter from "@/hook/privateRouter";
+import FilterChips from "@/components/FilterChips/FilterChips.component";
 
 const list = () => {
   const [state, setState] = useSetState({
@@ -401,7 +402,16 @@ console.log("state.userId", state.userId);
       </div>
 
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
-        <div className="datatables pagination-padding"></div>
+        <div className="datatables pagination-padding">
+          <FilterChips
+            chips={[
+              ...(state.search ? [{ label: `Search: ${state.search}`, onRemove: () => setState({ search: "" }) }] : []),
+              ...(state.role && state.group === "Admin" ? [{ label: `Role: ${state.role.label}`, onRemove: () => setState({ role: null, user: null, userList: [] }) }] : []),
+              ...(state.user ? [{ label: `User: ${state.user.label}`, onRemove: () => setState({ user: null }) }] : []),
+            ]}
+            onClearAll={() => setState({ search: "", role: null, user: null, userList: [] })}
+          />
+        </div>
         <DataTable
           className="table-responsive"
           records={state.tableList || []}
@@ -422,11 +432,12 @@ console.log("state.userId", state.userId);
             { accessor: "properties" },
 
             { accessor: "location", sortable:true, },
-            { accessor: "status" },
+            // { accessor: "status" },
 
             {
               accessor: "actions",
               title: "Actions",
+              textAlignment: "center",
               render: (row: any) => (
                 <div className="mx-auto flex w-max items-center gap-4">
                   <button

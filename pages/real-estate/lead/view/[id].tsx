@@ -544,7 +544,7 @@ const View_opportunity = (props: any) => {
                   <img src={"/assets/images/arrowUp.png"} height={10} />
                 )}
               </div>
-              <div className="text-lg font-bold ">Log History</div>
+              <div className="text-lg font-medium ">Log History</div>
 
               <div
                 className=" flex h-5 w-6 items-center justify-center rounded-sm  bg-primary font-bold text-white"

@@ -52,6 +52,7 @@ import {
 } from "@/utils/constant.utils";
 import CustomeDatePicker from "@/components/datePicker";
 import CheckboxInput from "@/components/FormFields/CheckBoxInput.component";
+import FilterChips from "@/components/FilterChips/FilterChips.component";
 
 const List = () => {
   const router = useRouter();
@@ -966,193 +967,20 @@ const List = () => {
 
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "end",
-              alignItems: "center",
-              marginBottom: "16px",
-              gap: "10px",
-            }}
-          >
-            <div className="text-sm text-black">
-              {state.total} Leads found
-            </div>
-
-            {/* <Popover position="bottom-end" withArrow shadow="md" width={220}>
-              <Popover.Target>
-                <div
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "8px 16px",
-                    backgroundColor: "white",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                    fontSize: "14px",
-                    fontWeight: 500,
-                    color: "#475569",
-                    transition: "all 0.2s ease",
-                    boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-                  }}
-                  className="hover:border-gray-400 hover:shadow-sm"
-                >
-                  <Columns size={16} color="#64748b" />
-                  <span>Show Columns</span>
-                  <div
-                    style={{
-                      width: "20px",
-                      height: "20px",
-                      backgroundColor: "#3b82f6",
-                      borderRadius: "50%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      color: "white",
-                    }}
-                  >
-                    {visibleCount}
-                  </div>
-                </div>
-              </Popover.Target>
-
-              <Popover.Dropdown
-                style={{
-                  padding: "16px",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "8px",
-                }}
-              >
-                <div style={{ marginBottom: "16px" }}>
-                  <Text
-                    size="sm"
-                    fw={600}
-                    style={{ color: "#1e293b", marginBottom: "12px" }}
-                  >
-                    Show Columns
-                  </Text>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "8px",
-                      marginBottom: "16px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "6px 12px",
-                        backgroundColor: "#f8fafc",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontSize: "13px",
-                        color: "#475569",
-                        transition: "all 0.2s ease",
-                      }}
-                      className="hover:border-gray-300 hover:bg-gray-50"
-                      onClick={() => toggleAllColumns(true)}
-                    >
-                      <Eye size={14} color="#475569" />
-                      <span>All</span>
-                    </div>
-                    <div
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "6px 12px",
-                        backgroundColor: "#f8fafc",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontSize: "13px",
-                        color: "#475569",
-                        transition: "all 0.2s ease",
-                      }}
-                      className="hover:border-gray-300 hover:bg-gray-50"
-                      onClick={() => toggleAllColumns(false)}
-                    >
-                      <EyeOff size={14} color="#475569" />
-                      <span>None</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    maxHeight: "200px",
-                    overflowY: "auto",
-                    marginBottom: "12px",
-                  }}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "12px",
-                    }}
-                  >
-                    {state.visibleColumns?.map((column) => (
-                      <div
-                        key={column.accessor}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                        }}
-                      >
-                        <Checkbox
-                          checked={column.visible ?? true}
-                          onChange={() => toggleColumn(column.accessor)}
-                          disabled={column.toggleable === false}
-                          size="sm"
-                          style={{ flexShrink: 0 }}
-                        />
-                        <Text
-                          size="sm"
-                          style={{
-                            color:
-                              column.toggleable === false
-                                ? "#94a3b8"
-                                : "#475569",
-                            cursor:
-                              column.toggleable === false
-                                ? "not-allowed"
-                                : "pointer",
-                          }}
-                          onClick={() =>
-                            column.toggleable !== false &&
-                            toggleColumn(column.accessor)
-                          }
-                        >
-                          {column.title}
-                        </Text>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div
-                  style={{
-                    borderTop: "1px solid #f1f5f9",
-                    paddingTop: "12px",
-                    fontSize: "12px",
-                    color: "#64748b",
-                    textAlign: "center",
-                  }}
-                >
-                  {visibleCount} of {totalToggleable} columns visible
-                </div>
-              </Popover.Dropdown>
-            </Popover> */}
+          <div className="flex items-start justify-between mb-4">
+            <FilterChips
+              chips={[
+                ...(state.search ? [{ label: `Search: ${state.search}`, onRemove: () => setState({ search: "" }) }] : []),
+                ...(state.lead_source ? [{ label: `Source: ${state.lead_source.label}`, onRemove: () => setState({ lead_source: null }) }] : []),
+                ...(state.status ? [{ label: `Status: ${state.status.label}`, onRemove: () => setState({ status: null }) }] : []),
+                ...(state.date ? [{ label: `Date: ${commonDateFormat(state.date)}`, onRemove: () => setState({ date: null }) }] : []),
+                ...(state.role ? [{ label: `Role: ${state.role.label}`, onRemove: () => setState({ role: null, created_by_user: null, assigned_to_user: null }) }] : []),
+                ...(state.created_by_user ? [{ label: `Created By: ${state.created_by_user.label}`, onRemove: () => setState({ created_by_user: null }) }] : []),
+                ...(state.assigned_to_user ? [{ label: `Assigned To: ${state.assigned_to_user.label}`, onRemove: () => setState({ assigned_to_user: null }) }] : []),
+              ]}
+              onClearAll={() => setState({ search: "", lead_source: null, status: null, date: null, role: null, created_by_user: null, assigned_to_user: null })}
+            />
+            <div className="ml-auto text-sm text-black">{state.total} Leads found</div>
           </div>
           <DataTable
             className="table-responsive"
@@ -1302,7 +1130,7 @@ const List = () => {
                     value={state.created_by_user}
                     onChange={(e) => setState({ created_by_user: e })}
                     options={state.userList}
-                    disabled={!state.assigned_to_user}
+                    disabled={!state.role || !!state.assigned_to_user}
                   />
 
                   <CustomSelect
@@ -1310,7 +1138,7 @@ const List = () => {
                     value={state.assigned_to_user}
                     onChange={(e) => setState({ assigned_to_user: e })}
                     options={state.userList}
-                    disabled={!state.created_by_user}
+                    disabled={!state.role || !!state.created_by_user}
                   />
                 </>
               )}
