@@ -830,6 +830,7 @@ const List = () => {
             showTimeSelect={false}
           />
 
+          {state.group == "Admin" &&
           <button
             onClick={() => setState({ showFilterModal: true })}
             className="flex items-center gap-4 rounded-lg border bg-white p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 "
@@ -837,6 +838,7 @@ const List = () => {
             <SlidersHorizontal className="h-4 w-4" />
             Filter
           </button>
+          }
           {/* <div>
           <button type="button" className="btn btn-dred">
             Clear Filter
