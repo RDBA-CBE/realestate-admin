@@ -28,13 +28,12 @@ import Utils from "@/imports/utils.import";
 import * as Yup from "yup";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import IconMapPin from "@/components/Icon/IconMapPin";
 import Link from "next/link";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
 import FilterChips from "@/components/FilterChips/FilterChips.component";
 import {
-  FILTER_ADMINROLES,
   FILTER_ROLES,
   FRONTEND_URL,
   LISTING_TYPE,
@@ -44,7 +43,6 @@ import {
   Property_status,
   PROPERTY_TYPE,
   propertyType,
-  RECORDS_TYPE,
   ROLES,
 } from "@/utils/constant.utils";
 import { RotatingLines } from "react-loader-spinner";
@@ -62,6 +60,8 @@ import {
   X,
   SlidersHorizontal,
   Globe,
+  Building2,
+  MapPin,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
@@ -70,11 +70,7 @@ import PrivateRouter from "@/hook/privateRouter";
 
 const List = () => {
   const router = useRouter();
-  const [tooltip, setTooltip] = useState<{
-    row: any;
-    x: number;
-    y: number;
-  } | null>(null);
+  const { id } = router.query;
 
   // const [group, setGroup] = useState(null);
 
@@ -93,39 +89,28 @@ const List = () => {
       toggleable: true,
       sortable: true,
       render: (row) => (
-        <div
-          className="relative"
-          onMouseEnter={(e) => {
-            const rect = (
-              e.currentTarget as HTMLElement
-            ).getBoundingClientRect();
-            setTooltip({ row, x: rect.left, y: rect.top });
-          }}
-          onMouseLeave={() => setTooltip(null)}
+        <Link
+          className="flex gap-3 font-semibold"
+          href={`${FRONTEND_URL}/property-detail/${row?.id}`}
+          target="_blank"
         >
-          <Link
-            className="flex gap-3 font-semibold"
-            href={`${FRONTEND_URL}/property-detail/${row?.id}`}
-            target="_blank"
-          >
-            <div className="flex flex-col justify-between ">
-              <div>
-                <div className="cursor-pointer text-sm">
-                  {truncateText(row.title)}
-                </div>
+          <div className="flex flex-col justify-between ">
+            <div>
+              <div className="cursor-pointer text-sm" title={row.title}>
+                {truncateText(row.title)}
               </div>
             </div>
-          </Link>
-        </div>
+          </div>
+        </Link>
       ),
     },
 
-    // {
-    //   accessor: "price",
-    //   title: "Price Range",
-    //   visible: true,
-    //   toggleable: true,
-    // },
+    {
+      accessor: "price",
+      title: "Price Range",
+      visible: true,
+      toggleable: true,
+    },
     {
       accessor: "project",
       title: "Project",
@@ -136,31 +121,31 @@ const List = () => {
         <span title={row.project}>{truncateText(row.project)}</span>
       ),
     },
-    // {
-    //   accessor: "created_by",
-    //   title: "Created By",
-    //   visible: true,
-    //   toggleable: true,
-    //   render: (row) => (
-    //     <span title={row.created_by}>{truncateText(row.created_by)}</span>
-    //   ),
-    // },
-    // {
-    //   accessor: "developer",
-    //   title: "Developer",
-    //   visible: true,
-    //   toggleable: true,
-    //   render: (row) => (
-    //     <span title={row.developer}>{truncateText(row.developer)}</span>
-    //   ),
-    // },
-    // {
-    //   accessor: "agent",
-    //   title: "Agent",
-    //   visible: true,
-    //   toggleable: true,
-    //   render: (row) => <span title={row.agent}>{truncateText(row.agent)}</span>,
-    // },
+    {
+      accessor: "created_by",
+      title: "Created By",
+      visible: true,
+      toggleable: true,
+      render: (row) => (
+        <span title={row.created_by}>{truncateText(row.created_by)}</span>
+      ),
+    },
+    {
+      accessor: "developer",
+      title: "Developer",
+      visible: true,
+      toggleable: true,
+      render: (row) => (
+        <span title={row.developer}>{truncateText(row.developer)}</span>
+      ),
+    },
+    {
+      accessor: "agent",
+      title: "Agent",
+      visible: true,
+      toggleable: true,
+      render: (row) => <span title={row.agent}>{truncateText(row.agent)}</span>,
+    },
     {
       accessor: "property_type",
       title: "Property Type",
@@ -229,50 +214,28 @@ const List = () => {
         </span>
       ),
     },
-    // {
-    //   accessor: "status",
-    //   title: "Status",
-    //   visible: true,
-    //   toggleable: true,
-    // },
-    // {
-    //   accessor: "date",
-    //   title: "Date",
-    //   visible: true,
-    //   toggleable: true,
-    // },
+    {
+      accessor: "status",
+      title: "Status",
+      visible: true,
+      toggleable: true,
+    },
+    {
+      accessor: "date",
+      title: "Date",
+      visible: true,
+      toggleable: true,
+    },
     {
       accessor: "publish",
-      title: "Publish Status",
+      title: "Publish",
       visible: true,
       toggleable: true,
       render: (row: any) => (
-        <span
-          className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-            row?.publish === "Published"
-              ? "bg-lred text-dred border-dred"
-              : "bg-gray-200 text-gray-700"
-          }`}
-        >
+        <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+          row?.publish === "Published" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-700"
+        }`}>
           {row?.publish}
-        </span>
-      ),
-    },
-
-    {
-      accessor: "is_approved",
-      title: "Approved Status",
-      visible: true,
-      toggleable: true,
-      render: (row: any) => (
-        <span
-          className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-            row?.is_approved == true
-              ? "bg-green-100 text-green-700"
-              : "bg-yellow-100 text-gray-700"
-          }`}
-        >
-          {row?.is_approved == true ? "Approved" : "Pending"}
         </span>
       ),
     },
@@ -295,7 +258,7 @@ const List = () => {
             <Eye className="h-3.5 w-3.5" />
           </button>
 
-          <button
+          {/* <button
             className="flex text-primary"
             onClick={(e) => {
               handleEdit(row);
@@ -311,9 +274,7 @@ const List = () => {
           </button>
           <button
             type="button"
-            className={`flex ${
-              row?.publish === "Published" ? "text-warning" : "text-info"
-            }`}
+            className={`flex ${ row?.publish === "Published" ? "text-warning" : "text-info" }`}
             onClick={() => handlePublish(row)}
             title={row?.publish === "Published" ? "Unpublish" : "Publish"}
           >
@@ -325,7 +286,7 @@ const List = () => {
             onClick={(e) => handleDelete(row)}
           >
             <IconTrashLines className="h-4 w-4 " />
-          </button>
+          </button> */}
         </div>
       ),
     },
@@ -572,7 +533,7 @@ const List = () => {
             <Eye className="h-3.5 w-3.5" />
           </button>
 
-          <button className="flex text-primary" onClick={() => handleEdit(row)}>
+          {/* <button className="flex text-primary" onClick={() => handleEdit(row)}>
             <IconEdit className="h-3.5 w-3.5 " />
           </button>
           <button
@@ -583,9 +544,7 @@ const List = () => {
           </button>
           <button
             type="button"
-            className={`flex ${
-              row?.publish === "Published" ? "text-warning" : "text-info"
-            }`}
+            className={`flex ${ row?.publish === "Published" ? "text-warning" : "text-info" }`}
             onClick={() => handlePublish(row)}
             title={row?.publish === "Published" ? "Unpublish" : "Publish"}
           >
@@ -596,7 +555,7 @@ const List = () => {
             onClick={() => handleDelete(row)}
           >
             <IconTrashLines className="h-3.5 w-3.5" />
-          </button>
+          </button> */}
         </div>
       ),
     },
@@ -627,7 +586,8 @@ const List = () => {
     showFilterModal: false,
     sortBy: "",
     sortOrder: "asc",
-    recordType :{value: "created", label: "Created Records"}
+    project: null,
+    projectLoading: true,
   });
 
   const visibleCount = state.visibleColumns.filter((col) => col.visible).length;
@@ -656,16 +616,29 @@ const List = () => {
   }, []);
 
   useEffect(() => {
+    if (id) {
+      fetchProject();
+    }
+  }, [id]);
+
+  const fetchProject = async () => {
+    try {
+      setState({ projectLoading: true });
+      const res: any = await Models.project.details(id);
+      setState({ project: res, projectLoading: false });
+    } catch (error) {
+      console.log("✌️error --->", error);
+      setState({ projectLoading: false });
+    }
+  };
+
+  useEffect(() => {
     const group = localStorage.getItem("group");
-    if (group == "Admin") {
-      // if (state.role != null) {
-      //   propertyList(1);
-      // }
-      propertyList(1);
-    } else {
+    if (id) {
       propertyList(1);
     }
   }, [
+    id,
     debouncedSearch,
     state.property_type,
     state.offer_type,
@@ -704,11 +677,7 @@ const List = () => {
     }
   };
 
-  const propertyList = async (
-    page,
-    sortBy = state.sortBy,
-    sortOrder = state.sortOrder,
-  ) => {
+  const propertyList = async (page, sortBy = state.sortBy, sortOrder = state.sortOrder) => {
     try {
       setState({ loading: true });
 
@@ -751,12 +720,9 @@ const List = () => {
                 item.created_by?.last_name || ""
               }`.trim()
             : item.created_by || "-",
-        agent:
-          item.agent?.first_name || item.agent?.last_name
-            ? `${capitalizeFLetter(
-                item.agent?.first_name || "",
-              )} ${capitalizeFLetter(item.agent?.last_name || "")}`.trim()
-            : item.agent || "-",
+        agent: `${capitalizeFLetter(
+          item?.agent?.first_name,
+        )} ${capitalizeFLetter(item?.agent?.last_name)}`,
         project: capitalizeFLetter(item?.project?.name),
 
         price: formatPriceRange(
@@ -917,17 +883,6 @@ const List = () => {
     }
   };
 
-  const getRecordTypeList = (e) => {
-    setState({ recordType: e, user: null, userList: [] });
-
-    if (e?.value == "created") {
-      setState({createdRecords : true, assignedRecords : false})
-    } 
-    if (e?.value == "assigned") {
-      setState({assignedRecords : true , createdRecords : false})
-    }
-  };
-
   const getuserList = (e) => {
     setState({ role: e, user: null, userList: [] });
 
@@ -971,6 +926,14 @@ const List = () => {
 
     body.is_approved = "Yes";
 
+    if (id) {
+      body.project = id;
+    }
+
+    if (id) {
+      body.project = id;
+    }
+
     if (state.search) {
       body.search = debouncedSearch;
     }
@@ -989,44 +952,14 @@ const List = () => {
       body.publish = state.publish?.value == "Publish" ? "Yes" : "No";
     }
 
-    // if (group == capitalizeFLetter(ROLES.ADMIN)) {
-    //   body = { ...body, ...adminBody() };
-    // } else if (group == capitalizeFLetter(ROLES.DEVELOPER)) {
-    //   body = { ...body, ...developerBody() };
-    // } else if (group == capitalizeFLetter(ROLES.AGENT)) {
-    //   body = { ...body, ...agentBody() };
-    // } else if (group == capitalizeFLetter(ROLES.SELLER)) {
-    //   body = { ...body, ...sellerBody() };
-    // }
-
-    if(state.createdRecords){
-      const userId = localStorage.getItem("userId");
-      if (state.role?.value == "own") {
-        body.created_by = userId
-      }
-      if (state.role?.value == "developer") {
-        body.created_by = state.user?.value
-      }
-      if (state.role?.value == "agent") {
-        body.created_by = state.user?.value
-      }
-      if (state.role?.value == "seller") {
-        body.created_by = state.user?.value
-      }
-    }
-    if(state.assignedRecords){
-      const userId = localStorage.getItem("userId");
-
-      if (state.role?.value == "own") {
-        body.assigned_to = userId
-      }
-      if (state.role?.value == "developer") {
-        body.assigned_to_developer = state.user?.value
-      }
-      if (state.role?.value == "agent") {
-        body.assigned_to_agent = state.user?.value
-      }
-      
+    if (group == capitalizeFLetter(ROLES.ADMIN)) {
+      body = { ...body, ...adminBody() };
+    } else if (group == capitalizeFLetter(ROLES.DEVELOPER)) {
+      body = { ...body, ...developerBody() };
+    } else if (group == capitalizeFLetter(ROLES.AGENT)) {
+      body = { ...body, ...agentBody() };
+    } else if (group == capitalizeFLetter(ROLES.SELLER)) {
+      body = { ...body, ...sellerBody() };
     }
 
 
@@ -1086,18 +1019,10 @@ const List = () => {
   };
 
   const handleView = async (row) => {
-    // window.open(`${FRONTEND_URL}/property-detail/${row?.id}`, "_blank");
-    router.push(`/real-estate/property/detail/${row?.id}`);
+    window.open(`${FRONTEND_URL}/property-detail/${row?.id}`, "_blank");
   };
 
   const handleStatus = async (row) => {
-    const isPublished = row?.publish === "Published";
-
-    if (!isPublished) {
-      Failure("Cannot change status because the property is in draft.");
-      return;
-    }
-
     const result = await Swal.fire({
       title: "Are you sure?",
       text: "Do you want to change the status of this property?",
@@ -1112,8 +1037,7 @@ const List = () => {
 
     try {
       setState({ btnLoading: true });
-
-      const body = { is_approved: !row.is_approved };
+      const body = { is_approved: false };
       await Models.property.update(body, row?.id);
       propertyList(state.page);
       Success("Property Approved successfully");
@@ -1124,9 +1048,7 @@ const List = () => {
     const isPublished = row?.publish === "Published";
     const result = await Swal.fire({
       title: "Are you sure?",
-      text: `Do you want to ${
-        isPublished ? "unpublish" : "publish"
-      } this property?`,
+      text: `Do you want to ${isPublished ? "unpublish" : "publish"} this property?`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Yes, do it!",
@@ -1140,14 +1062,9 @@ const List = () => {
       setState({ btnLoading: true });
       const formData = new FormData();
       formData.append("publish", isPublished ? "false" : "true");
-      // if (isPublished) {
-      //   formData.append("is_approved", "false");
-      // }
       await Models.property.update(formData, row?.id);
       propertyList(state.page);
-      Success(
-        `Property ${isPublished ? "unpublished" : "published"} successfully`,
-      );
+      Success(`Property ${isPublished ? "unpublished" : "published"} successfully`);
     } catch (error) {
       setState({ btnLoading: false });
     }
@@ -1223,116 +1140,48 @@ const List = () => {
 
   return (
     <>
+      {/* Project Detail Card */}
+      {state.project && (
+        <div className="panel mb-5 flex items-center justify-between rounded-2xl px-6 py-4">
+          <div className="flex items-center gap-6">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#9b0f09]/10">
+              <Building2 className="h-5 w-5 text-[#9b0f09]" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-gray-900 dark:text-white">{capitalizeFLetter(state.project?.name)}</h2>
+              <div className="mt-1 flex items-center gap-4 text-xs text-gray-500">
+                {state.project?.location && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />{state.project.location}
+                  </span>
+                )}
+                {state.project?.created_at && (
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-3 w-3" />{commonDateFormat(state.project.created_at)}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          <button onClick={() => router.back()} className="rounded-lg border px-3 py-1.5 text-xs font-semibold text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">← Back</button>
+        </div>
+      )}
+
       <div className="mb-3 flex items-center justify-between gap-5">
         <div className=" items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
-            {state.group == "Admin"
-              ? "Properties List"
-              : state.group == "Developer" || state.group == "Agent"
-              ? "Assigned Properties"
-              : state.group == "Seller"
-              ? "My Properties"
-              : "Properties List"}
+           Property List
+          
           </h5>
-
+{/* 
           <p className="text-gray-600 dark:text-gray-400">
             Manage property listings and status
-          </p>
+          </p> */}
         </div>
-        <div className="flex gap-5">
-          <button
-            type="button"
-            className="btn btn-dred w-full  border-none md:mb-0 md:w-auto"
-            onClick={() => router.push("/real-estate/property/create")}
-          >
-            + Create
-          </button>
-        </div>
+        
       </div>
 
-      <div className="mb-6 flex gap-4">
-        <div
-          onClick={() => {
-            setState({ offer_type: null });
-          }}
-          className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
-        >
-          <div className="flex items-center gap-5">
-            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
-              <Briefcase className="text-dblue h-10 w-10" />
-            </div>
-
-            <div className="flex flex-col">
-              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.statCount?.total || 0}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Total Properties
-              </p>
-            </div>
-          </div>
-        </div>
-        <div
-          onClick={() =>
-            setState({ offer_type: { value: "sale", label: "Sale" } })
-          }
-          className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
-        >
-          <div className="flex items-center gap-5 ">
-            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
-              <CheckCircle className="h-10 w-10 text-green-600" />
-            </div>
-
-            <div className="flex flex-col">
-              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.statCount?.sale_count || 0}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Sale Properties
-              </p>
-            </div>
-          </div>
-        </div>
-        <div
-          onClick={() =>
-            setState({ offer_type: { value: "lease", label: "Lease" } })
-          }
-          className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
-        >
-          <div className="flex items-center gap-5">
-            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
-              <Hourglass className="h-10 w-10 text-yellow-600" />
-            </div>
-
-            <div className="flex flex-col">
-              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.statCount?.lease_count || 0}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Lease Properties
-              </p>
-            </div>
-          </div>
-        </div>
-        {/* <div className="rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700">
-          <div className="flex items-center gap-5">
-            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
-              <Clock className="h-10 w-10 text-red-600" />
-            </div>
-
-            <div className="flex flex-col">
-              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.jobList?.filter((job) => job.priority == "0 - 30 Days")
-                  ?.length || 0}
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Urgent Job
-              </p>
-            </div>
-          </div>
-        </div> */}
-      </div>
-
+      
       {/* Filter section */}
       <div className="mb-5 rounded-2xl">
         <div className="flex  items-center justify-between gap-5">
@@ -1352,31 +1201,17 @@ const List = () => {
             loadMore={() => catListLoadMore()}
           />
           <CustomSelect
-                   
-                    value={state.recordType}
-                    onChange={(e) => getRecordTypeList(e)}
-                    options={RECORDS_TYPE}
-                    isClearable={false}
-                  />
-
-         {state.group == "Admin" && (
-                <>
-                  <CustomSelect
-                    placeholder="Select User's Role"
-                    value={state.role}
-                    onChange={(e) => getuserList(e)}
-                    options={FILTER_ADMINROLES}
-                    // isClearable={false}
-                  />
-                  <CustomSelect
-                    placeholder="Select User"
-                    value={state.user}
-                    onChange={(e) => setState({ user: e })}
-                    options={state.userList}
-                    disabled={!state.role}
-                  />
-                </>
-              )}
+            placeholder="Offer Type"
+            value={state.offer_type}
+            onChange={(e) => setState({ offer_type: e })}
+            options={ListType}
+          />
+          <CustomSelect
+            placeholder="Property Status"
+            value={state.status}
+            onChange={(e) => setState({ status: e })}
+            options={Property_status}
+          />
           <button
             onClick={() => setState({ showFilterModal: true })}
             className="flex items-center gap-4 rounded-lg border bg-white p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 "
@@ -1388,114 +1223,113 @@ const List = () => {
       </div>
 
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
-        <div className="datatables pagination-padding [&_.mantine-datatable-table-container]:overflow-visible [&_table]:overflow-visible">
-          {
-            state?.loading ? (
-              <div className="flex h-[400px] items-center justify-center">
-                <RotatingLines
-                  visible={true}
-                  strokeColor="gray"
-                  strokeWidth="5"
-                  animationDuration="0.75"
-                  width="40"
-                  ariaLabel="rotating-lines-loading"
-                />
-              </div>
-            ) : (
-              <>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "16px",
-                    gap: "10px",
-                  }}
-                >
-                  <FilterChips
-                    chips={[
-                      ...(state.search
-                        ? [
-                            {
-                              label: `Search: ${state.search}`,
-                              onRemove: () => setState({ search: "" }),
-                            },
-                          ]
-                        : []),
-                      ...(state.property_type?.length > 0
-                        ? state.property_type.map((pt: any) => ({
-                            label: `Type: ${pt.label}`,
+        <div className="datatables pagination-padding">
+          {state?.loading ? (
+            <div className="flex h-[400px] items-center justify-center">
+              <RotatingLines
+                visible={true}
+                strokeColor="gray"
+                strokeWidth="5"
+                animationDuration="0.75"
+                width="40"
+                ariaLabel="rotating-lines-loading"
+              />
+            </div>
+          ) :(
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "16px",
+                  gap: "10px",
+                }}
+              >
+                <FilterChips
+                  chips={[
+                    ...(state.search
+                      ? [
+                          {
+                            label: `Search: ${state.search}`,
+                            onRemove: () => setState({ search: "" }),
+                          },
+                        ]
+                      : []),
+                    ...(state.property_type?.length > 0
+                      ? state.property_type.map((pt: any) => ({
+                          label: `Type: ${pt.label}`,
+                          onRemove: () =>
+                            setState({
+                              property_type: state.property_type.filter(
+                                (t: any) => t.value !== pt.value,
+                              ),
+                            }),
+                        }))
+                      : []),
+                    ...(state.offer_type
+                      ? [
+                          {
+                            label: `Offer: ${state.offer_type.label}`,
+                            onRemove: () => setState({ offer_type: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.status
+                      ? [
+                          {
+                            label: `Status: ${state.status.label}`,
+                            onRemove: () => setState({ status: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.publish
+                      ? [
+                          {
+                            label: `Publish: ${state.publish.label}`,
+                            onRemove: () => setState({ publish: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.role && state.group === "Admin"
+                      ? [
+                          {
+                            label: `Role: ${state.role.label}`,
                             onRemove: () =>
                               setState({
-                                property_type: state.property_type.filter(
-                                  (t: any) => t.value !== pt.value,
-                                ),
+                                role: {
+                                  value: "developer",
+                                  label: "Developer",
+                                },
+                                user: null,
                               }),
-                          }))
-                        : []),
-                      ...(state.offer_type
-                        ? [
-                            {
-                              label: `Offer: ${state.offer_type.label}`,
-                              onRemove: () => setState({ offer_type: null }),
-                            },
-                          ]
-                        : []),
-                      ...(state.status
-                        ? [
-                            {
-                              label: `Status: ${state.status.label}`,
-                              onRemove: () => setState({ status: null }),
-                            },
-                          ]
-                        : []),
-                      ...(state.publish
-                        ? [
-                            {
-                              label: `Publish: ${state.publish.label}`,
-                              onRemove: () => setState({ publish: null }),
-                            },
-                          ]
-                        : []),
-                      ...(state.role && state.group === "Admin"
-                        ? [
-                            {
-                              label: `Role: ${state.role.label}`,
-                              onRemove: () =>
-                                setState({
-                                  role: {
-                                    value: "developer",
-                                    label: "Developer",
-                                  },
-                                  user: null,
-                                }),
-                            },
-                          ]
-                        : []),
-                      ...(state.user
-                        ? [
-                            {
-                              label: `User: ${state.user.label}`,
-                              onRemove: () => setState({ user: null }),
-                            },
-                          ]
-                        : []),
-                    ]}
-                    onClearAll={() =>
-                      setState({
-                        search: "",
-                        property_type: null,
-                        offer_type: null,
-                        status: null,
-                        publish: null,
-                        role: null,
-                        user: null,
-                      })
-                    }
-                  />
+                          },
+                        ]
+                      : []),
+                    ...(state.user
+                      ? [
+                          {
+                            label: `User: ${state.user.label}`,
+                            onRemove: () => setState({ user: null }),
+                          },
+                        ]
+                      : []),
+                  ]}
+                  onClearAll={() =>
+                    setState({
+                      search: "",
+                      property_type: null,
+                      offer_type: null,
+                      status: null,
+                      publish: null,
+                      role: null,
+                      user: null,
+                    })
+                  }
+                />
 
-                  <div className="ml-auto flex items-center gap-3">
-                    {/* <div className="flex items-center gap-1  ">
+                <div className="ml-auto flex items-center gap-3">
+                  <div className="flex items-center gap-1  ">
                     <button
                       onClick={() => setState({ viewMode: "table" })}
                       className={`rounded-md p-2 transition-all duration-200 `}
@@ -1517,12 +1351,12 @@ const List = () => {
                         color={state.viewMode == "image" ? "#9b0f09" : "grey"}
                       />
                     </button>
-                  </div> */}
-                    <div className="text-sm text-black">
-                      {state.total} Properties found
-                    </div>
+                  </div>
+                  <div className="text-sm text-black">
+                    {state.total} Properties found
+                  </div>
 
-                    {/* <Popover
+                  {/* <Popover
                   position="bottom-end"
                   withArrow
                   shadow="md"
@@ -1701,35 +1535,35 @@ const List = () => {
                     </div>
                   </Popover.Dropdown>
                 </Popover> */}
-                  </div>
                 </div>
+              </div>
 
-                <DataTable
-                  className="table-responsive"
-                  records={state.tableList || []}
-                  columns={filteredColumns}
-                  highlightOnHover
-                  minHeight={200}
-                  sortStatus={{
-                    columnAccessor: state.sortBy,
-                    direction: state.sortOrder as "asc" | "desc",
-                  }}
-                  onSortStatusChange={({ columnAccessor, direction }) => {
-                    setState({
-                      sortBy: columnAccessor,
-                      sortOrder: direction,
-                      page: 1,
-                    });
-                    propertyList(1, columnAccessor, direction);
-                  }}
-                />
-              </>
-            )
-            // : (
-            //   <div className="mt-5 flex h-[400px] items-center justify-center">
-            //     <p>No Records Found</p>
-            //   </div>
-            // )
+              <DataTable
+                className="table-responsive"
+                records={state.tableList || []}
+                columns={filteredColumns}
+                highlightOnHover
+                minHeight={200}
+                sortStatus={{
+                  columnAccessor: state.sortBy,
+                  direction: state.sortOrder as "asc" | "desc",
+                }}
+                onSortStatusChange={({ columnAccessor, direction }) => {
+                  setState({
+                    sortBy: columnAccessor,
+                    sortOrder: direction,
+                    page: 1,
+                  });
+                  propertyList(1, columnAccessor, direction);
+                }}
+              />
+            </>
+          ) 
+          // : (
+          //   <div className="mt-5 flex h-[400px] items-center justify-center">
+          //     <p>No Records Found</p>
+          //   </div>
+          // )
           }
         </div>
 
@@ -1771,18 +1605,23 @@ const List = () => {
               </button>
             </div>
             <div className="grid grid-cols-1 gap-4 py-3 md:grid-cols-2">
-              <CustomSelect
-                placeholder="Offer Type"
-                value={state.offer_type}
-                onChange={(e) => setState({ offer_type: e })}
-                options={ListType}
-              />
-              <CustomSelect
-                placeholder="Property Status"
-                value={state.status}
-                onChange={(e) => setState({ status: e })}
-                options={Property_status}
-              />
+              {state.group == "Admin" && (
+                <>
+                  <CustomSelect
+                    placeholder="Select Role"
+                    value={state.role}
+                    onChange={(e) => getuserList(e)}
+                    options={FILTER_ROLES}
+                    isClearable={false}
+                  />
+                  <CustomSelect
+                    placeholder="Select User"
+                    value={state.user}
+                    onChange={(e) => setState({ user: e })}
+                    options={state.userList}
+                  />
+                </>
+              )}
               <CustomSelect
                 placeholder="Publish or Draft"
                 value={state.publish}
@@ -1807,54 +1646,8 @@ const List = () => {
           </div>
         )}
       />
-
-      {/* Fixed tooltip rendered outside table */}
-      {tooltip && (
-        <div
-          className="border-dred bg-lred pointer-events-none fixed z-[99999] w-56 rounded-lg border p-3 shadow-lg dark:bg-gray-800"
-          style={{
-            top: tooltip.y - 8,
-            left: tooltip.x,
-            transform: "translateY(40%)",
-          }}
-        >
-          <div className="mb-1 font-semibold text-[#000]">
-            {tooltip.row.title}
-          </div>
-          {tooltip.row?.created_by && (
-            <div className="mb-1 flex items-start gap-2 text-xs">
-              <span className="shrink-0 font-semibold text-gray-500">
-                Created By:
-              </span>
-              <span className="text-gray-800 dark:text-white">
-                {tooltip.row.created_by}
-              </span>
-            </div>
-          )}
-          {tooltip.row?.developer && (
-            <div className="mb-1 flex items-start gap-2 text-xs">
-              <span className="shrink-0 font-semibold text-gray-500">
-                Developer:
-              </span>
-              <span className="text-gray-800 dark:text-white">
-                {tooltip.row.developer}
-              </span>
-            </div>
-          )}
-          {tooltip.row?.agent && (
-            <div className="flex items-start gap-2 text-xs">
-              <span className="shrink-0 font-semibold text-gray-500">
-                Agent:
-              </span>
-              <span className="text-gray-800 dark:text-white">
-                {tooltip.row.agent ?? "-"}
-              </span>
-            </div>
-          )}
-        </div>
-      )}
     </>
   );
-};
+}
 
 export default PrivateRouter(List);

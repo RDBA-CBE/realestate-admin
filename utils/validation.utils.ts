@@ -298,6 +298,22 @@ export const amenity = Yup.object().shape({
 export const user = Yup.object().shape({
   email: Yup.string().required("Email is required"),
   password: Yup.string().required("Password is required"),
+  groups: Yup.number(),
+  industry: Yup.string().when("groups", {
+    is: 4,
+    then: (schema) => schema.required("Industry is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+});
+
+export const userUpdate = Yup.object().shape({
+  email: Yup.string().required("Email is required"),
+  groups: Yup.number(),
+  industry: Yup.string().when("groups", {
+    is: 4,
+    then: (schema) => schema.required("Industry is required"),
+    otherwise: (schema) => schema.notRequired(),
+  }),
 });
 
 export const lead = Yup.object().shape({

@@ -17,7 +17,7 @@ export const menuConfig = {
     },
     {
       type: "section",
-      label: "Project Management",
+      label: "Property Management",
       children: [
         // {
         //   type: "link",
@@ -25,33 +25,26 @@ export const menuConfig = {
         //   label: "Waiting For Approval",
         //   href: "/real-estate/project/approval",
         // },
-        {
-          type: "submenu",
-          icon: "IconMenuApps",
-          label: "Projects",
-          key: "Projects",
-          children: [
-            { type: "link", label: "List", href: "/real-estate/project/list" },
-          ],
-        },
+       
         {
           type: "submenu",
           icon: "IconMenuDashboard",
           label: "Property",
           key: "Property",
           children: [
+            { type: "link", label: "Property List", href: "/real-estate/property/list" },
             {
               type: "link",
               label: "Waiting For Approval",
               href: "/real-estate/property/approval",
             },
 
-            { type: "link", label: "List", href: "/real-estate/property/list" },
-            {
-              type: "link",
-              label: "Create Property",
-              href: "/real-estate/property/create",
-            },
+            
+            // {
+            //   type: "link",
+            //   label: "Create Property",
+            //   href: "/real-estate/property/create",
+            // },
             // {
             //   type: "link",
             //   label: "Property Types",
@@ -66,6 +59,15 @@ export const menuConfig = {
             // { type: "link", label: "Media", href: "/apps/invoice/edit" },
             // { type: "link", label: "Zip code", href: "/apps/invoice/edit" },
             // { type: "link", label: "Reviews", href: "/apps/invoice/edit" },
+          ],
+        },
+         {
+          type: "submenu",
+          icon: "IconMenuApps",
+          label: "Projects",
+          key: "Projects",
+          children: [
+            { type: "link", label: "List", href: "/real-estate/project/adminlist" },
           ],
         },
         {
@@ -205,16 +207,16 @@ export const menuConfig = {
       type: "section",
       label: "Project Management",
       children: [
-        {
-          type: "submenu",
-          icon: "IconMenuApps",
-          label: "Projects",
-          key: "Projects",
-          children: [
-            { type: "link", label: "List", href: "/real-estate/project/list" },
-            // { type: "link", label: "Create", href: "/apps/invoice/preview" },
-          ],
-        },
+        // {
+        //   type: "submenu",
+        //   icon: "IconMenuApps",
+        //   label: "Projects",
+        //   key: "Projects",
+        //   children: [
+        //     { type: "link", label: "List", href: "/real-estate/project/list" },
+        //     // { type: "link", label: "Create", href: "/apps/invoice/preview" },
+        //   ],
+        // },
         {
           type: "submenu",
           icon: "IconMenuDashboard",
@@ -368,16 +370,16 @@ export const menuConfig = {
       type: "section",
       label: "Project Management",
       children: [
-        {
-          type: "submenu",
-          icon: "IconMenuApps",
-          label: "Projects",
-          key: "Projects",
-          children: [
-            { type: "link", label: "List", href: "/real-estate/project/list" },
-            // { type: "link", label: "Create", href: "/apps/invoice/preview" },
-          ],
-        },
+        // {
+        //   type: "submenu",
+        //   icon: "IconMenuApps",
+        //   label: "Projects",
+        //   key: "Projects",
+        //   children: [
+        //     { type: "link", label: "List", href: "/real-estate/project/list" },
+        //     // { type: "link", label: "Create", href: "/apps/invoice/preview" },
+        //   ],
+        // },
         {
           type: "submenu",
           icon: "IconMenuDashboard",
@@ -925,6 +927,17 @@ export const PRIORITY_OPTIONS = [
   { value: "urgent", label: "Urgent" },
 ];
 
+export const RECORDS_TYPE = [
+  {
+    value: "created",
+    label: "Created Records",
+  },
+  {
+    value: "assigned",
+    label: "Assigned Records",
+  },
+]
+
 export const FILTER_ROLES = [
   {
     value: "developer",
@@ -937,5 +950,24 @@ export const FILTER_ROLES = [
   {
     value: "seller",
     label: "Seller",
+  },
+];
+
+export const FILTER_ADMINROLES = [
+  {
+    value: "own",
+    label: "Own Records",
+  },
+  {
+    value: "developer",
+    label: "Developer Records",
+  },
+  {
+    value: "agent",
+    label: "Agent Records",
+  },
+  {
+    value: "seller",
+    label: "Seller Records",
   },
 ];

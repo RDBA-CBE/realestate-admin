@@ -137,8 +137,11 @@ const AddPropertyPage = () => {
 
   useEffect(() => {
     const group = localStorage.getItem("group") || "";
-
-    setState({ group: group });
+    const userId = localStorage.getItem("userId");
+    setState({
+      group,
+      ...(group === "Agent" && userId ? { agent: { value: userId } } : {}),
+    });
   }, [state.group]);
 
   useEffect(() => {
@@ -671,7 +674,9 @@ const AddPropertyPage = () => {
         saleBody.developer = state.developer?.value;
       }
 
-      if (state.group !== "Agent") {
+      if (state.group === "Agent") {
+        saleBody.agent = state.agent?.value;
+      } else {
         saleBody.assignAgent = state.assignAgent;
         saleBody.agent = state.agent?.value;
       }
@@ -808,7 +813,9 @@ const AddPropertyPage = () => {
         buyBody.developer = state.developer?.value;
       }
 
-      if (state.group !== "Agent") {
+      if (state.group === "Agent") {
+        buyBody.agent = state.agent?.value;
+      } else {
         buyBody.assignAgent = state.assignAgent;
         buyBody.agent = state.agent?.value;
       }
@@ -940,7 +947,9 @@ const AddPropertyPage = () => {
         buyBody.developer = state.developer?.value;
       }
 
-      if (state.group !== "Agent") {
+      if (state.group === "Agent") {
+        buyBody.agent = state.agent?.value;
+      } else {
         buyBody.assignAgent = state.assignAgent;
         buyBody.agent = state.agent?.value;
       }

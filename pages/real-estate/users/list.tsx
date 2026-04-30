@@ -57,6 +57,7 @@ const List = () => {
     password: "",
     date: "",
     address: "",
+    industry:"",
     isOpen: false,
     error: {},
     sortBy: "",
@@ -134,7 +135,7 @@ const List = () => {
         email: item.email,
         // date: moment(item.created_at).format("DD/MM/YYYY HH:mm"),
         date: formatDate(item.created_at, "DD/MM/YYYY"),
-        role: {
+        userRole: {
           role: item.user_type,
           color:
             item.user_type == "buyer"
@@ -147,6 +148,7 @@ const List = () => {
               ? "warning"
               : "success",
         },
+        industry: item.industry,
         ...item,
       }));
 
@@ -173,7 +175,7 @@ const List = () => {
         email: state?.email,
         password: state?.password,
         phone: state?.phone,
-        groups: [state?.role?.value],
+        groups: [state?.userRole?.value],
         // groups: state?.role?.map((item) => item?.value),
         address: state?.address,
         account_status: "approved",
@@ -215,10 +217,12 @@ const List = () => {
         last_name: state?.last_name,
         email: state?.email,
         phone: state?.phone,
-        role: state?.role?.value,
+        groups: [state?.userRole?.value],
         address: state?.address,
         industry: state.industry,
       };
+
+      await Utils.Validation.userUpdate.validate(body, { abortEarly: false });
 
       const res = await Models.user.update(body, state.editId);
 
@@ -271,8 +275,9 @@ const List = () => {
       password: "",
       phone: "",
       address: "",
-      role: "",
+      userRole: "",
       editId: "",
+      industry:"",
       isOpen: false,
       error: {},
     });
@@ -293,11 +298,12 @@ const List = () => {
       last_name: row?.last_name,
       email: row?.email,
       phone: row?.phone,
-      role: state?.groupList?.find(
+      userRole: state?.groupList?.find(
         (item) => item.label.toLowerCase() === row?.user_type?.toLowerCase(),
       ),
       address: row?.address,
       editId: row?.id,
+      industry: row?.industry,
       isOpen: true,
     });
   };
@@ -496,6 +502,14 @@ const List = () => {
             className="table-responsive"
             records={state?.tableList || []}
             columns={[
+              ...(state.role?.value === "developer" ? [{
+                accessor: "industry",
+                title: "Industry Name",
+                sortable: true,
+                render: (row) => (
+                  <span title={row.industry}>{truncateText(row.industry)}</span>
+                ),
+              }] : []),
               {
                 accessor: "name",
                 title: "Name",
@@ -538,11 +552,11 @@ const List = () => {
               { accessor: "date", title: "Date" },
 
               {
-                accessor: "role",
+                accessor: "userRole",
                 title: "Role",
                 render: (row: any) => (
-                  <span className={`badge badge-outline-${row?.role?.color} `}>
-                    {capitalizeFLetter(row?.role?.role)}
+                  <span className={`badge badge-outline-${row?.userRole?.color} `}>
+                    {capitalizeFLetter(row?.userRole?.role)}
                   </span>
                 ),
               },
@@ -694,10 +708,11 @@ const List = () => {
                 <CustomSelect
                   title="Role"
                   placeholder="Select Role"
-                  value={state.role}
-                  onChange={(e) => setState({ role: e })}
+                  value={state.userRole}
+                  onChange={(e) => setState({ userRole: e })}
                   options={state.groupList}
                 />
+                {state.userRole?.label === "Developer" && 
                 <TextInput
                   name="industry"
                   type="text"
@@ -705,9 +720,9 @@ const List = () => {
                   placeholder="Enter industry"
                   value={state.industry}
                   onChange={(e) => setState({ industry: e.target.value })}
-                  // error={state.error?.last_name}
-                  // required
-                />
+                  error={state.error?.industry}
+                  required = {state.userRole?.label === "Developer" ? true : false}
+                />}
                 <TextArea
                   name="address"
                   title="Address"

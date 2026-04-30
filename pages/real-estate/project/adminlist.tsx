@@ -22,7 +22,7 @@ import Utils from "@/imports/utils.import";
 import * as Yup from "yup";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
-import { FILTER_ADMINROLES, FILTER_ROLES, ROLES } from "@/utils/constant.utils";
+import { FILTER_ROLES, ROLES } from "@/utils/constant.utils";
 import PrivateRouter from "@/hook/privateRouter";
 import FilterChips from "@/components/FilterChips/FilterChips.component";
 import { Eye } from "lucide-react";
@@ -47,6 +47,7 @@ const list = () => {
     userId: null,
     sortBy: "",
     sortOrder: "asc",
+    selectedRecords: [],
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -64,7 +65,11 @@ const list = () => {
     if (state.userId !== null) {
       projectList(1);
     }
-  }, [debouncedSearch, state.user, state.role, state.userId , state.recordType, state.team]);
+  }, [debouncedSearch, state.user, state.role, state.userId]);
+
+  useEffect(() => {
+    developerList(1);
+  }, []);
 
   const developerList = async (page) => {
     try {
@@ -74,7 +79,7 @@ const list = () => {
       const res: any = await Models.user.list(page, body);
       const dropdown = res?.results?.map((item) => ({
         value: item?.id,
-        label: `${item?.first_name} ${item?.last_name}`,
+        label: item?.industry,
       }));
       setState({
         userList: dropdown,
@@ -84,41 +89,41 @@ const list = () => {
     }
   };
 
-  const agentList = async (page) => {
-    try {
-      const body = {
-        user_type: ROLES.AGENT,
-      };
-      const res: any = await Models.user.list(page, body);
-      const dropdown = res?.results?.map((item) => ({
-        value: item?.id,
-        label: `${item?.first_name} ${item?.last_name}`,
-      }));
-      setState({
-        userList: dropdown,
-      });
-    } catch (error) {
-      console.log("✌️error --->", error);
-    }
-  };
+  //   const agentList = async (page) => {
+  //     try {
+  //       const body = {
+  //         user_type: ROLES.AGENT,
+  //       };
+  //       const res: any = await Models.user.list(page, body);
+  //       const dropdown = res?.results?.map((item) => ({
+  //         value: item?.id,
+  //         label: `${item?.first_name} ${item?.last_name}`,
+  //       }));
+  //       setState({
+  //         userList: dropdown,
+  //       });
+  //     } catch (error) {
+  //       console.log("✌️error --->", error);
+  //     }
+  //   };
 
-  const sellerList = async (page) => {
-    try {
-      const body = {
-        user_type: ROLES.SELLER,
-      };
-      const res: any = await Models.user.list(page, body);
-      const dropdown = res?.results?.map((item) => ({
-        value: item?.id,
-        label: `${item?.first_name} ${item?.last_name}`,
-      }));
-      setState({
-        userList: dropdown,
-      });
-    } catch (error) {
-      console.log("✌️error --->", error);
-    }
-  };
+  //   const sellerList = async (page) => {
+  //     try {
+  //       const body = {
+  //         user_type: ROLES.SELLER,
+  //       };
+  //       const res: any = await Models.user.list(page, body);
+  //       const dropdown = res?.results?.map((item) => ({
+  //         value: item?.id,
+  //         label: `${item?.first_name} ${item?.last_name}`,
+  //       }));
+  //       setState({
+  //         userList: dropdown,
+  //       });
+  //     } catch (error) {
+  //       console.log("✌️error --->", error);
+  //     }
+  //   };
 
   const projectList = async (
     page,
@@ -142,6 +147,8 @@ const list = () => {
         id: item?.id,
         properties: item?.property_count,
         project: item?.project?.name,
+        developer: item?.developer?.industry ||  "-",
+        developer_email: item?.developer?.email || item?.developer_email || "-",
       }));
       const group = localStorage.getItem("group");
 
@@ -159,6 +166,8 @@ const list = () => {
     }
   };
 
+  console.log("tableList", state?.tableList);
+
   const createProject = async () => {
     try {
       setState({ btnLoading: true });
@@ -166,7 +175,7 @@ const list = () => {
         name: state.name,
         location: state.location,
         description: state.description,
-        developer: 3,
+        developer: state.developer.value,
       };
       await Utils.Validation.project.validate(body, { abortEarly: false });
 
@@ -197,7 +206,7 @@ const list = () => {
         name: state.name,
         location: state.location,
         description: state.description,
-        developer: 3,
+        developer: state.developer.value,
       };
       await Utils.Validation.project.validate(body, { abortEarly: false });
 
@@ -258,26 +267,16 @@ const list = () => {
     if (state.search) {
       body.search = state.search;
     }
-    // if (state.role) {
-    //   body.group = state.role.value;
-    // }
-
-    // if (state.developer){
-    //   body.developer = state.developer.value;
-    // }
-
-    body.developer = state.userId;
-
-    if(state?.team == true){
-      body.team = state?.team
-    }
-    if(state?.team == false){
-      body.team = state?.team
+    if (state.role) {
+      body.group = state.role.value;
     }
 
     // if (state.user?.value || (state.role == null && state.userId)) {
     //   body.created_by = state.user?.value ? state.user?.value : state.userId;
     // }
+    if (state.user?.value) {
+      body.created_by = state.user?.value;
+    }
 
     if (state.sortBy) {
       body.ordering =
@@ -331,28 +330,16 @@ const list = () => {
     }
   };
 
-  const getuserList = (e) => {
-    setState({ recordType: e });
-    if (e?.value === "own") {
-      setState({ team: false });
-    } else if (e?.value === "admin") {
-      setState({ team: true });
-    }
-  };
-
-  console.log("team", state?.team);
-  
-
-  // const getuserList = (e) => {
-  //   setState({ role: e, user: null });
-  //   if (e?.value == "developer") {
-  //     developerList(1);
-  //   } else if (e?.value == "agent") {
-  //     agentList(1);
-  //   } else if (e?.value == "seller") {
-  //     sellerList(1);
-  //   }
-  // };
+  //   const getuserList = (e) => {
+  //     setState({ role: e, user: null });
+  //     if (e?.value == "developer") {
+  //       developerList(1);
+  //     } else if (e?.value == "agent") {
+  //       agentList(1);
+  //     } else if (e?.value == "seller") {
+  //       sellerList(1);
+  //     }
+  //   };
 
   const clearFilter = () => {
     setState({
@@ -363,17 +350,26 @@ const list = () => {
     });
   };
 
-  const FILTER_ADMINROLES = [
-  {
-    value: "own",
-    label: "Own Records",
-  },
-  {
-    value: "admin",
-    label: "Admin Records",
-  }
- 
-];
+  const handleBulkDelete = () => {
+    showDeleteAlert(
+      () => bulkDeleteRecords(),
+      () => Swal.fire("Cancelled", "Your Records are safe :)", "info"),
+      `Are you sure want to delete ${state.selectedRecords.length} record(s)?`,
+    );
+  };
+
+  const bulkDeleteRecords = async () => {
+    try {
+      for (const id of state.selectedRecords) {
+        await Models.project.delete(id);
+      }
+      Success(`${state.selectedRecords.length} Projects deleted successfully!`);
+      setState({ selectedRecords: [] });
+      projectList(state.page);
+    } catch (error) {
+      Failure("Failed to delete Projects. Please try again.");
+    }
+  };
 
   return (
     <>
@@ -406,19 +402,9 @@ const list = () => {
           />
         </div>
 
-        <div>
-          <CustomSelect
-            placeholder="Select Record type"
-            value={state.recordType}
-            onChange={getuserList}
-            options={FILTER_ADMINROLES}
-            // isClearable={false}
-          />
-        </div>
-
-        {/* {state.group == "Admin" && (
+        {state.group == "Admin" && (
           <>
-            <div className="">
+            {/* <div className="">
               <CustomSelect
                 placeholder="Select Role"
                 value={state.role}
@@ -431,19 +417,20 @@ const list = () => {
                 }}
                 options={FILTER_ROLES}
               />
-            </div>
+            </div> */}
+
+            
 
             <div className="">
               <CustomSelect
-                placeholder="Select user"
+                placeholder="Select Developer"
                 value={state.user}
                 onChange={(e) => setState({ user: e })}
                 options={state.userList}
-                disabled={!state.role}
               />
             </div>
           </>
-        )} */}
+        )}
 
         {/* <div>
           <button type="button" className="btn btn-dred" onClick={clearFilter}>
@@ -454,38 +441,64 @@ const list = () => {
 
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
-          <FilterChips
-            chips={[
-              ...(state.search
-                ? [
-                    {
-                      label: `Search: ${state.search}`,
-                      onRemove: () => setState({ search: "" }),
-                    },
-                  ]
-                : []),
-              ...(state.role && state.group === "Admin"
-                ? [
-                    {
-                      label: `Role: ${state.role.label}`,
-                      onRemove: () =>
-                        setState({ role: null, user: null, userList: [] }),
-                    },
-                  ]
-                : []),
-              ...(state.user
-                ? [
-                    {
-                      label: `User: ${state.user.label}`,
-                      onRemove: () => setState({ user: null }),
-                    },
-                  ]
-                : []),
-            ]}
-            onClearAll={() =>
-              setState({ search: "", role: null, user: null, userList: [] })
-            }
-          />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "16px",
+              gap: "10px",
+            }}
+          >
+            <FilterChips
+              chips={[
+                ...(state.search
+                  ? [
+                      {
+                        label: `Search: ${state.search}`,
+                        onRemove: () => setState({ search: "" }),
+                      },
+                    ]
+                  : []),
+                ...(state.role && state.group === "Admin"
+                  ? [
+                      {
+                        label: `Role: ${state.role.label}`,
+                        onRemove: () =>
+                          setState({ role: null, user: null, userList: [] }),
+                      },
+                    ]
+                  : []),
+                ...(state.user
+                  ? [
+                      {
+                        label: `User: ${state.user.label}`,
+                        onRemove: () => setState({ user: null }),
+                      },
+                    ]
+                  : []),
+              ]}
+              onClearAll={() => setState({ search: "", user: null })}
+            />
+
+            <div className="ml-auto flex items-center gap-3">
+              {state.selectedRecords.length > 0 && (
+                <button
+                  onClick={() => handleBulkDelete()}
+                  className=" group relative inline-flex transform items-center gap-2 overflow-hidden rounded-md border border-red-500  px-3 py-1 text-red-500 shadow-lg transition-all duration-200 "
+                >
+                  <div className=" absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
+                  <IconTrash className="h-4 w-4" />
+                  <span className="relative z-10 text-[13px]">
+                    Delete ({state.selectedRecords?.length})
+                  </span>
+                </button>
+              )}
+              <div className="text-sm text-black">
+                {state.total} Projects found
+              </div>
+            </div>
+          </div>
         </div>
         <DataTable
           className="table-responsive"
@@ -517,6 +530,17 @@ const list = () => {
             },
 
             { accessor: "location", sortable: true },
+
+             { accessor: "developer",
+              sortable: true,
+              render: (row: any) => (
+                <span
+                >
+                  {row.developer}
+                </span>
+              ),
+            },
+
             // { accessor: "status" },
 
             {
@@ -551,6 +575,12 @@ const list = () => {
               ),
             },
           ]}
+          selectedRecords={state.tableList?.filter((record) =>
+            state.selectedRecords.includes(record.id),
+          )}
+          onSelectedRecordsChange={(records) =>
+            setState({ selectedRecords: records.map((r: any) => r.id) })
+          }
           highlightOnHover
           totalRecords={state.taskList?.length}
           recordsPerPage={state.pageSize}
@@ -624,6 +654,13 @@ const list = () => {
                   onChange={(e) => setState({ location: e.target.value })}
                   error={state.error?.location}
                   required
+                />
+
+                <CustomSelect
+                  placeholder="Select Developer"
+                  value={state.developer}
+                  onChange={(e) => setState({ developer: e })}
+                  options={state.userList}
                 />
 
                 <TextArea

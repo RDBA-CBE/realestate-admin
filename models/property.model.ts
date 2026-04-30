@@ -9,6 +9,10 @@ const properties = {
         url += `&is_approved=${encodeURIComponent(false)}`;
       }
 
+      if (body?.is_approved == "Yes") {
+        url += `&is_approved=${encodeURIComponent(true)}`;
+      }
+
       if (body?.publish == "Yes") {
         url += `&publish=${encodeURIComponent(true)}`;
       }
@@ -67,6 +71,10 @@ const properties = {
 
       if (body?.agent) {
         url += `&agent=${body?.agent}`;
+      }
+
+      if (body?.project) {
+        url += `&project=${body?.project}`;
       }
 
       if (body?.ordering) {

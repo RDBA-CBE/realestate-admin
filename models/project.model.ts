@@ -24,9 +24,16 @@ const project = {
         url += `&sort_by=${body?.ordering}`;
       }
       
-      // if (body?.developer) {
-      //   url += `&developers=${encodeURIComponent(body.developer)}`;
-      // }
+      if (body?.developer) {
+        url += `&developer=${encodeURIComponent(body.developer)}`;
+      }
+
+      if (body?.team == true) {
+        url += `&team=${encodeURIComponent(body.team)}`;
+      }
+      if (body?.team == false) {
+        url += `&team=${encodeURIComponent(body.team)}`;
+      }
 
       //  if (body?.agent) {
       //   url += `&agent=${encodeURIComponent(body.agent)}`;
@@ -109,18 +116,13 @@ const project = {
 
   details: (id: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `auth/view_user/${id}`;
+      let url = `projects/${id}/`;
       instance()
-        .post(url)
-        .then((res) => {
-          resolve(res.data);
-        })
+        .get(url)
+        .then((res) => { resolve(res.data); })
         .catch((error) => {
-          if (error.response) {
-            reject(error.response.data.message);
-          } else {
-            reject(error);
-          }
+          if (error.response) { reject(error.response.data.message); }
+          else { reject(error); }
         });
     });
     return promise;
