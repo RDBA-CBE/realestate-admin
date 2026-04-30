@@ -846,7 +846,7 @@ const AddPropertyPage = () => {
     { id: 3, title: "Location", icon: MapPin },
     { id: 4, title: "Amenities", icon: Home },
     // { id: 5, title: "Extra Facilities", icon: Star },
-    { id: 6, title: "Contact Information", icon: Phone },
+    // { id: 6, title: "Contact Information", icon: Phone },
   ];
 
   const addFloorPlan = () => {
@@ -1850,13 +1850,13 @@ const AddPropertyPage = () => {
               )}
 
               {/* Step 6: Contact Information */}
-              {step.id === 6 && (
+              {/* {step.id === 6 && (
                 <div className="panel rounded-lg border shadow-none">
                   <h2 className="mb-4 text-lg font-semibold">
                     Contact Information
                   </h2>
                   <div className="grid grid-cols-2 gap-4">
-                    {/* <CustomSelect
+                    <CustomSelect
                       title="Project"
                       placeholder="Select Project"
                       options={state.projectList}
@@ -1874,9 +1874,9 @@ const AddPropertyPage = () => {
                       required
                       error={state.error?.project}
                       loadMore={() => projectLoadMore()}
-                    /> */}
+                    />
 
-                    {/* {state.group !== "Developer" && (
+                    {state.group !== "Developer" && (
                       <CustomSelect
                         title="Assign Developer"
                         placeholder="Select Developer"
@@ -1895,10 +1895,10 @@ const AddPropertyPage = () => {
                         isClearable
                         error={state.error?.developer}
                       />
-                    )} */}
+                    )}
 
                     
-                      {/* <>
+                      <>
                         <CheckboxInput
                           className="mt-8"
                           key={"assign"}
@@ -1929,11 +1929,17 @@ const AddPropertyPage = () => {
                             error={state.error?.agent}
                           />
                         )}
-                      </> */}
+                      </>
                     
                   </div>
 
-                  <div className="flex justify-end gap-4">
+                  
+                </div>
+              )} */}
+            </div>
+          </div>
+        ))}
+        <div className="flex justify-end gap-4">
                     <PrimaryButton
                       type="submit"
                       text="Draft Property"
@@ -1950,11 +1956,6 @@ const AddPropertyPage = () => {
                       loading={state.btnLoading}
                     />
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
       </div>
 
       <Modal
