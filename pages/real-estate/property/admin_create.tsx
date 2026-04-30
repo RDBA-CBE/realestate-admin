@@ -122,8 +122,6 @@ const AddPropertyPage = () => {
     setState({
       group,
       ...(group === "Agent" && userId ? { agent: { value: userId } } : {}),
-      userId:userId,
-      developer:userId
     });
   }, [state.group]);
 
@@ -199,11 +197,10 @@ const AddPropertyPage = () => {
 
   const projectList = async (page) => {
     try {
-      const body = {
-        developer: localStorage.getItem("userId"),
-      };
-      const res: any = await Models.project.list(page, body);
+      const res: any = await Models.project.list(page, {});
+
       const droprdown = Dropdown(res?.results, "name");
+
       setState({
         projectList: droprdown,
         projectPage: page,
@@ -222,7 +219,7 @@ const AddPropertyPage = () => {
       const res: any = await Models.user.list(page, body);
       const dropdown = res?.results?.map((item) => ({
         value: item?.id,
-        label: item?.industry,
+        label: `${item?.first_name} ${item?.last_name}`,
       }));
       setState({
         developerList: dropdown,
@@ -231,15 +228,6 @@ const AddPropertyPage = () => {
       console.log("✌️error --->", error);
     }
   };
-
-  useEffect(() => {
-    if (state.developerList?.length > 0) {
-      const userId = localStorage.getItem("userId");
-      const matched = state.developerList.find((item) => String(item.value) === String(userId));
-      if (matched) setState({ developer: matched });
-    }
-  }, [state.developerList]);
-  
 
   const catListLoadMore = async () => {
     try {
@@ -408,7 +396,7 @@ const AddPropertyPage = () => {
         description: state.description,
         // property_type: state.property_type?.value,
         property_type: state.property_type?.map((item) => item?.value),
-        developer : state.developer?.value,
+
         listing_type: "sale",
 
         project: state.project?.value,
@@ -437,19 +425,18 @@ const AddPropertyPage = () => {
         min_price: state.min_price,
         max_price: state.max_price,
         price: state.max_price,
-        
       };
 
-      // if (state.group !== "Developer") {
-      //   saleBody.developer = state.developer?.value;
-      // }
+      if (state.group !== "Developer") {
+        saleBody.developer = state.developer?.value;
+      }
 
-      // if (state.group === "Agent") {
-      //   saleBody.agent = state.agent?.value;
-      // } else {
-      //   saleBody.assignAgent = state.assignAgent;
-      //   saleBody.agent = state.agent?.value;
-      // }
+      if (state.group === "Agent") {
+        saleBody.agent = state.agent?.value;
+      } else {
+        saleBody.assignAgent = state.assignAgent;
+        saleBody.agent = state.agent?.value;
+      }
       if (type == "draft") {
         saleBody.publish = false;
       } else {
@@ -534,7 +521,7 @@ const AddPropertyPage = () => {
         description: state.description,
         // property_type: state.property_type?.value,
         property_type: state.property_type?.map((item) => item?.value),
-        developer : state.developer?.value,
+
         listing_type: "lease",
         lease_total_amount: state.lease_total_amount,
         lease_duration: state.lease_duration,
@@ -568,16 +555,16 @@ const AddPropertyPage = () => {
         price: state.max_price,
       };
 
-      // if (state.group !== "Developer") {
-      //   buyBody.developer = state.developer?.value;
-      // }
+      if (state.group !== "Developer") {
+        buyBody.developer = state.developer?.value;
+      }
 
-      // if (state.group === "Agent") {
-      //   buyBody.agent = state.agent?.value;
-      // } else {
-      //   buyBody.assignAgent = state.assignAgent;
-      //   buyBody.agent = state.agent?.value;
-      // }
+      if (state.group === "Agent") {
+        buyBody.agent = state.agent?.value;
+      } else {
+        buyBody.assignAgent = state.assignAgent;
+        buyBody.agent = state.agent?.value;
+      }
 
       if (type == "draft") {
         buyBody.publish = false;
@@ -982,48 +969,6 @@ const AddPropertyPage = () => {
                       required
                       error={state.error?.title}
                     />
-
-                    <CustomSelect
-                      title="Project"
-                      placeholder="Select Project"
-                      options={state.projectList}
-                      value={state.project}
-                      onChange={(selectedOption) =>
-                        setState({
-                          project: selectedOption,
-                          error: {
-                            ...state.error,
-                            project: null,
-                          },
-                        })
-                      }
-                      isClearable
-                      required
-                      error={state.error?.project}
-                      loadMore={() => projectLoadMore()}
-                    />
-
-                   
-                      <CustomSelect
-                        title="Developer Name"
-                        placeholder="Select Developer"
-                        options={state.developerList}
-                        value={state.developer}
-                        onChange={(selectedOption) =>
-                          setState({
-                            developer: selectedOption,
-                            error: {
-                              ...state.error,
-                              developer: null,
-                            },
-                          })
-                        }
-                        required
-                        isClearable
-                        error={state.error?.developer}
-                        disabled={state.group === "Developer"}
-                      />
-                    
 
                     <CustomSelect
                       title="Property Status"
@@ -1856,7 +1801,7 @@ const AddPropertyPage = () => {
                     Contact Information
                   </h2>
                   <div className="grid grid-cols-2 gap-4">
-                    {/* <CustomSelect
+                    <CustomSelect
                       title="Project"
                       placeholder="Select Project"
                       options={state.projectList}
@@ -1874,9 +1819,9 @@ const AddPropertyPage = () => {
                       required
                       error={state.error?.project}
                       loadMore={() => projectLoadMore()}
-                    /> */}
+                    />
 
-                    {/* {state.group !== "Developer" && (
+                    {state.group !== "Developer" && (
                       <CustomSelect
                         title="Assign Developer"
                         placeholder="Select Developer"
@@ -1895,10 +1840,10 @@ const AddPropertyPage = () => {
                         isClearable
                         error={state.error?.developer}
                       />
-                    )} */}
+                    )}
 
-                    
-                      {/* <>
+                    {state.group !== "Agent" && (
+                      <>
                         <CheckboxInput
                           className="mt-8"
                           key={"assign"}
@@ -1929,8 +1874,8 @@ const AddPropertyPage = () => {
                             error={state.error?.agent}
                           />
                         )}
-                      </> */}
-                    
+                      </>
+                    )}
                   </div>
 
                   <div className="flex justify-end gap-4">

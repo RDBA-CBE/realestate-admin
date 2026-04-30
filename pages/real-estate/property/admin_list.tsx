@@ -627,6 +627,7 @@ const List = () => {
     showFilterModal: false,
     sortBy: "",
     sortOrder: "asc",
+    recordType :{value: "created", label: "Created Records"}
   });
 
   const visibleCount = state.visibleColumns.filter((col) => col.visible).length;
@@ -638,7 +639,6 @@ const List = () => {
 
   useEffect(() => {
     const group = localStorage.getItem("group") || "";
-    const userId = localStorage.getItem("userId");
 
     setState({
       group: group,
@@ -646,7 +646,6 @@ const List = () => {
       //   value: "developer",
       //   label: "Developer",
       // },
-      userId: userId,
     });
   }, [state.group]);
 
@@ -654,18 +653,19 @@ const List = () => {
     categoryList(1);
     developerList(1);
     statCount();
-    projectList(1)
   }, []);
 
-  console.log("state.userId", state.userId);
-  
-
   useEffect(() => {
-    if (state.userId) {
+    const group = localStorage.getItem("group");
+    if (group == "Admin") {
+      // if (state.role != null) {
+      //   propertyList(1);
+      // }
+      propertyList(1);
+    } else {
       propertyList(1);
     }
   }, [
-    state.userId,
     debouncedSearch,
     state.property_type,
     state.offer_type,
@@ -675,9 +675,6 @@ const List = () => {
     state.role,
     state.user,
     state.publish,
-    state.recordType,
-    state.team,
-    state.project
   ]);
 
   useEffect(() => {
@@ -832,44 +829,6 @@ const List = () => {
     });
   };
 
-  const projectList = async (page) => {
-    try {
-      const userId = localStorage.getItem("userId");
-      const body = {
-        developer: userId
-      }
-      const res: any = await Models.project.list(page, body);
-      const droprdown = Dropdown(res?.results, "name");
-      setState({
-        projectList: droprdown,
-        projectPage: page,
-        projectNext: res.next,
-      });
-    } catch (error) {
-      console.log("✌️error --->", error);
-    }
-  };
-
-  const projectListLoadMore = async () => {
-    try {
-      if (state.projectNext) {
-        const res: any = await Models.project.list(state.projectPage + 1, { developer: localStorage.getItem("userId") });
-        const newOptions = Dropdown(res?.results, "name");
-        setState({
-          projectList: [...state.projectList, ...newOptions],
-          projectNext: res.next,
-          projectPage: state.projectPage + 1,
-        });
-      } else {
-        setState({
-          projectList: state.projectList,
-        });
-      }
-    } catch (error) {
-      console.log("error: ", error);
-    }
-  };
-
   const categoryList = async (page) => {
     try {
       const res: any = await Models.category.list(page, {});
@@ -969,28 +928,17 @@ const List = () => {
     }
   };
 
-  // const getuserList = (e) => {
-  //   setState({ role: e, user: null, userList: [] });
-
-  //   if (e?.value == "developer") {
-  //     developerList(1);
-  //   } else if (e?.value == "agent") {
-  //     agentList(1);
-  //   } else if (e?.value == "seller") {
-  //     sellerList(1);
-  //   }
-  // };
-
   const getuserList = (e) => {
-    setState({ recordType: e });
-    if (e?.value === "own") {
-      setState({ team: false });
-    } else if (e?.value === "admin") {
-      setState({ team: true });
+    setState({ role: e, user: null, userList: [] });
+
+    if (e?.value == "developer") {
+      developerList(1);
+    } else if (e?.value == "agent") {
+      agentList(1);
+    } else if (e?.value == "seller") {
+      sellerList(1);
     }
   };
-  console.log("team", state.team);
-  
 
   const deleteDecord = async (row: any) => {
     try {
@@ -1021,15 +969,10 @@ const List = () => {
 
     // Common
 
-    // body.is_approved = "Yes";
-
-    body.developer = state.userId
+    body.is_approved = "Yes";
 
     if (state.search) {
       body.search = debouncedSearch;
-    }
-    if (state.project) {
-      body.project = state.project.value;
     }
     if (state.property_type?.length > 0) {
       body.property_type = state.property_type?.map((item) => item?.value);
@@ -1046,13 +989,6 @@ const List = () => {
       body.publish = state.publish?.value == "Publish" ? "Yes" : "No";
     }
 
-    if(state?.team == true){
-      body.team = state?.team
-    }
-    if(state?.team == false){
-      body.team = state?.team
-    }
-
     // if (group == capitalizeFLetter(ROLES.ADMIN)) {
     //   body = { ...body, ...adminBody() };
     // } else if (group == capitalizeFLetter(ROLES.DEVELOPER)) {
@@ -1063,35 +999,35 @@ const List = () => {
     //   body = { ...body, ...sellerBody() };
     // }
 
-    // if(state.createdRecords){
-    //   const userId = localStorage.getItem("userId");
-    //   if (state.role?.value == "own") {
-    //     body.created_by = userId
-    //   }
-    //   if (state.role?.value == "developer") {
-    //     body.created_by = state.user?.value
-    //   }
-    //   if (state.role?.value == "agent") {
-    //     body.created_by = state.user?.value
-    //   }
-    //   if (state.role?.value == "seller") {
-    //     body.created_by = state.user?.value
-    //   }
-    // }
-    // if(state.assignedRecords){
-    //   const userId = localStorage.getItem("userId");
+    if(state.createdRecords){
+      const userId = localStorage.getItem("userId");
+      if (state.role?.value == "own") {
+        body.created_by = userId
+      }
+      if (state.role?.value == "developer") {
+        body.created_by = state.user?.value
+      }
+      if (state.role?.value == "agent") {
+        body.created_by = state.user?.value
+      }
+      if (state.role?.value == "seller") {
+        body.created_by = state.user?.value
+      }
+    }
+    if(state.assignedRecords){
+      const userId = localStorage.getItem("userId");
 
-    //   if (state.role?.value == "own") {
-    //     body.assigned_to = userId
-    //   }
-    //   if (state.role?.value == "developer") {
-    //     body.assigned_to_developer = state.user?.value
-    //   }
-    //   if (state.role?.value == "agent") {
-    //     body.assigned_to_agent = state.user?.value
-    //   }
+      if (state.role?.value == "own") {
+        body.assigned_to = userId
+      }
+      if (state.role?.value == "developer") {
+        body.assigned_to_developer = state.user?.value
+      }
+      if (state.role?.value == "agent") {
+        body.assigned_to_agent = state.user?.value
+      }
       
-    // }
+    }
 
 
     if (state.sortBy) {
@@ -1285,17 +1221,6 @@ const List = () => {
     state.publish,
   ].filter(Boolean).length;
 
-   const FILTER_ADMINROLES = [
-  {
-    value: "own",
-    label: "Own Records",
-  },
-  {
-    value: "admin",
-    label: "Admin Records",
-  }
-]
-
   return (
     <>
       <div className="mb-3 flex items-center justify-between gap-5">
@@ -1417,17 +1342,6 @@ const List = () => {
             value={state.search}
             onChange={(e) => setState({ search: e.target.value })}
           />
-
-          <CustomSelect
-            placeholder="Project Type"
-            value={state.project}
-            onChange={(e) => setState({ project: e })}
-            options={state?.projectList}
-            isClearable={true}
-            // isMulti
-            loadMore={() => projectListLoadMore()}
-          />
-
           <CustomSelect
             placeholder="Property Type"
             value={state.property_type}
@@ -1437,26 +1351,15 @@ const List = () => {
             isMulti
             loadMore={() => catListLoadMore()}
           />
-
-          
           <CustomSelect
-            placeholder="Select Record type"
-            value={state.recordType}
-            onChange={getuserList}
-            options={FILTER_ADMINROLES}
-            // isClearable={false}
-          />
-        
-         
-          {/* <CustomSelect
                    
                     value={state.recordType}
                     onChange={(e) => getRecordTypeList(e)}
                     options={RECORDS_TYPE}
                     isClearable={false}
-                  /> */}
+                  />
 
-         {/* {state.group == "Admin" && (
+         {state.group == "Admin" && (
                 <>
                   <CustomSelect
                     placeholder="Select User's Role"
@@ -1473,7 +1376,7 @@ const List = () => {
                     disabled={!state.role}
                   />
                 </>
-              )} */}
+              )}
           <button
             onClick={() => setState({ showFilterModal: true })}
             className="flex items-center gap-4 rounded-lg border bg-white p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 "

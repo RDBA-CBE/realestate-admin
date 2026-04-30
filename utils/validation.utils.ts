@@ -86,7 +86,7 @@ export const propertySaleCreate = Yup.object().shape({
   title: Yup.string().required("Property Name is required").nullable(),
   description: Yup.string().required("Description is required").nullable(),
   listing_type: Yup.string().required("Property Type is required").nullable(),
-
+  developer: Yup.string().required("Developer is required").nullable(),
   city: Yup.string().required("City is required").nullable(),
   state: Yup.string().required("State is required").nullable(),
   country: Yup.string().required("Country is required").nullable(),
@@ -142,13 +142,13 @@ export const propertySaleCreate = Yup.object().shape({
     .min(1, "At least one amenities is required"),
 
   group: Yup.string().nullable(),
-  developer: Yup.string()
-    .nullable()
-    .when("group", {
-      is: (val) => ["Admin", "Agent", "Seller"].includes(val),
-      then: (schema) => schema.required("Developer is required"),
-      otherwise: (schema) => schema.nullable(),
-    }),
+  // developer: Yup.string()
+  //   .nullable()
+  //   .when("group", {
+  //     is: (val) => ["Admin", "Agent", "Seller"].includes(val),
+  //     then: (schema) => schema.required("Developer is required"),
+  //     otherwise: (schema) => schema.nullable(),
+  //   }),
   assignAgent: Yup.boolean().nullable(),
   agent: Yup.string()
     .nullable()
@@ -164,6 +164,7 @@ export const propertyLeaseCreate = Yup.object().shape({
   title: Yup.string().required("Property Name is required").nullable(),
   description: Yup.string().required("Description is required").nullable(),
   listing_type: Yup.string().required("Property Type is required").nullable(),
+  developer: Yup.string().required("Developer is required").nullable(),
   city: Yup.string().required("City is required").nullable(),
   state: Yup.string().required("State is required").nullable(),
   country: Yup.string().required("Country is required").nullable(),
@@ -206,13 +207,13 @@ export const propertyLeaseCreate = Yup.object().shape({
     .required("Lease Duration is required")
     .nullable(),
   group: Yup.string().nullable(),
-  developer: Yup.string()
-    .nullable()
-    .when("group", {
-      is: (val) => ["Admin", "Agent", "Seller"].includes(val),
-      then: (schema) => schema.required("Developer is required"),
-      otherwise: (schema) => schema.nullable(),
-    }),
+  // developer: Yup.string()
+  //   .nullable()
+  //   .when("group", {
+  //     is: (val) => ["Admin", "Agent", "Seller"].includes(val),
+  //     then: (schema) => schema.required("Developer is required"),
+  //     otherwise: (schema) => schema.nullable(),
+  //   }),
   assignAgent: Yup.boolean().nullable(),
   agent: Yup.string()
     .nullable()

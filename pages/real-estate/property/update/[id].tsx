@@ -137,10 +137,12 @@ const AddPropertyPage = () => {
 
   useEffect(() => {
     const group = localStorage.getItem("group") || "";
-    const userId = localStorage.getItem("userId");
+     const userId = localStorage.getItem("userId");
     setState({
       group,
       ...(group === "Agent" && userId ? { agent: { value: userId } } : {}),
+      userId:userId,
+      developer:userId
     });
   }, [state.group]);
 
@@ -297,7 +299,7 @@ const AddPropertyPage = () => {
         setState({
           developer: {
             value: res?.developer?.id,
-            label: `${res?.developer?.first_name} ${res?.developer?.last_name}`,
+            label: res.developer?.industry,
           },
         });
       }
@@ -450,9 +452,11 @@ const AddPropertyPage = () => {
 
   const projectList = async (page) => {
     try {
-      const res: any = await Models.project.list(page, {});
-
-      const droprdown = Dropdown(res?.results, "name");
+       const body = {
+              developer: localStorage.getItem("userId"),
+            };
+        const res: any = await Models.project.list(page, body);
+        const droprdown = Dropdown(res?.results, "name");
 
       setState({
         projectList: droprdown,
@@ -472,7 +476,7 @@ const AddPropertyPage = () => {
       const res: any = await Models.user.list(page, body);
       const dropdown = res?.results?.map((item) => ({
         value: item?.id,
-        label: `${item?.first_name} ${item?.last_name}`,
+        label: item?.industry,
       }));
       setState({
         developerList: dropdown,
@@ -641,7 +645,7 @@ const AddPropertyPage = () => {
         property_type: state.property_type?.map((item) => item?.value),
 
         listing_type: "sale",
-
+        developer : state.developer?.value,
         project: state.project?.value,
         amenities: state.amenities,
         furnishing: state.furnishing?.value,
@@ -670,16 +674,16 @@ const AddPropertyPage = () => {
         // price: state.max_price,
       };
 
-      if (state.group !== "Developer") {
-        saleBody.developer = state.developer?.value;
-      }
+      // if (state.group !== "Developer") {
+      //   saleBody.developer = state.developer?.value;
+      // }
 
-      if (state.group === "Agent") {
-        saleBody.agent = state.agent?.value;
-      } else {
-        saleBody.assignAgent = state.assignAgent;
-        saleBody.agent = state.agent?.value;
-      }
+      // if (state.group === "Agent") {
+      //   saleBody.agent = state.agent?.value;
+      // } else {
+      //   saleBody.assignAgent = state.assignAgent;
+      //   saleBody.agent = state.agent?.value;
+      // }
 
       if (type == "draft") {
         saleBody.publish = false;
@@ -779,7 +783,7 @@ const AddPropertyPage = () => {
         listing_type: "lease",
         lease_total_amount: state.lease_total_amount,
         lease_duration: state.lease_duration,
-
+        developer : state.developer?.value,
         project: state.project?.value,
 
         amenities: state.amenities,
@@ -809,16 +813,16 @@ const AddPropertyPage = () => {
         // price: state.max_price,
       };
 
-      if (state.group !== "Developer") {
-        buyBody.developer = state.developer?.value;
-      }
+      // if (state.group !== "Developer") {
+      //   buyBody.developer = state.developer?.value;
+      // }
 
-      if (state.group === "Agent") {
-        buyBody.agent = state.agent?.value;
-      } else {
-        buyBody.assignAgent = state.assignAgent;
-        buyBody.agent = state.agent?.value;
-      }
+      // if (state.group === "Agent") {
+      //   buyBody.agent = state.agent?.value;
+      // } else {
+      //   buyBody.assignAgent = state.assignAgent;
+      //   buyBody.agent = state.agent?.value;
+      // }
 
       if (type == "draft") {
         buyBody.publish = false;
@@ -1224,7 +1228,7 @@ const AddPropertyPage = () => {
     { id: 7, title: "Media", icon: File },
     { id: 3, title: "Location", icon: MapPin },
     { id: 4, title: "Amenities", icon: Home },
-    { id: 6, title: "Contact Information", icon: Phone },
+    // { id: 6, title: "Contact Information", icon: Phone },
   ];
 
   const addFloorPlan = () => {
@@ -1379,6 +1383,49 @@ const AddPropertyPage = () => {
                       required
                       error={state.error?.title}
                     />
+
+                    <CustomSelect
+                      title="Project"
+                      placeholder="Select Project"
+                      options={state.projectList}
+                      value={state.project}
+                      onChange={(selectedOption) =>
+                        setState({
+                          project: selectedOption,
+                          error: {
+                            ...state.error,
+                            project: null,
+                          },
+                        })
+                      }
+                      isClearable
+                      required
+                      error={state.error?.project}
+                      loadMore={() => projectLoadMore()}
+                    />
+
+                    
+                      <CustomSelect
+                        title="Developer Name"
+                        placeholder="Select Developer"
+                        options={state.developerList}
+                        value={state.developer}
+                        onChange={(selectedOption) =>
+                          setState({
+                            developer: selectedOption,
+                            error: {
+                              ...state.error,
+                              developer: null,
+                            },
+                          })
+                        }
+                        required
+                        isClearable
+                        
+                        error={state.error?.developer}
+                        disabled={state.group === "Developer"}
+                      />
+                    
 
                     <CustomSelect
                       title="Property Status"
@@ -2226,9 +2273,11 @@ const AddPropertyPage = () => {
                   )}
                 </div>
               )}
+               
 
               {/* Step 6: Contact Information */}
-              {step.id === 6 && (
+              {/* {step.id === 6 && (
+                
                 <div className="panel rounded-lg border shadow-none">
                   <h2 className="mb-4 text-lg font-semibold">
                     Contact Information
@@ -2309,9 +2358,16 @@ const AddPropertyPage = () => {
                           />
                         )}
                       </>
-                    )}
+                     )} 
                   </div>
-                  <div className="flex justify-end gap-4">
+                  
+                </div>
+              )} */}
+            </div>
+          </div>
+        ))}
+
+        <div className="flex justify-end gap-4">
                     <PrimaryButton
                       type="submit"
                       text="Draft Property"
@@ -2328,11 +2384,6 @@ const AddPropertyPage = () => {
                       loading={state.btnLoading}
                     />
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
       </div>
 
       <Modal

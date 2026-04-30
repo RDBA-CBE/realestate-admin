@@ -561,7 +561,7 @@ export const menuConfig = {
     },
     {
       type: "section",
-      label: "Project Management",
+      label: "Property Management",
       children: [
         {
           type: "submenu",
@@ -601,12 +601,12 @@ export const menuConfig = {
             // { type: "link", label: "Reviews", href: "/apps/invoice/edit" },
           ],
         },
-        {
-          type: "link",
-          icon: "IconMenuNotes",
-          label: "My Properties",
-          href: "/real-estate/property/myProperty",
-        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuNotes",
+        //   label: "My Properties",
+        //   href: "/real-estate/property/myProperty",
+        // },
       ],
     },
     // {

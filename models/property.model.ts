@@ -81,6 +81,13 @@ const properties = {
         url += `&sort_by=${body?.ordering}`;
       }
 
+      if (body?.team == true) {
+        url += `&team=${encodeURIComponent(body.team)}`;
+      }
+      if (body?.team == false) {
+        url += `&team=${encodeURIComponent(body.team)}`;
+      }
+
       instance()
         .get(url, body)
         .then((res) => {
