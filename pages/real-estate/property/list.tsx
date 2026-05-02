@@ -62,6 +62,8 @@ import {
   X,
   SlidersHorizontal,
   Globe,
+  Tag,
+  Key,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
@@ -103,10 +105,10 @@ const List = () => {
           }}
           onMouseLeave={() => setTooltip(null)}
         >
-          <Link
+          <div
             className="flex gap-3 font-semibold"
-            href={`${FRONTEND_URL}/property-detail/${row?.id}`}
-            target="_blank"
+            onClick={() => handleView(row)}
+          
           >
             <div className="flex flex-col justify-between ">
               <div>
@@ -115,7 +117,7 @@ const List = () => {
                 </div>
               </div>
             </div>
-          </Link>
+          </div>
         </div>
       ),
     },
@@ -303,12 +305,12 @@ const List = () => {
           >
             <IconEdit className="h-3.5 w-3.5" />
           </button>
-          <button
+          {/* <button
             className="flex text-success hover:text-success"
             onClick={() => handleStatus(row)}
           >
             <CircleCheck className="h-3.5 w-3.5 " />
-          </button>
+          </button> */}
           <button
             type="button"
             className={`flex ${
@@ -627,6 +629,7 @@ const List = () => {
     showFilterModal: false,
     sortBy: "",
     sortOrder: "asc",
+    selectedRecords: [],
   });
 
   const visibleCount = state.visibleColumns.filter((col) => col.visible).length;
@@ -654,11 +657,10 @@ const List = () => {
     categoryList(1);
     developerList(1);
     statCount();
-    projectList(1)
+    projectList(1);
   }, []);
 
   console.log("state.userId", state.userId);
-  
 
   useEffect(() => {
     if (state.userId) {
@@ -677,7 +679,7 @@ const List = () => {
     state.publish,
     state.recordType,
     state.team,
-    state.project
+    state.project,
   ]);
 
   useEffect(() => {
@@ -695,6 +697,7 @@ const List = () => {
   const statCount = async () => {
     try {
       const body = bodyData();
+
       const res: any = await Models.property.count(body);
       console.log("count res", res);
 
@@ -780,6 +783,7 @@ const List = () => {
         previous: res.previous,
         totalRecords: res.count,
         loading: false,
+        selectedRecords: [],
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -836,8 +840,8 @@ const List = () => {
     try {
       const userId = localStorage.getItem("userId");
       const body = {
-        developer: userId
-      }
+        developer: userId,
+      };
       const res: any = await Models.project.list(page, body);
       const droprdown = Dropdown(res?.results, "name");
       setState({
@@ -853,7 +857,9 @@ const List = () => {
   const projectListLoadMore = async () => {
     try {
       if (state.projectNext) {
-        const res: any = await Models.project.list(state.projectPage + 1, { developer: localStorage.getItem("userId") });
+        const res: any = await Models.project.list(state.projectPage + 1, {
+          developer: localStorage.getItem("userId"),
+        });
         const newOptions = Dropdown(res?.results, "name");
         setState({
           projectList: [...state.projectList, ...newOptions],
@@ -962,10 +968,10 @@ const List = () => {
     setState({ recordType: e, user: null, userList: [] });
 
     if (e?.value == "created") {
-      setState({createdRecords : true, assignedRecords : false})
-    } 
+      setState({ createdRecords: true, assignedRecords: false });
+    }
     if (e?.value == "assigned") {
-      setState({assignedRecords : true , createdRecords : false})
+      setState({ assignedRecords: true, createdRecords: false });
     }
   };
 
@@ -987,10 +993,11 @@ const List = () => {
       setState({ team: false });
     } else if (e?.value === "admin") {
       setState({ team: true });
+    } else {
+      setState({ team: null });
     }
   };
   console.log("team", state.team);
-  
 
   const deleteDecord = async (row: any) => {
     try {
@@ -1015,15 +1022,42 @@ const List = () => {
     );
   };
 
+  const handleBulkDelete = () => {
+    showDeleteAlert(
+      async () => {
+        try {
+          setState({ btnLoading: true });
+          await Promise.all(
+            state.selectedRecords.map((row: any) =>
+              Models.property.delete(row?.id),
+            ),
+          );
+          setState({ selectedRecords: [], btnLoading: false });
+          propertyList(state.page);
+          Success(
+            `${state.selectedRecords.length} propert${state.selectedRecords.length > 1 ? "ies" : "y"} deleted successfully`,
+          );
+        } catch (error) {
+          setState({ btnLoading: false });
+        }
+      },
+      () => {
+        Swal.fire("Cancelled", "Your Records are safe :)", "info");
+      },
+      `Are you sure want to delete ${state.selectedRecords.length} selected propert${state.selectedRecords.length > 1 ? "ies" : "y"}?`,
+    );
+  };
+
   const bodyData = () => {
     const group = localStorage.getItem("group");
+    const userId = localStorage.getItem("userId");
     let body: any = {};
 
     // Common
 
     // body.is_approved = "Yes";
 
-    body.developer = state.userId
+    body.developer = userId;
 
     if (state.search) {
       body.search = debouncedSearch;
@@ -1046,11 +1080,11 @@ const List = () => {
       body.publish = state.publish?.value == "Publish" ? "Yes" : "No";
     }
 
-    if(state?.team == true){
-      body.team = state?.team
+    if (state?.team == true) {
+      body.team = state?.team;
     }
-    if(state?.team == false){
-      body.team = state?.team
+    if (state?.team == false) {
+      body.team = state?.team;
     }
 
     // if (group == capitalizeFLetter(ROLES.ADMIN)) {
@@ -1090,9 +1124,8 @@ const List = () => {
     //   if (state.role?.value == "agent") {
     //     body.assigned_to_agent = state.user?.value
     //   }
-      
-    // }
 
+    // }
 
     if (state.sortBy) {
       body.ordering =
@@ -1150,7 +1183,6 @@ const List = () => {
   };
 
   const handleView = async (row) => {
-    // window.open(`${FRONTEND_URL}/property-detail/${row?.id}`, "_blank");
     router.push(`/real-estate/property/detail/${row?.id}`);
   };
 
@@ -1181,7 +1213,9 @@ const List = () => {
       await Models.property.update(body, row?.id);
       propertyList(state.page);
       Success("Property Approved successfully");
-    } catch (error) {}
+    } catch (error) {
+
+    }
   };
 
   const handlePublish = async (row) => {
@@ -1250,6 +1284,8 @@ const List = () => {
       status: "",
       role: null,
       user: "",
+      showFilterModal:false
+
       // developer: "",
       // agent: "",
     });
@@ -1285,29 +1321,23 @@ const List = () => {
     state.publish,
   ].filter(Boolean).length;
 
-   const FILTER_ADMINROLES = [
-  {
-    value: "own",
-    label: "Own Records",
-  },
-  {
-    value: "admin",
-    label: "Admin Records",
-  }
-]
+  const FILTER_ADMINROLES = [
+    {
+      value: "own",
+      label: "Own Records",
+    },
+    {
+      value: "admin",
+      label: "Admin Records",
+    },
+  ];
 
   return (
     <>
       <div className="mb-3 flex items-center justify-between gap-5">
         <div className=" items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
-            {state.group == "Admin"
-              ? "Properties List"
-              : state.group == "Developer" || state.group == "Agent"
-              ? "Assigned Properties"
-              : state.group == "Seller"
-              ? "My Properties"
-              : "Properties List"}
+            {"Properties List"}
           </h5>
 
           <p className="text-gray-600 dark:text-gray-400">
@@ -1351,11 +1381,11 @@ const List = () => {
           onClick={() =>
             setState({ offer_type: { value: "sale", label: "Sale" } })
           }
-          className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+          className="cursor-pointer rounded-lg border border-purple-200 bg-purple-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
           <div className="flex items-center gap-5 ">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
-              <CheckCircle className="h-10 w-10 text-green-600" />
+              <Tag className="h-10 w-10 text-purple-600" />
             </div>
 
             <div className="flex flex-col">
@@ -1372,11 +1402,11 @@ const List = () => {
           onClick={() =>
             setState({ offer_type: { value: "lease", label: "Lease" } })
           }
-          className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+          className="cursor-pointer  rounded-lg border border-sky-200 bg-sky-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
           <div className="flex items-center gap-5">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
-              <Hourglass className="h-10 w-10 text-yellow-600" />
+              <Key className="h-10 w-10 text-sky-600" />
             </div>
 
             <div className="flex flex-col">
@@ -1438,16 +1468,14 @@ const List = () => {
             loadMore={() => catListLoadMore()}
           />
 
-          
           <CustomSelect
-            placeholder="Select Record type"
+            placeholder="All Properties"
             value={state.recordType}
             onChange={getuserList}
             options={FILTER_ADMINROLES}
             // isClearable={false}
           />
-        
-         
+
           {/* <CustomSelect
                    
                     value={state.recordType}
@@ -1456,7 +1484,7 @@ const List = () => {
                     isClearable={false}
                   /> */}
 
-         {/* {state.group == "Admin" && (
+          {/* {state.group == "Admin" && (
                 <>
                   <CustomSelect
                     placeholder="Select User's Role"
@@ -1592,29 +1620,16 @@ const List = () => {
                   />
 
                   <div className="ml-auto flex items-center gap-3">
-                    {/* <div className="flex items-center gap-1  ">
-                    <button
-                      onClick={() => setState({ viewMode: "table" })}
-                      className={`rounded-md p-2 transition-all duration-200 `}
-                    >
-                      <Table
-                        size={18}
-                        color={state.viewMode == "table" ? "#9b0f09" : "grey"}
-                      />
-                    </button>
-
-                    <div className="h-6 w-px bg-gray-300" />
-
-                    <button
-                      onClick={() => setState({ viewMode: "image" })}
-                      className={`rounded-md p-2 transition-all duration-200 `}
-                    >
-                      <Calendar
-                        size={18}
-                        color={state.viewMode == "image" ? "#9b0f09" : "grey"}
-                      />
-                    </button>
-                  </div> */}
+                    {state.selectedRecords?.length > 0 && (
+                      <button
+                        type="button"
+                        className="flex items-center gap-2 rounded-lg border border-red-600  px-3 py-1.5 text-sm font-medium text-red-600 "
+                        onClick={handleBulkDelete}
+                      >
+                        <IconTrashLines className="h-4 w-4" />
+                        Delete ({state.selectedRecords.length})
+                      </button>
+                    )}
                     <div className="text-sm text-black">
                       {state.total} Properties found
                     </div>
@@ -1807,6 +1822,10 @@ const List = () => {
                   columns={filteredColumns}
                   highlightOnHover
                   minHeight={200}
+                  selectedRecords={state.selectedRecords}
+                  onSelectedRecordsChange={(records) =>
+                    setState({ selectedRecords: records })
+                  }
                   sortStatus={{
                     columnAccessor: state.sortBy,
                     direction: state.sortOrder as "asc" | "desc",
@@ -1874,12 +1893,12 @@ const List = () => {
                 onChange={(e) => setState({ offer_type: e })}
                 options={ListType}
               />
-              <CustomSelect
+              {/* <CustomSelect
                 placeholder="Property Status"
                 value={state.status}
                 onChange={(e) => setState({ status: e })}
                 options={Property_status}
-              />
+              /> */}
               <CustomSelect
                 placeholder="Publish or Draft"
                 value={state.publish}

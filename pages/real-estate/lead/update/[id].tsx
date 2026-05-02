@@ -38,7 +38,7 @@ import {
   ROLES,
   STATUS_OPTIONS,
 } from "@/utils/constant.utils";
-import { Building, Computer, LucideHome, User2, User2Icon } from "lucide-react";
+import { Building, Computer, LucideHome, User2, User2Icon, Eye } from "lucide-react";
 import CustomeDatePicker from "@/components/datePicker";
 import CustomPhoneInput from "@/components/phoneInput";
 import Link from "next/link";
@@ -55,7 +55,7 @@ const CreateOpportunities = () => {
   const id = params.get("id");
 
   useEffect(() => {
-    dispatch(setPageTitle("Create Opportunity"));
+    dispatch(setPageTitle("Update Lead"));
   });
 
   const [state, setState] = useSetState({
@@ -241,6 +241,8 @@ const CreateOpportunities = () => {
                      res?.price_range?.minimum_price,
                      res?.price_range?.maximum_price,
                    ),
+            publish: res?.publish === true ? "Published" : "Draft",
+            is_approved: res?.is_approved,
             image:
               res?.primary_image?.image ??
               "/assets/images/real-estate/property-info-img1.png",
@@ -259,9 +261,9 @@ const CreateOpportunities = () => {
     try {
       setState({ btnLoading: true });
       const body = {
-        company_name: state.company_name,
-        first_name: state.first_name,
-        last_name: state.last_name,
+        company_name: capitalizeFLetter(state.company_name),
+        first_name: capitalizeFLetter(state.first_name),
+        last_name: capitalizeFLetter(state.last_name),
         phone: state.phone,
         email: state.email,
         interested_property: state.property_name?.value,
@@ -274,7 +276,7 @@ const CreateOpportunities = () => {
           ? moment(state.next_follow_up).format("YYYY-MM-DD")
           : null,
         status: state.status?.value,
-        requirements: state.requirements,
+        requirements: capitalizeFLetter(state.requirements),
       };
       console.log("✌️body --->", body);
 
@@ -327,160 +329,118 @@ const CreateOpportunities = () => {
       console.log("✌️error --->", error);
     }
   };
+  const handleView = async (row) => {
+    router.push(`/real-estate/property/detail/${row?.id}`);
+  };
 
   const allColumns = [
     {
-      accessor: "name",
+      accessor: "title",
       title: "Property Info",
-      visible: true,
-      toggleable: true,
-     
+      sortable: true,
       render: (row) => (
-        <Link className="flex gap-3 font-semibold w-fit cursor-pointer"  href={`${FRONTEND_URL}/property-detail/${row?.id}`}>
-          <div className="h-20 w-20 rounded-md bg-white-dark/30  ltr:mr-2 rtl:ml-2">
-            <img
-              className="h-full w-full cursor-pointer rounded-md object-cover"
-              src={row.image}
-              alt=""
-            />
-          </div>
-          <div className="flex flex-col justify-between">
-            <div>
-              <div className="flex gap-1">
-                {" "}
-                <IconMapPin className="h-3 w-3" />
-                 <span className="mt-[-2px] text-xs">{row.location}</span>
-              </div>
-              <div className="text-md cursor-pointer font-bold"
-               title={row.title}>
-                 {truncateText(row.title)}
-              </div>
-            </div>
-            <div>
-              <Link
-                className="flex gap-1 text-primary"
-                href={`${FRONTEND_URL}/property-detail/${row?.id}`}
-                target="_blank"
-              >
-                <LucideHome className="h-3 w-3 text-black " />
-                 <span className="mt-[-2px] text-xs">View Details</span>
-              </Link>
-            </div>
-          </div>
-        </Link>
+        <div
+        onClick={() => handleView(row)}
+        className="cursor-pointer text-sm font-semibold">
+          {truncateText(row.title)}
+        </div>
       ),
-    },
-
-    {
-      accessor: "price",
-      title: "Price Range",
-      visible: true,
-      toggleable: true,
     },
     {
       accessor: "project",
       title: "Project",
-      visible: true,
-      toggleable: true,
-      
-       render: (row) => (
-              <span title={row.project}>{truncateText(row.project)}</span>
-            ),
-    },
-    {
-      accessor: "developer",
-      title: "Developer",
-      visible: true,
-      toggleable: true,
-       render: (row) => (
-              <span title={row.developer}>{truncateText(row.developer)}</span>
-            ),
-    },
-    {
-      accessor: "agent",
-      title: "Agent",
-      visible: true,
-      toggleable: true,
+      render: (row) => (
+        <span title={row.project}>{truncateText(row.project)}</span>
+      ),
     },
     {
       accessor: "property_type",
       title: "Property Type",
-      visible: true,
-      toggleable: true,
       render: (row: any) => {
-              const property_type = row.property_type;
-              if (!property_type || property_type?.length === 0) {
-                return <span className="">-</span>;
-              }
-      
-              const firstType = property_type[0];
-              const others = property_type.slice(1);
-              const maxShow = 3;
-              const remaining = others.length - maxShow;
-              const visibleTypes = others.slice(0, maxShow);
-              const hiddenTypes = others.slice(maxShow);
-      
-              return (
-                <div className="flex items-center gap-2">
-                  {/* First type text */}
-                  <span
-                    title={firstType}
-                    className="text-sm text-gray-700 dark:text-gray-300"
-                  >
-                    {truncateText(firstType)}
-                  </span>
-      
-                  {/* Avatars */}
-                  <div className="flex items-center -space-x-2">
-                    {visibleTypes?.map((type: string, index: number) => (
-                      <div key={index} className="group relative z-10">
-                        <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
-                          {type?.slice(0, 2)?.toUpperCase()}
-                        </div>
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
-                          {type}
-                        </div>
-                      </div>
-                    ))}
-                    {remaining > 0 && (
-                      <div className="group relative z-10">
-                        <div className="flex h-7 w-7  items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
-                          +{remaining}
-                        </div>
-                        {/* Remaining tooltip */}
-                        <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
-                          {hiddenTypes.join(", ")}
-                        </div>
-                      </div>
-                    )}
+        const property_type = row.property_type;
+        if (!property_type || property_type?.length === 0) return <span>-</span>;
+        const firstType = property_type[0];
+        const others = property_type.slice(1);
+        const maxShow = 3;
+        const remaining = others.length - maxShow;
+        const visibleTypes = others.slice(0, maxShow);
+        const hiddenTypes = others.slice(maxShow);
+        return (
+          <div className="flex items-center gap-2">
+            <span title={firstType} className="text-sm text-gray-700 dark:text-gray-300">
+              {truncateText(firstType)}
+            </span>
+            <div className="flex items-center -space-x-2">
+              {visibleTypes?.map((type: string, index: number) => (
+                <div key={index} className="group relative z-10">
+                  <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
+                    {type?.slice(0, 2)?.toUpperCase()}
+                  </div>
+                  <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+                    {type}
                   </div>
                 </div>
-              );
-            },
+              ))}
+              {remaining > 0 && (
+                <div className="group relative z-10">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
+                    +{remaining}
+                  </div>
+                  <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+                    {hiddenTypes.join(", ")}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      },
     },
     {
       accessor: "role",
       title: "Offer Type",
-      visible: true,
-      toggleable: true,
       render: (row: any) => (
-        <span className={`badge badge-outline-${row?.listing_type?.color} `}>
+        <span className={`badge badge-outline-${row?.listing_type?.color}`}>
           {row?.listing_type?.type}
         </span>
       ),
     },
     {
-      accessor: "status",
-      title: "Status",
-      visible: true,
-      toggleable: true,
+      accessor: "publish",
+      title: "Publish Status",
+      render: (row: any) => (
+        <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+          row?.publish === "Published" ? "bg-lred text-dred border-dred" : "bg-gray-200 text-gray-700"
+        }`}>
+          {row?.publish}
+        </span>
+      ),
     },
     {
-      accessor: "date",
-      title: "Date",
-      visible: true,
-      toggleable: true,
+      accessor: "is_approved",
+      title: "Approved Status",
+      render: (row: any) => (
+        <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+          row?.is_approved === true ? "bg-green-100 text-green-700" : "bg-yellow-100 text-gray-700"
+        }`}>
+          {row?.is_approved === true ? "Approved" : "Pending"}
+        </span>
+      ),
+    },
+    {
+      accessor: "action",
+      title: "Actions",
+      textAlignment: "center" as const,
+      render: (row: any) => (
+        <div className="mx-auto flex w-max items-center gap-4">
+          <button
+            className="text-dred flex"
+            onClick={() => handleView(row)}
+          >
+            <Eye className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      ),
     },
   ];
 
@@ -729,13 +689,15 @@ const CreateOpportunities = () => {
               </div>
             </div>
 
-            <DataTable
-              className="table-responsive"
-              records={state.tableList || []}
-              columns={allColumns}
-              highlightOnHover
-              style={{ zIndex: 0 }}
-            />
+            <div className="datatables">
+              <DataTable
+                className="table-responsive"
+                records={state.tableList || []}
+                columns={allColumns}
+                highlightOnHover
+                minHeight={180}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -751,8 +713,9 @@ const CreateOpportunities = () => {
           type="button"
           className="btn btn-dred w-full md:w-auto"
           onClick={() => handleSubmit()}
+          disabled={state.btnLoading}
         >
-          {state.submitLoad ? (
+          {state.btnLoading ? (
             <IconLoader className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             "Submit"

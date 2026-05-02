@@ -62,6 +62,8 @@ import {
   Globe,
   Building2,
   MapPin,
+  Tag,
+  Key,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
@@ -71,6 +73,12 @@ import PrivateRouter from "@/hook/privateRouter";
 const List = () => {
   const router = useRouter();
   const { id } = router.query;
+
+  const [tooltip, setTooltip] = useState<{
+    row: any;
+    x: number;
+    y: number;
+  } | null>(null);
 
   // const [group, setGroup] = useState(null);
 
@@ -89,63 +97,33 @@ const List = () => {
       toggleable: true,
       sortable: true,
       render: (row) => (
-        <Link
-          className="flex gap-3 font-semibold"
-          href={`${FRONTEND_URL}/property-detail/${row?.id}`}
-          target="_blank"
+        <div
+          className="relative"
+          onMouseEnter={(e) => {
+            const rect = (
+              e.currentTarget as HTMLElement
+            ).getBoundingClientRect();
+            setTooltip({ row, x: rect.left, y: rect.top });
+          }}
+          onMouseLeave={() => setTooltip(null)}
         >
-          <div className="flex flex-col justify-between ">
-            <div>
-              <div className="cursor-pointer text-sm" title={row.title}>
-                {truncateText(row.title)}
+          <Link
+            className="flex gap-3 font-semibold"
+            href={`${FRONTEND_URL}/property-detail/${row?.id}`}
+            target="_blank"
+          >
+            <div className="flex flex-col justify-between">
+              <div>
+                <div className="cursor-pointer text-sm">
+                  {truncateText(row.title)}
+                </div>
               </div>
             </div>
-          </div>
-        </Link>
+          </Link>
+        </div>
       ),
     },
-
-    {
-      accessor: "price",
-      title: "Price Range",
-      visible: true,
-      toggleable: true,
-    },
-    {
-      accessor: "project",
-      title: "Project",
-      visible: true,
-      toggleable: true,
-      sortable: true,
-      render: (row) => (
-        <span title={row.project}>{truncateText(row.project)}</span>
-      ),
-    },
-    {
-      accessor: "created_by",
-      title: "Created By",
-      visible: true,
-      toggleable: true,
-      render: (row) => (
-        <span title={row.created_by}>{truncateText(row.created_by)}</span>
-      ),
-    },
-    {
-      accessor: "developer",
-      title: "Developer",
-      visible: true,
-      toggleable: true,
-      render: (row) => (
-        <span title={row.developer}>{truncateText(row.developer)}</span>
-      ),
-    },
-    {
-      accessor: "agent",
-      title: "Agent",
-      visible: true,
-      toggleable: true,
-      render: (row) => <span title={row.agent}>{truncateText(row.agent)}</span>,
-    },
+    
     {
       accessor: "property_type",
       title: "Property Type",
@@ -166,22 +144,18 @@ const List = () => {
 
         return (
           <div className="flex items-center gap-2">
-            {/* First type text */}
             <span
               title={firstType}
               className="text-sm text-gray-700 dark:text-gray-300"
             >
               {truncateText(firstType)}
             </span>
-
-            {/* Avatars */}
             <div className="flex items-center -space-x-2">
               {visibleTypes?.map((type: string, index: number) => (
                 <div key={index} className="group relative z-10">
                   <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
                     {type?.slice(0, 2)?.toUpperCase()}
                   </div>
-                  {/* Tooltip */}
                   <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
                     {type}
                   </div>
@@ -189,10 +163,9 @@ const List = () => {
               ))}
               {remaining > 0 && (
                 <div className="group relative z-10">
-                  <div className="flex h-7 w-7  items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
                     +{remaining}
                   </div>
-                  {/* Remaining tooltip */}
                   <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
                     {hiddenTypes.join(", ")}
                   </div>
@@ -215,66 +188,65 @@ const List = () => {
       ),
     },
     {
-      accessor: "status",
-      title: "Status",
-      visible: true,
-      toggleable: true,
-    },
-    {
-      accessor: "date",
-      title: "Date",
-      visible: true,
-      toggleable: true,
-    },
-    {
       accessor: "publish",
-      title: "Publish",
+      title: "Publish Status",
       visible: true,
       toggleable: true,
       render: (row: any) => (
-        <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-          row?.publish === "Published" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-700"
-        }`}>
+        <span
+          className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+            row?.publish === "Published"
+              ? "bg-lred text-dred border-dred"
+              : "bg-gray-200 text-gray-700"
+          }`}
+        >
           {row?.publish}
         </span>
       ),
     },
-
+    {
+      accessor: "is_approved",
+      title: "Approved Status",
+      visible: true,
+      toggleable: true,
+      render: (row: any) => (
+        <span
+          className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+            row?.is_approved == true
+              ? "bg-green-100 text-green-700"
+              : "bg-yellow-100 text-gray-700"
+          }`}
+        >
+          {row?.is_approved == true ? "Approved" : "Pending"}
+        </span>
+      ),
+    },
     {
       accessor: "action",
       title: "Actions",
       visible: true,
-      toggleable: false, // Actions column cannot be hidden
+      toggleable: false,
       sortable: false,
       textAlignment: "center",
       render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
           <button
             className="text-dred flex"
-            onClick={(e) => {
-              handleView(row);
-            }}
+            onClick={() => handleView(row)}
           >
             <Eye className="h-3.5 w-3.5" />
           </button>
-
-          {/* <button
+          <button
             className="flex text-primary"
-            onClick={(e) => {
-              handleEdit(row);
-            }}
+            onClick={() => handleEdit(row)}
           >
             <IconEdit className="h-3.5 w-3.5" />
           </button>
           <button
-            className="flex text-success hover:text-success"
-            onClick={() => handleStatus(row)}
-          >
-            <CircleCheck className="h-3.5 w-3.5 " />
-          </button>
-          <button
             type="button"
-            className={`flex ${ row?.publish === "Published" ? "text-warning" : "text-info" }`}
+            className={`flex ${
+              row?.publish === "Published" ? "text-warning" : "text-info"
+            }`}
             onClick={() => handlePublish(row)}
             title={row?.publish === "Published" ? "Unpublish" : "Publish"}
           >
@@ -283,10 +255,10 @@ const List = () => {
           <button
             type="button"
             className="flex text-danger"
-            onClick={(e) => handleDelete(row)}
+            onClick={() => handleDelete(row)}
           >
-            <IconTrashLines className="h-4 w-4 " />
-          </button> */}
+            <IconTrashLines className="h-4 w-4" />
+          </button>
         </div>
       ),
     },
@@ -301,7 +273,6 @@ const List = () => {
       sortable: true,
       render: (row) => {
         const group = localStorage.getItem("group");
-
         return (
           <Link
             className="flex gap-3 font-semibold"
@@ -321,17 +292,14 @@ const List = () => {
                   <IconMapPin className="h-3 w-3" />
                   <span className="mt-[-2px] text-xs">{row.location}</span>
                 </div>
-                <div
-                  className="text-md cursor-pointer font-bold"
-                  title={row.title}
-                >
+                <div className="text-md cursor-pointer font-bold" title={row.title}>
                   {truncateText(row.title)}
                 </div>
               </div>
               {group == "Seller" ? (
                 <div className="flex items-center justify-center gap-2">
                   <span
-                    className={`badge  ${
+                    className={`badge ${
                       row?.is_approved
                         ? "badge-outline-success w-[70px]"
                         : "badge-outline-warning w-[140px]"
@@ -339,7 +307,6 @@ const List = () => {
                   >
                     {row?.is_approved ? "Approved" : "Waiting For Approval"}
                   </span>
-
                   <div
                     className={`inline-block w-fit rounded-full px-2 text-xs font-semibold ${
                       row?.publish == "Published"
@@ -376,7 +343,6 @@ const List = () => {
         );
       },
     },
-
     {
       accessor: "price",
       title: "Price Range",
@@ -393,7 +359,6 @@ const List = () => {
         <span title={row.project}>{truncateText(row.project)}</span>
       ),
     },
-
     {
       accessor: "created_by",
       title: "Created By",
@@ -429,32 +394,23 @@ const List = () => {
         if (!property_type || property_type?.length === 0) {
           return <span className="">-</span>;
         }
-
         const firstType = property_type[0];
         const others = property_type.slice(1);
         const maxShow = 3;
         const remaining = others.length - maxShow;
         const visibleTypes = others.slice(0, maxShow);
         const hiddenTypes = others.slice(maxShow);
-
         return (
           <div className="flex items-center gap-2">
-            {/* First type text */}
-            <span
-              title={firstType}
-              className="text-sm text-gray-700 dark:text-gray-300"
-            >
+            <span title={firstType} className="text-sm text-gray-700 dark:text-gray-300">
               {truncateText(firstType)}
             </span>
-
-            {/* Avatars */}
             <div className="flex items-center -space-x-2">
               {visibleTypes?.map((type: string, index: number) => (
                 <div key={index} className="group relative z-10">
                   <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
                     {type?.slice(0, 2)?.toUpperCase()}
                   </div>
-                  {/* Tooltip */}
                   <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
                     {type}
                   </div>
@@ -462,10 +418,9 @@ const List = () => {
               ))}
               {remaining > 0 && (
                 <div className="group relative z-10">
-                  <div className="flex h-7 w-7  items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
                     +{remaining}
                   </div>
-                  {/* Remaining tooltip */}
                   <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
                     {hiddenTypes.join(", ")}
                   </div>
@@ -499,22 +454,6 @@ const List = () => {
       visible: true,
       toggleable: true,
     },
-    // {
-    //   accessor: "publish",
-    //   title: "Publish",
-    //   visible: true,
-    //   toggleable: true,
-    //   render: (row: any) => (
-    //     <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-    //       row?.publish === "Published" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-700"
-    //     }`}>
-    //       {row?.publish}
-    //     </span>
-    //   ),
-    // },
-
-    // ...(group == "Admin" || group == "Seller"
-    //   ? [
     {
       accessor: "action",
       title: "Actions",
@@ -524,27 +463,23 @@ const List = () => {
       textAlignment: "center",
       render: (row) => (
         <div className="mx-auto flex w-max items-center gap-4">
-          <button
-            className="text-dred flex"
-            onClick={(e) => {
-              handleView(row);
-            }}
-          >
+          <button className="text-dred flex" onClick={() => handleView(row)}>
             <Eye className="h-3.5 w-3.5" />
           </button>
-
-          {/* <button className="flex text-primary" onClick={() => handleEdit(row)}>
-            <IconEdit className="h-3.5 w-3.5 " />
+          <button className="flex text-primary" onClick={() => handleEdit(row)}>
+            <IconEdit className="h-3.5 w-3.5" />
           </button>
           <button
             className="flex text-success hover:text-success"
             onClick={() => handleStatus(row)}
           >
-            <CircleCheck className="h-3.5 w-3.5 " />
+            <CircleCheck className="h-3.5 w-3.5" />
           </button>
           <button
             type="button"
-            className={`flex ${ row?.publish === "Published" ? "text-warning" : "text-info" }`}
+            className={`flex ${
+              row?.publish === "Published" ? "text-warning" : "text-info"
+            }`}
             onClick={() => handlePublish(row)}
             title={row?.publish === "Published" ? "Unpublish" : "Publish"}
           >
@@ -555,12 +490,10 @@ const List = () => {
             onClick={() => handleDelete(row)}
           >
             <IconTrashLines className="h-3.5 w-3.5" />
-          </button> */}
+          </button>
         </div>
       ),
     },
-    //       ]
-    //     : []),
   ];
 
   const [state, setState] = useSetState({
@@ -580,7 +513,7 @@ const List = () => {
     search: "",
     error: {},
     loading: false,
-    visibleColumns: allColumns,
+    visibleColumns: tableColumns,
     viewMode: "table",
     role: null,
     showFilterModal: false,
@@ -612,12 +545,13 @@ const List = () => {
   useEffect(() => {
     categoryList(1);
     developerList(1);
-    statCount();
   }, []);
 
   useEffect(() => {
     if (id) {
       fetchProject();
+    statCount();
+
     }
   }, [id]);
 
@@ -633,7 +567,6 @@ const List = () => {
   };
 
   useEffect(() => {
-    const group = localStorage.getItem("group");
     if (id) {
       propertyList(1);
     }
@@ -648,26 +581,14 @@ const List = () => {
     state.role,
     state.user,
     state.publish,
+    state.team,
+    state.recordType,
   ]);
-
-  useEffect(() => {
-    if (state.viewMode == "table") {
-      setState({
-        visibleColumns: tableColumns,
-      });
-    } else {
-      setState({
-        visibleColumns: allColumns,
-      });
-    }
-  }, [state.viewMode]);
 
   const statCount = async () => {
     try {
       const body = bodyData();
       const res: any = await Models.property.count(body);
-      console.log("count res", res);
-
       setState({
         statCount: res,
       });
@@ -884,14 +805,11 @@ const List = () => {
   };
 
   const getuserList = (e) => {
-    setState({ role: e, user: null, userList: [] });
-
-    if (e?.value == "developer") {
-      developerList(1);
-    } else if (e?.value == "agent") {
-      agentList(1);
-    } else if (e?.value == "seller") {
-      sellerList(1);
+    setState({ recordType: e });
+    if (e?.value === "own") {
+      setState({ team: false });
+    } else if (e?.value === "admin") {
+      setState({ team: true });
     }
   };
 
@@ -924,15 +842,12 @@ const List = () => {
 
     // Common
 
-    body.is_approved = "Yes";
+    // body.is_approved = "Yes";
 
     if (id) {
       body.project = id;
     }
 
-    if (id) {
-      body.project = id;
-    }
 
     if (state.search) {
       body.search = debouncedSearch;
@@ -950,6 +865,13 @@ const List = () => {
     }
     if (state.publish) {
       body.publish = state.publish?.value == "Publish" ? "Yes" : "No";
+    }
+
+    if (state?.team == true) {
+      body.team = state?.team;
+    }
+    if (state?.team == false) {
+      body.team = state?.team;
     }
 
     if (group == capitalizeFLetter(ROLES.ADMIN)) {
@@ -995,14 +917,14 @@ const List = () => {
   const developerBody = () => {
     const userId = localStorage.getItem("userId");
     const body: any = {};
-    body.is_approved = "Yes";
+    // body.is_approved = "Yes";
     body.developer = userId;
     return body;
   };
   const agentBody = () => {
     const userId = localStorage.getItem("userId");
     const body: any = {};
-    body.is_approved = "Yes";
+    // body.is_approved = "Yes";
     body.agent = userId;
     return body;
   };
@@ -1018,8 +940,8 @@ const List = () => {
     router.push(`/real-estate/property/update/${row?.id}`);
   };
 
-  const handleView = async (row) => {
-    window.open(`${FRONTEND_URL}/property-detail/${row?.id}`, "_blank");
+    const handleView = async (row) => {
+    router.push(`/real-estate/property/detail/${row?.id}`);
   };
 
   const handleStatus = async (row) => {
@@ -1138,6 +1060,11 @@ const List = () => {
     state.publish,
   ].filter(Boolean).length;
 
+  const FILTER_ADMINROLES = [
+    { value: "own", label: "Own Records" },
+    { value: "admin", label: "Admin Records" },
+  ];
+
   return (
     <>
       {/* Project Detail Card */}
@@ -1168,23 +1095,82 @@ const List = () => {
       )}
 
       <div className="mb-3 flex items-center justify-between gap-5">
-        <div className=" items-center gap-5">
+        <div className="items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
-           Property List
-          
+            Property List
           </h5>
-{/* 
-          <p className="text-gray-600 dark:text-gray-400">
-            Manage property listings and status
-          </p> */}
         </div>
-        
+        <div className="flex gap-5">
+          <button
+            type="button"
+            className="btn btn-dred w-full border-none md:mb-0 md:w-auto"
+            onClick={() => router.push("/real-estate/property/create")}
+          >
+            + Create
+          </button>
+        </div>
       </div>
 
-      
+      <div className="mb-6 flex gap-4">
+        <div
+          onClick={() => setState({ offer_type: null })}
+          className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+        >
+          <div className="flex items-center gap-5">
+            <div className="flex items-center justify-center rounded-lg dark:border-gray-700">
+              <Briefcase className="text-dblue h-10 w-10" />
+            </div>
+            <div className="flex flex-col">
+              <p className="text-2xl leading-none text-gray-900 dark:text-white">
+                {state.statCount?.total || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Total Properties
+              </p>
+            </div>
+          </div>
+        </div>
+        <div
+          onClick={() => setState({ offer_type: { value: "sale", label: "Sale" } })}
+          className="cursor-pointer rounded-lg border border-purple-200 bg-purple-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+        >
+          <div className="flex items-center gap-5">
+            <div className="flex items-center justify-center rounded-lg dark:border-gray-700">
+              <Tag className="h-10 w-10 text-purple-600" />
+            </div>
+            <div className="flex flex-col">
+              <p className="text-2xl leading-none text-gray-900 dark:text-white">
+                {state.statCount?.sale_count || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Sale Properties
+              </p>
+            </div>
+          </div>
+        </div>
+        <div
+          onClick={() => setState({ offer_type: { value: "lease", label: "Lease" } })}
+          className="cursor-pointer rounded-lg border border-sky-200 bg-sky-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+        >
+          <div className="flex items-center gap-5">
+            <div className="flex items-center justify-center rounded-lg dark:border-gray-700">
+              <Key className="h-10 w-10 text-sky-600" />
+            </div>
+            <div className="flex flex-col">
+              <p className="text-2xl leading-none text-gray-900 dark:text-white">
+                {state.statCount?.lease_count || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Lease Properties
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Filter section */}
       <div className="mb-5 rounded-2xl">
-        <div className="flex  items-center justify-between gap-5">
+        <div className="flex items-center justify-between gap-5">
           <TextInput
             type="text"
             placeholder="Search..."
@@ -1201,20 +1187,14 @@ const List = () => {
             loadMore={() => catListLoadMore()}
           />
           <CustomSelect
-            placeholder="Offer Type"
-            value={state.offer_type}
-            onChange={(e) => setState({ offer_type: e })}
-            options={ListType}
-          />
-          <CustomSelect
-            placeholder="Property Status"
-            value={state.status}
-            onChange={(e) => setState({ status: e })}
-            options={Property_status}
+            placeholder="Select Record type"
+            value={state.recordType}
+            onChange={getuserList}
+            options={FILTER_ADMINROLES}
           />
           <button
             onClick={() => setState({ showFilterModal: true })}
-            className="flex items-center gap-4 rounded-lg border bg-white p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 "
+            className="flex items-center gap-4 rounded-lg border bg-white p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <SlidersHorizontal className="h-4 w-4" />
             Filter
@@ -1329,29 +1309,6 @@ const List = () => {
                 />
 
                 <div className="ml-auto flex items-center gap-3">
-                  <div className="flex items-center gap-1  ">
-                    <button
-                      onClick={() => setState({ viewMode: "table" })}
-                      className={`rounded-md p-2 transition-all duration-200 `}
-                    >
-                      <Table
-                        size={18}
-                        color={state.viewMode == "table" ? "#9b0f09" : "grey"}
-                      />
-                    </button>
-
-                    <div className="h-6 w-px bg-gray-300" />
-
-                    <button
-                      onClick={() => setState({ viewMode: "image" })}
-                      className={`rounded-md p-2 transition-all duration-200 `}
-                    >
-                      <Calendar
-                        size={18}
-                        color={state.viewMode == "image" ? "#9b0f09" : "grey"}
-                      />
-                    </button>
-                  </div>
                   <div className="text-sm text-black">
                     {state.total} Properties found
                   </div>
@@ -1605,6 +1562,24 @@ const List = () => {
               </button>
             </div>
             <div className="grid grid-cols-1 gap-4 py-3 md:grid-cols-2">
+              <CustomSelect
+                placeholder="Offer Type"
+                value={state.offer_type}
+                onChange={(e) => setState({ offer_type: e })}
+                options={ListType}
+              />
+              <CustomSelect
+                placeholder="Property Status"
+                value={state.status}
+                onChange={(e) => setState({ status: e })}
+                options={Property_status}
+              />
+              <CustomSelect
+                placeholder="Publish or Draft"
+                value={state.publish}
+                onChange={(e) => setState({ publish: e })}
+                options={PROPERTY_STATUS}
+              />
               {state.group == "Admin" && (
                 <>
                   <CustomSelect
@@ -1622,12 +1597,6 @@ const List = () => {
                   />
                 </>
               )}
-              <CustomSelect
-                placeholder="Publish or Draft"
-                value={state.publish}
-                onChange={(e) => setState({ publish: e })}
-                options={PROPERTY_STATUS}
-              />
             </div>
             <div className="flex items-center justify-between py-3">
               <button
@@ -1646,6 +1615,52 @@ const List = () => {
           </div>
         )}
       />
+
+      {/* Fixed tooltip rendered outside table */}
+      {tooltip && (
+        <div
+          className="border-dred bg-lred pointer-events-none fixed z-[99999] w-56 rounded-lg border p-3 shadow-lg dark:bg-gray-800"
+          style={{
+            top: tooltip.y - 8,
+            left: tooltip.x,
+            transform: "translateY(40%)",
+          }}
+        >
+          <div className="mb-1 font-semibold text-[#000]">
+            {tooltip.row.title}
+          </div>
+          {tooltip.row?.created_by && (
+            <div className="mb-1 flex items-start gap-2 text-xs">
+              <span className="shrink-0 font-semibold text-gray-500">
+                Created By:
+              </span>
+              <span className="text-gray-800 dark:text-white">
+                {tooltip.row.created_by}
+              </span>
+            </div>
+          )}
+          {tooltip.row?.developer && (
+            <div className="mb-1 flex items-start gap-2 text-xs">
+              <span className="shrink-0 font-semibold text-gray-500">
+                Developer:
+              </span>
+              <span className="text-gray-800 dark:text-white">
+                {tooltip.row.developer}
+              </span>
+            </div>
+          )}
+          {tooltip.row?.agent && (
+            <div className="flex items-start gap-2 text-xs">
+              <span className="shrink-0 font-semibold text-gray-500">
+                Agent:
+              </span>
+              <span className="text-gray-800 dark:text-white">
+                {tooltip.row.agent ?? "-"}
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </>
   );
 }

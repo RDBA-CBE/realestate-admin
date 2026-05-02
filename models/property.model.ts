@@ -12,6 +12,12 @@ const properties = {
       if (body?.is_approved == "Yes") {
         url += `&is_approved=${encodeURIComponent(true)}`;
       }
+      if (body?.pagination == "No") {
+        url += `&pagination=${encodeURIComponent(false)}`;
+      }
+      if (body?.pagination == "Yes") {
+        url += `&pagination=${encodeURIComponent(true)}`;
+      }
 
       if (body?.publish == "Yes") {
         url += `&publish=${encodeURIComponent(true)}`;
@@ -232,6 +238,13 @@ const properties = {
 
     if (body?.publish === "Yes") {
       params.append("publish", true);
+    }
+    if (body?.project) {
+      params.append("project", body.project);
+    }
+
+    if (body?.developer) {
+      params.append("developer", body.developer);
     }
 
     if (params.toString()) {

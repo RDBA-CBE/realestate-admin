@@ -103,6 +103,7 @@ const List = () => {
     state.lead_source,
     state.status,
     state.date,
+    state.leadType,
   ]);
 
   const categoryList = async (page) => {
@@ -160,7 +161,7 @@ const List = () => {
       const userId = localStorage.getItem("userId");
 
       const body = {
-        created_by: state.user ? state.user?.value : userId,
+        developer: state.user ? state.user?.value : userId,
       };
 
       const res: any = await Models.lead.count(body);
@@ -396,16 +397,23 @@ const List = () => {
     if (state.date) {
       body.date = backendDateFormat(state.date);
     }
+    body.developer = userId;
 
-    if (state.user) {
-      body.created_by = state.user?.value;
-    } else {
-      if (state.role) {
-        body.created_by_group = state.role?.value;
-      } else {
-        body.created_by = userId;
-      }
+    if (state.leadType?.value === "own") {
+      body.created_by = userId;
+    } else if (state.leadType?.value === "assigned") {
+      body.assigned_to = userId;
     }
+
+    // if (state.user) {
+    //   body.created_by = state.user?.value;
+    // } else {
+    //   if (state.role) {
+    //     body.created_by_group = state.role?.value;
+    //   } else {
+    //     body.created_by = userId;
+    //   }
+    // }
 
     if (state.sortBy) {
       body.ordering =
@@ -628,7 +636,7 @@ const List = () => {
       toggleable: true,
       sortable:true,
       render: (row) => (
-        <span title={row?.email}>{truncateText(row?.email)}</span>
+        <span title={row?.email}>{(row?.email)}</span>
       ),
     },
 
@@ -882,6 +890,17 @@ const List = () => {
             error={state.errors?.status}
             required
             className="w-full"
+          />
+
+          <CustomSelect
+            value={state.leadType}
+            onChange={(e) => setState({ leadType: e })}
+            placeholder={"All Leads"}
+            options={[
+              { value: "own", label: "Own Leads" },
+              { value: "assigned", label: "Assigned Leads" },
+            ]}
+            isClearable={true}
           />
 
           {/* {state.group == "Admin" && (

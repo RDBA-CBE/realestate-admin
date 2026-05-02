@@ -337,6 +337,8 @@ const list = () => {
       setState({ team: false });
     } else if (e?.value === "admin") {
       setState({ team: true });
+    } else {
+      setState({ team: null });
     }
   };
 
@@ -408,7 +410,7 @@ const list = () => {
 
         <div>
           <CustomSelect
-            placeholder="Select Record type"
+            placeholder="All Projects"
             value={state.recordType}
             onChange={getuserList}
             options={FILTER_ADMINROLES}

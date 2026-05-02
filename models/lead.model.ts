@@ -17,6 +17,10 @@ const lead = {
         url += `&search=${encodeURIComponent(body.search)}`;
       }
 
+      if (body?.developer) {
+        url += `&developer=${encodeURIComponent(body.developer)}`;
+      }
+
       if (body?.created_by) {
         url += `&created_by=${encodeURIComponent(body.created_by)}`;
       }
@@ -204,6 +208,9 @@ const lead = {
         }
          if (body?.assigned_to) {
           params.append("assigned_to", body.assigned_to);
+        }
+        if (body?.developer) {
+          params.append("developer", body.developer);
         }
   
         if (params.toString()) {

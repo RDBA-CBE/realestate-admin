@@ -394,6 +394,7 @@ const List = () => {
     if (state.search) {
       body.search = state.search;
     }
+    body.developer = userId;
 
     if (state.lead_source) {
       body.lead_source = state.lead_source.value;
@@ -421,24 +422,24 @@ const List = () => {
     //    }
     //  }
 
-    if (state.role) {
-      if (state.assigned_to_user) {
-        body.assigned_to = state.assigned_to_user?.value;
-      } else {
-        body.created_by = state.created_by_user?.value || userId;
-      }
-    } else {
-      if (state.group == "Admin" || state.group == "Seller") {
-        body.created_by = userId;
-      } else {
-        if (state.leadType == "created") {
-          body.created_by = userId;
-        }
-        if (state.leadType == "assinged") {
-          body.assigned_to = userId;
-        }
-      }
-    }
+    // if (state.role) {
+    //   if (state.assigned_to_user) {
+    //     body.assigned_to = state.assigned_to_user?.value;
+    //   } else {
+    //     body.created_by = state.created_by_user?.value || userId;
+    //   }
+    // } else {
+    //   if (state.group == "Admin" || state.group == "Seller") {
+    //     body.created_by = userId;
+    //   } else {
+    //     if (state.leadType == "created") {
+    //       body.created_by = userId;
+    //     }
+    //     if (state.leadType == "assinged") {
+    //       body.assigned_to = userId;
+    //     }
+    //   }
+    // }
 
      if (state.sortBy) {
       body.ordering =

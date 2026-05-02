@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ReadMore = ({ children, charLimit = 100, readMoreText = 'Read more', readLessText = 'Read less' }) => {
+const ReadMore = ({ children, charLimit = 100,className, readMoreText = 'Read more', readLessText = 'Read less' }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const toggleReadMore = () => {
@@ -11,7 +11,7 @@ const ReadMore = ({ children, charLimit = 100, readMoreText = 'Read more', readL
 
     return (
         <div>
-            <p>{displayText}</p>
+            <p className={`text-[16px] font-medium ${className}`}>{displayText}</p>
             {children?.length > 400 && (
                 <button
                     onClick={toggleReadMore}

@@ -94,6 +94,7 @@ const AddPropertyPage = () => {
     city: null,
     postal_code: null,
     amenities: [],
+    amenitiesVisibleCount: 12,
     project: null,
     developer: null,
     isAssignAgent: false,
@@ -139,6 +140,7 @@ const AddPropertyPage = () => {
 
   useEffect(() => {
     amenityList(state.amenitySearch || "");
+    setState({ amenitiesVisibleCount: 12 });
   }, [debouncedAmenitySearch]);
 
   // const amenityList = async (page) => {
@@ -1815,28 +1817,76 @@ const AddPropertyPage = () => {
                     </div>
                   </div>
                   <div className="grid grid-cols-4 gap-4">
-                    {state.amenityList?.map((amenity) => (
-                      <CheckboxInput
-                        key={amenity.value}
-                        type="checkbox"
-                        name="amenities"
-                        label={amenity.label}
-                        checked={state.amenities?.includes(amenity.value)}
-                        onChange={() => {
-                          const updatedAmenities = state.amenities?.includes(
-                            amenity.value,
-                          )
-                            ? state.amenities.filter(
-                                (item) => item !== amenity.value,
-                              )
-                            : [...(state.amenities || []), amenity.value];
+                    {(() => {
+                      const selected = state.amenities || [];
+                      const sorted = [...(state.amenityList || [])].sort(
+                        (a, b) => {
+                          const aChecked = selected.includes(a.value) ? 0 : 1;
+                          const bChecked = selected.includes(b.value) ? 0 : 1;
+                          return aChecked - bChecked;
+                        },
+                      );
+                      const visible = sorted.slice(
+                        0,
+                        state.amenitiesVisibleCount,
+                      );
+                      return visible.map((amenity) => (
+                        <CheckboxInput
+                          key={amenity.value}
+                          type="checkbox"
+                          name="amenities"
+                          label={amenity.label}
+                          checked={selected.includes(amenity.value)}
+                          onChange={() => {
+                            const updatedAmenities = selected.includes(
+                              amenity.value,
+                            )
+                              ? selected.filter(
+                                  (item) => item !== amenity.value,
+                                )
+                              : [...selected, amenity.value];
+                            setState({
+                              amenities: updatedAmenities,
+                              error: { ...state.error, amenities: "" },
+                            });
+                          }}
+                        />
+                      ));
+                    })()}
+                  </div>
+                  <div className="mt-3 flex gap-4">
+                    {state.amenitiesVisibleCount <
+                      (state.amenityList?.length || 0) && (
+                      <button
+                        type="button"
+                        className="text-sm font-medium text-blue-600 hover:underline"
+                        onClick={() =>
                           setState({
-                            amenities: updatedAmenities,
-                            error: { ...state.error, amenities: "" },
-                          });
-                        }}
-                      />
-                    ))}
+                            amenitiesVisibleCount:
+                              state.amenitiesVisibleCount + 12,
+                          })
+                        }
+                      >
+                        View More (
+                        {Math.min(
+                          12,
+                          (state.amenityList?.length || 0) -
+                            state.amenitiesVisibleCount,
+                        )}{" "}
+                        more)
+                      </button>
+                    )}
+                    {state.amenitiesVisibleCount > 12 && (
+                      <button
+                        type="button"
+                        className="text-sm font-medium text-red-500 hover:underline"
+                        onClick={() =>
+                          setState({ amenitiesVisibleCount: 12 })
+                        }
+                      >
+                        View Less
+                      </button>
+                    )}
                   </div>
                   {state.error?.amenities && (
                     <p

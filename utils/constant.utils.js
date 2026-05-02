@@ -112,12 +112,12 @@ export const menuConfig = {
           label: "List",
           href: "/real-estate/lead/list",
         },
-        {
-          type: "link",
-          icon: "IconMenuForms",
-          label: "Assign Leads",
-          href: "/real-estate/lead/assignLead",
-        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuForms",
+        //   label: "Assign Leads",
+        //   href: "/real-estate/lead/assignLead",
+        // },
         {
           type: "link",
           icon: "IconMenuScrumboard",
@@ -281,12 +281,12 @@ export const menuConfig = {
           label: "List",
           href: "/real-estate/lead/list",
         },
-        {
-          type: "link",
-          icon: "IconMenuForms",
-          label: "Assign Leads",
-          href: "/real-estate/lead/assignLead",
-        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuForms",
+        //   label: "Assign Leads",
+        //   href: "/real-estate/lead/assignLead",
+        // },
         {
           type: "link",
           icon: "IconMenuScrumboard",
