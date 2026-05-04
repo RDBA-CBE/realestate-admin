@@ -510,7 +510,7 @@ const list = () => {
               accessor: "properties",
               render: (row: any) => (
                 <span
-                  className="cursor-pointer "
+                  className="cursor-pointer underline text-blue-500 "
                   onClick={(e) => handleView(row)}
                 >
                   {row.properties}

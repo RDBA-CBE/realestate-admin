@@ -6,6 +6,8 @@ import auth from "@/models/auth.model";
 import category from "@/models/category.model";
 import floorPlans from "@/models/floor_plan.model";
 import image from "@/models/image.model";
+import leadSource from "@/models/lead_source.model";
+import leadStatus from "@/models/lead_status.model";
 import lead from "@/models/lead.model";
 import master from "@/models/master.model";
 import profile from "@/models/profile.model";
@@ -31,7 +33,9 @@ export const Models = {
   video,
   virtualTour,
   floorPlans,
-  lead
+  lead,
+  leadSource,
+  leadStatus,
   
 };
 

@@ -114,6 +114,11 @@ const LoginBoxed = () => {
                     setState({ showPassword: !state.showPassword })
                   }
                 />
+                <div className="text-right">
+                  <Link href="/auth/reset-password" className="text-sm text-dred hover:underline">
+                    Forgot Password?
+                  </Link>
+                </div>
 
                 
                 {/* <PrimaryButton text={"Sign In"} /> */}

@@ -25,21 +25,24 @@ export const menuConfig = {
         //   label: "Waiting For Approval",
         //   href: "/real-estate/project/approval",
         // },
-       
+
         {
           type: "submenu",
           icon: "IconMenuDashboard",
           label: "Property",
           key: "Property",
           children: [
-            { type: "link", label: "Property List", href: "/real-estate/property/list" },
+            {
+              type: "link",
+              label: "Property List",
+              href: "/real-estate/property/list",
+            },
             {
               type: "link",
               label: "Waiting For Approval",
               href: "/real-estate/property/approval",
             },
 
-            
             // {
             //   type: "link",
             //   label: "Create Property",
@@ -61,13 +64,17 @@ export const menuConfig = {
             // { type: "link", label: "Reviews", href: "/apps/invoice/edit" },
           ],
         },
-         {
+        {
           type: "submenu",
           icon: "IconMenuApps",
           label: "Projects",
           key: "Projects",
           children: [
-            { type: "link", label: "List", href: "/real-estate/project/adminlist" },
+            {
+              type: "link",
+              label: "List",
+              href: "/real-estate/project/adminlist",
+            },
           ],
         },
         {
@@ -169,7 +176,7 @@ export const menuConfig = {
     //     },
     //   ],
     // },
-     {
+    {
       type: "section",
       label: "Master Data",
       children: [
@@ -191,7 +198,6 @@ export const menuConfig = {
         //   label: "Furnishing Types",
         //   href: "/real-estate/masters/furnishing-type",
         // },
-       
       ],
     },
   ],
@@ -332,7 +338,7 @@ export const menuConfig = {
     //     },
     //   ],
     // },
-     {
+    {
       type: "section",
       label: "Master Data",
       children: [
@@ -354,7 +360,6 @@ export const menuConfig = {
         //   label: "Furnishing Types",
         //   href: "/real-estate/masters/furnishing-type",
         // },
-       
       ],
     },
   ],
@@ -525,7 +530,7 @@ export const menuConfig = {
     //     },
     //   ],
     // },
-     {
+    {
       type: "section",
       label: "Master Data",
       children: [
@@ -547,7 +552,6 @@ export const menuConfig = {
         //   label: "Furnishing Types",
         //   href: "/real-estate/masters/furnishing-type",
         // },
-       
       ],
     },
   ],
@@ -686,12 +690,12 @@ export const menuConfig = {
           label: "List",
           href: "/real-estate/lead/list",
         },
-        {
-          type: "link",
-          icon: "IconMenuForms",
-          label: "Assign Leads",
-          href: "/real-estate/lead/assignLead",
-        },
+        // {
+        //   type: "link",
+        //   icon: "IconMenuForms",
+        //   label: "Assign Leads",
+        //   href: "/real-estate/lead/assignLead",
+        // },
         {
           type: "link",
           icon: "IconMenuScrumboard",
@@ -718,7 +722,7 @@ export const menuConfig = {
     //     },
     //   ],
     // },
-     {
+    {
       type: "section",
       label: "Master Data",
       children: [
@@ -734,13 +738,26 @@ export const menuConfig = {
           label: "Amenities",
           href: "/real-estate/property/amenities",
         },
+
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Lead Source",
+          href: "/real-estate/masters/lead_source",
+        },
+
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Lead Status",
+          href: "/real-estate/masters/lead_status",
+        },
         // {
         //   type: "link",
         //   icon: "IconMenuScrumboard",
         //   label: "Furnishing Types",
         //   href: "/real-estate/masters/furnishing-type",
         // },
-       
       ],
     },
   ],
@@ -936,7 +953,7 @@ export const RECORDS_TYPE = [
     value: "assigned",
     label: "Assigned Records",
   },
-]
+];
 
 export const FILTER_ROLES = [
   {
@@ -971,3 +988,25 @@ export const FILTER_ADMINROLES = [
     label: "Seller Records",
   },
 ];
+
+export const statusConfig = {
+  New: "bg-blue-100 text-blue-700",
+  Contacted: "bg-yellow-100 text-yellow-700",
+  Qualified: "bg-cyan-100 text-cyan-700",
+  "Proposal Sent": "bg-orange-100 text-orange-700",
+  Negotiation: "bg-purple-100 text-purple-700",
+  Won: "bg-green-100 text-green-700",
+  Lost: "bg-red-100 text-red-700",
+  Cancelled: "bg-gray-100 text-gray-600",
+};
+
+export const sourceConfig = {
+  Advertisement: "border border-pink-500 bg-pink-50 text-pink-600",
+  "Cold Call": "border border-blue-500 bg-blue-50 text-blue-600",
+  "Email Campaign": "border border-indigo-500 bg-indigo-50 text-indigo-600",
+  Other: "border border-gray-400 bg-gray-50 text-gray-600",
+  Referral: "border border-green-500 bg-green-50 text-green-600",
+  "Social Media": "border border-purple-500 bg-purple-50 text-purple-600",
+  "Walk In": "border border-orange-500 bg-orange-50 text-orange-600",
+  Website: "border border-cyan-500 bg-cyan-50 text-cyan-600",
+};

@@ -403,13 +403,13 @@ const View_opportunity = (props: any) => {
                     <div className="flex flex-col p-2 ">
                       <div className="text-md text-gray-600">Lead Source</div>
                       <div className="text-[16px] font-medium">
-                        {state.detail?.lead_source}
+                        {capitalizeFLetter(state.detail?.lead_source)}
                       </div>
                     </div>{" "}
                     <div className="flex flex-col p-2 ">
                       <div className="text-md text-gray-600">Status</div>
                       <div className="text-[16px] font-medium">
-                        {state.detail?.status}
+                        {capitalizeFLetter(state.detail?.status)}
                       </div>
                     </div>
                     <div className="flex flex-col p-2 ">
@@ -423,7 +423,7 @@ const View_opportunity = (props: any) => {
                     <div className="flex flex-col p-2 ">
                       <div className="text-md text-gray-600">Requirements</div>
                       <ReadMore className="text-[15px] font-medium">
-                        {state.detail?.requirements}
+                        {capitalizeFLetter(state.detail?.requirements)}
                       </ReadMore>
                     </div>
                   </div>

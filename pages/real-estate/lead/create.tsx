@@ -34,10 +34,8 @@ import moment from "moment";
 import IconMail from "@/components/Icon/IconMail";
 import {
   FRONTEND_URL,
-  LEAD_SOURCE_OPTIONS,
   LISTING_TYPE_LIST,
   ROLES,
-  STATUS_OPTIONS,
 } from "@/utils/constant.utils";
 import { Building, Computer, LucideHome, User2, User2Icon, Eye } from "lucide-react";
 import CustomeDatePicker from "@/components/datePicker";
@@ -85,6 +83,8 @@ const CreateOpportunities = () => {
 
   useEffect(() => {
     propertyList(1);
+    leadSourceList();
+    leadStatusList();
   }, []);
 
   const propertyList = async (id: any) => {
@@ -110,6 +110,33 @@ const CreateOpportunities = () => {
       console.log("error: ", error);
     }
   };
+
+  const leadSourceList = async () => {
+    try {
+      const res: any = await Models.leadSource.list(1, { pagination: "No" });
+      const dropdownList = Dropdown(res.results, "name");
+      setState({
+        leadSourceList: dropdownList,
+      });
+    }
+    catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const leadStatusList = async () => {
+    try {
+      const res: any = await Models.leadStatus.list(1, { pagination: "No" });
+      const dropdownList = Dropdown(res.results, "name");
+      setState({
+        leadStatusList: dropdownList,
+      });
+    }
+  catch (error) {
+    console.log("✌️error --->", error);
+  }
+};
+
 
   const propertyLoadMore = async () => {
     try {
@@ -507,7 +534,7 @@ const CreateOpportunities = () => {
                 });
               }}
               placeholder={"Lead Source"}
-              options={LEAD_SOURCE_OPTIONS}
+              options={state.leadSourceList}
               error={state.error?.lead_source}
               required
               className="w-full"
@@ -530,7 +557,7 @@ const CreateOpportunities = () => {
               }
               placeholder={"Status"}
               title={"Status"}
-              options={STATUS_OPTIONS}
+              options={state.leadStatusList}
               error={state.error?.status}
               required
               className="w-full"

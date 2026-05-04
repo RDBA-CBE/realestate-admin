@@ -39,22 +39,20 @@ import {
   Columns,
   Eye,
   EyeOff,
+  Hourglass,
   SlidersHorizontal,
   Table,
   X,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
-import {
-  FILTER_ROLES,
-  LEAD_SOURCE_OPTIONS,
-  ROLES,
-  STATUS_OPTIONS,
-} from "@/utils/constant.utils";
+import { FILTER_ROLES, ROLES, sourceConfig, statusConfig } from "@/utils/constant.utils";
 import CustomeDatePicker from "@/components/datePicker";
-import CheckboxInput from "@/components/FormFields/CheckBoxInput.component";
+import { clear, group } from "console";
 import FilterChips from "@/components/FilterChips/FilterChips.component";
+import { render } from "@fullcalendar/core/preact";
+import user from "@/models/user.model";
 
-const List = () => {
+const BookingList = () => {
   const router = useRouter();
   const [state, setState] = useSetState({
     isOpen: false,
@@ -69,15 +67,9 @@ const List = () => {
     search: "",
     error: {},
     visibleColumns: [],
-    assignmentTitle: "Assigned From",
     userList: [],
-    groupList: [],
     role: null,
-    created: true,
-    assigned: false,
-    assigned_to_user: null,
-    created_by_user: null,
-    leadType: "created",
+    groupList: [],
     group: null,
     showFilterModal: false,
     showStatusModal: false,
@@ -92,35 +84,24 @@ const List = () => {
     categoryList(1);
     groupList();
     setState({ visibleColumns: columns });
+    statCount();
+    leadSourceList();
+    leadStatusList();
   }, []);
 
   useEffect(() => {
     leadList(1);
   }, [
     debouncedSearch,
-    state.leadType,
-    state.created_by_user,
-    state.assigned_to_user,
+    state.user,
     state.developer,
     state.agent,
+    state.role,
     state.lead_source,
     state.status,
     state.date,
-    state.role,
+    state.leadType,
   ]);
-
-  console.log("created_by_user", state.created_by_user);
-
-  useEffect(() => {
-    const group = localStorage.getItem("group");
-
-    setState({
-      group,
-      assignmentTitle: group == "Admin" ? "Assigned To" : "Assigned From",
-    });
-  }, []);
-
-  console.log("✌️group --->", state.group);
 
   const categoryList = async (page) => {
     try {
@@ -130,6 +111,46 @@ const List = () => {
         categoryList: droprdown,
         categoryPage: page,
         categoryNext: res.next,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const groupList = async () => {
+    try {
+      const res: any = await Models.user.groups();
+      const droprdown = Dropdown(res?.results, "name");
+      const filter = droprdown?.filter(
+        (item) => item?.label != "Admin" && item?.label != "Buyer",
+      );
+
+      setState({
+        groupList: filter,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const leadSourceList = async () => {
+    try {
+      const res: any = await Models.leadSource.list(1, { pagination: "No" });
+      const dropdownList = Dropdown(res.results, "name");
+      setState({
+        leadSourceList: dropdownList,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const leadStatusList = async () => {
+    try {
+      const res: any = await Models.leadStatus.list(1, { pagination: "No" });
+      const dropdownList = Dropdown(res.results, "name");
+      setState({
+        leadStatusList: dropdownList,
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -156,7 +177,31 @@ const List = () => {
     }
   };
 
-  const leadList = async (page, sortBy = state.sortBy, sortOrder = state.sortOrder) => {
+  const statCount = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+
+      const body = {
+        developer: state.user ? state.user?.value : userId,
+      };
+
+      const res: any = await Models.lead.count(body);
+      console.log("count res", res);
+
+      setState({
+        statCount: res,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+      setState({ loading: false });
+    }
+  };
+
+  const leadList = async (
+    page,
+    sortBy = state.sortBy,
+    sortOrder = state.sortOrder,
+  ) => {
     try {
       const body = bodyData();
       if (sortBy) {
@@ -165,8 +210,8 @@ const List = () => {
       const res: any = await Models.lead.list(page, body);
       const data = res?.results?.map((item) => ({
         full_name: item?.full_name,
-        lead_source: capitalizeFLetter(item?.lead_source),
-        status: capitalizeFLetter(item?.status),
+        lead_source: item?.lead_source_info,
+        status: item?.status_info,
         id: item?.id,
         date: commonDateFormat(item?.created_at),
         email: item?.email,
@@ -180,7 +225,6 @@ const List = () => {
         assigned_by: item?.assigned_by_details
           ? `${item?.assigned_by_details?.first_name} ${item?.assigned_by_details?.last_name}`
           : "",
-        created_by: item?.created_by,
       }));
       const group = localStorage.getItem("group");
 
@@ -289,22 +333,6 @@ const List = () => {
     );
   };
 
-  const groupList = async () => {
-    try {
-      const res: any = await Models.user.groups();
-      const droprdown = Dropdown(res?.results, "name");
-      const filter = droprdown?.filter(
-        (item) => item?.label != "Admin" && item?.label != "Buyer",
-      );
-
-      setState({
-        groupList: filter,
-      });
-    } catch (error) {
-      console.log("✌️error --->", error);
-    }
-  };
-
   const developerList = async (page) => {
     try {
       const body = {
@@ -370,31 +398,16 @@ const List = () => {
     }
   };
 
-  const clearFilter = () => {
-    console.log("clearFilter");
-
-    setState({
-      search: "",
-      lead_source: null,
-      property_type: null,
-      status: null,
-      date: null,
-      role: null,
-      user: null,
-    });
-  };
-
   const bodyData = () => {
     const userId = localStorage.getItem("userId");
     const group = localStorage.getItem("group");
     let body: any = {};
 
-    body.status = "won";
+    body.status = 6;
 
     if (state.search) {
       body.search = state.search;
     }
-    body.developer = userId;
 
     if (state.lead_source) {
       body.lead_source = state.lead_source.value;
@@ -411,44 +424,28 @@ const List = () => {
     if (state.date) {
       body.date = backendDateFormat(state.date);
     }
+    body.developer = userId;
 
-    //  if (state.user) {
-    //    body.created_by = state.user?.value;
-    //  } else {
-    //    if (state.role) {
-    //      body.group = state.role?.value;
-    //    } else {
-    //      body.created_by = userId;
-    //    }
-    //  }
+    if (state.leadType?.value === "own") {
+      body.created_by = userId;
+    } else if (state.leadType?.value === "assigned") {
+      body.assigned_to = userId;
+    }
 
-    // if (state.role) {
-    //   if (state.assigned_to_user) {
-    //     body.assigned_to = state.assigned_to_user?.value;
-    //   } else {
-    //     body.created_by = state.created_by_user?.value || userId;
-    //   }
+    // if (state.user) {
+    //   body.created_by = state.user?.value;
     // } else {
-    //   if (state.group == "Admin" || state.group == "Seller") {
-    //     body.created_by = userId;
+    //   if (state.role) {
+    //     body.created_by_group = state.role?.value;
     //   } else {
-    //     if (state.leadType == "created") {
-    //       body.created_by = userId;
-    //     }
-    //     if (state.leadType == "assinged") {
-    //       body.assigned_to = userId;
-    //     }
+    //     body.created_by = userId;
     //   }
     // }
 
-     if (state.sortBy) {
+    if (state.sortBy) {
       body.ordering =
         state.sortOrder === "desc" ? `-${state.sortBy}` : state.sortBy;
     }
-
-    console.log("userId", userId);
-
-    console.log("state.leadType", state.leadType);
 
     // if (group == capitalizeFLetter(ROLES.ADMIN)) {
     //   body = { ...body, ...adminBody() };
@@ -520,19 +517,18 @@ const List = () => {
     }
   };
 
-  const toggleColumn = (accessor: string) => {
-    const updatedColumns = state.visibleColumns?.map((col) =>
-      col.accessor === accessor ? { ...col, visible: !col.visible } : col,
-    );
-    setState({ visibleColumns: updatedColumns });
-  };
+  const clearFilter = () => {
+    console.log("clearFilter");
 
-  const toggleAllColumns = (visible: boolean) => {
-    const updatedColumns = state.visibleColumns?.map((col) => ({
-      ...col,
-      visible: col.toggleable === false ? col.visible : visible,
-    }));
-    setState({ visibleColumns: updatedColumns });
+    setState({
+      search: "",
+      lead_source: null,
+      property_type: null,
+      status: null,
+      date: null,
+      role: null,
+      user: null,
+    });
   };
 
   const filteredColumns = state.visibleColumns
@@ -541,14 +537,14 @@ const List = () => {
 
   const columns = [
     {
-      accessor: "date",
+      accessor: "created_at",
       title: "Date",
       visible: true,
       toggleable: true,
-      sortable:true,
+      sortable: true,
       render: (row) => (
         <div
-          className="w-fit cursor-pointer "
+          className="w-fit cursor-pointer"
           onClick={(e) => {
             router.push(`/real-estate/lead/view/${row?.id}`);
           }}
@@ -558,14 +554,14 @@ const List = () => {
       ),
     },
     {
-      accessor: "property",
+      accessor: "title",
       title: "Property",
       visible: true,
       toggleable: true,
-      sortable:true,
+      sortable: true,
       render: (row) => (
         <div
-          className="w-fit cursor-pointer "
+          className="w-fit cursor-pointer"
           onClick={(e) => {
             router.push(`/real-estate/lead/view/${row?.id}`);
           }}
@@ -580,6 +576,57 @@ const List = () => {
     //   title: "Property Type",
     //   visible: true,
     //   toggleable: true,
+    //   render: (row: any) => {
+    //     const property_type = row.property_type;
+    //     if (!property_type || property_type?.length === 0) {
+    //       return <span className="text-gray-400">-</span>;
+    //     }
+
+    //     const firstType = property_type[0];
+    //     const others = property_type.slice(1);
+    //     const maxShow = 3;
+    //     const remaining = others.length - maxShow;
+    //     const visibleTypes = others.slice(0, maxShow);
+    //     const hiddenTypes = others.slice(maxShow);
+
+    //     return (
+    //       <div className="flex items-center gap-2">
+    //         {/* First type text */}
+    //         <span
+    //           title={firstType}
+    //           className="text-sm text-gray-700 dark:text-gray-300"
+    //         >
+    //           {truncateText(firstType)}
+    //         </span>
+
+    //         {/* Avatars */}
+    //         <div className="flex items-center -space-x-2">
+    //           {visibleTypes?.map((type: string, index: number) => (
+    //             <div key={index} className="group relative z-10">
+    //               <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
+    //                 {type?.slice(0, 2)?.toUpperCase()}
+    //               </div>
+    //               {/* Tooltip */}
+    //               <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+    //                 {type}
+    //               </div>
+    //             </div>
+    //           ))}
+    //           {remaining > 0 && (
+    //             <div className="group relative z-10">
+    //               <div className="flex h-7 w-7  items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
+    //                 +{remaining}
+    //               </div>
+    //               {/* Remaining tooltip */}
+    //               <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
+    //                 {hiddenTypes.join(", ")}
+    //               </div>
+    //             </div>
+    //           )}
+    //         </div>
+    //       </div>
+    //     );
+    //   },
     // },
 
     {
@@ -587,43 +634,21 @@ const List = () => {
       title: "Customer Name",
       visible: true,
       toggleable: true,
-      sortable:true,
+      sortable: true,
       render: (row) => (
         <span title={row?.full_name}>{truncateText(row?.full_name)}</span>
       ),
     },
 
-    {
-      accessor: "email",
-      title: "Email",
+    // {
+    //   accessor: "email",
+    //   title: "Email",
 
-      visible: true,
-      toggleable: true,
-      sortable:true,
-      render: (row) => (
-        <span title={row?.email}>{truncateText(row?.email)}</span>
-      ),
-    },
-
-    {
-      accessor: "created_by",
-      title: "Created By",
-      visible: true,
-      toggleable: true,
-      render: (row) => (
-        <span title={row?.created_by}>{truncateText(row?.created_by)}</span>
-      ),
-    },
-
-    {
-      accessor: "assigned_by",
-      title: "Assigned By",
-      visible: true,
-      toggleable: true,
-      render: (row) => (
-        <span title={row?.assigned_by}>{truncateText(row?.assigned_by)}</span>
-      ),
-    },
+    //   visible: true,
+    //   toggleable: true,
+    //   sortable: true,
+    //   render: (row) => <span title={row?.email}>{row?.email}</span>,
+    // },
 
     {
       accessor: "assigned_to",
@@ -640,9 +665,16 @@ const List = () => {
       title: "Lead Source",
       visible: true,
       toggleable: true,
-      render: (row) => (
-        <span title={row?.lead_source}>{truncateText(row?.lead_source)}</span>
-      ),
+      render: (row) => {
+     
+        const label = row?.lead_source?.name || row?.lead_source;
+        const cls = sourceConfig[label] ?? "bg-gray-100 text-gray-600";
+        return (
+          <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>
+            {label || "-"}
+          </span>
+        );
+      },
     },
     {
       accessor: "status",
@@ -650,9 +682,17 @@ const List = () => {
 
       visible: true,
       toggleable: true,
-      render: (row) => (
-        <span title={row?.status}>{truncateText(row?.status)}</span>
-      ),
+      render: (row) => {
+        const cls =
+          statusConfig[row?.status?.name] ?? "bg-gray-100 text-gray-600";
+        return (
+          <span
+            className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}
+          >
+            {capitalizeFLetter(row?.status?.name)}
+          </span>
+        );
+      },
     },
 
     {
@@ -692,13 +732,13 @@ const List = () => {
             <Eye className="h-4 w-4" />
           </button>
 
-          <button
+          {/* <button
             className="flex text-success"
             onClick={(e) => handleStatus(row)}
             title="Change Lead Status"
           >
             <CheckCircle className="h-4 w-4" />
-          </button>
+          </button> */}
 
           <button
             className="flex text-primary"
@@ -712,9 +752,9 @@ const List = () => {
 
           <button
             type="button"
-            className="flex hover:text-danger"
-            title="Delete Lead"
+            className="flex text-danger"
             onClick={(e) => handleDelete(row)}
+            title="Delete Lead"
           >
             <IconTrashLines className="h-4 w-4" />
           </button>
@@ -736,27 +776,27 @@ const List = () => {
       <div className=" mb-3 flex items-center justify-between gap-5">
         <div className=" items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
-            Lead List
+            Booking List
           </h5>
           <p className="text-gray-600 dark:text-gray-400">
-            Manage Lead listings and opportunities
+            Manage Booking listings
           </p>
         </div>
-        <div className="flex gap-5">
+        {/* <div className="flex gap-5">
           <button
             type="button"
-            className="btn btn-dred  w-full border-none md:mb-0 md:w-auto"
+            className="btn btn-dred w-full border-none md:mb-0 md:w-auto"
             onClick={() => router.push("/real-estate/lead/create")}
           >
             + Create
           </button>
-        </div>
+        </div> */}
       </div>
 
-      {/* <div className="mb-6 flex gap-4">
-        <div
+      <div className="mb-6 flex gap-4">
+        {/* <div
           onClick={() => {
-            setState({ statusFilter: null });
+            setState({ status: null });
           }}
           className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -767,7 +807,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.total || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Total Leads
@@ -777,7 +817,7 @@ const List = () => {
         </div>
         <div
           onClick={() =>
-            setState({ statusFilter: { value: "approved", label: "Approved" } })
+            setState({ status: { value: "won", label: "Won" } })
           }
           className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -788,7 +828,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.won_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Won Leads
@@ -798,7 +838,7 @@ const List = () => {
         </div>
         <div
           onClick={() =>
-            setState({ statusFilter: { value: "pending", label: "Pending" } })
+            setState({ status: { value: "contacted", label: "Contacted" } })
           }
           className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -809,15 +849,18 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                {state.statCount?.contacted_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Lost Leads
+                Contacted Leads
               </p>
             </div>
           </div>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700">
+        <div className="cursor-pointer rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700" 
+         onClick={() =>
+            setState({ status: { value: "lost", label: "Lost" } })
+          }>
           <div className="flex items-center gap-5">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
               <Clock className="h-10 w-10 text-red-600" />
@@ -825,53 +868,20 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.total || 0}
+                 {state.statCount?.lost_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Lost Leads
               </p>
             </div>
           </div>
-        </div>
-      </div> */}
+        </div> */}
+      </div>
 
       <div className="mb-5 rounded-2xl ">
         <div className="flex items-center justify-between gap-5">
-          {state.group !== "Admin" && state.group !== "Seller" ? (
-            <>
-              <div className="mt-2">
-                <CheckboxInput
-                  type="checkbox"
-                  checked={state.leadType == "created"}
-                  onChange={() =>
-                    setState({
-                      leadType: "created",
-                    })
-                  }
-                  label="Created Leads"
-                />
-              </div>
-
-              <div className="mt-2">
-                <CheckboxInput
-                  type="checkbox"
-                  checked={state.leadType == "assinged"}
-                  onChange={() =>
-                    setState({
-                      leadType: "assinged",
-                    })
-                  }
-                  label="Assinged Leads"
-                />
-              </div>
-            </>
-          ) : (
-            []
-          )}
-
           <TextInput
             type="text"
-            className="w-100 form-input"
             placeholder="Search..."
             value={state.search}
             onChange={(e) => setState({ search: e.target.value })}
@@ -891,27 +901,37 @@ const List = () => {
           <CustomSelect
             value={state.lead_source}
             onChange={(e) => setState({ lead_source: e })}
-            placeholder={"Select Lead Source"}
-            options={LEAD_SOURCE_OPTIONS}
+            placeholder={"Lead Source"}
+            options={state.leadSourceList}
             error={state.errors?.lead_source}
             isClearable={true}
           />
 
-          <CustomSelect
+          {/* <CustomSelect
             value={state.status}
             onChange={(e) => setState({ status: e })}
-            placeholder={"Select Status"}
+            placeholder={"Status"}
             options={STATUS_OPTIONS}
             error={state.errors?.status}
             required
             className="w-full"
+          /> */}
+
+          <CustomSelect
+            value={state.leadType}
+            onChange={(e) => setState({ leadType: e })}
+            placeholder={"All Leads"}
+            options={[
+              { value: "own", label: "Own Leads" },
+              { value: "assigned", label: "Assigned Leads" },
+            ]}
+            isClearable={true}
           />
 
           {/* {state.group == "Admin" && (
-          <>
-           
+            <>
               <CustomSelect
-                placeholder="Select Role"
+                placeholder="Role"
                 value={state.role}
                 onChange={(e) => {
                   getuserList(e);
@@ -919,29 +939,16 @@ const List = () => {
                 }}
                 options={state.groupList}
               />
-         
 
-           
               <CustomSelect
-                placeholder="Select Created by User"
-                value={state.created_by_user}
-                onChange={(e) => setState({ created_by_user: e })}
+                placeholder="user"
+                value={state.user}
+                onChange={(e) => setState({ user: e })}
                 options={state.userList}
-                disabled={state.assigned_to_user ? true : false}
+                disabled={!state.role}
               />
-           
-
-            
-              <CustomSelect
-                placeholder="Select Assigned to User"
-                value={state.assigned_to_user}
-                onChange={(e) => setState({ assigned_to_user: e })}
-                options={state.userList}
-                disabled={state.created_by_user ? true : false}
-              />
-           
-          </>
-        )} */}
+            </>
+          )} */}
 
           <CustomeDatePicker
             value={state.date}
@@ -950,40 +957,92 @@ const List = () => {
             showTimeSelect={false}
           />
 
-         { state.group == "Admin" && 
-         <button
-            onClick={() => setState({ showFilterModal: true })}
-            className="flex items-center gap-4 rounded-lg border bg-white p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 "
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-            Filter
+          {state.group == "Admin" && (
+            <button
+              onClick={() => setState({ showFilterModal: true })}
+              className="flex items-center gap-4 rounded-lg border bg-white p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 "
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Filter
+            </button>
+          )}
+          {/*        
+        <div className="align-end">
+          <button type="button" className="mt-2 text-dred flex gap-1">
+            <X size={13} className="mt-[2px]" />Clear Filter 
           </button>
-          }
-
-          {/*<div>
-          <button type="button" className="btn btn-dred">
-            Clear Filter
-          </button>
-        </div>*/}
+        </div> */}
         </div>
       </div>
 
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
-          <div className="flex items-start justify-between mb-4">
+          <div className="mb-4 flex items-start justify-between">
             <FilterChips
               chips={[
-                ...(state.search ? [{ label: `Search: ${state.search}`, onRemove: () => setState({ search: "" }) }] : []),
-                ...(state.lead_source ? [{ label: `Source: ${state.lead_source.label}`, onRemove: () => setState({ lead_source: null }) }] : []),
-                ...(state.status ? [{ label: `Status: ${state.status.label}`, onRemove: () => setState({ status: null }) }] : []),
-                ...(state.date ? [{ label: `Date: ${commonDateFormat(state.date)}`, onRemove: () => setState({ date: null }) }] : []),
-                ...(state.role ? [{ label: `Role: ${state.role.label}`, onRemove: () => setState({ role: null, created_by_user: null, assigned_to_user: null }) }] : []),
-                ...(state.created_by_user ? [{ label: `Created By: ${state.created_by_user.label}`, onRemove: () => setState({ created_by_user: null }) }] : []),
-                ...(state.assigned_to_user ? [{ label: `Assigned To: ${state.assigned_to_user.label}`, onRemove: () => setState({ assigned_to_user: null }) }] : []),
+                ...(state.search
+                  ? [
+                      {
+                        label: `Search: ${state.search}`,
+                        onRemove: () => setState({ search: "" }),
+                      },
+                    ]
+                  : []),
+                ...(state.lead_source
+                  ? [
+                      {
+                        label: `Source: ${state.lead_source.label}`,
+                        onRemove: () => setState({ lead_source: null }),
+                      },
+                    ]
+                  : []),
+                ...(state.status
+                  ? [
+                      {
+                        label: `Status: ${state.status.label}`,
+                        onRemove: () => setState({ status: null }),
+                      },
+                    ]
+                  : []),
+                ...(state.date
+                  ? [
+                      {
+                        label: `Date: ${commonDateFormat(state.date)}`,
+                        onRemove: () => setState({ date: null }),
+                      },
+                    ]
+                  : []),
+                ...(state.role
+                  ? [
+                      {
+                        label: `Role: ${state.role.label}`,
+                        onRemove: () => setState({ role: null, user: null }),
+                      },
+                    ]
+                  : []),
+                ...(state.user
+                  ? [
+                      {
+                        label: `User: ${state.user.label}`,
+                        onRemove: () => setState({ user: null }),
+                      },
+                    ]
+                  : []),
               ]}
-              onClearAll={() => setState({ search: "", lead_source: null, status: null, date: null, role: null, created_by_user: null, assigned_to_user: null })}
+              onClearAll={() =>
+                setState({
+                  search: "",
+                  lead_source: null,
+                  status: null,
+                  date: null,
+                  role: null,
+                  user: null,
+                })
+              }
             />
-            <div className="ml-auto text-sm text-black">{state.total} Leads found</div>
+            <div className="ml-auto text-sm text-black">
+              {state.total} Leads found
+            </div>
           </div>
           <DataTable
             className="table-responsive"
@@ -999,18 +1058,18 @@ const List = () => {
             paginationText={({ from, to, totalRecords }) =>
               `Showing  ${from} to ${to} of ${totalRecords} entries`
             }
-             sortStatus={{
-                  columnAccessor: state.sortBy,
-                  direction: state.sortOrder as "asc" | "desc",
-                }}
-                onSortStatusChange={({ columnAccessor, direction }) => {
-                  setState({
-                    sortBy: columnAccessor,
-                    sortOrder: direction,
-                    page: 1,
-                  });
-                  leadList(1, columnAccessor, direction);
-                }}
+            sortStatus={{
+              columnAccessor: state.sortBy,
+              direction: state.sortOrder as "asc" | "desc",
+            }}
+            onSortStatusChange={({ columnAccessor, direction }) => {
+              setState({
+                sortBy: columnAccessor,
+                sortOrder: direction,
+                page: 1,
+              });
+              leadList(1, columnAccessor, direction);
+            }}
             style={{ zIndex: 0 }}
           />
         </div>
@@ -1018,7 +1077,7 @@ const List = () => {
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
-            className={`btn  border-none p-2 ${
+            className={`btn border-none p-2 ${
               !state.previous ? "btn-disabled" : "btn-dred"
             }`}
           >
@@ -1027,7 +1086,7 @@ const List = () => {
           <button
             disabled={!state.next}
             onClick={handleNextPage}
-            className={`btn  border-none p-2 ${
+            className={`btn border-none p-2 ${
               !state.next ? "btn-disabled" : "btn-dred"
             }`}
           >
@@ -1078,7 +1137,7 @@ const List = () => {
               <div className="mt-8 flex items-center justify-end">
                 <button
                   type="button"
-                  className="btn btn-outline-primary gap-2"
+                  className="btn border-dred hover:btn-mred gap-2"
                   onClick={() => {
                     clearData();
                   }}
@@ -1090,7 +1149,7 @@ const List = () => {
                   onClick={() =>
                     state.editId ? updateProject() : createProject()
                   }
-                  className="btn btn-dred ltr:ml-4 rtl:mr-4"
+                  className="btn btn-dred border-none ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
                 </button>
@@ -1119,7 +1178,7 @@ const List = () => {
               {state.group == "Admin" && (
                 <>
                   <CustomSelect
-                    placeholder="Select Role"
+                    placeholder="Role"
                     value={state.role}
                     onChange={(e) => {
                       getuserList(e);
@@ -1129,19 +1188,11 @@ const List = () => {
                   />
 
                   <CustomSelect
-                    placeholder="Select Created by User"
-                    value={state.created_by_user}
-                    onChange={(e) => setState({ created_by_user: e })}
+                    placeholder="user"
+                    value={state.user}
+                    onChange={(e) => setState({ user: e })}
                     options={state.userList}
-                    disabled={!state.role || !!state.assigned_to_user}
-                  />
-
-                  <CustomSelect
-                    placeholder="Select Assigned to User"
-                    value={state.assigned_to_user}
-                    onChange={(e) => setState({ assigned_to_user: e })}
-                    options={state.userList}
-                    disabled={!state.role || !!state.created_by_user}
+                    disabled={!state.role}
                   />
                 </>
               )}
@@ -1185,7 +1236,7 @@ const List = () => {
                 onChange={(e) => setState({ newStatus: e })}
                 className="z-100"
                 placeholder="Select Status"
-                options={STATUS_OPTIONS}
+                options={state.leadStatusList}
               />
             </div>
             <div className="flex items-center justify-end gap-3 pb-0 pt-16">
@@ -1209,4 +1260,4 @@ const List = () => {
   );
 };
 
-export default PrivateRouter(List);
+export default PrivateRouter(BookingList);

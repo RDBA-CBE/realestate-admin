@@ -60,7 +60,7 @@ const auth = {
 
   forget_password: (body: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `register/`;
+      let url = `password-reset/request_reset/`;
       instance()
         .post(url, body)
         .then((res) => {

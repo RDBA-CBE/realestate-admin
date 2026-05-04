@@ -47,9 +47,9 @@ import {
 import { Checkbox, Popover, Text } from "@mantine/core";
 import {
   FILTER_ROLES,
-  LEAD_SOURCE_OPTIONS,
   ROLES,
-  STATUS_OPTIONS,
+  sourceConfig,
+  statusConfig,
 } from "@/utils/constant.utils";
 import CustomeDatePicker from "@/components/datePicker";
 import { clear, group } from "console";
@@ -90,6 +90,8 @@ const List = () => {
     groupList();
     setState({ visibleColumns: columns });
     statCount();
+    leadSourceList();
+    leadStatusList();
   }, []);
 
   useEffect(() => {
@@ -136,6 +138,18 @@ const List = () => {
     }
   };
 
+  const leadStatusList = async () => {
+    try {
+      const res: any = await Models.leadStatus.list(1, { pagination: "No" });
+      const dropdownList = Dropdown(res.results, "name");
+      setState({
+        leadStatusList: dropdownList,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
   const catListLoadMore = async () => {
     try {
       if (state.categoryNext) {
@@ -176,7 +190,11 @@ const List = () => {
     }
   };
 
-  const leadList = async (page, sortBy = state.sortBy, sortOrder = state.sortOrder) => {
+  const leadList = async (
+    page,
+    sortBy = state.sortBy,
+    sortOrder = state.sortOrder,
+  ) => {
     try {
       const body = bodyData();
       if (sortBy) {
@@ -184,9 +202,10 @@ const List = () => {
       }
       const res: any = await Models.lead.list(page, body);
       const data = res?.results?.map((item) => ({
+        company_name: item?.company_name,
         full_name: item?.full_name,
-        lead_source: capitalizeFLetter(item?.lead_source),
-        status: capitalizeFLetter(item?.status),
+        lead_source: item?.lead_source_info,
+        status: item?.status_info,
         id: item?.id,
         date: commonDateFormat(item?.created_at),
         email: item?.email,
@@ -304,7 +323,7 @@ const List = () => {
       () => {
         Swal.fire("Cancelled", "Your Record is safe :)", "info");
       },
-      "Are you sure want to delete project?",
+      "Are you sure want to delete lead?",
     );
   };
 
@@ -320,6 +339,18 @@ const List = () => {
       }));
       setState({
         userList: dropdown,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const leadSourceList = async () => {
+    try {
+      const res: any = await Models.leadSource.list(1, { pagination: "No" });
+      const dropdownList = Dropdown(res.results, "name");
+      setState({
+        leadSourceList: dropdownList,
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -372,6 +403,8 @@ const List = () => {
       sellerList(1);
     }
   };
+
+  console.log("state.status", state.status);
 
   const bodyData = () => {
     const userId = localStorage.getItem("userId");
@@ -504,32 +537,36 @@ const List = () => {
     });
   };
 
-  const toggleColumn = (accessor: string) => {
-    const updatedColumns = state.visibleColumns?.map((col) =>
-      col.accessor === accessor ? { ...col, visible: !col.visible } : col,
-    );
-    setState({ visibleColumns: updatedColumns });
-  };
-
-  const toggleAllColumns = (visible: boolean) => {
-    const updatedColumns = state.visibleColumns?.map((col) => ({
-      ...col,
-      visible: col.toggleable === false ? col.visible : visible,
-    }));
-    setState({ visibleColumns: updatedColumns });
-  };
-
   const filteredColumns = state.visibleColumns
     ?.filter((col) => col.visible !== false)
     ?.map(({ visible, toggleable, ...col }) => col);
 
   const columns = [
+
+    // {
+    //   accessor: "company_name",
+    //   title: "Company Name",
+    //   visible: true,
+    //   toggleable: true,
+    //   sortable: true,
+    //   render: (row) => (
+    //     <div
+    //       className="w-fit cursor-pointer"
+    //       onClick={(e) => {
+    //         router.push(`/real-estate/lead/view/${row?.id}`);
+    //       }}
+    //     >
+    //       <div>{row?.company_name}</div>
+    //     </div>
+    //   ),
+    // },
     {
       accessor: "created_at",
       title: "Date",
       visible: true,
       toggleable: true,
-      sortable:true,
+      sortable: true,
+      width: 150,
       render: (row) => (
         <div
           className="w-fit cursor-pointer"
@@ -546,7 +583,7 @@ const List = () => {
       title: "Property",
       visible: true,
       toggleable: true,
-      sortable:true,
+      sortable: true,
       render: (row) => (
         <div
           className="w-fit cursor-pointer"
@@ -622,23 +659,21 @@ const List = () => {
       title: "Customer Name",
       visible: true,
       toggleable: true,
-      sortable:true,
+      sortable: true,
       render: (row) => (
         <span title={row?.full_name}>{truncateText(row?.full_name)}</span>
       ),
     },
 
-    {
-      accessor: "email",
-      title: "Email",
+    // {
+    //   accessor: "email",
+    //   title: "Email",
 
-      visible: true,
-      toggleable: true,
-      sortable:true,
-      render: (row) => (
-        <span title={row?.email}>{(row?.email)}</span>
-      ),
-    },
+    //   visible: true,
+    //   toggleable: true,
+    //   sortable: true,
+    //   render: (row) => <span title={row?.email}>{row?.email}</span>,
+    // },
 
     {
       accessor: "assigned_to",
@@ -655,19 +690,33 @@ const List = () => {
       title: "Lead Source",
       visible: true,
       toggleable: true,
-      render: (row) => (
-        <span title={row?.lead_source}>{truncateText(row?.lead_source)}</span>
-      ),
+      render: (row) => {
+     
+        const label = row?.lead_source?.name || row?.lead_source;
+        const cls = sourceConfig[label] ?? "bg-gray-100 text-gray-600";
+        return (
+          <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>
+            {label || "-"}
+          </span>
+        );
+      },
     },
     {
       accessor: "status",
       title: "Status",
-
       visible: true,
       toggleable: true,
-      render: (row) => (
-        <span title={row?.status}>{truncateText(row?.status)}</span>
-      ),
+      render: (row) => {
+        const cls =
+          statusConfig[row?.status?.name] ?? "bg-gray-100 text-gray-600";
+        return (
+          <span
+            className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}
+          >
+            {capitalizeFLetter(row?.status?.name)}
+          </span>
+        );
+      },
     },
 
     {
@@ -738,14 +787,6 @@ const List = () => {
     },
   ];
 
-  const visibleCount = state.visibleColumns?.filter(
-    (col) => col.visible,
-  ).length;
-
-  const totalToggleable = state.visibleColumns?.filter(
-    (col) => col?.toggleable !== false,
-  ).length;
-
   return (
     <>
       <div className=" mb-3 flex items-center justify-between gap-5">
@@ -791,9 +832,7 @@ const List = () => {
           </div>
         </div>
         <div
-          onClick={() =>
-            setState({ status: { value: "won", label: "Won" } })
-          }
+          onClick={() => setState({ status: { value: 6, label: "Won" } })}
           className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
           <div className="flex items-center gap-5 ">
@@ -812,9 +851,7 @@ const List = () => {
           </div>
         </div>
         <div
-          onClick={() =>
-            setState({ status: { value: "contacted", label: "Contacted" } })
-          }
+          onClick={() => setState({ status: { value: 2, label: "Contacted" } })}
           className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
           <div className="flex items-center gap-5">
@@ -832,10 +869,10 @@ const List = () => {
             </div>
           </div>
         </div>
-        <div className="cursor-pointer rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700" 
-         onClick={() =>
-            setState({ status: { value: "lost", label: "Lost" } })
-          }>
+        <div
+          className="cursor-pointer rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+          onClick={() => setState({ status: { value: 7, label: "Lost" } })}
+        >
           <div className="flex items-center gap-5">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
               <Clock className="h-10 w-10 text-red-600" />
@@ -843,7 +880,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                 {state.statCount?.lost_count || 0}
+                {state.statCount?.lost_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Lost Leads
@@ -877,7 +914,7 @@ const List = () => {
             value={state.lead_source}
             onChange={(e) => setState({ lead_source: e })}
             placeholder={"Lead Source"}
-            options={LEAD_SOURCE_OPTIONS}
+            options={state.leadSourceList}
             error={state.errors?.lead_source}
             isClearable={true}
           />
@@ -886,7 +923,7 @@ const List = () => {
             value={state.status}
             onChange={(e) => setState({ status: e })}
             placeholder={"Status"}
-            options={STATUS_OPTIONS}
+            options={state.leadStatusList}
             error={state.errors?.status}
             required
             className="w-full"
@@ -932,14 +969,15 @@ const List = () => {
             showTimeSelect={false}
           />
 
-          {state.group == "Admin" &&
-          <button
-            onClick={() => setState({ showFilterModal: true })}
-            className="flex items-center gap-4 rounded-lg border bg-white p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 "
-          >
-            <SlidersHorizontal className="h-4 w-4" />
-            Filter
-          </button>}
+          {state.group == "Admin" && (
+            <button
+              onClick={() => setState({ showFilterModal: true })}
+              className="flex items-center gap-4 rounded-lg border bg-white p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 "
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Filter
+            </button>
+          )}
           {/*        
         <div className="align-end">
           <button type="button" className="mt-2 text-dred flex gap-1">
@@ -951,19 +989,72 @@ const List = () => {
 
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
-          <div className="flex items-start justify-between mb-4">
+          <div className="mb-4 flex items-start justify-between">
             <FilterChips
               chips={[
-                ...(state.search ? [{ label: `Search: ${state.search}`, onRemove: () => setState({ search: "" }) }] : []),
-                ...(state.lead_source ? [{ label: `Source: ${state.lead_source.label}`, onRemove: () => setState({ lead_source: null }) }] : []),
-                ...(state.status ? [{ label: `Status: ${state.status.label}`, onRemove: () => setState({ status: null }) }] : []),
-                ...(state.date ? [{ label: `Date: ${commonDateFormat(state.date)}`, onRemove: () => setState({ date: null }) }] : []),
-                ...(state.role ? [{ label: `Role: ${state.role.label}`, onRemove: () => setState({ role: null, user: null }) }] : []),
-                ...(state.user ? [{ label: `User: ${state.user.label}`, onRemove: () => setState({ user: null }) }] : []),
+                ...(state.search
+                  ? [
+                      {
+                        label: `Search: ${state.search}`,
+                        onRemove: () => setState({ search: "" }),
+                      },
+                    ]
+                  : []),
+                ...(state.lead_source
+                  ? [
+                      {
+                        label: `Source: ${state.lead_source.label}`,
+                        onRemove: () => setState({ lead_source: null }),
+                      },
+                    ]
+                  : []),
+                ...(state.status
+                  ? [
+                      {
+                        label: `Status: ${state.status.label}`,
+                        onRemove: () => setState({ status: null }),
+                      },
+                    ]
+                  : []),
+                ...(state.date
+                  ? [
+                      {
+                        label: `Date: ${commonDateFormat(state.date)}`,
+                        onRemove: () => setState({ date: null }),
+                      },
+                    ]
+                  : []),
+                ...(state.role
+                  ? [
+                      {
+                        label: `Role: ${state.role.label}`,
+                        onRemove: () => setState({ role: null, user: null }),
+                      },
+                    ]
+                  : []),
+                ...(state.user
+                  ? [
+                      {
+                        label: `User: ${state.user.label}`,
+                        onRemove: () => setState({ user: null }),
+                      },
+                    ]
+                  : []),
               ]}
-              onClearAll={() => setState({ search: "", lead_source: null, status: null, date: null, role: null, user: null })}
+              onClearAll={() =>
+                setState({
+                  search: "",
+                  lead_source: null,
+                  status: null,
+                  date: null,
+                  role: null,
+                  user: null,
+                })
+              }
             />
-            <div className="ml-auto text-sm text-black">{state.total} Leads found</div>
+            <div className="ml-auto text-sm text-black">
+              {state.total} Leads found
+            </div>
           </div>
           <DataTable
             className="table-responsive"
@@ -980,17 +1071,17 @@ const List = () => {
               `Showing  ${from} to ${to} of ${totalRecords} entries`
             }
             sortStatus={{
-                  columnAccessor: state.sortBy,
-                  direction: state.sortOrder as "asc" | "desc",
-                }}
-                onSortStatusChange={({ columnAccessor, direction }) => {
-                  setState({
-                    sortBy: columnAccessor,
-                    sortOrder: direction,
-                    page: 1,
-                  });
-                  leadList(1, columnAccessor, direction);
-                }}
+              columnAccessor: state.sortBy,
+              direction: state.sortOrder as "asc" | "desc",
+            }}
+            onSortStatusChange={({ columnAccessor, direction }) => {
+              setState({
+                sortBy: columnAccessor,
+                sortOrder: direction,
+                page: 1,
+              });
+              leadList(1, columnAccessor, direction);
+            }}
             style={{ zIndex: 0 }}
           />
         </div>
@@ -1157,7 +1248,7 @@ const List = () => {
                 onChange={(e) => setState({ newStatus: e })}
                 className="z-100"
                 placeholder="Select Status"
-                options={STATUS_OPTIONS}
+                options={state.leadStatusList}
               />
             </div>
             <div className="flex items-center justify-end gap-3 pb-0 pt-16">

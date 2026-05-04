@@ -337,7 +337,7 @@ const list = () => {
                   </div>
                 ),
               },
-              { accessor: "properties_count", title: "No of Properties" },
+              // { accessor: "properties_count", title: "No of Properties" },
 
               {
                 accessor: "actions",

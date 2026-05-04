@@ -36,7 +36,8 @@ const ForgotPassword = () => {
       Success("Password reset link sent to your email");
       router.push("/auth/signin");
     } catch (error: any) {
-      Failure(error?.email?.[0] || error?.detail || "Something went wrong");
+      console.log("✌️error --->", error);
+      Failure(error?.error || error?.detail || "Something went wrong");
       setState({ btnLoading: false });
     }
   };

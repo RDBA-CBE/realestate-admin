@@ -111,7 +111,7 @@ const RegisterBoxed = () => {
                   Enter your details to register
                 </p>
               </div>
-              <form className=" dark:text-white " onSubmit={submitForm}>
+              <form className=" dark:text-white " onSubmit={submitForm} >
                 <div className="grid md:grid-cols-2 gap-5">
                 <TextInput
                   name="first_name"
@@ -137,6 +137,7 @@ const RegisterBoxed = () => {
                 />
                 <TextInput
                   name="email"
+                  id="email"
                   type="email"
                   title="Email"
                   placeholder="Enter Email"
@@ -167,7 +168,6 @@ const RegisterBoxed = () => {
                   placeholder={"Select Role"}
                   title={"Choose Role"}
                   options={[
-                    { value: "buyer", label: "Buyer" },
                     { value: "seller", label: "Seller" },
                     { value: "developer", label: "Developer" },
                     { value: "agent", label: "Agent" },
@@ -176,8 +176,11 @@ const RegisterBoxed = () => {
                   required
                   error={state.error?.user_type}
                 />
+                <div className="flex flex-col gap-1">
                 <TextInput
-                  id="Password"
+              
+                  name="password"
+                  id="password"
                   title="Password"
                   type={state.showPassword ? "text" : "password"}
                   placeholder="Enter Password"
@@ -198,12 +201,9 @@ const RegisterBoxed = () => {
                     setState({ showPassword: !state.showPassword })
                   }
                 />
-
-                </div>
-
                 {state.password && (
                   <p
-                    className={` text-sm ${
+                    className={`text-sm ${
                       state.passwordStrength === "weak"
                         ? "text-red-500"
                         : state.passwordStrength === "medium"
@@ -216,6 +216,11 @@ const RegisterBoxed = () => {
                     {state.passwordStrength === "strong" && "Strong password"}
                   </p>
                 )}
+                </div>
+
+                </div>
+
+               
 
                 {/* <TextInput
                   id="Password"
