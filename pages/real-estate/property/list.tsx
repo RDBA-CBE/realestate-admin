@@ -10,6 +10,7 @@ import {
   Failure,
   formatPriceRange,
   formatToINR,
+  buildFormData,
   showDeleteAlert,
   Success,
   truncateText,
@@ -67,6 +68,7 @@ import {
   Key,
   Clock,
   Verified,
+  Copy,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
@@ -100,27 +102,43 @@ const List = () => {
       render: (row) => (
         <div
           className="relative"
-          onMouseEnter={(e) => {
-            const rect = (
-              e.currentTarget as HTMLElement
-            ).getBoundingClientRect();
-            setTooltip({ row, x: rect.left, y: rect.top });
-          }}
-          onMouseLeave={() => setTooltip(null)}
+          
         >
           <div
             className="flex gap-3 font-semibold"
             onClick={() => handleView(row)}
           
           >
-            <div className="flex flex-col justify-between ">
+            <div className="flex flex-col justify-between "
+            onMouseEnter={(e) => {
+            const rect = (
+              e.currentTarget as HTMLElement
+            ).getBoundingClientRect();
+            setTooltip({ row, x: rect.left, y: rect.top });
+          }}
+          onMouseLeave={() => setTooltip(null)}
+          >
               <div>
                 <div className="cursor-pointer text-sm">
                   {truncateText(row.title)}
                 </div>
               </div>
             </div>
+            
           </div>
+          <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDuplicate(row);
+                      }}
+                      title="Duplicate Property"
+                      className="mt-1 w-fit text-xs font-medium text-blue-600 underline hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      disabled={state.duplicatingId === row?.id}
+                    >
+                      {state.duplicatingId === row?.id
+                        ? "Duplicating..."
+                        : "Duplicate"}
+                    </button>
         </div>
       ),
     },
@@ -1186,6 +1204,63 @@ const List = () => {
     const body: any = {};
     body.created_by = userId;
     return body;
+  };
+
+  const handleDuplicate = async (row) => {
+    try {
+      setState({ duplicatingId: row?.id });
+
+      const res: any = await Models.property.details(row?.id);
+
+      const body: any = {
+        title: `${res.title} (Copy)`,
+        description: res.description,
+        listing_type: res.listing_type,
+        status: res.status,
+        address: res.address,
+        city: res.city,
+        state: res.state,
+        country: res.country,
+        postal_code: res.postal_code,
+        latitude: res.latitude,
+        longitude: res.longitude,
+        total_area: res.total_area,
+        built_up_area: res.built_up_area,
+        carpet_area: res.carpet_area,
+        bedrooms: res.bedrooms,
+        bathrooms: res.bathrooms,
+        balconies: res.balconies,
+        floor_number: res.floor_number,
+        total_floors: res.total_floors,
+        built_year: res.built_year,
+        furnishing: res.furnishing,
+        parking: res.parking,
+        facing_direction: res.facing_direction,
+        minimum_price: res.minimum_price,
+        maximum_price: res.maximum_price,
+        publish: false,
+        is_approved: false,
+        project: res.project?.id,
+        developer: res.developer?.id,
+        agent: res.agent?.id,
+        amenities: res.amenities?.map((a) => a.id),
+        property_type: res.property_type?.map((t) => t.id),
+      };
+
+      // remove undefined/null keys
+      Object.keys(body).forEach((k) => {
+        if (body[k] === null || body[k] === undefined) delete body[k];
+      });
+
+      const formData = buildFormData(body);
+      await Models.property.create(formData);
+      propertyList(state.page);
+      Success("Property duplicated successfully");
+    } catch (error) {
+      Failure("Failed to duplicate property");
+    } finally {
+      setState({ duplicatingId: null });
+    }
   };
 
   const handleEdit = async (row) => {
