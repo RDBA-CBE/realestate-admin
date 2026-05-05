@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useEffect, useState } from "react";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
 import Tippy from "@tippyjs/react";
@@ -523,6 +525,19 @@ const List = () => {
     }
   };
 
+  const clearAllFilters = () => {
+    setState({
+      search: "",
+      lead_source: null,
+      status: null,
+      date: null,
+      role: null,
+      user: null,
+      recordType: null,
+      leadType: null,
+    });
+  };
+
   const clearFilter = () => {
     console.log("clearFilter");
 
@@ -675,15 +690,15 @@ const List = () => {
     //   render: (row) => <span title={row?.email}>{row?.email}</span>,
     // },
 
-    {
-      accessor: "assigned_to",
-      title: "Assigned To",
-      visible: true,
-      toggleable: true,
-      render: (row) => (
-        <span title={row?.assigned_to}>{truncateText(row?.assigned_to)}</span>
-      ),
-    },
+    // {
+    //   accessor: "assigned_to",
+    //   title: "Assigned To",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row) => (
+    //     <span title={row?.assigned_to}>{truncateText(row?.assigned_to)}</span>
+    //   ),
+    // },
 
     {
       accessor: "lead_source",
@@ -774,14 +789,14 @@ const List = () => {
             <IconEdit className="h-4 w-4" />
           </button>
 
-          <button
+          {/* <button
             type="button"
             className="flex text-danger"
             onClick={(e) => handleDelete(row)}
             title="Delete Lead"
           >
             <IconTrashLines className="h-4 w-4" />
-          </button>
+          </button> */}
         </div>
       ),
     },
@@ -1016,6 +1031,15 @@ const List = () => {
                       },
                     ]
                   : []),
+
+                ...(state.leadType
+                  ? [
+                      {
+                        label: `Records: ${state.leadType.label}`,
+                        onRemove: () => setState({ leadType: null }),
+                      },
+                    ]
+                  : []),
                 ...(state.date
                   ? [
                       {
@@ -1041,16 +1065,7 @@ const List = () => {
                     ]
                   : []),
               ]}
-              onClearAll={() =>
-                setState({
-                  search: "",
-                  lead_source: null,
-                  status: null,
-                  date: null,
-                  role: null,
-                  user: null,
-                })
-              }
+              onClearAll={clearAllFilters}
             />
             <div className="ml-auto text-sm text-black">
               {state.total} Leads found
@@ -1211,7 +1226,7 @@ const List = () => {
             </div>
             <div className="flex items-center justify-between py-3">
               <button
-                onClick={clearFilter}
+                onClick={clearAllFilters}
                 className="rounded px-3 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 Clear All

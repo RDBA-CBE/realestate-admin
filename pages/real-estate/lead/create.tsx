@@ -37,7 +37,7 @@ import {
   LISTING_TYPE_LIST,
   ROLES,
 } from "@/utils/constant.utils";
-import { Building, Computer, LucideHome, User2, User2Icon, Eye } from "lucide-react";
+import { Building, Computer, LucideHome, User2, User2Icon, Eye, ArrowLeft } from "lucide-react";
 import CustomeDatePicker from "@/components/datePicker";
 import CustomPhoneInput from "@/components/phoneInput";
 import Link from "next/link";
@@ -94,7 +94,8 @@ const CreateOpportunities = () => {
       
       const body = {
         developer: userId,
-        pagination:"No"
+        pagination:"No",
+        is_approved: true
       };
 
       const res: any = await Models.property.list(1, body);
@@ -434,8 +435,21 @@ const CreateOpportunities = () => {
               Your data journey starts here...
             </div>
           </div>
+          
         </div>
-        <div className="flex  flex-wrap items-center gap-3">
+
+        <div className="flex items-center gap-5">
+        <button
+            onClick={() => router.back()}
+            className="flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            <ArrowLeft className="h-4 w-4" /> Back
+          </button>
+          </div>
+
+        
+
+        {/* <div className="flex  flex-wrap items-center gap-3">
           <p>Assign To:</p>
           <CustomSelect
             value={state.assignRole}
@@ -460,16 +474,10 @@ const CreateOpportunities = () => {
             className="lg:w-[200px]"
           />
 
-          {/* <CustomSelect
-                        value={state.status}
-                        onChange={(e) => setState({ status: e })}
-                        placeholder={'Status'}
-                        options={state.statusList}
-                        error={state.errors?.status}
-                        required
-                        className="lg:w-[200px]"
-                    /> */}
-        </div>
+      
+        </div> */}
+
+
         {/* <div className="flex gap-5">
           <CustomSelect
             value={state.contactAssignRole}

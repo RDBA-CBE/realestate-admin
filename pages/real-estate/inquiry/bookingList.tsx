@@ -483,6 +483,8 @@ const BookingList = () => {
     });
   };
 
+  
+
   const handleStatus = async (row) => {
     setState({ statusRow: row, showStatusModal: true, newStatus: null });
   };
@@ -517,19 +519,20 @@ const BookingList = () => {
     }
   };
 
-  const clearFilter = () => {
-    console.log("clearFilter");
+  const clearAllFilters = () => {
+      setState({
+        search: "",
+        lead_source: null,
+        status: null,
+        date: null,
+        role: null,
+        user: null,
+        recordType: null,
+        leadType: null,
+      });
+    };
 
-    setState({
-      search: "",
-      lead_source: null,
-      property_type: null,
-      status: null,
-      date: null,
-      role: null,
-      user: null,
-    });
-  };
+  
 
   const filteredColumns = state.visibleColumns
     ?.filter((col) => col.visible !== false)
@@ -650,15 +653,15 @@ const BookingList = () => {
     //   render: (row) => <span title={row?.email}>{row?.email}</span>,
     // },
 
-    {
-      accessor: "assigned_to",
-      title: "Assigned To",
-      visible: true,
-      toggleable: true,
-      render: (row) => (
-        <span title={row?.assigned_to}>{truncateText(row?.assigned_to)}</span>
-      ),
-    },
+    // {
+    //   accessor: "assigned_to",
+    //   title: "Assigned To",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row) => (
+    //     <span title={row?.assigned_to}>{truncateText(row?.assigned_to)}</span>
+    //   ),
+    // },
 
     {
       accessor: "lead_source",
@@ -750,14 +753,14 @@ const BookingList = () => {
             <IconEdit className="h-4 w-4" />
           </button>
 
-          <button
+          {/* <button
             type="button"
             className="flex text-danger"
             onClick={(e) => handleDelete(row)}
             title="Delete Lead"
           >
             <IconTrashLines className="h-4 w-4" />
-          </button>
+          </button> */}
         </div>
       ),
     },
@@ -1004,6 +1007,14 @@ const BookingList = () => {
                       },
                     ]
                   : []),
+                ...(state.leadType
+                  ? [
+                      {
+                        label: `Records: ${state.leadType.label}`,
+                        onRemove: () => setState({ leadType: null }),
+                      },
+                    ]
+                  : []),
                 ...(state.date
                   ? [
                       {
@@ -1029,16 +1040,7 @@ const BookingList = () => {
                     ]
                   : []),
               ]}
-              onClearAll={() =>
-                setState({
-                  search: "",
-                  lead_source: null,
-                  status: null,
-                  date: null,
-                  role: null,
-                  user: null,
-                })
-              }
+              onClearAll={clearAllFilters}
             />
             <div className="ml-auto text-sm text-black">
               {state.total} Leads found
@@ -1199,7 +1201,7 @@ const BookingList = () => {
             </div>
             <div className="flex items-center justify-between py-3">
               <button
-                onClick={clearFilter}
+                onClick={clearAllFilters}
                 className="rounded px-3 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 Clear All

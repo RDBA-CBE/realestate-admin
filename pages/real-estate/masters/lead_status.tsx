@@ -184,6 +184,7 @@ const LeadStatus = () => {
               {
                 accessor: "actions",
                 title: "Actions",
+                textAlignment: "center",
                 render: (row: any) => (
                   <div className="mx-auto flex w-max items-center gap-4">
                     <button

@@ -34,6 +34,7 @@ import Link from "next/link";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
 import FilterChips from "@/components/FilterChips/FilterChips.component";
 import {
+  APPROVED_STATUS,
   FILTER_ADMINROLES,
   FILTER_ROLES,
   FRONTEND_URL,
@@ -64,6 +65,8 @@ import {
   Globe,
   Tag,
   Key,
+  Clock,
+  Verified,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
@@ -680,6 +683,7 @@ const List = () => {
     state.recordType,
     state.team,
     state.project,
+    state.approvedStatus
   ]);
 
   useEffect(() => {
@@ -773,6 +777,8 @@ const List = () => {
         image:
           item?.primary_image ??
           "/assets/images/real-estate/property-info-img1.png",
+        industry_name:item?.developer?.industry
+        // ...item
       }));
 
       setState({
@@ -1080,6 +1086,10 @@ const List = () => {
       body.publish = state.publish?.value == "Publish" ? "Yes" : "No";
     }
 
+    if (state.approvedStatus) {
+      body.is_approved = state.approvedStatus?.value == "Approved" ? true : false;
+    }
+
     if (state?.team == true) {
       body.team = state?.team;
     }
@@ -1276,6 +1286,22 @@ const List = () => {
     }
   };
 
+  const clearAllFilters = () => {
+    setState({
+      search: "",
+      property_type: null,
+      offer_type: null,
+      status: null,
+      publish: null,
+      role: null,
+      user: null,
+      approvedStatus: null,
+      recordType: null,
+      project: null,
+      team: null,
+    });
+  };
+
   const clearFilter = async () => {
     setState({
       search: "",
@@ -1357,9 +1383,7 @@ const List = () => {
 
       <div className="mb-6 flex gap-4">
         <div
-          onClick={() => {
-            setState({ offer_type: null });
-          }}
+          onClick={clearAllFilters}
           className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
           <div className="flex items-center gap-5">
@@ -1379,7 +1403,7 @@ const List = () => {
         </div>
         <div
           onClick={() =>
-            setState({ offer_type: { value: "sale", label: "Sale" } })
+            setState({ offer_type: { value: "sale", label: "Sale" }, approvedStatus: "" })
           }
           className="cursor-pointer rounded-lg border border-purple-200 bg-purple-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -1400,7 +1424,7 @@ const List = () => {
         </div>
         <div
           onClick={() =>
-            setState({ offer_type: { value: "lease", label: "Lease" } })
+            setState({ offer_type: { value: "lease", label: "Lease" } , approvedStatus: "" })
           }
           className="cursor-pointer  rounded-lg border border-sky-200 bg-sky-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -1419,23 +1443,47 @@ const List = () => {
             </div>
           </div>
         </div>
-        {/* <div className="rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700">
+        <div className="cursor-pointer rounded-lg border border-green-300 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+         onClick={() =>
+            setState({ approvedStatus: { value: "Approved", label: "Approved" }, offer_type: "" })
+          }
+          >
           <div className="flex items-center gap-5">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
-              <Clock className="h-10 w-10 text-red-600" />
+              <Verified className="h-10 w-10 text-green-600" />
             </div>
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.jobList?.filter((job) => job.priority == "0 - 30 Days")
-                  ?.length || 0}
+                 {state.statCount?.approved_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Urgent Job
+                Approved Properties
               </p>
             </div>
           </div>
-        </div> */}
+        </div>
+
+        <div className="cursor-pointer rounded-lg border border-yellow-300 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+         onClick={() =>
+            setState({ approvedStatus: { value: "Pending", label: "Pending" }, offer_type: "" })
+          }
+          >
+          <div className="flex items-center gap-5">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <Clock className="h-10 w-10 text-yellow-600" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                 {state.statCount?.pending_count || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Pending Properties
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Filter section */}
@@ -1469,7 +1517,7 @@ const List = () => {
           />
 
           <CustomSelect
-            placeholder="All Properties"
+            placeholder="All Records"
             value={state.recordType}
             onChange={getuserList}
             options={FILTER_ADMINROLES}
@@ -1547,6 +1595,14 @@ const List = () => {
                             },
                           ]
                         : []),
+                        ...(state.project
+                        ? [
+                            {
+                              label: `Project: ${state.project.label}`,
+                              onRemove: () => setState({ project: null }),
+                            },
+                          ]
+                        : []),
                       ...(state.property_type?.length > 0
                         ? state.property_type.map((pt: any) => ({
                             label: `Type: ${pt.label}`,
@@ -1557,6 +1613,14 @@ const List = () => {
                                 ),
                               }),
                           }))
+                        : []),
+                        ...(state.recordType
+                        ? [
+                            {
+                              label: `Records: ${state.recordType.label}`,
+                              onRemove: () => setState({ recordType: null }),
+                            },
+                          ]
                         : []),
                       ...(state.offer_type
                         ? [
@@ -1574,6 +1638,8 @@ const List = () => {
                             },
                           ]
                         : []),
+
+                        
                       ...(state.publish
                         ? [
                             {
@@ -1582,41 +1648,18 @@ const List = () => {
                             },
                           ]
                         : []),
-                      ...(state.role && state.group === "Admin"
+
+                      ...(state.approvedStatus
                         ? [
                             {
-                              label: `Role: ${state.role.label}`,
-                              onRemove: () =>
-                                setState({
-                                  role: {
-                                    value: "developer",
-                                    label: "Developer",
-                                  },
-                                  user: null,
-                                }),
+                              label: `Approved Status: ${state.approvedStatus.label}`,
+                              onRemove: () => setState({ approvedStatus: null }),
                             },
                           ]
                         : []),
-                      ...(state.user
-                        ? [
-                            {
-                              label: `User: ${state.user.label}`,
-                              onRemove: () => setState({ user: null }),
-                            },
-                          ]
-                        : []),
+                      
                     ]}
-                    onClearAll={() =>
-                      setState({
-                        search: "",
-                        property_type: null,
-                        offer_type: null,
-                        status: null,
-                        publish: null,
-                        role: null,
-                        user: null,
-                      })
-                    }
+                    onClearAll={clearAllFilters}
                   />
 
                   <div className="ml-auto flex items-center gap-3">
@@ -1893,22 +1936,28 @@ const List = () => {
                 onChange={(e) => setState({ offer_type: e })}
                 options={ListType}
               />
-              {/* <CustomSelect
+              <CustomSelect
                 placeholder="Property Status"
                 value={state.status}
                 onChange={(e) => setState({ status: e })}
                 options={Property_status}
-              /> */}
+              />
               <CustomSelect
                 placeholder="Publish or Draft"
                 value={state.publish}
                 onChange={(e) => setState({ publish: e })}
                 options={PROPERTY_STATUS}
               />
+              <CustomSelect
+                placeholder="Approved or Pending"
+                value={state.approvedStatus}
+                onChange={(e) => setState({ approvedStatus: e })}
+                options={APPROVED_STATUS}
+              />
             </div>
             <div className="flex items-center justify-between py-3">
               <button
-                onClick={clearFilter}
+                onClick={clearAllFilters}
                 className="rounded px-3 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 Clear All
@@ -1947,17 +1996,17 @@ const List = () => {
               </span>
             </div>
           )}
-          {tooltip.row?.developer && (
+          {tooltip.row.industry_name && (
             <div className="mb-1 flex items-start gap-2 text-xs">
               <span className="shrink-0 font-semibold text-gray-500">
                 Developer:
               </span>
               <span className="text-gray-800 dark:text-white">
-                {tooltip.row.developer}
+                {tooltip.row.industry_name}
               </span>
             </div>
           )}
-          {tooltip.row?.agent && (
+          {/* {tooltip.row?.agent && (
             <div className="flex items-start gap-2 text-xs">
               <span className="shrink-0 font-semibold text-gray-500">
                 Agent:
@@ -1966,7 +2015,7 @@ const List = () => {
                 {tooltip.row.agent ?? "-"}
               </span>
             </div>
-          )}
+          )} */}
         </div>
       )}
     </>

@@ -27,6 +27,9 @@ import {
   Wind,
   Car,
   IndianRupee,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 const PropertyDetail = () => {
@@ -36,6 +39,7 @@ const PropertyDetail = () => {
   const [state, setState] = useSetState({
     property: null,
     loading: true,
+    lightboxIndex: null,
   });
 
   useEffect(() => {
@@ -89,10 +93,10 @@ const PropertyDetail = () => {
     { label: "Updated By", value: p.updated_by },
     { label: "Created At", value: commonDateFormat(p.created_at) },
     { label: "Updated At", value: commonDateFormat(p.updated_at) },
-    { label: "Views", value: p.views_count ?? 0 },
+    // { label: "Views", value: p.views_count ?? 0 },
     { label: "Total Images", value: p.total_images ?? 0 },
-    { label: "Featured", value: p.is_featured ? "Yes" : "No" },
-    { label: "Verified", value: p.is_verified ? "Yes" : "No" },
+    // { label: "Featured", value: p.is_featured ? "Yes" : "No" },
+    // { label: "Verified", value: p.is_verified ? "Yes" : "No" },
   ];
 
   return (
@@ -120,25 +124,47 @@ const PropertyDetail = () => {
         {/* Left / Main Column */}
         <div className="space-y-5 xl:col-span-2">
 
-          {/* Images */}
-          <div className="panel overflow-hidden rounded-xl p-0">
+          {/* Images Gallery */}
+          <div className="panel overflow-hidden rounded-2xl p-3">
             {p.images?.length > 0 ? (
-              <>
-                <img
-                  src={p.images[0]?.image_url}
-                  alt={p.title}
-                  className="h-72 w-full object-cover"
-                />
+              <div className="flex h-[480px] gap-3">
+                {/* Primary large image */}
+                <div
+                  className="relative flex-1 cursor-pointer overflow-hidden rounded-2xl"
+                  onClick={() => setState({ lightboxIndex: 0 })}
+                >
+                  <img
+                    src={p.images[0]?.image_url}
+                    alt={p.title}
+                    className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                  />
+                </div>
+                {/* Right 2 thumbnails */}
                 {p.images.length > 1 && (
-                  <div className="grid grid-cols-4 gap-1 p-1">
-                    {p.images.slice(1, 5).map((img, i) => (
-                      <img key={i} src={img.image_url} alt="" className="h-20 w-full rounded object-cover" />
+                  <div className="flex w-[280px] shrink-0 flex-col gap-3">
+                    {p.images.slice(1, 3).map((img, i) => (
+                      <div
+                        key={i}
+                        className="relative flex-1 cursor-pointer overflow-hidden rounded-2xl"
+                        onClick={() => setState({ lightboxIndex: i + 1 })}
+                      >
+                        <img
+                          src={img.image_url}
+                          alt={`image-${i + 1}`}
+                          className="h-full w-full object-cover transition-transform duration-300 hover:scale-105"
+                        />
+                        {i === 1 && p.images.length > 3 && (
+                          <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50 text-xl font-bold text-white">
+                            + {p.images.length - 3} more
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}
-              </>
+              </div>
             ) : (
-              <div className="flex h-48 items-center justify-center bg-gray-100 text-base text-gray-400 dark:bg-gray-800">
+              <div className="flex h-48 items-center justify-center bg-gray-100 text-base text-gray-400 dark:bg-gray-800 rounded-2xl">
                 No Images Available
               </div>
             )}
@@ -303,6 +329,54 @@ const PropertyDetail = () => {
           </div>
         </div>
       </div>
+      {/* Lightbox */}
+      {state.lightboxIndex !== null && (
+        <div
+          className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/90"
+          onClick={() => setState({ lightboxIndex: null })}
+        >
+          {/* Close */}
+          <button
+            className="absolute right-5 top-5 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+            onClick={() => setState({ lightboxIndex: null })}
+          >
+            <X className="h-6 w-6" />
+          </button>
+
+          {/* Prev */}
+          {state.lightboxIndex > 0 && (
+            <button
+              className="absolute left-5 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+              onClick={(e) => { e.stopPropagation(); setState({ lightboxIndex: state.lightboxIndex - 1 }); }}
+            >
+              <ChevronLeft className="h-7 w-7" />
+            </button>
+          )}
+
+          {/* Image */}
+          <img
+            src={p.images[state.lightboxIndex]?.image_url}
+            alt=""
+            className="max-h-[85vh] max-w-[85vw] rounded-lg object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+
+          {/* Next */}
+          {state.lightboxIndex < p.images.length - 1 && (
+            <button
+              className="absolute right-5 rounded-full bg-white/10 p-2 text-white hover:bg-white/20"
+              onClick={(e) => { e.stopPropagation(); setState({ lightboxIndex: state.lightboxIndex + 1 }); }}
+            >
+              <ChevronRight className="h-7 w-7" />
+            </button>
+          )}
+
+          {/* Counter */}
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 rounded-full bg-black/50 px-4 py-1 text-sm text-white">
+            {state.lightboxIndex + 1} / {p.images.length}
+          </div>
+        </div>
+      )}
     </>
   );
 };

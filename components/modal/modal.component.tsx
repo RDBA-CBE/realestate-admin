@@ -41,7 +41,7 @@ export default function Modal(props: any) {
 
         {/* Modal Content */}
         <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full items-center justify-center px-4 py-8">
+          <div className="flex min-h-full items-center justify-center px-4 py-8" style={{ overflowY: 'visible' }}>
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -54,7 +54,7 @@ export default function Modal(props: any) {
               <Dialog.Panel
                 className={`panel w-full ${
                   isFullWidth ? "" : maxWidth
-                } overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark`}
+                } overflow-visible rounded-lg border-0 p-0 text-black dark:text-white-dark`}
               >
                 {/* HEADER */}
                 {/* <div className="flex items-center justify-between bg-[#fbfbfb] dark:bg-[#121c2c] px-5 py-3 border-b border-gray-200 dark:border-gray-700">

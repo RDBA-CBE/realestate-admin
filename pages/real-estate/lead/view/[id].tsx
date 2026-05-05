@@ -1,3 +1,5 @@
+"use client"
+
 import React, { useEffect } from "react";
 
 import { useRouter } from "next/router";
@@ -341,19 +343,14 @@ const View_opportunity = (props: any) => {
     <div className="  relative  h-auto   ">
       <div className="  flex flex-wrap justify-between gap-5 ">
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.back()}
-            className="flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <ArrowLeft className="h-4 w-4" /> Back
-          </button>
+          
           <div>
             <h5 className="text-lg font-semibold dark:text-white-light">Lead Details</h5>
             <p className="text-gray-600 dark:text-gray-400">Manage property listings and status</p>
           </div>
         </div>
 
-        <div className="flex items-center gap-5">
+        {/* <div className="flex items-center gap-5">
           {state?.detail?.assigned_to && (
             <div className="flex flex-col p-2 ">
               <div className="text-md text-gray-600">Assigned To</div>
@@ -368,7 +365,16 @@ const View_opportunity = (props: any) => {
               </div>
             </div>
           )}
-        </div>
+        </div> */}
+
+        <div className="flex items-center gap-5">
+        <button
+            onClick={() => router.back()}
+            className="flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            <ArrowLeft className="h-4 w-4" /> Back
+          </button>
+          </div>
       </div>
       <div className="panel mt-2 rounded-xl border shadow-none ">
         <div
@@ -403,13 +409,13 @@ const View_opportunity = (props: any) => {
                     <div className="flex flex-col p-2 ">
                       <div className="text-md text-gray-600">Lead Source</div>
                       <div className="text-[16px] font-medium">
-                        {capitalizeFLetter(state.detail?.lead_source)}
+                        {capitalizeFLetter(state.detail?.lead_source_info?.name)}
                       </div>
                     </div>{" "}
                     <div className="flex flex-col p-2 ">
                       <div className="text-md text-gray-600">Status</div>
                       <div className="text-[16px] font-medium">
-                        {capitalizeFLetter(state.detail?.status)}
+                        {capitalizeFLetter(state.detail?.status_info?.name)}
                       </div>
                     </div>
                     <div className="flex flex-col p-2 ">

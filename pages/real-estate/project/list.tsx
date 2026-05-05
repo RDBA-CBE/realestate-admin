@@ -142,6 +142,9 @@ const list = () => {
         id: item?.id,
         properties: item?.property_count,
         project: item?.project?.name,
+        description: item?.description,
+        developer: item?.developer?.industry ||  "-",
+        // ...item
       }));
       const group = localStorage.getItem("group");
 
@@ -166,7 +169,7 @@ const list = () => {
         name: state.name,
         location: state.location,
         description: state.description,
-        developer: 3,
+        developer: state.userId,
       };
       await Utils.Validation.project.validate(body, { abortEarly: false });
 
@@ -197,7 +200,7 @@ const list = () => {
         name: state.name,
         location: state.location,
         description: state.description,
-        developer: 3,
+        developer: state.userId,
       };
       await Utils.Validation.project.validate(body, { abortEarly: false });
 

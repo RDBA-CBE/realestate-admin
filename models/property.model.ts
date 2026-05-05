@@ -94,6 +94,13 @@ const properties = {
         url += `&team=${encodeURIComponent(body.team)}`;
       }
 
+      if (body?.is_approved == true) {
+        url += `&is_approved=${encodeURIComponent(body.is_approved)}`;
+      }
+      if (body?.is_approved == false) {
+        url += `&is_approved=${encodeURIComponent(body.is_approved)}`;
+      }
+
       instance()
         .get(url, body)
         .then((res) => {

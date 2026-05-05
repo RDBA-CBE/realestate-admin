@@ -564,7 +564,7 @@ export const menuConfig = {
       type: "link",
       icon: "IconMenuWidgets",
       label: "dashboard",
-      href: "/profile",
+      href: "/",
     },
     {
       type: "section",
@@ -893,6 +893,17 @@ export const PROPERTY_STATUS = [
   {
     value: "Draft",
     label: "Draft",
+  },
+];
+
+export const APPROVED_STATUS = [
+  {
+    value: "Approved",
+    label: "Approved",
+  },
+  {
+    value: "Pending",
+    label: "Pending",
   },
 ];
 
