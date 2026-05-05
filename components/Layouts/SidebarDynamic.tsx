@@ -45,7 +45,7 @@ const SidebarDynamic = () => {
       dispatch(toggleSidebar());
     }
   }, [router.pathname]);
-
+  
   useEffect(() => {
     role();
   }, []);
@@ -150,14 +150,14 @@ const SidebarDynamic = () => {
   return (
     <div className={semidark ? "dark" : ""}>
       <nav
-        className={`sidebar fixed bottom-0 top-0 z-50 h-full w-[230px] transition-all duration-300 lg:top-[57px] lg:max-h-[calc(100vh-57px)]${
+        className={`sidebar fixed bottom-0 top-0 z-50 h-full w-[230px] transition-all duration-300 lg:top-[57px] lg:max-h-[calc(100vh-57px)] ${
           semidark ? "text-white-dark" : ""
-        }`}
+        } ${themeConfig.sidebar ? "lg:-translate-x-full" : "lg:translate-x-0"}`}
       >
         <div className="h-full bg-white dark:bg-black">
           {/* Logo */}
-          {/* <div className="flex items-center justify-between px-4 py-3">
-            <Link href="/" className="main-logo flex shrink-0 items-center">
+          <div className="block flex items-center justify-between px-2 py-3 lg:hidden">
+            <Link href="/" className="main-logo flex shrink-0 items-center ">
               <img
                 className="ml-[5px] w-8 flex-none"
                 src="/assets/images/logo.svg"
@@ -169,10 +169,29 @@ const SidebarDynamic = () => {
             </Link>
             <button
               type="button"
-              className="collapse-icon flex h-8 w-8 items-center rounded-full transition duration-300 hover:bg-[#fff6f6] dark:text-white-light  rtl:rotate-180"
+              className="collapse-icon flex h-8 w-8 items-center rounded-full transition duration-300 hover:bg-gray-500/10 dark:text-white-light dark:hover:bg-dark-light/10 rtl:rotate-180"
               onClick={() => dispatch(toggleSidebar())}
             >
               <IconCaretsDown className="m-auto rotate-90 text-dred" />
+            </button>
+          </div>
+
+           {/* Logo */}
+          {/* <div className="block flex items-center justify-between px-2 py-3 lg:hidden">
+            <Link href="/" className="main-logo flex shrink-0 items-center ">
+              <div></div>
+              <img
+                className="ml-[5px] h-[30px] w-[160px] flex-none"
+                src="/assets/images/faculty-logo.png"
+                alt="logo"
+              />
+            </Link>
+            <button
+              type="button"
+              className="collapse-icon flex h-8 w-8 items-center rounded-full transition duration-300 hover:bg-gray-500/10 dark:text-white-light dark:hover:bg-dark-light/10 rtl:rotate-180"
+              onClick={() => dispatch(toggleSidebar())}
+            >
+              <IconCaretsDown className="m-auto rotate-90" />
             </button>
           </div> */}
 

@@ -6,6 +6,9 @@ export const CLIENT_ID =
 export const BACKEND_URL = "https://file.boomrealtys.com/api/";
 export const FRONTEND_URL = "https://realestate-front-eight.vercel.app/";
 
+export const  CAPTCHA_SITE_KEY = "6LeEe9gsAAAAAKddSPmwNUF4J-v7zaz8CgeKZ7n3"
+
+
 // menuConfig.ts
 export const menuConfig = {
   Admin: [

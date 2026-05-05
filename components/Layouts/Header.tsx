@@ -269,14 +269,18 @@ const Header = () => {
             </Link>
             <button
               type="button"
-              className="side-arrow-icon collapse-icon flex hidden h-8 w-8 items-center rounded-full transition duration-300 hover:bg-[#fff6f6]  dark:text-white-light lg:block rtl:rotate-180"
+               className="side-arrow-icon collapse-icon flex h-8 w-8 items-center rounded-full transition duration-300 hover:bg-gray-500/10 dark:text-white-light dark:hover:bg-dark-light/10 rtl:rotate-180 ltr:ml-2 rtl:mr-2 hidden lg:block"
               onClick={() => dispatch(toggleSidebar())}
             >
-              <IconCaretsDown className="text-dred m-auto rotate-90" />
+              {themeConfig.sidebar ? (
+                <IconMenu className="h-5 w-5 m-auto" />
+              ) : (
+                <IconCaretsDown className="text-dred m-auto rotate-90" />
+              )}
             </button>
             <button
               type="button"
-              className="collapse-icon flex flex-none rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:text-[#d0d2d6] dark:hover:bg-dark/60 dark:hover:text-primary lg:hidden ltr:ml-2 rtl:mr-2"
+              className="  flex-none rounded-full bg-white-light/40 p-2 hover:bg-white-light/90 hover:text-primary dark:bg-dark/40 dark:text-[#d0d2d6] dark:hover:bg-dark/60 dark:hover:text-primary flex lg:hidden  ltr:ml-2 rtl:mr-2"
               onClick={() => dispatch(toggleSidebar())}
             >
               <IconMenu className="h-5 w-5" />

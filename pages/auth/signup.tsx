@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { setPageTitle } from "../../store/themeConfigSlice";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import BlankLayout from "@/components/Layouts/BlankLayout";
 import IconMail from "@/components/Icon/IconMail";
@@ -21,12 +21,14 @@ import Models from "@/imports/models.import";
 import * as Yup from "yup";
 import IconLockDots from "@/components/Icon/IconLockDots";
 import IconEyeOff from "@/components/Icon/IconEyeOff";
+import ReCAPTCHA from "react-google-recaptcha";
+import { CAPTCHA_SITE_KEY } from "@/utils/constant.utils";
 import IconEye from "@/components/Icon/IconEye";
 
 const RegisterBoxed = () => {
   const dispatch = useDispatch();
-
   const router = useRouter();
+  const [signupCaptchaToken, setSignupCaptchaToken] = useState("");
 
   const [state, setState] = useSetState({
     showPassword: false,
@@ -55,7 +57,8 @@ const RegisterBoxed = () => {
         phone: state.phone,
         user_type: state.assignRole?.value,
         password: state.password,
-        terms_accepted:true
+        terms_accepted: true,
+        recaptcha_token: signupCaptchaToken,
       };
       console.log("✌️body --->", body);
 

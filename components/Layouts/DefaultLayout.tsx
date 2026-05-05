@@ -106,7 +106,7 @@ const DefaultLayout = ({ children }: PropsWithChildren) => {
                     <SidebarDynamic />
                     <Header />
                     {/* END SIDEBAR */}
-                    <div className="main-content flex flex-col min-h-screen">
+                    <div className={`main-content flex min-h-screen flex-col transition-all duration-300 ${themeConfig.sidebar ? 'lg:!ml-0' : ''}`}>
                         {/* BEGIN TOP NAVBAR */}
                         
                         {/* END TOP NAVBAR */}
