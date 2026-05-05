@@ -727,6 +727,18 @@ export const menuConfig = {
     // },
     {
       type: "section",
+      label: "Users",
+      children: [
+        {
+          type: "link",
+          icon: "IconMenuUsers",
+          label: "Users",
+          href: "/real-estate/users/developer_user",
+        }
+      ],
+    },
+    {
+      type: "section",
       label: "Master Data",
       children: [
         {

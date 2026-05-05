@@ -8,6 +8,11 @@ const user = {
         url += `&group=${encodeURIComponent(body.group)}`;
       }
 
+
+      if (body?.developer_property_users) {
+        url += `&developer_property_users=${encodeURIComponent(body.developer_property_users)}`;
+      }
+
       if (body?.user_type) {
         url += `&user_type=${encodeURIComponent(body.user_type)}`;
       }
@@ -180,6 +185,20 @@ const user = {
         });
     });
     return promise;
+  },
+
+  wishlist: (userId: any) => {
+    return instance()
+      .get(`wishlists/?user=${userId}`)
+      .then((res) => res.data)
+      .catch((error) => Promise.reject(error.response?.data || error));
+  },
+
+  enquiries: (userId: any) => {
+    return instance()
+      .get(`leads/?created_by=${userId}`)
+      .then((res) => res.data)
+      .catch((error) => Promise.reject(error.response?.data || error));
   },
 
   count: (body: any) => {
