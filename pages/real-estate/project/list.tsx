@@ -27,6 +27,7 @@ import PrivateRouter from "@/hook/privateRouter";
 import FilterChips from "@/components/FilterChips/FilterChips.component";
 import { Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
+import IconTrashLines from "@/components/Icon/IconTrashLines";
 
 const list = () => {
   const router = useRouter();
@@ -47,6 +48,7 @@ const list = () => {
     userId: null,
     sortBy: "",
     sortOrder: "asc",
+    selectedRecords: [],
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -156,6 +158,7 @@ const list = () => {
         previous: res.previous,
         totalRecords: res.count,
         group,
+        selectedRecords: [],
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -254,6 +257,32 @@ const list = () => {
   console.log("state.role", state.role);
 
   console.log("state.userId", state.userId);
+
+   const handleBulkDelete = () => {
+      showDeleteAlert(
+        async () => {
+          try {
+            setState({ btnLoading: true });
+            await Promise.all(
+              state.selectedRecords.map((row: any) =>
+                Models.project.delete(row?.id),
+              ),
+            );
+            setState({ selectedRecords: [], btnLoading: false });
+            projectList(state.page);
+            Success(
+              `${state.selectedRecords.length} project${state.selectedRecords.length > 1 ? "s" : ""} deleted successfully`,
+            );
+          } catch (error) {
+            setState({ btnLoading: false });
+          }
+        },
+        () => {
+          Swal.fire("Cancelled", "Your Records are safe :)", "info");
+        },
+        `Are you sure want to delete ${state.selectedRecords.length} selected project${state.selectedRecords.length > 1 ? "s" : ""}?`,
+      );
+    };
 
   const bodyData = () => {
     let body: any = {};
@@ -459,6 +488,15 @@ const list = () => {
 
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
+          <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "16px",
+                    gap: "10px",
+                  }}
+                >
           <FilterChips
             chips={[
               ...(state.search
@@ -469,28 +507,54 @@ const list = () => {
                     },
                   ]
                 : []),
-              ...(state.role && state.group === "Admin"
+
+                ...(state.recordType
                 ? [
                     {
-                      label: `Role: ${state.role.label}`,
-                      onRemove: () =>
-                        setState({ role: null, user: null, userList: [] }),
+                      label: `Records: ${state.recordType.label}`,
+                      onRemove: () => setState({ recordType: "" }),
                     },
                   ]
                 : []),
-              ...(state.user
-                ? [
-                    {
-                      label: `User: ${state.user.label}`,
-                      onRemove: () => setState({ user: null }),
-                    },
-                  ]
-                : []),
+                 
+              // ...(state.role && state.group === "Admin"
+              //   ? [
+              //       {
+              //         label: `Role: ${state.role.label}`,
+              //         onRemove: () =>
+              //           setState({ role: null, user: null, userList: [] }),
+              //       },
+              //     ]
+              //   : []),
+              // ...(state.user
+              //   ? [
+              //       {
+              //         label: `User: ${state.user.label}`,
+              //         onRemove: () => setState({ user: null }),
+              //       },
+              //     ]
+              //   : []),
             ]}
             onClearAll={() =>
-              setState({ search: "", role: null, user: null, userList: [] })
+              setState({ search: "", role: null, user: null, userList: [], recordType: null })
             }
           />
+           <div className="ml-auto flex items-center gap-3">
+            {state.selectedRecords?.length > 0 && (
+                                  <button
+                                    type="button"
+                                    className="flex items-center gap-2 rounded-lg border border-red-600  px-3 py-1.5 text-sm font-medium text-red-600 "
+                                    onClick={handleBulkDelete}
+                                  >
+                                    <IconTrashLines className="h-4 w-4" />
+                                    Delete ({state.selectedRecords.length})
+                                  </button>
+                                )}
+                                <div className="text-sm text-black">
+                                  {state.total} Projects found
+                                </div>
+           </div>
+          </div>
         </div>
         <DataTable
           className="table-responsive"
@@ -578,6 +642,10 @@ const list = () => {
             });
             projectList(1, columnAccessor, direction);
           }}
+          selectedRecords={state.selectedRecords}
+          onSelectedRecordsChange={(records) =>
+            setState({ selectedRecords: records })
+          }
         />
         <div className="mt-5 flex justify-end gap-3">
           <button

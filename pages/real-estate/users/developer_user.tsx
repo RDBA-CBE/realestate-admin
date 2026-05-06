@@ -364,7 +364,7 @@ const List = () => {
             User List
           </h5>
         </div>
-        <div className="flex gap-5">
+        {/* <div className="flex gap-5">
           <button
             type="button"
             className="btn btn-dred  w-full border-none md:mb-0 md:w-auto"
@@ -372,10 +372,10 @@ const List = () => {
           >
             + Create
           </button>
-        </div>
+        </div> */}
       </div>
 
-      <div className="mb-6 flex gap-4">
+      {/* <div className="mb-6 flex gap-4">
         <div
           onClick={() => {
             setState({ role: null });
@@ -452,12 +452,12 @@ const List = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="mb-5 rounded-2xl">
         <div className="flex  items-center  gap-5">
           {/* Search Input */}
-          <div className="w-fit">
+          <div className="w-[500px]">
             <TextInput
               type="text"
               placeholder="Search..."
@@ -467,14 +467,14 @@ const List = () => {
           </div>
 
           {/* Category Dropdown */}
-          <div className="w-fit">
+          {/* <div className="w-fit">
             <CustomSelect
               placeholder="Choose Role"
               value={state.role}
               onChange={(e) => setState({ role: e })}
               options={roleList}
             />
-          </div>
+          </div> */}
 
           {/* <button
           type="button"
@@ -520,8 +520,9 @@ const List = () => {
                   <div
                     className="flex w-fit items-center font-semibold"
                     onClick={(e) => {
-                      handleEdit(row);
-                    }}
+                        router.push(`/real-estate/users/view/${row.id}`);
+                        // handleEdit(row);
+                      }}
                   >
 
                     <div className=" flex h-8 w-8 items-center justify-center rounded-full bg-[#9b0f09] text-sm text-white shadow ltr:mr-2 rtl:ml-2">
@@ -589,13 +590,13 @@ const List = () => {
                     >
                       <IconEye />
                     </Link> */}
-                    <button
+                    {/* <button
                       type="button"
                       className="flex text-danger"
                       onClick={(e) => handleDelete(row)}
                     >
                       <IconTrashLines className="h-4 w-4" />
-                    </button>
+                    </button> */}
                   </div>
                 ),
               },

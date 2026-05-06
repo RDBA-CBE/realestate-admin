@@ -68,6 +68,12 @@ export const menuConfig = {
           ],
         },
         {
+              type: "link",
+              label: "Project List",
+              icon: "IconMenuApps",
+              href: "/real-estate/project/adminlist",
+            },
+        {
           type: "submenu",
           icon: "IconMenuApps",
           label: "Projects",
