@@ -42,7 +42,7 @@ import { useEffect } from "react";
 import useDebounce from "@/hook/useDebounce";
 import Utils from "@/imports/utils.import";
 import * as Yup from "yup";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Models from "@/imports/models.import";
 import Modal from "@/components/modal/modal.component";
 import IconLoader from "@/components/Icon/IconLoader";
@@ -54,6 +54,7 @@ import floorPlans from "@/models/floor_plan.model";
 
 const AddPropertyPage = () => {
   const router = useRouter();
+  const projectId = useSearchParams().get("project_id");
   const [state, setState] = useSetState({
     propertyTypeList: propertyType,
     group: null,
@@ -87,6 +88,8 @@ const AddPropertyPage = () => {
     //Media
     images: [],
     video: null,
+    unit_plans: [],
+    master_plans: [],
     latitude: null,
     longitude: null,
     country: null,
@@ -115,6 +118,7 @@ const AddPropertyPage = () => {
         image: null,
       },
     ],
+    urlfromProject: false,
   });
 
   useEffect(() => {
@@ -123,18 +127,39 @@ const AddPropertyPage = () => {
     setState({
       group,
       ...(group === "Agent" && userId ? { agent: { value: userId } } : {}),
-      userId:userId,
-      developer:userId
+      userId: userId,
+      developer: userId,
     });
   }, [state.group]);
 
   useEffect(() => {
     amenityList();
     categoryList(1);
-    projectList(1);
+    // projectList(1);
     developerList(1);
     agentList(1);
+    cityList(1)
   }, []);
+
+  useEffect(() => {
+    if (state.developer) {
+      projectList(1);
+    }
+  }, [state.developer]);
+
+  useEffect(() => {
+      if (state.location ) {
+        areaList(1);
+      }
+    }, [state.location]);
+
+    useEffect(() => {
+      if (state?.project?.value ) {
+        fetchProject();
+      }
+    }, [state?.project?.value ]);
+
+    
 
   const debouncedAmenitySearch = useDebounce(state.amenitySearch, 500);
 
@@ -199,23 +224,6 @@ const AddPropertyPage = () => {
     }
   };
 
-  const projectList = async (page) => {
-    try {
-      const body = {
-        developer: localStorage.getItem("userId"),
-      };
-      const res: any = await Models.project.list(page, body);
-      const droprdown = Dropdown(res?.results, "name");
-      setState({
-        projectList: droprdown,
-        projectPage: page,
-        projectNext: res.next,
-      });
-    } catch (error) {
-      console.log("✌️error --->", error);
-    }
-  };
-
   const developerList = async (page) => {
     try {
       const body = {
@@ -237,29 +245,28 @@ const AddPropertyPage = () => {
   useEffect(() => {
     if (state.developerList?.length > 0) {
       const userId = localStorage.getItem("userId");
-      const matched = state.developerList.find((item) => String(item.value) === String(userId));
+      const matched = state.developerList.find(
+        (item) => String(item.value) === String(userId),
+      );
       if (matched) setState({ developer: matched });
     }
   }, [state.developerList]);
-  
 
-  const catListLoadMore = async () => {
+  const projectList = async (page) => {
     try {
-      if (state.categoryNext) {
-        const res: any = await Models.category.list(state.categoryPage + 1, {});
-        const newOptions = Dropdown(res?.results, "name");
-        setState({
-          categoryList: [...state.categoryList, ...newOptions],
-          categoryNext: res.next,
-          categoryPage: state.categoryPage + 1,
-        });
-      } else {
-        setState({
-          categoryList: state.categoryList,
-        });
-      }
+      const body = {
+        // developer: localStorage.getItem("userId"),
+        developer: state.developer?.value,
+      };
+      const res: any = await Models.project.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+      setState({
+        projectList: droprdown,
+        projectPage: page,
+        projectNext: res.next,
+      });
     } catch (error) {
-      console.log("error: ", error);
+      console.log("✌️error --->", error);
     }
   };
 
@@ -282,6 +289,54 @@ const AddPropertyPage = () => {
       console.log("error: ", error);
     }
   };
+
+  useEffect(() => {
+    if (state.projectList?.length > 0) {
+      const matched = state.projectList.find(
+        (item) => String(item.value) === String(projectId),
+      );
+      if (matched) setState({ project: matched });
+    }
+    if (projectId) {
+      setState({
+        urlfromProject: true,
+      });
+    }
+  }, [state.projectList]);
+
+  const catListLoadMore = async () => {
+    try {
+      if (state.categoryNext) {
+        const res: any = await Models.category.list(state.categoryPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          categoryList: [...state.categoryList, ...newOptions],
+          categoryNext: res.next,
+          categoryPage: state.categoryPage + 1,
+        });
+      } else {
+        setState({
+          categoryList: state.categoryList,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
+   const fetchProject = async () => {
+      try {
+        setState({ projectLoading: true });
+        const res: any = await Models.project.details(state.project?.value);
+        setState({ projectDetail: res, projectLoading: false,
+          location: res?.location ? { value: res.location.id, label: res.location.name } : null,
+          area: res?.area ? { value: res.area.id, label: res.area.name } : null,
+         });
+      } catch (error) {
+        console.log("✌️error --->", error);
+        setState({ projectLoading: false });
+      }
+    };
 
   const agentList = async (page) => {
     try {
@@ -338,6 +393,88 @@ const AddPropertyPage = () => {
     }
   };
 
+   const cityList = async (page) => {
+      try {
+        const body: any = {};
+        if (state.search) body.search = state.search;
+        const res: any = await Models.city.list(page, body);
+        const droprdown = Dropdown(res?.results, "name");
+  
+        setState({
+          cityList: droprdown,
+          total: res?.count,
+          page,
+          next: res.next,
+          previous: res.previous,
+          totalRecords: res.count,
+        });
+      } catch (error) {
+        console.log("error -->", error);
+      }
+    };
+  
+    const cityLoadMore = async () => {
+      try {
+        if (state.cityNext) {
+          const res: any = await Models.city.list(state.cityPage + 1, {});
+          const newOptions = Dropdown(res?.results, "name");
+          setState({
+            cityList: [...state.cityList, ...newOptions],
+            cityNext: res.next,
+            cityPage: state.cityPage + 1,
+          });
+        } else {
+          setState({
+            cityList: state.cityList,
+          });
+        }
+      } catch (error) {
+        console.log("error: ", error);
+      }
+    };
+
+    const areaList = async (page) => {
+        try {
+          const body: any = {
+            location: state.location?.value || state.filterLocation?.value,
+          };
+          if (state.search) body.search = state.search;
+          const res: any = await Models.area.list(page, body);
+          const droprdown = Dropdown(res?.results, "name");
+    
+          setState({
+            areaList: droprdown,
+            total: res?.count,
+            page,
+            next: res.next,
+            previous: res.previous,
+            totalRecords: res.count,
+          });
+        } catch (error) {
+          console.log("error -->", error);
+        }
+      };
+    
+      const areaLoadMore = async () => {
+        try {
+          if (state.areaNext) {
+            const res: any = await Models.area.list(state.areaPage + 1, {});
+            const newOptions = Dropdown(res?.results, "name");
+            setState({
+              areaList: [...state.areaList, ...newOptions],
+              areaNext: res.next,
+              areaPage: state.areaPage + 1,
+            });
+          } else {
+            setState({
+              areaList: state.areaList,
+            });
+          }
+        } catch (error) {
+          console.log("error: ", error);
+        }
+      };
+
   const onSubmit = async (type: string) => {
     try {
       if (type == "draft") {
@@ -353,9 +490,12 @@ const AddPropertyPage = () => {
         status: state.status?.value,
         total_area: state.total_area,
         built_up_area: state.built_up_area,
+        total_unit: state.total_units,
         longitude: state.longitude,
         latitude: state.latitude,
         address: state.address,
+        location: state.location?.value,
+        area: state.area?.value,
         city: state.city,
         state: state.state,
         country: state.country,
@@ -387,6 +527,8 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
+        console.log("error", error);
+        
         Failure("Please Fill all the required fields");
         setState({ error: validationErrors, btnLoading: false });
       } else {
@@ -410,7 +552,7 @@ const AddPropertyPage = () => {
         description: state.description,
         // property_type: state.property_type?.value,
         property_type: state.property_type?.map((item) => item?.value),
-        developer : state.developer?.value,
+        developer: state.developer?.value,
         listing_type: "sale",
 
         project: state.project?.value,
@@ -419,6 +561,7 @@ const AddPropertyPage = () => {
         built_up_area: state.built_up_area,
         total_area: state.total_area,
         carpet_area: state.carpet_area,
+        total_unit: state.total_units,
         bedrooms: state.bedrooms,
         bathrooms: state.bathrooms,
         total_floors: state.total_floors,
@@ -426,6 +569,8 @@ const AddPropertyPage = () => {
         floor_number: state.floor_number,
         built_year: state.built_year,
         facing_direction: state.facing?.value,
+        location: state.location?.value,
+        area: state.area?.value,
         city: state.city,
         state: state.state,
         country: state.country,
@@ -439,7 +584,6 @@ const AddPropertyPage = () => {
         min_price: state.min_price,
         max_price: state.max_price,
         price: state.max_price,
-        
       };
 
       // if (state.group !== "Developer") {
@@ -457,6 +601,10 @@ const AddPropertyPage = () => {
       } else {
         saleBody.publish = true;
       }
+
+      if (state.unit_plans?.length > 0) saleBody.unit_plan = state.unit_plans;
+      if (state.master_plans?.length > 0)
+        saleBody.master_plan = state.master_plans;
 
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
         abortEarly: false,
@@ -502,6 +650,8 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
+        console.log("error", error);
+        
         Failure("Please Fill all the required fields");
 
         setState({ error: validationErrors, btnLoading: false });
@@ -536,7 +686,7 @@ const AddPropertyPage = () => {
         description: state.description,
         // property_type: state.property_type?.value,
         property_type: state.property_type?.map((item) => item?.value),
-        developer : state.developer?.value,
+        developer: state.developer?.value,
         listing_type: "lease",
         lease_total_amount: state.lease_total_amount,
         lease_duration: state.lease_duration,
@@ -548,6 +698,7 @@ const AddPropertyPage = () => {
         built_up_area: state.built_up_area,
         total_area: state.total_area,
         carpet_area: state.carpet_area,
+        total_unit: state.total_units,
         bedrooms: state.bedrooms,
         bathrooms: state.bathrooms,
         total_floors: state.total_floors,
@@ -555,6 +706,8 @@ const AddPropertyPage = () => {
         floor_number: state.floor_number,
         built_year: state.built_year,
         facing_direction: state.facing?.value,
+        location: state.location?.value,
+        area: state.area?.value,
         city: state.city,
         state: state.state,
         country: state.country,
@@ -586,6 +739,10 @@ const AddPropertyPage = () => {
       } else {
         buyBody.publish = true;
       }
+
+      if (state.unit_plans?.length > 0) buyBody.unit_plan = state.unit_plans;
+      if (state.master_plans?.length > 0)
+        buyBody.master_plan = state.master_plans;
       await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
         abortEarly: false,
       });
@@ -664,6 +821,7 @@ const AddPropertyPage = () => {
         furnishing: state.furnishing?.value,
         built_up_area: state.built_up_area,
         total_area: state.total_area,
+        total_unit: state.total_units,
         carpet_area: state.carpet_area,
         bedrooms: state.bedrooms,
         bathrooms: state.bathrooms,
@@ -672,6 +830,8 @@ const AddPropertyPage = () => {
         floor_number: state.floor_number,
         built_year: state.built_year,
         facing_direction: state.facing?.value,
+        location: state.location?.value,
+        area: state.area?.value,
         city: state.city,
         state: state.state,
         country: state.country,
@@ -697,6 +857,10 @@ const AddPropertyPage = () => {
         buyBody.assignAgent = state.assignAgent;
         buyBody.agent = state.agent?.value;
       }
+
+      if (state.unit_plans?.length > 0) buyBody.unit_plan = state.unit_plans;
+      if (state.master_plans?.length > 0)
+        buyBody.master_plan = state.master_plans;
 
       await Utils.Validation.propertyRentCreate.validate(buyBody, {
         abortEarly: false,
@@ -839,9 +1003,9 @@ const AddPropertyPage = () => {
   const steps = [
     { id: 1, title: "Basic Detail", icon: MapPin },
     { id: 2, title: "Property Information", icon: Info },
-    { id: 5, title: "Floor Plans", icon: Star },
+    { id: 5, title: "Plans", icon: Star },
     // ...(state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL
-    //   ? [{ id: 5, title: "Floor Plans", icon: Star }]
+    //   ? [{ id: 5, title: "Plans", icon: Star }]
     //   : []),
 
     { id: 7, title: "Media", icon: File },
@@ -896,19 +1060,61 @@ const AddPropertyPage = () => {
 
   return (
     <>
-      <div className=" mb-5 flex flex flex-col justify-between gap-5  md:flex-row md:items-center">
-        <h5 className="text-lg font-semibold dark:text-white-light ">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <h5 className="text-lg font-semibold dark:text-white-light">
           Add New Property
         </h5>
+        <button
+          onClick={() => router.back()}
+          className="text-dred rounded-md border border-[#9b0f09] px-3 py-1.5 text-xs font-semibold hover:bg-gray-100 dark:hover:bg-gray-700"
+        >
+          ← Back
+        </button>
+      </div>
+
+      {/* <div className="sticky top-0 z-30 mb-5 flex justify-end gap-3 border-b border-gray-100 bg-white py-2 dark:border-gray-700 dark:bg-gray-900">
+        <PrimaryButton
+          type="button"
+          text="Go Back"
+          className="border border-gray-300 !bg-transparent !text-gray-600 shadow-none hover:!bg-gray-50"
+          onClick={() => router.back()}
+        />
+
+        
         <PrimaryButton
           type="submit"
-          text="Go back"
-          className="border-0  shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
-          onClick={()=>router.back()}
+          text="Draft Property"
+          className="border border-black !bg-transparent !font-black !text-black"
+          onClick={() => onSubmit("draft")}
+          loading={state.btnLoading1}
+        />
+        <PrimaryButton
+          type="submit"
+          text="Publish Property"
+          className="border-0 shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
+          onClick={() => onSubmit("publish")}
+          loading={state.btnLoading}
+        />
+      </div> */}
+
+      <div className="fixed bottom-0 left-0 right-0 z-20 flex justify-end gap-3 border-t border-gray-200 bg-white  px-20 pb-3 pt-4 shadow-[0_-4px_12px_rgba(0,0,0,0.08)] dark:border-gray-700 dark:bg-gray-900">
+        <PrimaryButton
+          type="submit"
+          text="Save Property"
+          className="border border-black !bg-transparent !font-black !text-black"
+          onClick={() => onSubmit("draft")}
+          loading={state.btnLoading1}
+        />
+        <PrimaryButton
+          type="submit"
+          text="Publish Property"
+          className="border-0 shadow-[0_10px_20px_-10px_rgba(67,97,238,0.44)]"
+          onClick={() => onSubmit("publish")}
+          loading={state.btnLoading}
         />
       </div>
 
-      <div className="space-y-5">
+      <div className="mb-5 space-y-5">
         {steps.map((step, index) => (
           <div
             key={step.id}
@@ -932,7 +1138,61 @@ const AddPropertyPage = () => {
               {step.id === 1 && (
                 <div className="panel rounded-lg border shadow-none">
                   <h2 className="mb-4 text-lg font-semibold">Basic Detail</h2>
+
                   <div className={`${"mt-4 grid grid-cols-2 gap-4"}`}>
+                    <CustomSelect
+                      title="Developer Name"
+                      placeholder="Select Developer"
+                      options={state.developerList}
+                      value={state.developer}
+                      onChange={(selectedOption) =>
+                        setState({
+                          developer: selectedOption,
+                          error: {
+                            ...state.error,
+                            developer: null,
+                          },
+                        })
+                      }
+                      required
+                      isClearable
+                      error={state.error?.developer}
+                      disabled={state.group === "Developer"}
+                    />
+
+                    <CustomSelect
+                      title="Project"
+                      placeholder="Select Project"
+                      options={state.projectList}
+                      value={state.project}
+                      onChange={(selectedOption) =>
+                        setState({
+                          project: selectedOption,
+                          location: null,
+                          area: null,
+                          error: {
+                            ...state.error,
+                            project: null,
+                          },
+                        })
+                      }
+                      isClearable
+                      required
+                      error={state.error?.project}
+                      loadMore={() => projectLoadMore()}
+                      disabled={state?.urlfromProject}
+                    />
+
+                    <TextInput
+                      name="title"
+                      title="Property Name"
+                      placeholder="Enter Property Name"
+                      value={state.title}
+                      onChange={handleInputChange}
+                      required
+                      error={state.error?.title}
+                    />
+
                     <CustomSelect
                       title="Property type"
                       value={state.property_type}
@@ -974,58 +1234,6 @@ const AddPropertyPage = () => {
                       isClearable={false}
                       // loadMore={() => catListLoadMore()}
                     />
-
-                    <TextInput
-                      name="title"
-                      title="Property Name"
-                      placeholder="Enter Property Name"
-                      value={state.title}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.title}
-                    />
-
-                    <CustomSelect
-                      title="Project"
-                      placeholder="Select Project"
-                      options={state.projectList}
-                      value={state.project}
-                      onChange={(selectedOption) =>
-                        setState({
-                          project: selectedOption,
-                          error: {
-                            ...state.error,
-                            project: null,
-                          },
-                        })
-                      }
-                      isClearable
-                      required
-                      error={state.error?.project}
-                      loadMore={() => projectLoadMore()}
-                    />
-
-                   
-                      <CustomSelect
-                        title="Developer Name"
-                        placeholder="Select Developer"
-                        options={state.developerList}
-                        value={state.developer}
-                        onChange={(selectedOption) =>
-                          setState({
-                            developer: selectedOption,
-                            error: {
-                              ...state.error,
-                              developer: null,
-                            },
-                          })
-                        }
-                        required
-                        isClearable
-                        error={state.error?.developer}
-                        disabled={state.group === "Developer"}
-                      />
-                    
 
                     <CustomSelect
                       title="Property Status"
@@ -1148,6 +1356,16 @@ const AddPropertyPage = () => {
                         error={state.error?.built_up_area}
                       />
                       {/* )} */}
+
+                      <TextInput
+                        name="total_units"
+                        title="Total Units"
+                        placeholder="Enter total number of units"
+                        value={state.total_units}
+                        onChange={handleInputChange}
+                        required
+                        error={state.error?.total_units}
+                      />
 
                       {/* {state.property_type?.label ==
                         PROPERTY_TYPE.RESIDENTIAL && ( */}
@@ -1341,10 +1559,48 @@ const AddPropertyPage = () => {
               {/* {state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL && */}
               {step.id === 5 && (
                 <div className="panel rounded-lg border p-6 shadow-none">
-                  <h2 className="text-lg font-semibold">Floor Plans</h2>
+                  <h2 className="text-lg font-semibold mb-4">Plans</h2>
 
-                  <div className="mt-4">
+                  <div className=" grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <div className="">
+                      <h3 className="mb-4 font-medium ">Unit Plans</h3>
+                      <ImageUploadWithPreview
+                        maxFiles={1}
+                        onImagesChange={(images) =>
+                          setState({
+                            unit_plans: images,
+                            error: { ...state.error, unit_plans: "" },
+                          })
+                        }
+                      />
+                    </div>
+
+                    <div className="">
+                      <h3 className="mb-4 font-medium ">
+                        Master Plans
+                      </h3>
+                      <ImageUploadWithPreview
+                        maxFiles={1}
+                        onImagesChange={(images) =>
+                          setState({
+                            master_plans: images,
+                            error: { ...state.error, master_plans: "" },
+                          })
+                        }
+                      />
+                    </div>
+
+                  
+                  </div>
+
+                  <div className="mt-6">
+                    <h3 className="text-md mb-4 font-semibold">
+                        Floor Plans
+                      </h3>
+                 
+
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
+                      
                       {state.floorPlans?.map((plan, index) => (
                         <div key={index} className="rounded-lg border">
                           <div
@@ -1581,7 +1837,8 @@ const AddPropertyPage = () => {
                         Add Floor Plan
                       </button>
                     </div>
-                  </div>
+
+                     </div>
                 </div>
               )}
 
@@ -1686,8 +1943,8 @@ const AddPropertyPage = () => {
                       src={`https://maps.google.com/maps?q=${state?.latitude},${state?.longitude}&z=13&ie=UTF8&iwloc=&output=embed`}
                     />
                   </div>
-                  <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <TextInput
+                  <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {/* <TextInput
                       name="city"
                       title="City"
                       placeholder="Enter city"
@@ -1695,7 +1952,39 @@ const AddPropertyPage = () => {
                       onChange={handleInputChange}
                       error={state.error?.city}
                       required
-                    />
+                    /> */}
+
+                    <CustomSelect
+                  title="City name"
+                  placeholder="Select city"
+                  options={state.cityList}
+                  value={state.location}
+                  onChange={(selectedOption) =>
+                    setState({ location: selectedOption, area: "" })
+                  }
+                  isClearable
+                  loadMore={() => cityLoadMore()}
+                  required
+                  error={state.error?.location}
+                  disabled={state.project?.value}
+                />
+
+                <CustomSelect
+                  title="Area name"
+                  placeholder="Select Area"
+                  options={state.areaList}
+                  value={state.area}
+                  onChange={(selectedOption) =>
+                    setState({ area: selectedOption })
+                  }
+                  isClearable
+                  loadMore={() => areaLoadMore()}
+                  required
+                  error={state.error?.area}
+                  disabled={state.project?.value}
+
+                />
+
                     <TextInput
                       name="state"
                       title="State"
@@ -1704,6 +1993,26 @@ const AddPropertyPage = () => {
                       onChange={handleInputChange}
                       error={state.error?.state}
                       required
+                    />
+
+                    <TextInput
+                      name="country"
+                      title="Country"
+                      placeholder="Enter country"
+                      value={state.country}
+                      onChange={handleInputChange}
+                      error={state.error?.country}
+                      required
+                    />
+
+                    <TextInput
+                      name="postal_code"
+                      title="Zip Code"
+                      placeholder="Enter Zip Code"
+                      value={state.postal_code}
+                      onChange={handleInputChange}
+                      required
+                      error={state.error?.postal_code}
                     />
 
                     {/* <CustomSelect
@@ -1745,15 +2054,7 @@ const AddPropertyPage = () => {
                   </div>
 
                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <TextInput
-                      name="country"
-                      title="Country"
-                      placeholder="Enter country"
-                      value={state.country}
-                      onChange={handleInputChange}
-                      error={state.error?.country}
-                      required
-                    />
+                    
                     {/* <CustomSelect
                       title="Country"
                       placeholder="Enter Country"
@@ -1772,15 +2073,7 @@ const AddPropertyPage = () => {
                       required
                       error={state.error?.country}
                     /> */}
-                    <TextInput
-                      name="postal_code"
-                      title="Zip Code"
-                      placeholder="Enter Zip Code"
-                      value={state.postal_code}
-                      onChange={handleInputChange}
-                      required
-                      error={state.error?.postal_code}
-                    />
+                    
                   </div>
                 </div>
               )}
@@ -1795,14 +2088,16 @@ const AddPropertyPage = () => {
                     <div className=" flex justify-end gap-3">
                       <TextInput
                         type="text"
-                        className="form-input py-1 min-w-[300px]"
+                        className="form-input min-w-[300px] py-1"
                         placeholder="Search amenities..."
                         value={state.amenitySearch || ""}
-                        onChange={(e) => setState({ amenitySearch: e.target.value })}
+                        onChange={(e) =>
+                          setState({ amenitySearch: e.target.value })
+                        }
                       />
                       <button
                         type="button"
-                        className="btn btn-dred w-full border-none py-1 md:mb-0 md:w-auto whitespace-nowrap  !h-9"
+                        className="btn btn-dred !h-9 w-full whitespace-nowrap border-none py-1 md:mb-0  md:w-auto"
                         onClick={() =>
                           setState({
                             isOpenAmenit: true,
@@ -1880,9 +2175,7 @@ const AddPropertyPage = () => {
                       <button
                         type="button"
                         className="text-sm font-medium text-red-500 hover:underline"
-                        onClick={() =>
-                          setState({ amenitiesVisibleCount: 12 })
-                        }
+                        onClick={() => setState({ amenitiesVisibleCount: 12 })}
                       >
                         View Less
                       </button>
@@ -1989,7 +2282,7 @@ const AddPropertyPage = () => {
             </div>
           </div>
         ))}
-        <div className="flex justify-end gap-4">
+        {/* <div className="flex justify-end gap-4">
                     <PrimaryButton
                       type="submit"
                       text="Draft Property"
@@ -2005,7 +2298,7 @@ const AddPropertyPage = () => {
                       onClick={() => onSubmit("publish")}
                       loading={state.btnLoading}
                     />
-                  </div>
+                  </div> */}
       </div>
 
       <Modal
@@ -2060,7 +2353,7 @@ const AddPropertyPage = () => {
                 <button
                   type="button"
                   onClick={() => createAmenity()}
-                  className="btn btn-dred ltr:ml-4 rtl:mr-4 border-none"
+                  className="btn btn-dred border-none ltr:ml-4 rtl:mr-4"
                 >
                   {state.amenityLoading ? <IconLoader /> : "Confirm"}
                 </button>

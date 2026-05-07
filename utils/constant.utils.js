@@ -574,18 +574,33 @@ export const menuConfig = {
     },
 
     {
-      type: "link",
-      icon: "IconMenuApps",
-      label: "Projects List",
-      href: "/real-estate/project/list",
+          type: "submenu",
+          icon: "IconMenuDashboard",
+          label: "Projects",
+          key: "Property",
+          children: [
+            { type: "link", label: "Projects List", href: "/real-estate/project/list" },
+            {
+              type: "link",
+              label: "Property List",
+              href: "/real-estate/property/list",
+            },
+          ]
     },
 
-    {
-      type: "link",
-      icon: "IconMenuDashboard",
-      label: "Property List",
-      href: "/real-estate/property/list",
-    },
+    // {
+    //   type: "link",
+    //   icon: "IconMenuApps",
+    //   label: "Projects List",
+    //   href: "/real-estate/project/list",
+    // },
+
+    // {
+    //   type: "link",
+    //   icon: "IconMenuDashboard",
+    //   label: "Property List",
+    //   href: "/real-estate/property/list",
+    // },
 
      {
       type: "link",
@@ -635,9 +650,30 @@ export const menuConfig = {
         {
           type: "link",
           icon: "IconMenuForms",
-          label: "Lead Status",
-          href: "/real-estate/masters/lead_status",
+          label: "City",
+          href: "/real-estate/masters/city",
         },
+
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Area",
+          href: "/real-estate/masters/area",
+        },
+
+         {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Income Type",
+          href: "/real-estate/masters/income_type",
+        },
+
+        // {
+        //   type: "link",
+        //   icon: "IconMenuForms",
+        //   label: "Lead Status",
+        //   href: "/real-estate/masters/lead_status",
+        // },
       
       ],
     },
@@ -1097,6 +1133,21 @@ export const FILTER_ADMINROLES = [
     value: "seller",
     label: "Seller Records",
   },
+];
+
+export const GENDER_LIST = [
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
+  { value: "other", label: "Other" }
+];
+
+export const INCOME_TYPE = [
+  { value: "daily_wages", label: "Daily Wages" },
+  { value: "salaried", label: "Salaried" },
+  { value: "self_employed", label: "Self-Employed" },
+  { value: "business_owner", label: "Business Owner" },
+  { value: "retired", label: "Retired" },
+  
 ];
 
 export const statusConfig = {

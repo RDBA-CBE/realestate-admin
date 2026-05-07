@@ -67,6 +67,7 @@ import {
   Key,
   Clock,
   Verified,
+  XCircle,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
@@ -95,20 +96,20 @@ const List = () => {
   const tableColumns = [
     {
       accessor: "title",
-      title: "Property Info",
+      title: "Property Name",
       visible: true,
       toggleable: true,
       sortable: true,
       render: (row) => (
         <div
           className="relative"
-          onMouseEnter={(e) => {
-            const rect = (
-              e.currentTarget as HTMLElement
-            ).getBoundingClientRect();
-            setTooltip({ row, x: rect.left, y: rect.top });
-          }}
-          onMouseLeave={() => setTooltip(null)}
+          // onMouseEnter={(e) => {
+          //   const rect = (
+          //     e.currentTarget as HTMLElement
+          //   ).getBoundingClientRect();
+          //   setTooltip({ row, x: rect.left, y: rect.top });
+          // }}
+          // onMouseLeave={() => setTooltip(null)}
         >
           <Link
             className="flex gap-3 font-semibold"
@@ -118,13 +119,27 @@ const List = () => {
             <div className="flex flex-col justify-between">
               <div>
                 <div className="cursor-pointer text-sm">
-                  {truncateText(row.title)}
+                  {(row.title)}
                 </div>
               </div>
             </div>
           </Link>
         </div>
       ),
+    },
+
+     {
+      accessor: "price",
+      title: "Price Range",
+      visible: true,
+      toggleable: true,
+    },
+
+     {
+      accessor: "built_up_area",
+      title: "Sq.ft",
+      visible: true,
+      toggleable: true,
     },
     
     {
@@ -190,23 +205,23 @@ const List = () => {
         </span>
       ),
     },
-    {
-      accessor: "publish",
-      title: "Publish Status",
-      visible: true,
-      toggleable: true,
-      render: (row: any) => (
-        <span
-          className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-            row?.publish === "Published"
-              ? "bg-lred text-dred border-dred"
-              : "bg-gray-200 text-gray-700"
-          }`}
-        >
-          {row?.publish}
-        </span>
-      ),
-    },
+    // {
+    //   accessor: "publish",
+    //   title: "Publish Status",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => (
+    //     <span
+    //       className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+    //         row?.publish === "Published"
+    //           ? "bg-lred text-dred border-dred"
+    //           : "bg-gray-200 text-gray-700"
+    //       }`}
+    //     >
+    //       {row?.publish}
+    //     </span>
+    //   ),
+    // },
     {
       accessor: "is_approved",
       title: "Approved Status",
@@ -255,6 +270,24 @@ const List = () => {
           >
             <Globe className="h-3.5 w-3.5" />
           </button>
+          {row?.is_approved == true ?
+          (<button
+            type="button"
+            className={`flex text-green-500 `}
+           
+            title= "Approved" 
+          >
+            <CircleCheck className="h-3.5 w-3.5" />
+          </button>)
+            :
+          (<button
+            type="button"
+            className={`flex text-danger`}
+           
+            title= "Pending"
+          >
+            <XCircle className="h-3.5 w-3.5" />
+          </button>)}
           <button
             type="button"
             className="flex text-danger"
@@ -658,7 +691,8 @@ const List = () => {
         image:
           item?.primary_image ??
           "/assets/images/real-estate/property-info-img1.png",
-          industry_name:item?.developer?.industry
+          industry_name:item?.developer?.industry,
+        built_up_area: item?.built_up_area,
       }));
 
       setState({
@@ -946,11 +980,15 @@ const List = () => {
   };
 
   const handleEdit = async (row) => {
-    router.push(`/real-estate/property/update/${row?.id}`);
+    router.push(`/real-estate/property/update/${row?.id}?project_id=${id}`);
   };
 
     const handleView = async (row) => {
     router.push(`/real-estate/property/detail/${row?.id}`);
+  };
+
+  const handleCreate = async (row) => {
+    router.push(`/real-estate/property/create?project_id=${id}`);
   };
 
   const handleStatus = async (row) => {
@@ -1102,9 +1140,9 @@ const List = () => {
             <div>
               <h2 className="text-base font-bold text-gray-900 dark:text-white">{capitalizeFLetter(state.project?.name)}</h2>
               <div className="mt-1 flex items-center gap-4 text-xs text-gray-500">
-                {state.project?.location && (
+                {state.project?.location.name && (
                   <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />{state.project.location}
+                    <MapPin className="h-3 w-3" />{state.project.location.name}
                   </span>
                 )}
                 {state.project?.created_at && (
@@ -1129,7 +1167,7 @@ const List = () => {
           <button
             type="button"
             className="btn btn-dred w-full border-none md:mb-0 md:w-auto"
-            onClick={() => router.push("/real-estate/property/create")}
+            onClick={handleCreate}
           >
             + Create
           </button>

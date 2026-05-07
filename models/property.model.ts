@@ -9,6 +9,10 @@ const properties = {
         url += `&is_approved=${encodeURIComponent(false)}`;
       }
 
+      if (body?.sqft == "No") {
+        url += `&sqft=${encodeURIComponent(false)}`;
+      }
+
       if (body?.is_approved == "Yes") {
         url += `&is_approved=${encodeURIComponent(true)}`;
       }
@@ -83,6 +87,10 @@ const properties = {
         url += `&project=${body?.project}`;
       }
 
+      if (body?.property_type_name) {
+        url += `&property_type_name=${encodeURIComponent(body?.property_type_name)}`;
+      }
+
       if (body?.ordering) {
         url += `&sort_by=${body?.ordering}`;
       }
@@ -99,6 +107,14 @@ const properties = {
       }
       if (body?.is_approved == false) {
         url += `&is_approved=${encodeURIComponent(body.is_approved)}`;
+      }
+
+      if(body?.city){
+        url += `&location=${encodeURIComponent(body.city)}`;
+      }
+
+      if(body?.area){
+        url += `&area=${encodeURIComponent(body.area)}`;
       }
 
       instance()

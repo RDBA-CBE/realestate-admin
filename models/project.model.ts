@@ -28,6 +28,14 @@ const project = {
         url += `&developer=${encodeURIComponent(body.developer)}`;
       }
 
+      if (body?.city) {
+        url += `&location=${encodeURIComponent(body.city)}`;
+      }
+
+      if (body?.area) {
+        url += `&area=${encodeURIComponent(body.area)}`;
+      }
+
       if (body?.team == true) {
         url += `&team=${encodeURIComponent(body.team)}`;
       }

@@ -1,6 +1,7 @@
 import moment from "moment";
 import * as Yup from "yup";
 import { LISTING_TYPE, PROPERTY_TYPE } from "./constant.utils";
+import area from "@/pages/real-estate/masters/area";
 
 export const sessionCreate = Yup.object().shape({
   lounge_type: Yup.string().required("Lounge type is required"),
@@ -29,7 +30,9 @@ export const property_type = Yup.object().shape({
   listing_type: Yup.string().required("Offer Type is required").nullable(),
   // property_type: Yup.string().required("Property Type is required").nullable(),
   title: Yup.string().required("Property Name is required").nullable(),
-  city: Yup.string().required("City is required").nullable(),
+  location: Yup.string().nullable(),
+  area: Yup.string().nullable(),
+  // city: Yup.string().required("City is required").nullable(),
   state: Yup.string().required("State is required").nullable(),
   country: Yup.string().required("Country is required").nullable(),
   postal_code: Yup.string().required("Zip Code is required").nullable(),
@@ -87,7 +90,9 @@ export const propertySaleCreate = Yup.object().shape({
   description: Yup.string().required("Description is required").nullable(),
   listing_type: Yup.string().required("Property Type is required").nullable(),
   developer: Yup.string().required("Developer is required").nullable(),
-  city: Yup.string().required("City is required").nullable(),
+  location: Yup.string().nullable(),
+  area: Yup.string().nullable(),
+  // city: Yup.string().required("City is required").nullable(),
   state: Yup.string().required("State is required").nullable(),
   country: Yup.string().required("Country is required").nullable(),
   postal_code: Yup.string().required("Zip Code is required").nullable(),
@@ -165,7 +170,9 @@ export const propertyLeaseCreate = Yup.object().shape({
   description: Yup.string().required("Description is required").nullable(),
   listing_type: Yup.string().required("Property Type is required").nullable(),
   developer: Yup.string().required("Developer is required").nullable(),
-  city: Yup.string().required("City is required").nullable(),
+  location: Yup.string().nullable(),
+  area: Yup.string().nullable(),
+  // city: Yup.string().required("City is required").nullable(),
   state: Yup.string().required("State is required").nullable(),
   country: Yup.string().required("Country is required").nullable(),
   postal_code: Yup.string().required("Zip Code is required").nullable(),
@@ -290,6 +297,7 @@ export const category = Yup.object().shape({
 export const project = Yup.object().shape({
   name: Yup.string().required("Project Name is required"),
   location: Yup.string().required("Location is required"),
+  area: Yup.string().required("Area is required"),
 });
 
 export const amenity = Yup.object().shape({
@@ -332,7 +340,15 @@ export const lead = Yup.object().shape({
     .required("Email is required")
     .email("Enter a valid email"),
 
-  interested_property: Yup.string().required("Please select a property"),
+  interested_property: Yup.mixed()
+    .test(
+      "is-required-property",
+      "Please select a property",
+      (value) =>
+        (typeof value === "string" && value.length > 0) ||
+        (Array.isArray(value) && value.length > 0),
+    )
+    .required("Please select a property"),
 
   lead_source: Yup.string().required("Lead Source is required"),
 

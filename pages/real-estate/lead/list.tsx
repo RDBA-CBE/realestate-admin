@@ -45,6 +45,7 @@ import {
   SlidersHorizontal,
   Table,
   X,
+  Download,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import {
@@ -538,6 +539,31 @@ const List = () => {
     });
   };
 
+  const exportToExcel = () => {
+    const headers = ["Date", "Customer Name", "Email", "Property", "Lead Source", "Status", "Assigned To", "Assigned By", "Requirements"];
+    const rows = state.tableList.map((row: any) => [
+      row.date || "",
+      row.full_name || "",
+      row.email || "",
+      row.property || "",
+      row.lead_source || "",
+      row.status || "",
+      row.assigned_to || "",
+      row.assigned_by || "",
+      row.requirements || "",
+    ]);
+    const csvContent = [headers, ...rows]
+      .map((r) => r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `leads_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const clearFilter = () => {
     console.log("clearFilter");
 
@@ -607,7 +633,7 @@ const List = () => {
           }}
           title={row?.property}
         >
-          <div>{truncateText(row?.property)}</div>
+          <div>{(row?.property)}</div>
         </div>
       ),
     },
@@ -676,7 +702,7 @@ const List = () => {
       toggleable: true,
       sortable: true,
       render: (row) => (
-        <span title={row?.full_name}>{truncateText(row?.full_name)}</span>
+        <span title={row?.full_name}>{(row?.full_name)}</span>
       ),
     },
 
@@ -813,7 +839,15 @@ const List = () => {
             Manage Lead listings and opportunities
           </p>
         </div>
-        <div className="flex gap-5">
+        <div className="flex gap-3">
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-lg border border-green-600 px-3 py-2 text-sm font-semibold text-green-600 transition hover:bg-green-600 hover:text-white"
+            onClick={exportToExcel}
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </button>
           <button
             type="button"
             className="btn btn-dred w-full border-none md:mb-0 md:w-auto"

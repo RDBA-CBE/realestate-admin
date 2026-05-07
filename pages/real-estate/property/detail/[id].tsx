@@ -200,7 +200,7 @@ const PropertyDetail = () => {
             <div className="mb-3 flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#9b0f09]" />
               <span>
-                {[p.address, p.city, p.state, p.country, p.postal_code]
+                {[p.address, p.state, p.country, p.postal_code]
                   .filter(Boolean)
                   .map(capitalizeFLetter)
                   .join(", ")}
@@ -297,9 +297,9 @@ const PropertyDetail = () => {
                 </div>
                 <div>
                   <p className="text-base font-bold text-gray-800 dark:text-white">{capitalizeFLetter(p.project.name)}</p>
-                  {p.project.location && (
+                  {p.project.location?.name && (
                     <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
-                      <MapPin className="h-3.5 w-3.5" />{p.project.location}
+                      <MapPin className="h-3.5 w-3.5" />{p.project.location?.name}
                     </p>
                   )}
                   <span className={`mt-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${

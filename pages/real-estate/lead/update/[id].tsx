@@ -33,6 +33,8 @@ import moment from "moment";
 import IconMail from "@/components/Icon/IconMail";
 import {
   FRONTEND_URL,
+  GENDER_LIST,
+  INCOME_TYPE,
   LISTING_TYPE_LIST,
   ROLES,
 } from "@/utils/constant.utils";
@@ -59,11 +61,36 @@ const CreateOpportunities = () => {
   const [state, setState] = useSetState({
     userId: null,
     loading: false,
+    assigned_to:null,
+    company_name: "",
     first_name: "",
+    last_name: "",
+    phone: "",
+    email: "",
+    showAlternateContact: false,
+    alt_first_name: "",
+    alt_last_name: "",
+    alt_email: "",
+    alt_phone: "",
+    gender: null,
+    alt_gender: null,
+    interested_property: null,
+    lead_source: null,
+    next_follow_up: null,
+    status: "",
+    requirements: "",
+    property_name: [],
+    tableList: [],
     propertyPage: 1,
     propertyList: [],
     hasMoreProperty: false,
     error: {},
+    income_type: null,
+    bank_loan_required: false,
+    bank_name: "",
+    bank_branch: "",
+    account_number: "",
+    IncomeTypeList: [],
   });
 
   useEffect(() => {
@@ -77,6 +104,7 @@ const CreateOpportunities = () => {
       propertyList(1);
       leadSourceList(1);
       leadStatusList(1);
+      IncomeTypeList();
     }
   }, [id]);
 
@@ -91,8 +119,20 @@ const CreateOpportunities = () => {
         company_name: res?.company_name,
         email: res?.email,
         phone: res?.phone,
+        gender: res?.gender ? { value: res.gender, label: capitalizeFLetter(res.gender) } : null,
         next_follow_up: res?.next_follow_up,
         requirements: res?.requirements,
+        income_type: res?.employment_type ? { value: res.employment_type, label: capitalizeFLetter(res.employment_type) } : null,
+        bank_loan_required: res?.bank_loan || false,
+        bank_name: res?.bank_name || "",
+        bank_branch: res?.bank_branch || "",
+        account_number: res?.bank_account_no || "",
+        showAlternateContact: !!(res?.alternate_first_name || res?.alternate_last_name || res?.alternate_email || res?.alternate_phone_number || res?.alternate_gender),
+        alt_first_name: res?.alternate_first_name || "",
+        alt_last_name: res?.alternate_last_name || "",
+        alt_email: res?.alternate_email || "",
+        alt_phone: res?.alternate_phone_number || "",
+        alt_gender: res?.alternate_gender ? { value: res.alternate_gender, label: capitalizeFLetter(res.alternate_gender) } : null,
       });
       if (res?.assigned_to) {
         setState({
@@ -183,6 +223,19 @@ const CreateOpportunities = () => {
       const dropdownList = Dropdown(res.results, "name");
       setState({
         leadStatusList: dropdownList,
+      });
+    }
+    catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const IncomeTypeList = async () => {
+    try {
+      const res: any = await Models.employmentType.list(1, { pagination: "No" });
+      const dropdownList = Dropdown(res.results, "name");
+      setState({
+        IncomeTypeList: dropdownList,
       });
     }
     catch (error) {
@@ -299,6 +352,7 @@ const CreateOpportunities = () => {
         last_name: capitalizeFLetter(state.last_name),
         phone: state.phone,
         email: state.email,
+        gender: state.gender?.value,
         interested_property: state.property_name?.value,
         lead_source: state.lead_source?.value,
         assigned_to: state.assigned_to
@@ -310,6 +364,20 @@ const CreateOpportunities = () => {
           : null,
         status: state.status?.value,
         requirements: capitalizeFLetter(state.requirements),
+        ...(state.showAlternateContact && {
+          alternate_first_name: capitalizeFLetter(state.alt_first_name),
+          alternate_last_name: capitalizeFLetter(state.alt_last_name),
+          alternate_email: state.alt_email,
+          alternate_phone_number: state.alt_phone,
+          alternate_gender: state.alt_gender.value
+        }),
+        
+
+        employment_type : state.income_type?.value,
+        bank_loan  : state.bank_loan_required,
+        bank_name  : state.bank_name,
+        bank_branch : state.bank_branch,
+        bank_account_no : state.account_number,
       };
       console.log("✌️body --->", body);
 
@@ -537,7 +605,154 @@ const CreateOpportunities = () => {
       </div>
 
       <div className={`flex-wrap" mt-4 flex w-full gap-4`}>
+       
+
         <div className={`mt-1 w-full md:w-1/2`}>
+          <div>
+            <div className=" panel border shadow-none flex  flex-col gap-5 rounded-xl p-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl  bg-[#ffefe4]">
+                  <IconUser className="text-[#ffbb55]" />
+                </div>
+                <div className=" " style={{ fontSize: "20px" }}>
+                  Contact Information
+                </div>
+              </div>
+
+              <TextInput
+                title="First Name"
+                value={state.first_name}
+                onChange={(e) =>
+                  setState({
+                    first_name: e.target.value,
+                    error: { ...state.error, first_name: "" },
+                  })
+                }
+                placeholder={"First Name"}
+                error={state.error?.first_name}
+                icon={<User2 height={15} width={15} />}
+                required
+              />
+
+              <TextInput
+                title="Last Name"
+                value={state.last_name}
+                onChange={(e) =>
+                  setState({
+                    last_name: e.target.value,
+                    error: { ...state.error, last_name: "" },
+                  })
+                }
+                placeholder={"Last Name"}
+                error={state.error?.last_name}
+                icon={<User2 height={15} width={15} />}
+                required
+              />
+              <TextInput
+                title="Email"
+                value={state.email}
+                onChange={(e) =>
+                  setState({
+                    email: e.target.value,
+                    error: { ...state.error, email: "" },
+                  })
+                }
+                placeholder={"Email"}
+                error={state.error?.email}
+                icon={<IconMail fill={false} />}
+                required
+              />
+
+              <CustomPhoneInput
+                value={state.phone}
+                onChange={(value) =>
+                  setState({
+                    phone: value,
+                    error: { ...state.error, phone: "" },
+                  })
+                }
+                title="Phone Number"
+                name="phone"
+                required
+                error={state.error?.phone}
+              />
+
+              <CustomSelect
+                title="Gender"
+                value={state.gender}
+                onChange={(e) => setState({ gender: e })}
+                placeholder={"Select Gender"}
+                options={GENDER_LIST}
+                error={state.error?.gender}
+                className="w-full"
+              />
+            </div>
+
+             <div className=" panel border shadow-none mt-4  flex flex-col gap-5 rounded-2xl p-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl   bg-[#deffd7]">
+                  <IconUser className="text-[#82de69]" />
+                </div>
+                <div className=" " style={{ fontSize: "20px" }}>
+                  Alternate Contact
+                </div>
+              </div>
+
+              <CheckboxInput
+                label="Add Alternate Contact"
+                checked={state.showAlternateContact}
+                onChange={(e) => setState({ showAlternateContact: !state.showAlternateContact })}
+              />
+
+              {state.showAlternateContact && (
+                <>
+                  <TextInput
+                    title="Alternate First Name"
+                    value={state.alt_first_name}
+                    onChange={(e) => setState({ alt_first_name: e.target.value })}
+                    placeholder="Alternate First Name"
+                  />
+
+                  <TextInput
+                    title="Alternate Last Name"
+                    value={state.alt_last_name}
+                    onChange={(e) => setState({ alt_last_name: e.target.value })}
+                    placeholder="Alternate Last Name"
+                  />
+
+                  <TextInput
+                    title="Alternate Email"
+                    value={state.alt_email}
+                    onChange={(e) => setState({ alt_email: e.target.value })}
+                    placeholder="Alternate Email"
+                  />
+
+                  <CustomPhoneInput
+                    value={state.alt_phone}
+                    onChange={(value) => setState({ alt_phone: value })}
+                    title="Alternate Phone Number"
+                    name="alt_phone"
+                  />
+
+                  <CustomSelect
+                    title="Alternate Gender"
+                    value={state.alt_gender}
+                    onChange={(e) => setState({ alt_gender: e })}
+                    placeholder={"Select Gender"}
+                    options={GENDER_LIST}
+                    className="w-full"
+                  />
+                </>
+              )}
+            </div>
+            
+            
+
+           
+          </div>
+        </div>
+
+         <div className={`mt-1 w-full md:w-1/2`}>
           <div className=" panel   border shadow-none flex  flex-col gap-5 rounded-2xl p-3">
             <div className="flex items-center gap-3">
               <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl  bg-[#deffd7]">
@@ -624,79 +839,7 @@ const CreateOpportunities = () => {
               error={state.error?.requirements}
             />
           </div>
-        </div>
-
-        <div className={`mt-1 w-full md:w-1/2`}>
-          <div>
-            <div className=" panel border shadow-none flex  flex-col gap-5 rounded-xl p-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl  bg-[#ffefe4]">
-                  <IconUser className="text-[#ffbb55]" />
-                </div>
-                <div className=" " style={{ fontSize: "20px" }}>
-                  Contact Information
-                </div>
-              </div>
-
-              <TextInput
-                title="First Name"
-                value={state.first_name}
-                onChange={(e) =>
-                  setState({
-                    first_name: e.target.value,
-                    error: { ...state.error, first_name: "" },
-                  })
-                }
-                placeholder={"First Name"}
-                error={state.error?.first_name}
-                icon={<User2 height={15} width={15} />}
-                required
-              />
-
-              <TextInput
-                title="Last Name"
-                value={state.last_name}
-                onChange={(e) =>
-                  setState({
-                    last_name: e.target.value,
-                    error: { ...state.error, last_name: "" },
-                  })
-                }
-                placeholder={"Last Name"}
-                error={state.error?.last_name}
-                icon={<User2 height={15} width={15} />}
-                required
-              />
-              <TextInput
-                title="Email"
-                value={state.email}
-                onChange={(e) =>
-                  setState({
-                    email: e.target.value,
-                    error: { ...state.error, email: "" },
-                  })
-                }
-                placeholder={"Email"}
-                error={state.error?.email}
-                icon={<IconMail fill={false} />}
-                required
-              />
-
-              <CustomPhoneInput
-                value={state.phone}
-                onChange={(value) =>
-                  setState({
-                    phone: value,
-                    error: { ...state.error, phone: "" },
-                  })
-                }
-                title="Phone Number"
-                name="phone"
-                required
-                error={state.error?.phone}
-              />
-            </div>
-            <div className=" panel border shadow-none mt-4  flex flex-col gap-5 rounded-2xl p-3">
+          <div className=" panel border shadow-none mt-4  flex flex-col gap-5 rounded-2xl p-3">
               <div className="flex items-center gap-3">
                 <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl   bg-[#deffd7]">
                   <IconUser className="text-[#82de69]" />
@@ -718,9 +861,72 @@ const CreateOpportunities = () => {
                 loadMore={() => propertyLoadMore()}
               />
             </div>
-          </div>
+
+            <div className=" panel border shadow-none mt-4  flex flex-col gap-5 rounded-2xl p-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl   bg-[#deffd7]">
+                  <IconUser className="text-[#82de69]" />
+                </div>
+                <div className=" " style={{ fontSize: "20px" }}>
+                  User Information
+                </div>
+              </div>
+
+              <CustomSelect
+                title="User Income Type"
+                value={state.income_type}
+                onChange={(e) => setState({ income_type: e })}
+                placeholder={"Select Income Type"}
+                options={state.IncomeTypeList}
+                error={state.error?.income_type}
+                required
+                className="w-full"
+               
+              />
+
+              <CheckboxInput
+                label="Bank Loan Required"
+                checked={state.bank_loan_required}
+                onChange={(e) => setState({ bank_loan_required: !state.bank_loan_required})}
+              />
+
+              {state.bank_loan_required && (
+                <> 
+                  <TextInput
+                    title="Bank Name"
+                    value={state.bank_name}
+                    onChange={(e) => setState({ bank_name: e.target.value })}
+                    placeholder="Bank Name"
+                  
+                  />
+
+                  <TextInput
+                    title="Branch Name"
+                    value={state.bank_branch}
+                    onChange={(e) => setState({ bank_branch: e.target.value })}
+                    placeholder="Branch Name"
+                  
+                  />
+
+                  <TextInput
+                    title="Account Number"
+                    value={state.account_number}
+                    onChange={(e) => setState({ account_number: e.target.value })}
+                    placeholder="Account Number"
+                  
+                  />
+
+                </>
+              )}
+
+            
+            </div>
         </div>
+
+        
       </div>
+
+      
       {state.tableList?.length > 0 && (
         <div className={`mt-3 w-full`}>
           <div className="  flex  flex-col gap-5 rounded-xl ">

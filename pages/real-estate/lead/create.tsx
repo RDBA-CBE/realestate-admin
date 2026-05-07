@@ -34,6 +34,8 @@ import moment from "moment";
 import IconMail from "@/components/Icon/IconMail";
 import {
   FRONTEND_URL,
+  GENDER_LIST,
+  INCOME_TYPE,
   LISTING_TYPE_LIST,
   ROLES,
 } from "@/utils/constant.utils";
@@ -63,12 +65,18 @@ const CreateOpportunities = () => {
     last_name: "",
     phone: "",
     email: "",
+    showAlternateContact: false,
+    alt_first_name: "",
+    alt_last_name: "",
+    alt_email: "",
+    alt_phone: "",
     interested_property: null,
     lead_source: null,
     next_follow_up: null,
     status: "",
     requirements: "",
-    property_name:null,
+    property_name: [],
+    tableList: [],
     propertyPage: 1,
     propertyList: [],
     hasMoreProperty: false,
@@ -84,8 +92,16 @@ const CreateOpportunities = () => {
   useEffect(() => {
     propertyList(1);
     leadSourceList();
+    IncomeTypeList()
     leadStatusList();
+    cityList(1)
   }, []);
+
+   useEffect(() => {
+      if (state.location ) {
+        areaList(1);
+      }
+    }, [state.location, ]);
 
   const propertyList = async (id: any) => {
     try {
@@ -118,6 +134,19 @@ const CreateOpportunities = () => {
       const dropdownList = Dropdown(res.results, "name");
       setState({
         leadSourceList: dropdownList,
+      });
+    }
+    catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const IncomeTypeList = async () => {
+    try {
+      const res: any = await Models.employmentType.list(1, { pagination: "No" });
+      const dropdownList = Dropdown(res.results, "name");
+      setState({
+        IncomeTypeList: dropdownList,
       });
     }
     catch (error) {
@@ -159,19 +188,108 @@ const CreateOpportunities = () => {
     }
   };
 
+  const cityList = async (page) => {
+      try {
+        const body: any = {};
+        if (state.search) body.search = state.search;
+        const res: any = await Models.city.list(page, body);
+        const droprdown = Dropdown(res?.results, "name");
+  
+        setState({
+          cityList: droprdown,
+          total: res?.count,
+          page,
+          next: res.next,
+          previous: res.previous,
+          totalRecords: res.count,
+        });
+      } catch (error) {
+        console.log("error -->", error);
+      }
+    };
+  
+    const cityLoadMore = async () => {
+      try {
+        if (state.cityNext) {
+          const res: any = await Models.city.list(state.cityPage + 1, {});
+          const newOptions = Dropdown(res?.results, "name");
+          setState({
+            cityList: [...state.cityList, ...newOptions],
+            cityNext: res.next,
+            cityPage: state.cityPage + 1,
+          });
+        } else {
+          setState({
+            cityList: state.cityList,
+          });
+        }
+      } catch (error) {
+        console.log("error: ", error);
+      }
+    };
+  
+    const areaList = async (page) => {
+      try {
+        const body: any = {
+          location: state.location?.value || state.filterLocation?.value,
+        };
+        if (state.search) body.search = state.search;
+        const res: any = await Models.area.list(page, body);
+        const droprdown = Dropdown(res?.results, "name");
+  
+        setState({
+          areaList: droprdown,
+          total: res?.count,
+          page,
+          next: res.next,
+          previous: res.previous,
+          totalRecords: res.count,
+        });
+      } catch (error) {
+        console.log("error -->", error);
+      }
+    };
+  
+    const areaLoadMore = async () => {
+      try {
+        if (state.areaNext) {
+          const res: any = await Models.area.list(state.areaPage + 1, {});
+          const newOptions = Dropdown(res?.results, "name");
+          setState({
+            areaList: [...state.areaList, ...newOptions],
+            areaNext: res.next,
+            areaPage: state.areaPage + 1,
+          });
+        } else {
+          setState({
+            areaList: state.areaList,
+          });
+        }
+      } catch (error) {
+        console.log("error: ", error);
+      }
+    };
+
   const handleGetProperty = async (e) => {
     try {
-      setState({ property_name: e , error: { ...state.error, interested_property: null }});
-      if (e) {
-        const res: any = await Models.property.details(e?.value);
-        const data = [
-          {
+      setState({ property_name: e, error: { ...state.error, interested_property: null } });
+
+      if (!e || (Array.isArray(e) && e.length === 0)) {
+        setState({ tableList: [] });
+        return;
+      }
+
+      const selectedItems = Array.isArray(e) ? e : [e];
+      const propertyDetails = await Promise.all(
+        selectedItems.map(async (item) => {
+          const res: any = await Models.property.details(item?.value);
+          return {
             title: capitalizeFLetter(res?.title),
             status: capitalizeFLetter(res?.status),
             id: res?.id,
             total_area: res?.total_area,
             property_type:
-                      res?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
+              res?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
             listing_type: {
               type: capitalizeFLetter(res?.listing_type),
               color:
@@ -183,30 +301,34 @@ const CreateOpportunities = () => {
                   ? "info"
                   : "success",
             },
-
             date: commonDateFormat(res?.created_at),
             location: capitalizeFLetter(res?.city),
             developer: `${capitalizeFLetter(
               res?.developer?.first_name
             )} ${capitalizeFLetter(res?.developer?.last_name)}`,
             project: capitalizeFLetter(res?.project?.name),
-
-             price: formatPriceRange(res?.price_range?.minimum_price, res?.price_range?.maximum_price),
+            price: formatPriceRange(
+              res?.price_range?.minimum_price,
+              res?.price_range?.maximum_price,
+            ),
+            built_up_area: res?.built_up_area,
             publish: res?.publish === true ? "Published" : "Draft",
             is_approved: res?.is_approved,
             image:
               res?.primary_image?.image ??
               "/assets/images/real-estate/property-info-img1.png",
-          },
-        ];
-        setState({ tableList: data });
-      } else {
-        setState({ tableList: [] });
-      }
+          };
+        }),
+      );
+
+      setState({ tableList: propertyDetails });
     } catch (error) {
       console.log("✌️error --->", error);
     }
   };
+
+  console.log("tableList", state.tableList);
+  
 
   const handleSubmit = async () => {
     try {
@@ -217,7 +339,12 @@ const CreateOpportunities = () => {
         last_name: capitalizeFLetter(state.last_name),
         phone: state.phone,
         email: state.email,
-        interested_property: state.property_name?.value,
+        gender: state.gender?.value,
+        location: state.location?.value,
+        area: state.area?.value,
+        interested_property: Array.isArray(state.property_name)
+          ? state.property_name.map((item) => item.value)
+          : state.property_name?.value,
         lead_source: state.lead_source?.value,
         assigned_to: state.assigned_to ?  state.assigned_to?.value : state.userId,
         // lead_source_details: state.lead_source_details,
@@ -226,6 +353,20 @@ const CreateOpportunities = () => {
           : null,
         status: state.status?.value,
         requirements: capitalizeFLetter(state.requirements),
+        ...(state.showAlternateContact && {
+          alternate_first_name: capitalizeFLetter(state.alt_first_name),
+          alternate_last_name: capitalizeFLetter(state.alt_last_name),
+          alternate_email: state.alt_email,
+          alternate_phone_number: state.alt_phone,
+          alternate_gender: state.alt_gender.value
+        }),
+        
+
+        employment_type : state.income_type?.value,
+        bank_loan  : state.bank_loan_required,
+        bank_name  : state.bank_name,
+        bank_branch : state.bank_branch,
+        bank_account_no : state.account_number,
       };
       console.log("✌️body --->", body);
 
@@ -300,7 +441,7 @@ const CreateOpportunities = () => {
         <div
         onClick={() => handleView(row)}
         className="cursor-pointer text-sm font-semibold">
-          {truncateText(row.title)}
+          {(row.title)}
         </div>
       ),
     },
@@ -308,8 +449,21 @@ const CreateOpportunities = () => {
       accessor: "project",
       title: "Project",
       render: (row) => (
-        <span title={row.project}>{truncateText(row.project)}</span>
+        <span title={row.project}>{(row.project)}</span>
       ),
+    },
+     {
+      accessor: "price",
+      title: "Price Range",
+      visible: true,
+      toggleable: true,
+    },
+
+    {
+      accessor: "built_up_area",
+      title: "Built-Up Area (sq.ft)",
+      visible: true,
+      toggleable: true,
     },
     {
       accessor: "property_type",
@@ -365,36 +519,36 @@ const CreateOpportunities = () => {
         </span>
       ),
     },
-    {
-      accessor: "publish",
-      title: "Publish Status",
-      render: (row: any) => (
-        <span
-          className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-            row?.publish === "Published"
-              ? "bg-lred text-dred border-dred"
-              : "bg-gray-200 text-gray-700"
-          }`}
-        >
-          {row?.publish}
-        </span>
-      ),
-    },
-    {
-      accessor: "is_approved",
-      title: "Approved Status",
-      render: (row: any) => (
-        <span
-          className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-            row?.is_approved === true
-              ? "bg-green-100 text-green-700"
-              : "bg-yellow-100 text-gray-700"
-          }`}
-        >
-          {row?.is_approved === true ? "Approved" : "Pending"}
-        </span>
-      ),
-    },
+    // {
+    //   accessor: "publish",
+    //   title: "Publish Status",
+    //   render: (row: any) => (
+    //     <span
+    //       className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+    //         row?.publish === "Published"
+    //           ? "bg-lred text-dred border-dred"
+    //           : "bg-gray-200 text-gray-700"
+    //       }`}
+    //     >
+    //       {row?.publish}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   accessor: "is_approved",
+    //   title: "Approved Status",
+    //   render: (row: any) => (
+    //     <span
+    //       className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+    //         row?.is_approved === true
+    //           ? "bg-green-100 text-green-700"
+    //           : "bg-yellow-100 text-gray-700"
+    //       }`}
+    //     >
+    //       {row?.is_approved === true ? "Approved" : "Pending"}
+    //     </span>
+    //   ),
+    // },
     {
       accessor: "action",
       title: "Actions",
@@ -412,6 +566,9 @@ const CreateOpportunities = () => {
       ),
     },
   ];
+
+  console.log("property_name", state.property_name);
+  
 
   return (
     <div className="relative h-auto  bg-cover ">
@@ -512,6 +669,157 @@ const CreateOpportunities = () => {
       </div>
 
       <div className={`flex-wrap"  flex w-full gap-4  mt-4`}>
+         <div className={`mt-1 w-full md:w-1/2`}>
+          <div>
+            <div className=" panel border shadow-none flex  flex-col gap-5 rounded-xl p-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl  bg-[#ffefe4]">
+                  <IconUser className="text-[#ffbb55]" />
+                </div>
+                <div className=" " style={{ fontSize: "20px" }}>
+                  Contact Information
+                </div>
+              </div>
+
+              <TextInput
+                title="First Name"
+                value={state.first_name}
+                onChange={(e) => setState({ first_name: e.target.value , error: { ...state.error, first_name: "" }})}
+                placeholder={"First Name"}
+                error={state.error?.first_name}
+                icon={<User2 height={15} width={15} />}
+                required
+              />
+
+              <TextInput
+                title="Last Name"
+                value={state.last_name}
+                onChange={(e) => setState({ last_name: e.target.value, error: { ...state.error, last_name: "" } })}
+                placeholder={"Last Name"}
+                error={state.error?.last_name}
+                icon={<User2 height={15} width={15} />}
+                required
+              />
+              <TextInput
+                title="Email"
+                value={state.email}
+                onChange={(e) => setState({ email: e.target.value, error: { ...state.error, email: "" } })}
+                placeholder={"Email"}
+                error={state.error?.email}
+                icon={<IconMail fill={false} />}
+                required
+              />
+
+              <CustomPhoneInput
+                value={state.phone}
+                onChange={(value) => setState({ phone: value , error: { ...state.error, phone: "" }})}
+                title="Phone Number"
+                name="phone"
+                required
+                error={state.error?.phone}
+              />
+                <CustomSelect
+              value={state.gender}
+              onChange={(e) =>
+                setState({ gender: e, error: { ...state.error, gender: null } })
+              }
+              placeholder={"Gender"}
+              title={"Gender"}
+              options={GENDER_LIST}
+              error={state.error?.gender}
+              required
+              className="w-full"
+              
+            />
+
+            <CustomSelect
+                  title="City name"
+                  placeholder="Select city"
+                  options={state.cityList}
+                  value={state.location}
+                  onChange={(selectedOption) =>
+                    setState({ location: selectedOption, area: "" })
+                  }
+                  isClearable
+                  loadMore={() => cityLoadMore()}
+                  required
+                  error={state.error?.location}
+                />
+
+                <CustomSelect
+                  title="Area name"
+                  placeholder="Select Area"
+                  options={state.areaList}
+                  value={state.area}
+                  onChange={(selectedOption) =>
+                    setState({ area: selectedOption })
+                  }
+                  isClearable
+                  loadMore={() => areaLoadMore()}
+                  required
+                  error={state.error?.area}
+                  disabled={!state.location}
+                />
+
+
+              <CheckboxInput
+                label="Add Alternate Contact Details"
+                checked={state.showAlternateContact}
+                onChange={(e) => setState({ showAlternateContact: !state.showAlternateContact})}
+              />
+
+              {state.showAlternateContact && (
+                <>
+                  <TextInput
+                    title="Alternate First Name"
+                    value={state.alt_first_name}
+                    onChange={(e) => setState({ alt_first_name: e.target.value })}
+                    placeholder={"Alternate First Name"}
+                    icon={<User2 height={15} width={15} />}
+                  />
+
+                  <TextInput
+                    title="Alternate Last Name"
+                    value={state.alt_last_name}
+                    onChange={(e) => setState({ alt_last_name: e.target.value })}
+                    placeholder={"Alternate Last Name"}
+                    icon={<User2 height={15} width={15} />}
+                  />
+
+                  <TextInput
+                    title="Alternate Email"
+                    value={state.alt_email}
+                    onChange={(e) => setState({ alt_email: e.target.value })}
+                    placeholder={"Alternate Email"}
+                    icon={<IconMail fill={false} />}
+                  />
+
+                  <CustomPhoneInput
+                    value={state.alt_phone}
+                    onChange={(value) => setState({ alt_phone: value })}
+                    title="Alternate Phone Number"
+                    name="alt_phone"
+                  />
+
+                  <CustomSelect
+              value={state.alt_gender}
+              onChange={(e) =>
+                setState({ alt_gender: e, error: { ...state.error, alt_gender: null } })
+              }
+              placeholder={" Gender"}
+              title={"Gender"}
+              options={GENDER_LIST}
+              error={state.error?.alt_gender}
+
+              className="w-full"
+              
+            />
+                </>
+              )}
+            </div>
+            
+          </div>
+        </div>
         <div className={`mt-1 w-full md:w-1/2`}>
           <div className=" panel border shadow-none flex  flex-col gap-5 rounded-xl p-3">
             <div className="flex items-center gap-3">
@@ -601,59 +909,8 @@ const CreateOpportunities = () => {
               error={state.error?.requirements}
             />
           </div>
-        </div>
 
-        <div className={`mt-1 w-full md:w-1/2`}>
-          <div>
-            <div className=" panel border shadow-none flex  flex-col gap-5 rounded-xl p-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl  bg-[#ffefe4]">
-                  <IconUser className="text-[#ffbb55]" />
-                </div>
-                <div className=" " style={{ fontSize: "20px" }}>
-                  Contact Information
-                </div>
-              </div>
-
-              <TextInput
-                title="First Name"
-                value={state.first_name}
-                onChange={(e) => setState({ first_name: e.target.value , error: { ...state.error, first_name: "" }})}
-                placeholder={"First Name"}
-                error={state.error?.first_name}
-                icon={<User2 height={15} width={15} />}
-                required
-              />
-
-              <TextInput
-                title="Last Name"
-                value={state.last_name}
-                onChange={(e) => setState({ last_name: e.target.value, error: { ...state.error, last_name: "" } })}
-                placeholder={"Last Name"}
-                error={state.error?.last_name}
-                icon={<User2 height={15} width={15} />}
-                required
-              />
-              <TextInput
-                title="Email"
-                value={state.email}
-                onChange={(e) => setState({ email: e.target.value, error: { ...state.error, email: "" } })}
-                placeholder={"Email"}
-                error={state.error?.email}
-                icon={<IconMail fill={false} />}
-                required
-              />
-
-              <CustomPhoneInput
-                value={state.phone}
-                onChange={(value) => setState({ phone: value , error: { ...state.error, phone: "" }})}
-                title="Phone Number"
-                name="phone"
-                required
-                error={state.error?.phone}
-              />
-            </div>
-            <div className=" panel border shadow-none mt-4  flex flex-col gap-5 rounded-2xl p-3">
+          <div className=" panel border shadow-none mt-4  flex flex-col gap-5 rounded-2xl p-3">
               <div className="flex items-center gap-3">
                 <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl   bg-[#deffd7]">
                   <IconUser className="text-[#82de69]" />
@@ -673,10 +930,74 @@ const CreateOpportunities = () => {
                 required
                 className="w-full"
                 loadMore={() => propertyLoadMore()}
+                isMulti
               />
             </div>
-          </div>
+
+            <div className=" panel border shadow-none mt-4  flex flex-col gap-5 rounded-2xl p-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl   bg-[#deffd7]">
+                  <IconUser className="text-[#82de69]" />
+                </div>
+                <div className=" " style={{ fontSize: "20px" }}>
+                  User Information
+                </div>
+              </div>
+
+              <CustomSelect
+                title="User Income Type"
+                value={state.income_type}
+                onChange={(e) => setState({ income_type: e })}
+                placeholder={"Select Income Type"}
+                options={state.IncomeTypeList}
+                error={state.error?.income_type}
+                required
+                className="w-full"
+               
+              />
+
+              <CheckboxInput
+                label="Bank Loan Required"
+                checked={state.bank_loan_required}
+                onChange={(e) => setState({ bank_loan_required: !state.bank_loan_required})}
+              />
+
+              {state.bank_loan_required && (
+                <> 
+                  <TextInput
+                    title="Bank Name"
+                    value={state.bank_name}
+                    onChange={(e) => setState({ bank_name: e.target.value })}
+                    placeholder="Bank Name"
+                  
+                  />
+
+                  <TextInput
+                    title="Branch Name"
+                    value={state.branch_name}
+                    onChange={(e) => setState({ branch_name: e.target.value })}
+                    placeholder="Branch Name"
+                  
+                  />
+
+                  <TextInput
+                    title="Account Number"
+                    value={state.account_number}
+                    onChange={(e) => setState({ account_number: e.target.value })}
+                    placeholder="Account Number"
+                  
+                  />
+
+                </>
+              )}
+
+            
+            </div>
+
+            
         </div>
+
+       
       </div>
       {state.tableList?.length > 0 && (
         <div className={`mt-3 w-full`}>

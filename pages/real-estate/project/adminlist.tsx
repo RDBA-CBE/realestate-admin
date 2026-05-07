@@ -27,6 +27,7 @@ import PrivateRouter from "@/hook/privateRouter";
 import FilterChips from "@/components/FilterChips/FilterChips.component";
 import { Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
+import CheckboxInput from "@/components/FormFields/CheckBoxInput.component";
 
 const list = () => {
   const router = useRouter();
@@ -65,7 +66,7 @@ const list = () => {
     if (state.userId !== null) {
       projectList(1);
     }
-  }, [debouncedSearch, state.user, state.role, state.userId]);
+  }, [debouncedSearch, state.user, state.role, state.userId, state.ownRecord]);
 
   useEffect(() => {
     developerList(1);
@@ -271,6 +272,10 @@ const list = () => {
       body.group = state.role.value;
     }
 
+    if(state.ownRecord){
+      body.created_by = state.userId;
+    }
+
     // if (state.user?.value || (state.role == null && state.userId)) {
     //   body.created_by = state.user?.value ? state.user?.value : state.userId;
     // }
@@ -429,6 +434,19 @@ const list = () => {
                 options={state.userList}
               />
             </div>
+
+          <div className="flex items-center ">
+            <CheckboxInput
+                 
+                  checked={state.ownRecord}
+                  onChange={() =>
+                    setState({
+                      ownRecord: !state.ownRecord,
+                    })
+                  }
+                  label="Own Records"
+                />
+                </div>
           </>
         )}
 

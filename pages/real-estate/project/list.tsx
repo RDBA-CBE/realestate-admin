@@ -4,6 +4,7 @@ import Tippy from "@tippyjs/react";
 import IconEye from "@/components/Icon/IconEye";
 import IconEdit from "@/components/Icon/IconEdit";
 import {
+  Dropdown,
   Failure,
   showDeleteAlert,
   Success,
@@ -25,9 +26,12 @@ import IconArrowForward from "@/components/Icon/IconArrowForward";
 import { FILTER_ADMINROLES, FILTER_ROLES, ROLES } from "@/utils/constant.utils";
 import PrivateRouter from "@/hook/privateRouter";
 import FilterChips from "@/components/FilterChips/FilterChips.component";
-import { Eye } from "lucide-react";
+import { Eye, HomeIcon, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
+import area from "../masters/area";
+import { s } from "@fullcalendar/core/internal-common";
+import { filter } from "lodash";
 
 const list = () => {
   const router = useRouter();
@@ -49,6 +53,12 @@ const list = () => {
     sortBy: "",
     sortOrder: "asc",
     selectedRecords: [],
+    expandedRow: null,
+    quickInfo: {},
+    cityList: [],
+    areaList: [],
+    city: null,
+    area: null,
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -63,10 +73,30 @@ const list = () => {
   }, []);
 
   useEffect(() => {
+    categoryList(1);
+    cityList(1);
+  }, []);
+
+  useEffect(() => {
+    if (state.location || state.filterLocation) {
+      areaList(1);
+    }
+  }, [state.location, state.filterLocation]);
+
+  useEffect(() => {
     if (state.userId !== null) {
       projectList(1);
     }
-  }, [debouncedSearch, state.user, state.role, state.userId , state.recordType, state.team]);
+  }, [
+    debouncedSearch,
+    state.user,
+    state.role,
+    state.userId,
+    state.recordType,
+    state.team,
+    state.filterLocation,
+    state.filterArea,
+  ]);
 
   const developerList = async (page) => {
     try {
@@ -145,8 +175,11 @@ const list = () => {
         properties: item?.property_count,
         project: item?.project?.name,
         description: item?.description,
-        developer: item?.developer?.industry ||  "-",
+        developer: item?.developer?.industry || "-",
         // ...item
+        property_type_counts: item?.property_type_counts || [],
+        city: item?.location || "-",
+        area: item?.area || "-",
       }));
       const group = localStorage.getItem("group");
 
@@ -170,7 +203,8 @@ const list = () => {
       setState({ btnLoading: true });
       const body = {
         name: state.name,
-        location: state.location,
+        location: state.location?.value,
+        area: state.area?.value,
         description: state.description,
         developer: state.userId,
       };
@@ -201,7 +235,8 @@ const list = () => {
       setState({ btnLoading: true });
       const body = {
         name: state.name,
-        location: state.location,
+        location: state.location?.value,
+        area: state.area?.value,
         description: state.description,
         developer: state.userId,
       };
@@ -254,35 +289,153 @@ const list = () => {
     );
   };
 
-  console.log("state.role", state.role);
+  const categoryList = async (page) => {
+    try {
+      const res: any = await Models.category.list(page, {});
+      const droprdown = Dropdown(res?.results, "name");
+      setState({
+        categoryList: droprdown,
+        categoryPage: page,
+        categoryNext: res.next,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
 
-  console.log("state.userId", state.userId);
+  const catListLoadMore = async () => {
+    try {
+      if (state.categoryNext) {
+        const res: any = await Models.category.list(state.categoryPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          categoryList: [...state.categoryList, ...newOptions],
+          categoryNext: res.next,
+          categoryPage: state.categoryPage + 1,
+        });
+      } else {
+        setState({
+          categoryList: state.categoryList,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
 
-   const handleBulkDelete = () => {
-      showDeleteAlert(
-        async () => {
-          try {
-            setState({ btnLoading: true });
-            await Promise.all(
-              state.selectedRecords.map((row: any) =>
-                Models.project.delete(row?.id),
-              ),
-            );
-            setState({ selectedRecords: [], btnLoading: false });
-            projectList(state.page);
-            Success(
-              `${state.selectedRecords.length} project${state.selectedRecords.length > 1 ? "s" : ""} deleted successfully`,
-            );
-          } catch (error) {
-            setState({ btnLoading: false });
-          }
-        },
-        () => {
-          Swal.fire("Cancelled", "Your Records are safe :)", "info");
-        },
-        `Are you sure want to delete ${state.selectedRecords.length} selected project${state.selectedRecords.length > 1 ? "s" : ""}?`,
-      );
-    };
+  console.log("state.categoryList", state.categoryList);
+
+  const cityList = async (page) => {
+    try {
+      const body: any = {};
+      if (state.search) body.search = state.search;
+      const res: any = await Models.city.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+
+      setState({
+        cityList: droprdown,
+        total: res?.count,
+        page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+      });
+    } catch (error) {
+      console.log("error -->", error);
+    }
+  };
+
+  const cityLoadMore = async () => {
+    try {
+      if (state.cityNext) {
+        const res: any = await Models.city.list(state.cityPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          cityList: [...state.cityList, ...newOptions],
+          cityNext: res.next,
+          cityPage: state.cityPage + 1,
+        });
+      } else {
+        setState({
+          cityList: state.cityList,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
+  const areaList = async (page) => {
+    try {
+      const body: any = {
+        location: state.location?.value || state.filterLocation?.value,
+      };
+      if (state.search) body.search = state.search;
+      const res: any = await Models.area.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+
+      setState({
+        areaList: droprdown,
+        total: res?.count,
+        page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+      });
+    } catch (error) {
+      console.log("error -->", error);
+    }
+  };
+
+  const areaLoadMore = async () => {
+    try {
+      if (state.areaNext) {
+        const res: any = await Models.area.list(state.areaPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          areaList: [...state.areaList, ...newOptions],
+          areaNext: res.next,
+          areaPage: state.areaPage + 1,
+        });
+      } else {
+        setState({
+          areaList: state.areaList,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    showDeleteAlert(
+      async () => {
+        try {
+          setState({ btnLoading: true });
+          await Promise.all(
+            state.selectedRecords.map((row: any) =>
+              Models.project.delete(row?.id),
+            ),
+          );
+          setState({ selectedRecords: [], btnLoading: false });
+          projectList(state.page);
+          Success(
+            `${state.selectedRecords.length} project${
+              state.selectedRecords.length > 1 ? "s" : ""
+            } deleted successfully`,
+          );
+        } catch (error) {
+          setState({ btnLoading: false });
+        }
+      },
+      () => {
+        Swal.fire("Cancelled", "Your Records are safe :)", "info");
+      },
+      `Are you sure want to delete ${
+        state.selectedRecords.length
+      } selected project${state.selectedRecords.length > 1 ? "s" : ""}?`,
+    );
+  };
 
   const bodyData = () => {
     let body: any = {};
@@ -300,11 +453,17 @@ const list = () => {
 
     body.developer = state.userId;
 
-    if(state?.team == true){
-      body.team = state?.team
+    if (state.filterLocation) {
+      body.city = state.filterLocation.value;
     }
-    if(state?.team == false){
-      body.team = state?.team
+    if (state.filterArea) {
+      body.area = state.filterArea.value;
+    }
+    if (state?.team == true) {
+      body.team = state?.team;
+    }
+    if (state?.team == false) {
+      body.team = state?.team;
     }
 
     // if (state.user?.value || (state.role == null && state.userId)) {
@@ -326,16 +485,46 @@ const list = () => {
   const handleEdit = (row) => {
     setState({
       name: row.name,
-      location: row.location,
       description: row.description,
       isOpen: true,
       editId: row?.id,
+      location: row.city ? { value: row.city.id, label: row.city.name } : null,
+      area: row.area ? { value: row.area.id, label: row.area.name } : null,
     });
     console.log("✌️row --->", row);
   };
 
   const handleView = async (row) => {
     router.push(`/real-estate/project/view/${row?.id}`);
+  };
+
+  const handleCreate = async (row) => {
+    router.push(`/real-estate/property/create?project_id=${row?.id}`);
+  };
+
+  const toggleQuickInfo = async (row) => {
+    if (state.expandedRow === row.id) {
+      setState({ expandedRow: null });
+      return;
+    }
+    setState({ expandedRow: row.id });
+    if (state.quickInfo[row.id]) return;
+    try {
+      const types = ["apartment", "villa", "commercial", "industry"];
+      const counts: any = {};
+      await Promise.all(
+        types.map(async (type) => {
+          const res: any = await Models.property.list(1, {
+            project: row.id,
+            property_type_name: type,
+          });
+          counts[type] = res?.count || 0;
+        }),
+      );
+      setState({ quickInfo: { ...state.quickInfo, [row.id]: counts } });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
   };
 
   const clearData = () => {
@@ -375,7 +564,6 @@ const list = () => {
   };
 
   console.log("team", state?.team);
-  
 
   // const getuserList = (e) => {
   //   setState({ role: e, user: null });
@@ -397,17 +585,68 @@ const list = () => {
     });
   };
 
+  const exportToExcel = () => {
+    const headers = ["Project Name", "Location", "Properties", "Developer", "Status"];
+    const rows = state.tableList.map((row: any) => [
+      row.name || "",
+      row.location || "",
+      row.properties || 0,
+      row.developer || "",
+      row.status || "",
+    ]);
+    const csvContent = [headers, ...rows]
+      .map((r) => r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `projects_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const FILTER_ADMINROLES = [
-  {
-    value: "own",
-    label: "Own Records",
-  },
-  {
-    value: "admin",
-    label: "Admin Records",
-  }
- 
-];
+    {
+      value: "own",
+      label: "Own Records",
+    },
+    {
+      value: "admin",
+      label: "Admin Records",
+    },
+  ];
+
+  const PropertypeCount = [
+    {
+      name: "Apartment",
+      count: 0,
+      key: "apartment",
+      bg: "bg-blue-100",
+      text: "text-blue-700",
+    },
+    {
+      name: "Villa",
+      count: 0,
+      key: "villa",
+      bg: "bg-green-100",
+      text: "text-green-700",
+    },
+    {
+      name: "Commercial",
+      count: 0,
+      key: "commercial",
+      bg: "bg-yellow-100",
+      text: "text-yellow-700",
+    },
+    {
+      name: "Industry",
+      count: 0,
+      key: "industry",
+      bg: "bg-purple-100",
+      text: "text-purple-700",
+    },
+  ];
 
   return (
     <>
@@ -417,7 +656,15 @@ const list = () => {
             Project List
           </h5>
         </div>
-        <div className="flex gap-5">
+        <div className="flex gap-3">
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-lg border border-green-600 px-3 py-2 text-sm font-semibold text-green-600 transition hover:bg-green-600 hover:text-white"
+            onClick={exportToExcel}
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </button>
           <button
             type="button"
             className="btn btn-dred w-full border-none text-white md:mb-0 md:w-auto"
@@ -447,6 +694,35 @@ const list = () => {
             onChange={getuserList}
             options={FILTER_ADMINROLES}
             // isClearable={false}
+          />
+        </div>
+
+        <div>
+          <CustomSelect
+            placeholder="Select city"
+            options={state.cityList}
+            value={state.filterLocation}
+            onChange={(selectedOption) =>
+              setState({ filterLocation: selectedOption, filterArea: "" })
+            }
+            isClearable
+            loadMore={() => cityLoadMore()}
+            required
+          />
+        </div>
+
+        <div>
+          <CustomSelect
+            placeholder="Select Area"
+            options={state.areaList}
+            value={state.filterArea}
+            onChange={(selectedOption) =>
+              setState({ filterArea: selectedOption })
+            }
+            isClearable
+            loadMore={() => areaLoadMore()}
+            required
+            disabled={!state.filterLocation}
           />
         </div>
 
@@ -489,71 +765,97 @@ const list = () => {
       <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
           <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "16px",
-                    gap: "10px",
-                  }}
-                >
-          <FilterChips
-            chips={[
-              ...(state.search
-                ? [
-                    {
-                      label: `Search: ${state.search}`,
-                      onRemove: () => setState({ search: "" }),
-                    },
-                  ]
-                : []),
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "16px",
+              gap: "10px",
+            }}
+          >
+            <FilterChips
+              chips={[
+                ...(state.search
+                  ? [
+                      {
+                        label: `Search: ${state.search}`,
+                        onRemove: () => setState({ search: "" }),
+                      },
+                    ]
+                  : []),
 
                 ...(state.recordType
-                ? [
-                    {
-                      label: `Records: ${state.recordType.label}`,
-                      onRemove: () => setState({ recordType: "" }),
-                    },
-                  ]
-                : []),
-                 
-              // ...(state.role && state.group === "Admin"
-              //   ? [
-              //       {
-              //         label: `Role: ${state.role.label}`,
-              //         onRemove: () =>
-              //           setState({ role: null, user: null, userList: [] }),
-              //       },
-              //     ]
-              //   : []),
-              // ...(state.user
-              //   ? [
-              //       {
-              //         label: `User: ${state.user.label}`,
-              //         onRemove: () => setState({ user: null }),
-              //       },
-              //     ]
-              //   : []),
-            ]}
-            onClearAll={() =>
-              setState({ search: "", role: null, user: null, userList: [], recordType: null })
-            }
-          />
-           <div className="ml-auto flex items-center gap-3">
-            {state.selectedRecords?.length > 0 && (
-                                  <button
-                                    type="button"
-                                    className="flex items-center gap-2 rounded-lg border border-red-600  px-3 py-1.5 text-sm font-medium text-red-600 "
-                                    onClick={handleBulkDelete}
-                                  >
-                                    <IconTrashLines className="h-4 w-4" />
-                                    Delete ({state.selectedRecords.length})
-                                  </button>
-                                )}
-                                <div className="text-sm text-black">
-                                  {state.total} Projects found
-                                </div>
-           </div>
+                  ? [
+                      {
+                        label: `Records: ${state.recordType.label}`,
+                        onRemove: () => setState({ recordType: "" }),
+                      },
+                    ]
+                  : []),
+
+                ...(state.filterLocation
+                  ? [
+                      {
+                        label: `City: ${state.filterLocation.label}`,
+                        onRemove: () => setState({ filterLocation: "" }),
+                      },
+                    ]
+                  : []),
+
+                ...(state.filterArea
+                  ? [
+                      {
+                        label: `Area: ${state.filterArea.label}`,
+                        onRemove: () => setState({ filterArea: "" }),
+                      },
+                    ]
+                  : []),
+
+                // ...(state.role && state.group === "Admin"
+                //   ? [
+                //       {
+                //         label: `Role: ${state.role.label}`,
+                //         onRemove: () =>
+                //           setState({ role: null, user: null, userList: [] }),
+                //       },
+                //     ]
+                //   : []),
+                // ...(state.user
+                //   ? [
+                //       {
+                //         label: `User: ${state.user.label}`,
+                //         onRemove: () => setState({ user: null }),
+                //       },
+                //     ]
+                //   : []),
+              ]}
+              onClearAll={() =>
+                setState({
+                  search: "",
+                  role: null,
+                  user: null,
+                  userList: [],
+                  recordType: null,
+                  filterLocation: null,
+                  filterArea: null,
+                })
+              }
+            />
+            <div className="ml-auto flex items-center gap-3">
+              {state.selectedRecords?.length > 0 && (
+                <button
+                  type="button"
+                  className="flex items-center gap-2 rounded-lg border border-red-600  px-3 py-1.5 text-sm font-medium text-red-600 "
+                  onClick={handleBulkDelete}
+                >
+                  <IconTrashLines className="h-4 w-4" />
+                  Delete ({state.selectedRecords.length})
+                </button>
+              )}
+              <div className="text-sm text-black">
+                {state.total} Projects found
+              </div>
+            </div>
           </div>
         </div>
         <DataTable
@@ -566,8 +868,11 @@ const list = () => {
               sortable: true,
               render: (row: any) => (
                 <span
-                  className="cursor-pointer "
-                  onClick={(e) => handleEdit(row)}
+                  className="cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleView(row);
+                  }}
                 >
                   {row.name}
                 </span>
@@ -577,15 +882,27 @@ const list = () => {
               accessor: "properties",
               render: (row: any) => (
                 <span
-                  className="cursor-pointer underline text-blue-500 "
-                  onClick={(e) => handleView(row)}
+                  className="cursor-pointer   "
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleView(row);
+                  }}
                 >
                   {row.properties}
                 </span>
               ),
             },
 
-            { accessor: "location", sortable: true },
+            {
+              accessor: "city",
+              sortable: true,
+              render: (row: any) => <span>{row.city.name || "-"}</span>,
+            },
+            {
+              accessor: "area",
+              sortable: true,
+              render: (row: any) => <span>{row.area.name || "-"}</span>,
+            },
             // { accessor: "status" },
 
             {
@@ -597,22 +914,42 @@ const list = () => {
                   <button
                     className="text-dred flex"
                     onClick={(e) => {
+                      e.stopPropagation();
                       handleView(row);
                     }}
+                    title="View Details"
                   >
                     <Eye className="h-3.5 w-3.5" />
                   </button>
                   <button
                     className="flex hover:text-primary"
                     onClick={(e) => {
+                      e.stopPropagation();
                       handleEdit(row);
                     }}
+                    title="Edit Project"
                   >
                     <IconEdit className="h-3.5 w-3.5" />
                   </button>
+
+                  <button
+                    className="text-dred flex"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCreate(row);
+                    }}
+                    title="Create Property"
+                  >
+                    <HomeIcon className="h-3.5 w-3.5" />
+                  </button>
+
                   <button
                     className="flex text-danger hover:text-primary"
-                    onClick={() => handleDelete(row)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(row);
+                    }}
+                    title="Delete Project"
                   >
                     <IconTrash className="h-3.5 w-3.5" />
                   </button>
@@ -646,6 +983,52 @@ const list = () => {
           onSelectedRecordsChange={(records) =>
             setState({ selectedRecords: records })
           }
+          onRowClick={(record: any) => toggleQuickInfo(record)}
+          rowExpansion={{
+            allowMultiple: false,
+            expanded: {
+              recordIds: state.expandedRow ? [state.expandedRow] : [],
+              onRecordIdsChange: () => {},
+            },
+            content: ({ record }: any) => (
+              <div className="bg-gray-50 px-6 py-3 dark:bg-gray-800">
+                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+                  Property Type Breakdown
+                </p>
+                {(() => {
+                  const counts =
+                    record.property_type_counts?.length > 0
+                      ? record.property_type_counts
+                      : PropertypeCount;
+                  const colors = [
+                    "bg-blue-100 text-blue-700",
+                    "bg-green-100 text-green-700",
+                    "bg-yellow-100 text-yellow-700",
+                    "bg-purple-100 text-purple-700",
+                    "bg-pink-100 text-pink-700",
+                    "bg-orange-100 text-orange-700",
+                  ];
+                  return (
+                    <div className="flex flex-wrap gap-2">
+                      {counts.map((item: any, i: number) => (
+                        <span
+                          key={i}
+                          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${
+                            colors[i % colors.length]
+                          }`}
+                        >
+                          {item.name}
+                          <span className="rounded-full bg-white/70 px-1.5 py-0.5 text-xs font-bold">
+                            {item.count}
+                          </span>
+                        </span>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+            ),
+          }}
         />
         <div className="mt-5 flex justify-end gap-3">
           <button
@@ -689,14 +1072,33 @@ const list = () => {
                   required
                 />
 
-                <TextInput
-                  name="name"
-                  title="Location"
-                  placeholder="Enter location"
+                <CustomSelect
+                  title="City name"
+                  placeholder="Select city"
+                  options={state.cityList}
                   value={state.location}
-                  onChange={(e) => setState({ location: e.target.value })}
-                  error={state.error?.location}
+                  onChange={(selectedOption) =>
+                    setState({ location: selectedOption, area: "" })
+                  }
+                  isClearable
+                  loadMore={() => cityLoadMore()}
                   required
+                  error={state.error?.location}
+                />
+
+                <CustomSelect
+                  title="Area name"
+                  placeholder="Select Area"
+                  options={state.areaList}
+                  value={state.area}
+                  onChange={(selectedOption) =>
+                    setState({ area: selectedOption })
+                  }
+                  isClearable
+                  loadMore={() => areaLoadMore()}
+                  required
+                  error={state.error?.area}
+                  disabled={!state.location}
                 />
 
                 <TextArea

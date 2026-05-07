@@ -17,6 +17,9 @@ import test from "@/models/test.model";
 import user from "@/models/user.model";
 import video from "@/models/video.model";
 import virtualTour from "@/models/virtual_tour.model";
+import city from "@/models/city.model";
+import area from "@/models/area.model";
+import employmentType from "@/models/employmentType.model";
 
 export const Models = {
   auth,
@@ -36,6 +39,9 @@ export const Models = {
   lead,
   leadSource,
   leadStatus,
+  city,
+  area,
+  employmentType
   
 };
 
