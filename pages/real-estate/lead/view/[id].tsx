@@ -365,7 +365,7 @@ const View_opportunity = () => {
           >
             <SectionHeader icon={<Activity className="h-4 w-4 text-indigo-600" />} title="Log History" color="bg-indigo-100" />
             {state.logCount > 0 && (
-              <span className="ml-1 flex h-5 w-6 items-center justify-center rounded bg-[#9b0f09] text-xs font-bold text-white">
+              <span className="ml-1 -mt-3.5 flex h-5 w-6 items-center justify-center rounded bg-[#9b0f09] text-xs font-bold text-white">
                 {state.logCount}
               </span>
             )}

@@ -109,9 +109,11 @@ const List = () => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       leadList(1);
+      leadPropertyList(1)
       return;
     }
     leadList(1);
+    leadPropertyList(1)
   }, [
     debouncedSearch,
     state.user,
@@ -670,6 +672,8 @@ const List = () => {
       from_date: "",
       to_date: "",
       datePreset: "",
+       custom_from: "",
+      custom_to: "",
     });
   };
 
@@ -757,7 +761,7 @@ const List = () => {
       sortable: true,
       render: (row) => (
         <div
-          className="flex items-center gap-2 cursor-pointer"
+          className="  gap-2 cursor-pointer"
           onClick={() => router.push(`/real-estate/property/detail/${row?.property_id}`)}
         >
           {/* {row?.property_image && (
@@ -771,8 +775,27 @@ const List = () => {
             <div className="font-medium text-sm" title={row?.property_title}>
               {(row?.property_title)}
             </div>
-            <div className="text-xs text-gray-400">{row?.project}</div>
+            {/* <div className="text-xs text-gray-400">{row?.project}</div> */}
           </div>
+        </div>
+      ),
+    },
+
+     {
+      accessor: "project",
+      title: "Project",
+      visible: true,
+      toggleable: true,
+      sortable: true,
+      width: 150,
+      render: (row) => (
+        <div
+          className="w-fit cursor-pointer"
+          onClick={(e) => {
+            router.push(`/real-estate/project/view/${row?.id}`);
+          }}
+        >
+          <div>{row?.project}</div>
         </div>
       ),
     },
@@ -1116,12 +1139,12 @@ const List = () => {
               Go
             </button>
            
-            <button
+            {/* <button
               onClick={() => setState({ from_date: "", to_date: "", datePreset: "" })}
               className=" px-4 py-2 text-sm font-semibold text-dred "
             >
               Clear
-            </button>
+            </button> */}
           </div>
 
       <div className="mb-5 rounded-2xl ">
@@ -1197,12 +1220,12 @@ const List = () => {
             </>
           )} */}
 
-          <CustomeDatePicker
+          {/* <CustomeDatePicker
             value={state.date}
             placeholder="Choose Date"
             onChange={(e) => setState({ date: e })}
             showTimeSelect={false}
-          />
+          /> */}
 
           {state.group == "Admin" && (
             <button
@@ -1265,6 +1288,38 @@ const List = () => {
                       {
                         label: `Date: ${commonDateFormat(state.date)}`,
                         onRemove: () => setState({ date: null }),
+                      },
+                    ]
+                  : []),
+                  ...(state.from_date
+                  ? [
+                      {
+                        label: `From Date: ${commonDateFormat(state.from_date)}`,
+                        onRemove: () => setState({ from_date: null }),
+                      },
+                    ]
+                  : []),
+                  ...(state.to_date
+                  ? [
+                      {
+                        label: `To Date: ${commonDateFormat(state.to_date)}`,
+                        onRemove: () => setState({ to_date: null }),
+                      },
+                    ]
+                  : []),
+                   ...(state.custom_from
+                  ? [
+                      {
+                        label: `From Date: ${commonDateFormat(state.custom_from)}`,
+                        onRemove: () => setState({ custom_from: null }),
+                      },
+                    ]
+                  : []),
+                  ...(state.custom_to
+                  ? [
+                      {
+                        label: `To Date: ${commonDateFormat(state.custom_to)}`,
+                        onRemove: () => setState({ custom_to: null }),
                       },
                     ]
                   : []),

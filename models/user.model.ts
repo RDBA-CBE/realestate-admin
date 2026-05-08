@@ -194,9 +194,9 @@ const user = {
       .catch((error) => Promise.reject(error.response?.data || error));
   },
 
-  enquiries: (userId: any) => {
+  enquiries: (body: any) => {
     return instance()
-      .get(`leads/?developer_property_users=${userId}`)
+      .get(`leads/?developer_property_users=${body.developer_id}&user_id=${body.user_id}&website=true`)
       .then((res) => res.data)
       .catch((error) => Promise.reject(error.response?.data || error));
   },

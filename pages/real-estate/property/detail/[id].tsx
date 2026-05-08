@@ -120,7 +120,16 @@ const PropertyDetail = () => {
           <span className={`rounded-full px-3 py-1.5 text-sm font-semibold ${publishColor}`}>{p.publish ? "Published" : "Draft"}</span>
           <span className={`rounded-full px-3 py-1.5 text-sm font-semibold ${approvedColor}`}>{p.is_approved ? "Approved" : "Pending Approval"}</span>
           <span className="rounded-full bg-purple-100 px-3 py-1.5 text-sm font-semibold text-purple-700">{capitalizeFLetter(p.listing_type)}</span>
+           <button
+            type="button"
+            className="btn btn-dred w-full  border-none md:mb-0 md:w-auto"
+            onClick={() => router.push(`/real-estate/property/update/${id}`)}
+          >
+            + Update
+          </button>
         </div>
+
+       
       </div>
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">

@@ -969,7 +969,7 @@ const CreateOpportunities = () => {
                 placeholder={"Select Income Type"}
                 options={state.IncomeTypeList}
                 error={state.error?.income_type}
-                required
+                
                 className="w-full"
                
               />

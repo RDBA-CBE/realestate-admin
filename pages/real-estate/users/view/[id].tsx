@@ -75,10 +75,31 @@ const UserView = () => {
 
   const getEnquiries = async () => {
     try {
-      const res: any = await Models.user.enquiries(id);
-      setState({ enquiries: res?.results || res || [] });
+      const developer_id = localStorage.getItem("userId");
+      const body = { developer_id, user_id: id };
+      const res: any = await Models.user.enquiries(body);
+      const data = (res?.results || []).map((item: any) => {
+        const firstProperty = item?.properties_details?.[0];
+        return {
+          id: item?.id,
+          property_id: firstProperty?.id,
+          property_title: firstProperty?.title,
+          property_image: firstProperty?.primary_image,
+          property_city: firstProperty?.city,
+          listing_type: firstProperty?.listing_type,
+          project: firstProperty?.project?.name,
+          status_info: item?.status_info,
+          lead_source_info: item?.lead_source_info,
+          requirements: item?.requirements,
+          created_at: item?.created_at,
+          full_name: item?.full_name,
+          email: item?.email,
+        };
+      });
+      setState({ enquiries: data });
     } catch {}
   };
+  
 
   const { user } = state;
 
@@ -88,13 +109,13 @@ const UserView = () => {
       title: "Property",
       render: (row: any) => (
         <div className="flex items-center gap-3">
-          {row.primary_image ? (
+          {/* {row.primary_image ? (
             <img src={row.primary_image} alt={row.title} className="h-10 w-14 shrink-0 rounded-lg object-cover" />
           ) : (
             <div className="flex h-10 w-14 shrink-0 items-center justify-center rounded-lg bg-[#fdf4f4]">
               <Home className="h-4 w-4 text-[#9b0f09]" />
             </div>
-          )}
+          )} */}
           <div>
             <span className="cursor-pointer font-medium text-[#9b0f09] hover:underline"
               onClick={() => router.push(`/real-estate/property/detail/${row.id}`)}>
@@ -162,18 +183,34 @@ const UserView = () => {
 
   const enquiryColumns = [
     {
-      accessor: "property",
+      accessor: "property_title",
       title: "Property",
       render: (row: any) => (
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#fdf4f4]">
-            <Home className="h-4 w-4 text-[#9b0f09]" />
+          {row.property_image ? (
+            <img src={row.property_image} alt={row.property_title} className="h-10 w-14 shrink-0 rounded-lg object-cover" />
+          ) : (
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#fdf4f4]">
+              <Home className="h-4 w-4 text-[#9b0f09]" />
+            </div>
+          )}
+          <div>
+            <span className="cursor-pointer font-medium text-[#9b0f09] hover:underline"
+              onClick={() => router.push(`/real-estate/property/detail/${row?.property_id}`)}>
+              {truncateText(row?.property_title || "-", 22)}
+            </span>
+            {row.project && <p className="text-xs text-gray-400">{row.project}</p>}
           </div>
-          <span className="cursor-pointer font-medium text-[#9b0f09] hover:underline"
-            onClick={() => router.push(`/real-estate/property/detail/${row?.property_details?.id}`)}>
-            {truncateText(row?.property_details?.title || "-", 25)}
-          </span>
         </div>
+      ),
+    },
+    {
+      accessor: "listing_type",
+      title: "Offer",
+      render: (row: any) => (
+        <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-semibold text-purple-700">
+          {capitalizeFLetter(row?.listing_type || "-")}
+        </span>
       ),
     },
     {
@@ -192,6 +229,13 @@ const UserView = () => {
         <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
           {capitalizeFLetter(row?.lead_source_info?.name || "-")}
         </span>
+      ),
+    },
+    {
+      accessor: "requirements",
+      title: "Requirements",
+      render: (row: any) => (
+        <span className="text-sm text-gray-600">{row?.requirements || "-"}</span>
       ),
     },
     {

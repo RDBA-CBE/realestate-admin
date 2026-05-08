@@ -160,7 +160,7 @@ const CreateOpportunities = () => {
         getInitialRoleList(res?.assigned_to_details?.user_type);
       }
 
-      if (res?.selected_property?.length > 0 && res?.properties_details?.length > 0) {
+      if (res?.selected_property?.length > 0 || res?.properties_details?.length > 0) {
         // Pre-select the property dropdown values
         const selectedOptions = res.properties_details.map((item) => ({
           value: item.id,
@@ -851,6 +851,7 @@ const CreateOpportunities = () => {
                 options={GENDER_LIST}
                 error={state.error?.gender}
                 className="w-full"
+                required
               />
             </div>
 
@@ -1046,7 +1047,7 @@ const CreateOpportunities = () => {
                 placeholder={"Select Income Type"}
                 options={state.IncomeTypeList}
                 error={state.error?.income_type}
-                required
+                // required
                 className="w-full"
                
               />

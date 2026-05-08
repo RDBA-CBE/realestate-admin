@@ -370,11 +370,17 @@ export const lead = Yup.object().shape({
 
   last_name: Yup.string().required("Last Name is required"),
   phone: Yup.string()
+    .nullable()
     .required("Phone Number is required")
     .test("is-valid-phone", "Enter a valid phone number", (value) => {
-      // Allow both formats: 10 digits OR 91 followed by 10 digits
+      if (!value) return false;
       return /^(91)?[0-9]{10}$/.test(value);
     }),
+
+  gender: Yup.string().required("Gender is required"),
+  area: Yup.string().required("Area is required"),
+  location: Yup.string().required("City is required"),
+ 
 
   email: Yup.string()
     .required("Email is required")
@@ -392,7 +398,7 @@ export const lead = Yup.object().shape({
 
   lead_source: Yup.string().required("Lead Source is required"),
 
-  next_follow_up: Yup.string().required("Next Follow Up Date is required"),
+  next_follow_up: Yup.string().nullable().required("Next Follow Up Date is required"),
 
   status: Yup.string().required("Status is required"),
 

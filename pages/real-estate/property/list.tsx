@@ -1560,6 +1560,11 @@ const List = () => {
       team: null,
       filterLocation: null,
       filterArea: null,
+      max_price:"",
+      min_price:"",
+      max_built_up_area:"",
+      min_built_up_area:"",
+
     });
   };
 
@@ -1957,6 +1962,22 @@ const List = () => {
                               }),
                           }))
                         : []),
+                        ...(state.min_built_up_area
+                        ? [
+                            {
+                              label: `Records: ${state.min_built_up_area}`,
+                              onRemove: () => setState({ min_built_up_area: null }),
+                            },
+                          ]
+                        : []),
+                       ...(state.max_built_up_area
+                        ? [
+                            {
+                              label: `Records: ${state.max_built_up_area}`,
+                              onRemove: () => setState({ max_built_up_area: null }),
+                            },
+                          ]
+                        : []),
                       ...(state.recordType
                         ? [
                             {
@@ -1996,6 +2017,23 @@ const List = () => {
                             {
                               label: `Status: ${state.status.label}`,
                               onRemove: () => setState({ status: null }),
+                            },
+                          ]
+                        : []),
+
+                        ...(state.min_price
+                        ? [
+                            {
+                              label: `Records: ${state.min_price}`,
+                              onRemove: () => setState({ min_price: null }),
+                            },
+                          ]
+                        : []),
+                        ...(state.max_price
+                        ? [
+                            {
+                              label: `Records: ${state.max_price}`,
+                              onRemove: () => setState({ max_price: null }),
                             },
                           ]
                         : []),
