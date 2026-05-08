@@ -11,7 +11,247 @@ export const  CAPTCHA_SITE_KEY = "6LeEe9gsAAAAAKddSPmwNUF4J-v7zaz8CgeKZ7n3"
 
 // menuConfig.ts
 export const menuConfig = {
+
   Admin: [
+    {
+      type: "link",
+      icon: "IconMenuWidgets",
+      label: "dashboard",
+      href: "/",
+    },
+
+    {
+          type: "submenu",
+          icon: "IconMenuDashboard",
+          label: "Projects",
+          key: "Property",
+          children: [
+            { type: "link", label: "Project List", href: "/real-estate/project/admin_list" },
+            {
+              type: "link",
+              label: "Property List",
+              href: "/real-estate/property/admin_list",
+            },
+            {
+              type: "link",
+              label: "Waiting For Approval",
+              href: "/real-estate/property/approval",
+            },
+          ]
+    },
+
+    // {
+    //   type: "link",
+    //   icon: "IconMenuApps",
+    //   label: "Projects List",
+    //   href: "/real-estate/project/list",
+    // },
+
+    // {
+    //   type: "link",
+    //   icon: "IconMenuDashboard",
+    //   label: "Property List",
+    //   href: "/real-estate/property/list",
+    // },
+
+     {
+      type: "link",
+      icon: "IconMenuTables",
+      label: "Lead List",
+      href: "/real-estate/lead/admin_list",
+    },
+
+    {
+      type: "link",
+      icon: "IconMenuScrumboard",
+      label: "Bookings List",
+      href: "/real-estate/inquiry/admin_booking_list",
+    },
+
+    {
+      type: "submenu",
+      icon: "IconMenuDashboard",
+      label: "Users",
+      key: "Users",
+      children: [
+        { type: "link", label: "Approved Users", href: "/real-estate/users/admin_list" },
+        { type: "link", label: "Waiting For Approval", href: "/real-estate/users/approval" },
+
+       
+      ]
+},
+
+    {
+      type: "submenu",
+      label: "Master Data",
+      children: [
+        {
+          type: "link",
+          icon: "IconMenuTables",
+          label: "Property Types",
+          href: "/real-estate/property/property-type",
+        },
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Amenities",
+          href: "/real-estate/property/amenities",
+        },
+
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Lead Source",
+          href: "/real-estate/masters/lead_source",
+        },
+
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "City",
+          href: "/real-estate/masters/city",
+        },
+
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Area",
+          href: "/real-estate/masters/area",
+        },
+
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Income Type",
+          href: "/real-estate/masters/income_type",
+        },
+
+        // {
+        //   type: "link",
+        //   icon: "IconMenuForms",
+        //   label: "Lead Status",
+        //   href: "/real-estate/masters/lead_status",
+        // },
+      
+      ],
+    },
+  ],
+
+  Developer: [
+    {
+      type: "link",
+      icon: "IconMenuWidgets",
+      label: "dashboard",
+      href: "/",
+    },
+
+    {
+          type: "submenu",
+          icon: "IconMenuDashboard",
+          label: "Projects",
+          key: "Property",
+          children: [
+            { type: "link", label: "Project List", href: "/real-estate/project/list" },
+            {
+              type: "link",
+              label: "Property List",
+              href: "/real-estate/property/list",
+            },
+          ]
+    },
+
+    // {
+    //   type: "link",
+    //   icon: "IconMenuApps",
+    //   label: "Projects List",
+    //   href: "/real-estate/project/list",
+    // },
+
+    // {
+    //   type: "link",
+    //   icon: "IconMenuDashboard",
+    //   label: "Property List",
+    //   href: "/real-estate/property/list",
+    // },
+
+     {
+      type: "link",
+      icon: "IconMenuTables",
+      label: "Lead List",
+      href: "/real-estate/lead/list",
+    },
+
+    {
+      type: "link",
+      icon: "IconMenuScrumboard",
+      label: "Bookings List",
+      href: "/real-estate/inquiry/bookingList",
+    },
+
+    {
+      type: "link",
+      icon: "IconMenuUsers",
+      label: "Users List",
+      href: "/real-estate/users/developer_user",
+    },
+
+    {
+      type: "submenu",
+      label: "Master Data",
+      children: [
+        {
+          type: "link",
+          icon: "IconMenuTables",
+          label: "Property Types",
+          href: "/real-estate/property/property-type",
+        },
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Amenities",
+          href: "/real-estate/property/amenities",
+        },
+
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Lead Source",
+          href: "/real-estate/masters/lead_source",
+        },
+
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "City",
+          href: "/real-estate/masters/city",
+        },
+
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Area",
+          href: "/real-estate/masters/area",
+        },
+
+        //  {
+        //   type: "link",
+        //   icon: "IconMenuForms",
+        //   label: "Income Type",
+        //   href: "/real-estate/masters/income_type",
+        // },
+
+        // {
+        //   type: "link",
+        //   icon: "IconMenuForms",
+        //   label: "Lead Status",
+        //   href: "/real-estate/masters/lead_status",
+        // },
+      
+      ],
+    },
+  ],
+
+  Admins: [
     {
       type: "link",
       icon: "IconMenuWidgets",
@@ -565,119 +805,7 @@ export const menuConfig = {
     },
   ],
 
-   Developer: [
-    {
-      type: "link",
-      icon: "IconMenuWidgets",
-      label: "dashboard",
-      href: "/",
-    },
-
-    {
-          type: "submenu",
-          icon: "IconMenuDashboard",
-          label: "Projects",
-          key: "Property",
-          children: [
-            { type: "link", label: "Projects List", href: "/real-estate/project/list" },
-            {
-              type: "link",
-              label: "Property List",
-              href: "/real-estate/property/list",
-            },
-          ]
-    },
-
-    // {
-    //   type: "link",
-    //   icon: "IconMenuApps",
-    //   label: "Projects List",
-    //   href: "/real-estate/project/list",
-    // },
-
-    // {
-    //   type: "link",
-    //   icon: "IconMenuDashboard",
-    //   label: "Property List",
-    //   href: "/real-estate/property/list",
-    // },
-
-     {
-      type: "link",
-      icon: "IconMenuTables",
-      label: "Lead List",
-      href: "/real-estate/lead/list",
-    },
-
-    {
-      type: "link",
-      icon: "IconMenuScrumboard",
-      label: "Bookings List",
-      href: "/real-estate/inquiry/bookingList",
-    },
-
-    {
-      type: "link",
-      icon: "IconMenuUsers",
-      label: "Users List",
-      href: "/real-estate/users/developer_user",
-    },
-
-    {
-      type: "submenu",
-      label: "Master Data",
-      children: [
-        {
-          type: "link",
-          icon: "IconMenuTables",
-          label: "Property Types",
-          href: "/real-estate/property/property-type",
-        },
-        {
-          type: "link",
-          icon: "IconMenuForms",
-          label: "Amenities",
-          href: "/real-estate/property/amenities",
-        },
-
-        {
-          type: "link",
-          icon: "IconMenuForms",
-          label: "Lead Source",
-          href: "/real-estate/masters/lead_source",
-        },
-
-        {
-          type: "link",
-          icon: "IconMenuForms",
-          label: "City",
-          href: "/real-estate/masters/city",
-        },
-
-        {
-          type: "link",
-          icon: "IconMenuForms",
-          label: "Area",
-          href: "/real-estate/masters/area",
-        },
-
-         {
-          type: "link",
-          icon: "IconMenuForms",
-          label: "Income Type",
-          href: "/real-estate/masters/income_type",
-        },
-
-        // {
-        //   type: "link",
-        //   icon: "IconMenuForms",
-        //   label: "Lead Status",
-        //   href: "/real-estate/masters/lead_status",
-        // },
-      
-      ],
-    },
-  ],
+ 
 
   // Developer: [
   //   {
