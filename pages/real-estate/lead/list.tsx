@@ -90,17 +90,22 @@ const List = () => {
 
   const debouncedSearch = useDebounce(state.search, 500);
 
+  const isFirstRender = React.useRef(true);
+
   useEffect(() => {
-    leadList(1);
     categoryList(1);
     groupList();
-    setState({ visibleColumns: columns });
     statCount();
     leadSourceList();
     leadStatusList();
   }, []);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      leadList(1);
+      return;
+    }
     leadList(1);
   }, [
     debouncedSearch,
@@ -202,6 +207,7 @@ const List = () => {
     sortOrder = state.sortOrder,
   ) => {
     try {
+      setState({ tableList: [] });
       const body = bodyData();
       if (sortBy) {
         body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
@@ -238,11 +244,11 @@ const List = () => {
 
       setState({
         tableList: data,
-        total: res?.count,
+        total: data?.length,
         page: page,
         next: res.next,
         previous: res.previous,
-        totalRecords: res.count,
+        totalRecords: data?.length,
         group,
         selectedRecords: [],
       });
@@ -663,10 +669,6 @@ const List = () => {
     });
   };
 
-  const filteredColumns = state.visibleColumns
-    ?.filter((col) => col.visible !== false)
-    ?.map(({ visible, toggleable, ...col }) => col);
-
   const columns = [
 
     // {
@@ -921,6 +923,10 @@ const List = () => {
       ),
     },
   ];
+
+  const filteredColumns = columns
+    ?.filter((col) => col.visible !== false)
+    ?.map(({ visible, toggleable, ...col }) => col);
 
   return (
     <>
