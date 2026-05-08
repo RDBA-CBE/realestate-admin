@@ -383,7 +383,19 @@ const CreateOpportunities = () => {
 
       await Utils.Validation.lead.validate(body, { abortEarly: false });
 
-      const res = await Models.lead.update(body, id);
+      const res:any = await Models.lead.update(body, id);
+      const leadPropertyresBody = {
+              lead: res?.id,
+              property: res?.interested_property,
+              developer_user: state.userId
+            }
+      
+            console.log("leadPropertyresBody", leadPropertyresBody);
+            
+      
+            const leadPropertyres = await Models.lead.lead_properties_create(leadPropertyresBody);
+      
+            console.log("leadPropertyres", leadPropertyres);
       setState({ btnLoading: false });
       Success("Lead Updated Successfully");
       router.back();

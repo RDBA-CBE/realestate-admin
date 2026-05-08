@@ -7,6 +7,10 @@ const lead = {
       if (body?.group) {
         url += `&group=${encodeURIComponent(body.group)}`;
       }
+      // if (body?.interested_property) {
+      //   url += `&interested_property=true`;
+      // }
+
       if (body.created_by_group) {
         url += `&created_by_group=${encodeURIComponent(body.created_by_group)}`;
       }
@@ -227,6 +231,91 @@ const lead = {
             return Promise.reject(error);
           });
       },
+
+
+  lead_properties:  (page, body) => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `/lead-selected-properties/?page=${page}`;
+
+      if (body?.developer) {
+        url += `&developer_user=${encodeURIComponent(body.developer)}`;
+      }
+      
+
+      instance()
+        .get(url)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.message);
+          } else {
+            reject(error);
+          }
+        });
+    });
+    return promise;
+  },    
+
+  lead_properties_create: (data: any) => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `lead-selected-properties/`;
+      instance()
+        .post(url, data)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.data);
+          } else {
+            reject(error);
+          }
+        });
+    });
+    return promise;
+  },
+
+  lead_properties_update: (data: any, id: any) => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `lead-selected-properties/${id}/`;
+
+      instance()
+        .patch(url, data)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.data);
+          } else {
+            reject(error);
+          }
+        });
+    });
+    return promise;
+  },
+
+  lead_properties_delete: (id: any) => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `lead-selected-properties/${id}/`;
+
+      instance()
+        .delete(url)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.data.message);
+          } else {
+            reject(error);
+          }
+        });
+    });
+    return promise;
+  },
 };
 
 export default lead;

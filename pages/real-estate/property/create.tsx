@@ -1563,7 +1563,7 @@ const AddPropertyPage = () => {
 
                   <div className=" grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="">
-                      <h3 className="mb-4 font-medium ">Unit Plans</h3>
+                      <h3 className="mb-4 font-medium ">Floor Plans</h3>
                       <ImageUploadWithPreview
                         maxFiles={1}
                         onImagesChange={(images) =>
@@ -1595,7 +1595,7 @@ const AddPropertyPage = () => {
 
                   <div className="mt-6">
                     <h3 className="text-md mb-4 font-semibold">
-                        Floor Plans
+                        Unit Plans
                       </h3>
                  
 
@@ -1610,7 +1610,7 @@ const AddPropertyPage = () => {
                             <div className="flex items-center gap-2">
                               <h3 className="font-medium">
                                 {plan.category?.label ||
-                                  `Floor Plan ${index + 1}`}
+                                  `Unit Plan ${index + 1}`}
                               </h3>
                               {plan.squareFeet && (
                                 <span className="text-sm text-gray-500">
@@ -1721,7 +1721,7 @@ const AddPropertyPage = () => {
                             </div>
 
                             <h5 className="text-md mt-5 font-bold">
-                              Upload Floor Plan Image
+                              Upload Unit Plan Image
                             </h5>
 
                             <div

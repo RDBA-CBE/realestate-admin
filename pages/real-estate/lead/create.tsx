@@ -46,6 +46,7 @@ import Link from "next/link";
 import IconMapPin from "@/components/Icon/IconMapPin";
 import Utils from "@/imports/utils.import";
 import PrivateRouter from "@/hook/privateRouter";
+import lead from "@/models/lead.model";
 
 const CreateOpportunities = () => {
   const dispatch = useDispatch();
@@ -370,9 +371,26 @@ const CreateOpportunities = () => {
       };
       console.log("✌️body --->", body);
 
+      
+
       await Utils.Validation.lead.validate(body, { abortEarly: false });
 
-      const res = await Models.lead.create(body);
+      const res:any = await Models.lead.create(body);
+
+      const leadPropertyresBody = {
+        lead: res?.id,
+        property: res?.interested_property,
+        developer_user: Number(state.userId)
+      }
+
+      console.log("leadPropertyresBody", leadPropertyresBody);
+      
+
+      const leadPropertyres = await Models.lead.lead_properties_create(leadPropertyresBody);
+
+      console.log("leadPropertyres", leadPropertyres);
+      
+
       setState({ btnLoading: false });
       Success("Lead Created Successfully");
       router.push("/real-estate/lead/list");

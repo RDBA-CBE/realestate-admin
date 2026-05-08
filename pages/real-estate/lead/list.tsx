@@ -95,10 +95,12 @@ const List = () => {
     statCount();
     leadSourceList();
     leadStatusList();
+    leadPropertyList(1)
   }, []);
 
   useEffect(() => {
     leadList(1);
+    leadPropertyList(1)
   }, [
     debouncedSearch,
     state.user,
@@ -238,6 +240,55 @@ const List = () => {
       console.log("✌️error --->", error);
     }
   };
+
+  const leadPropertyList = async (
+    page,
+    sortBy = state.sortBy,
+    sortOrder = state.sortOrder,) => { 
+     try {
+      const body = bodyData();
+      if (sortBy) {
+        body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
+      }
+      const res: any = await Models.lead.lead_properties(page, body);
+      // const data = res?.results?.map((item) => ({
+      //   company_name: item?.company_name,
+      //   full_name: item?.full_name,
+      //   lead_source: item?.lead_source_info,
+      //   status: item?.status_info,
+      //   id: item?.id,
+      //   date: commonDateFormat(item?.created_at),
+      //   email: item?.email,
+      //   property: item?.property_details?.title,
+      //   property_type:
+      //     item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
+      //   requirements: item?.requirements,
+      //   assigned_to: item?.assigned_to_details
+      //     ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
+      //     : "",
+      //   assigned_by: item?.assigned_by_details
+      //     ? `${item?.assigned_by_details?.first_name} ${item?.assigned_by_details?.last_name}`
+      //     : "",
+      // }));
+      const group = localStorage.getItem("group");
+
+      setState({
+        tablePropertyList: res,
+        total: res?.count,
+        page: page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+        group,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+   }
+
+   console.log("tablePropertyList", state.tablePropertyList);
+   
+
 
   const createProject = async () => {
     try {
@@ -413,6 +464,10 @@ const List = () => {
     const userId = localStorage.getItem("userId");
     const group = localStorage.getItem("group");
     let body: any = {};
+
+    
+      body.interested_property = true;
+    
 
     if (state.search) {
       body.search = state.search;

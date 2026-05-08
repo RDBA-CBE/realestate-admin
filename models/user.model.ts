@@ -189,14 +189,14 @@ const user = {
 
   wishlist: (userId: any) => {
     return instance()
-      .get(`wishlists/?user=${userId}`)
+      .get(`wishlists/?user_id=${userId}`)
       .then((res) => res.data)
       .catch((error) => Promise.reject(error.response?.data || error));
   },
 
   enquiries: (userId: any) => {
     return instance()
-      .get(`leads/?created_by=${userId}`)
+      .get(`leads/?developer_property_users=${userId}`)
       .then((res) => res.data)
       .catch((error) => Promise.reject(error.response?.data || error));
   },
