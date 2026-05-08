@@ -162,8 +162,36 @@ const LeadStatus = () => {
         </button>
       </div>
 
+      {/* <div className="mb-5 rounded-2xl ">
+        <div className="flex items-center justify-between gap-5">
+          <div>
+            <TextInput
+            type="text"
+            placeholder="Search..."
+            className="min-w-[300px]"
+            value={state.search}
+            onChange={(e) => setState({ search: e.target.value })}
+          />
+          </div>
+          
+        </div>
+       </div> */}
+
       <div className="border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "end",
+              alignItems: "center",
+              marginBottom: "16px",
+              gap: "10px",
+            }}
+          >
+           <div className="text-sm text-black">
+            {state.total} Properties types found
+          </div>
+          </div>
           <DataTable
             className="table-responsive"
             records={state.tableList || []}

@@ -187,13 +187,13 @@ const UserView = () => {
       title: "Property",
       render: (row: any) => (
         <div className="flex items-center gap-3">
-          {row.property_image ? (
+          {/* {row.property_image ? (
             <img src={row.property_image} alt={row.property_title} className="h-10 w-14 shrink-0 rounded-lg object-cover" />
           ) : (
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#fdf4f4]">
               <Home className="h-4 w-4 text-[#9b0f09]" />
             </div>
-          )}
+          )} */}
           <div>
             <span className="cursor-pointer font-medium text-[#9b0f09] hover:underline"
               onClick={() => router.push(`/real-estate/property/detail/${row?.property_id}`)}>
@@ -382,7 +382,7 @@ const UserView = () => {
                 <MessageSquare className="h-4 w-4" />
                 Enquiries
                 {state.enquiries?.length > 0 && (
-                  <span className="rounded-full bg-[#9b0f09] px-1.5 py-0.5 text-[10px] font-bold text-white">{state.enquiries.length}</span>
+                  <span className="rounded-full bg-[#9b0f09] px-2 text-[10px] font-bold text-white">{state.enquiries.length}</span>
                 )}
               </button>
               <button
@@ -394,7 +394,7 @@ const UserView = () => {
                 <Heart className="h-4 w-4" />
                 Saved Properties
                 {state.wishlist?.length > 0 && (
-                  <span className="rounded-full bg-[#9b0f09] px-1.5 py-0.5 text-[10px] font-bold text-white">{state.wishlist.length}</span>
+                  <span className="rounded-full bg-[#9b0f09] px-2 text-[10px] font-bold text-white">{state.wishlist.length}</span>
                 )}
               </button>
             </div>
