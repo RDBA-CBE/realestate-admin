@@ -206,25 +206,33 @@ const List = () => {
         body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
       }
       const res: any = await Models.lead.list(page, body);
-      const data = res?.results?.map((item) => ({
-        company_name: item?.company_name,
-        full_name: item?.full_name,
-        lead_source: item?.lead_source_info,
-        status: item?.status_info,
-        id: item?.id,
-        date: commonDateFormat(item?.created_at),
-        email: item?.email,
-        property: item?.property_details?.title,
-        property_type:
-          item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
-        requirements: item?.requirements,
-        assigned_to: item?.assigned_to_details
-          ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
-          : "",
-        assigned_by: item?.assigned_by_details
-          ? `${item?.assigned_by_details?.first_name} ${item?.assigned_by_details?.last_name}`
-          : "",
-      }));
+      const data = res?.results?.flatMap((item) =>
+        (item?.properties_details || []).map((property) => ({
+          id: item?.id,
+          property_id: property?.id,
+          property_title: property?.title,
+          property_image: property?.primary_image,
+          property_city: property?.city,
+          property_listing_type: property?.listing_type,
+          property_status: property?.status,
+          property_type: property?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
+          project: property?.project?.name,
+          price_range: property?.price_range,
+          full_name: item?.full_name,
+          email: item?.email,
+          lead_source: item?.lead_source_info,
+          status: item?.status_info,
+          date: commonDateFormat(item?.created_at),
+          requirements: item?.requirements,
+          assigned_to: item?.assigned_to_details
+            ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
+            : "",
+          assigned_by: item?.assigned_by_details
+            ? `${item?.assigned_by_details?.first_name} ${item?.assigned_by_details?.last_name}`
+            : "",
+          company_name: item?.company_name,
+        }))
+      );
       const group = localStorage.getItem("group");
 
       setState({
@@ -682,13 +690,22 @@ const List = () => {
       sortable: true,
       render: (row) => (
         <div
-          className="w-fit cursor-pointer"
-          onClick={(e) => {
-            router.push(`/real-estate/lead/view/${row?.id}`);
-          }}
-          title={row?.property}
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => router.push(`/real-estate/property/detail/${row?.property_id}`)}
         >
-          <div>{(row?.property)}</div>
+          {row?.property_image && (
+            <img
+              src={row.property_image}
+              alt={row.property_title}
+              className="h-9 w-12 rounded object-cover flex-shrink-0"
+            />
+          )}
+          <div>
+            <div className="font-medium text-sm" title={row?.property_title}>
+              {truncateText(row?.property_title, 18)}
+            </div>
+            <div className="text-xs text-gray-400">{row?.project}</div>
+          </div>
         </div>
       ),
     },

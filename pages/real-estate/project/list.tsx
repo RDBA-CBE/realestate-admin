@@ -4,6 +4,7 @@ import Tippy from "@tippyjs/react";
 import IconEye from "@/components/Icon/IconEye";
 import IconEdit from "@/components/Icon/IconEdit";
 import {
+  capitalizeFLetter,
   Dropdown,
   Failure,
   showDeleteAlert,
@@ -202,10 +203,10 @@ const list = () => {
     try {
       setState({ btnLoading: true });
       const body = {
-        name: state.name,
+        name: capitalizeFLetter(state.name),
         location: state.location?.value,
         area: state.area?.value,
-        description: state.description,
+        description: capitalizeFLetter(state.description),
         developer: state.userId,
       };
       await Utils.Validation.project.validate(body, { abortEarly: false });
@@ -234,10 +235,10 @@ const list = () => {
     try {
       setState({ btnLoading: true });
       const body = {
-        name: state.name,
+        name: capitalizeFLetter(state.name),
         location: state.location?.value,
         area: state.area?.value,
-        description: state.description,
+        description: capitalizeFLetter(state.description),
         developer: state.userId,
       };
       await Utils.Validation.project.validate(body, { abortEarly: false });
@@ -584,24 +585,40 @@ const list = () => {
       userId: state.userId,
     });
   };
+  console.log("first",state.tableList)
 
   const exportToExcel = () => {
-    const headers = ["Project Name", "Location", "Properties", "Developer", "Status"];
+    const headers = [
+      "Project Name",
+      "Properties",
+      "Location",
+      "Area",
+      "Developer",
+      // "Commercial Properties",
+      // "Villa Properties",
+      // "Individual House",
+      // "Apartment Properties",
+      "Status",
+    ];
     const rows = state.tableList.map((row: any) => [
       row.name || "",
-      row.location || "",
       row.properties || 0,
+      row.location?.name || "",
+      row.area?.name || "",
       row.developer || "",
+      // row.commercial_properties || 0,
       row.status || "",
     ]);
     const csvContent = [headers, ...rows]
-      .map((r) => r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .map((r) =>
+        r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      )
       .join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `projects_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `Projects_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -788,7 +805,8 @@ const list = () => {
                   ? [
                       {
                         label: `Records: ${state.recordType.label}`,
-                        onRemove: () => setState({ recordType: "" }),
+                        onRemove: () =>
+                          setState({ team: null, recordType: "" }),
                       },
                     ]
                   : []),
@@ -838,6 +856,7 @@ const list = () => {
                   recordType: null,
                   filterLocation: null,
                   filterArea: null,
+                  team: null,
                 })
               }
             />
@@ -860,6 +879,11 @@ const list = () => {
         </div>
         <DataTable
           className="table-responsive"
+          rowClassName={(_, index) =>
+            index % 2 === 0
+              ? "bg-white dark:bg-gray-900"
+              : "bg-gray-50 dark:bg-gray-800"
+          }
           records={state.tableList || []}
           columns={[
             {
@@ -867,15 +891,26 @@ const list = () => {
               title: "Project Name",
               sortable: true,
               render: (row: any) => (
-                <span
-                  className="cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleView(row);
-                  }}
-                >
-                  {row.name}
-                </span>
+                <div className="flex flex-col gap-0.5">
+                  <span
+                    className="cursor-pointer font-medium"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleView(row);
+                    }}
+                  >
+                    {row.name}
+                  </span>
+                  <span
+                    className="text-dred w-fit cursor-pointer text-xs underline hover:underline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleQuickInfo(row);
+                    }}
+                  >
+                    Quick View
+                  </span>
+                </div>
               ),
             },
             {
@@ -983,7 +1018,7 @@ const list = () => {
           onSelectedRecordsChange={(records) =>
             setState({ selectedRecords: records })
           }
-          onRowClick={(record: any) => toggleQuickInfo(record)}
+          // onRowClick={(record: any) => toggleQuickInfo(record)}
           rowExpansion={{
             allowMultiple: false,
             expanded: {
@@ -1053,8 +1088,9 @@ const list = () => {
       </div>
 
       <Modal
-        addHeader={state.editId ? "Update Project" : "Create Project"}
+        subTitle={state.editId ? "Update Project" : "Create Project"}
         open={state.isOpen}
+        closeIcon={true}
         close={() => {
           clearData();
         }}

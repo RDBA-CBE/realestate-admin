@@ -1177,7 +1177,6 @@ const List = () => {
       setState({ team: null });
     }
   };
-  console.log("team", state.team);
 
   const deleteDecord = async (row: any) => {
     try {
@@ -1631,7 +1630,7 @@ const List = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `properties_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `Properties_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };

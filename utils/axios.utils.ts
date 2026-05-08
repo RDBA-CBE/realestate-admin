@@ -47,7 +47,7 @@ export const instance = (): AxiosInstance => {
 
   api.interceptors.request.use(
     (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-      const accessToken = localStorage.getItem("token");
+      const accessToken = localStorage.getItem("real_estate_admin_token");
       if (accessToken && config.headers) {
         config.headers["Authorization"] = `Bearer ${accessToken}`;
       }
@@ -67,7 +67,7 @@ export const instance = (): AxiosInstance => {
       ) {
         originalRequest._retry = true;
 
-        const refreshToken = localStorage.getItem("refresh");
+        const refreshToken = localStorage.getItem("real_estate_admin_refresh");
         if (!refreshToken) {
           showTokenExpiredAlert();
           return Promise.reject(error);

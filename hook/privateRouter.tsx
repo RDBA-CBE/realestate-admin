@@ -9,7 +9,7 @@ const PrivateRouter = (WrappedComponent, allowedRoles = []) => {
     const [checked, setChecked] = useState(false);
 
     useEffect(() => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("real_estate_admin_token");
       const role = localStorage.getItem("group"); // 👈 assuming you store role in localStorage
 
       if (!token) {
