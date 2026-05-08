@@ -108,11 +108,11 @@ const List = () => {
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      leadList(1);
+      // leadList(1);
       leadPropertyList(1)
       return;
     }
-    leadList(1);
+    // leadList(1);
     leadPropertyList(1)
   }, [
     debouncedSearch,
@@ -269,49 +269,53 @@ const List = () => {
   const leadPropertyList = async (
     page,
     sortBy = state.sortBy,
-    sortOrder = state.sortOrder,) => { 
-     try {
+    sortOrder = state.sortOrder,
+  ) => {
+    try {
       const body = bodyData();
       if (sortBy) {
         body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
       }
       const res: any = await Models.lead.lead_properties(page, body);
-      // const data = res?.results?.map((item) => ({
-      //   company_name: item?.company_name,
-      //   full_name: item?.full_name,
-      //   lead_source: item?.lead_source_info,
-      //   status: item?.status_info,
-      //   id: item?.id,
-      //   date: commonDateFormat(item?.created_at),
-      //   email: item?.email,
-      //   property: item?.property_details?.title,
-      //   property_type:
-      //     item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
-      //   requirements: item?.requirements,
-      //   assigned_to: item?.assigned_to_details
-      //     ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
-      //     : "",
-      //   assigned_by: item?.assigned_by_details
-      //     ? `${item?.assigned_by_details?.first_name} ${item?.assigned_by_details?.last_name}`
-      //     : "",
-      // }));
+      const data = res?.results?.map((item) => ({
+        id: item?.lead_details?.id,
+        property_id: item?.property,
+        property_title: item?.title,
+        property_image: item?.primary_image,
+        property_city: item?.city,
+        property_listing_type: item?.listing_type,
+        property_status: item?.status,
+        project: item?.project_name,
+        price_range: { minimum_price: item?.minimum_price, maximum_price: item?.maximum_price },
+        full_name: item?.lead_details?.full_name,
+        email: item?.lead_details?.email,
+        lead_source: item?.lead_details?.lead_source_info,
+        status: item?.lead_details?.status_info,
+        date: commonDateFormat(item?.created_at),
+        requirements: item?.lead_details?.requirements,
+        assigned_to: item?.lead_details?.assigned_to_details
+          ? `${item?.lead_details?.assigned_to_details?.first_name} ${item?.lead_details?.assigned_to_details?.last_name}`
+          : "",
+        assigned_by: item?.lead_details?.assigned_by_details
+          ? `${item?.lead_details?.assigned_by_details?.first_name} ${item?.lead_details?.assigned_by_details?.last_name}`
+          : "",
+        company_name: item?.lead_details?.company_name,
+      }));
       const group = localStorage.getItem("group");
-
       setState({
-        tablePropertyList: res,
-        total: res?.count,
+        tableList: data,
+        total: data?.length,
         page: page,
         next: res.next,
         previous: res.previous,
         totalRecords: res.count,
         group,
+        selectedRecords: [],
       });
     } catch (error) {
       console.log("✌️error --->", error);
     }
-   }
-
-   console.log("tablePropertyList", state.tablePropertyList);
+  };
    
 
 
@@ -329,7 +333,7 @@ const List = () => {
       const res = await Models.project.create(body);
       clearData();
       setState({ btnLoading: false });
-      leadList(1);
+      // leadList(1);
       Success("Preject created succssfully");
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -630,14 +634,14 @@ const List = () => {
   const handleNextPage = () => {
     if (state.next) {
       const newPage = state.page + 1;
-      leadList(newPage);
+      leadPropertyList(newPage);
     }
   };
 
   const handlePreviousPage = () => {
     if (state.previous) {
       const newPage = state.page - 1;
-      leadList(newPage);
+      leadPropertyList(newPage);
     }
   };
 
@@ -1387,7 +1391,7 @@ const List = () => {
                 sortOrder: direction,
                 page: 1,
               });
-              leadList(1, columnAccessor, direction);
+              leadPropertyList(1, columnAccessor, direction);
             }}
             style={{ zIndex: 0 }}
           />
