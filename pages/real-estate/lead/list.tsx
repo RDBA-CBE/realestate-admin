@@ -83,6 +83,9 @@ const List = () => {
     showStatusModal: false,
     sortBy: "",
     sortOrder: "asc",
+    total: 0,
+    pageSize: 10,
+    selectedRecords: [],
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -95,12 +98,10 @@ const List = () => {
     statCount();
     leadSourceList();
     leadStatusList();
-    leadPropertyList(1)
   }, []);
 
   useEffect(() => {
     leadList(1);
-    leadPropertyList(1)
   }, [
     debouncedSearch,
     state.user,
@@ -243,6 +244,7 @@ const List = () => {
         previous: res.previous,
         totalRecords: res.count,
         group,
+        selectedRecords: [],
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -474,7 +476,7 @@ const List = () => {
     let body: any = {};
 
     
-      body.interested_property = true;
+      // body.interested_property = true;
     
 
     if (state.search) {
@@ -573,6 +575,26 @@ const List = () => {
     } catch (error) {
       setState({ btnLoading: false });
     }
+  };
+
+  const handleBulkDelete = () => {
+    showDeleteAlert(
+      async () => {
+        try {
+          setState({ btnLoading: true });
+          await Promise.all(
+            state.selectedRecords.map((row: any) => Models.lead.delete(row?.id)),
+          );
+          setState({ selectedRecords: [], btnLoading: false });
+          leadList(state.page);
+          Success(`${state.selectedRecords.length} lead${state.selectedRecords.length > 1 ? "s" : ""} deleted successfully`);
+        } catch (error) {
+          setState({ btnLoading: false });
+        }
+      },
+      () => Swal.fire("Cancelled", "Your Records are safe :)", "info"),
+      `Are you sure want to delete ${state.selectedRecords.length} selected lead${state.selectedRecords.length > 1 ? "s" : ""}?`,
+    );
   };
 
   const handleNextPage = () => {
@@ -693,16 +715,16 @@ const List = () => {
           className="flex items-center gap-2 cursor-pointer"
           onClick={() => router.push(`/real-estate/property/detail/${row?.property_id}`)}
         >
-          {row?.property_image && (
+          {/* {row?.property_image && (
             <img
               src={row.property_image}
               alt={row.property_title}
               className="h-9 w-12 rounded object-cover flex-shrink-0"
             />
-          )}
+          )} */}
           <div>
             <div className="font-medium text-sm" title={row?.property_title}>
-              {truncateText(row?.property_title, 18)}
+              {(row?.property_title)}
             </div>
             <div className="text-xs text-gray-400">{row?.project}</div>
           </div>
@@ -833,7 +855,7 @@ const List = () => {
     },
 
     {
-      accessor: "requirements",
+      accessor: "Inquiry",
       sortable: false,
       render: (row) => (
         <Tippy
@@ -1173,8 +1195,18 @@ const List = () => {
               ]}
               onClearAll={clearAllFilters}
             />
-            <div className="ml-auto text-sm text-black">
-              {state.total} Leads found
+            <div className="ml-auto flex items-center gap-3">
+              {state.selectedRecords?.length > 0 && (
+                <button
+                  type="button"
+                  className="flex items-center gap-2 rounded-lg border border-red-600 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                  onClick={handleBulkDelete}
+                >
+                  <IconTrashLines className="h-4 w-4" />
+                  Delete ({state.selectedRecords.length})
+                </button>
+              )}
+              <div className="text-sm text-black">{state.total} Leads found</div>
             </div>
           </div>
           <DataTable
@@ -1182,15 +1214,19 @@ const List = () => {
             records={state.tableList || []}
             columns={filteredColumns}
             highlightOnHover
-            totalRecords={state.taskList?.length}
+            totalRecords={state.total || state.tableList?.length}
             recordsPerPage={state.pageSize}
             minHeight={200}
             page={null}
             onPageChange={(p) => {}}
             withBorder={true}
+            selectedRecords={state.selectedRecords}
+            onSelectedRecordsChange={(records) => setState({ selectedRecords: records })}
             paginationText={({ from, to, totalRecords }) =>
               `Showing  ${from} to ${to} of ${totalRecords} entries`
             }
+            noRecordsText={state.tableList?.length ? "" : "No records"}
+            emptyState={state.tableList?.length ? <></> : undefined}
             sortStatus={{
               columnAccessor: state.sortBy,
               direction: state.sortOrder as "asc" | "desc",

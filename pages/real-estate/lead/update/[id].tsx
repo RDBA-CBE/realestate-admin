@@ -150,11 +150,40 @@ const CreateOpportunities = () => {
         getInitialRoleList(res?.assigned_to_details?.user_type);
       }
 
-      if (!objIsEmpty(res?.property_details)) {
-        handleGetProperty({
-          value: res?.property_details?.id,
-          label: capitalizeFLetter(res?.property_details?.title),
-        });
+      if (res?.selected_property?.length > 0 && res?.properties_details?.length > 0) {
+        // Pre-select the property dropdown values
+        const selectedOptions = res.properties_details.map((item) => ({
+          value: item.id,
+          label: capitalizeFLetter(item.title),
+        }));
+        setState({ property_name: selectedOptions });
+
+        // Build table data directly from properties_details
+        const tableData = res.properties_details.map((item) => ({
+          title: capitalizeFLetter(item?.title),
+          status: capitalizeFLetter(item?.status),
+          id: item?.id,
+          total_area: item?.total_area,
+          property_type: item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
+          listing_type: {
+            type: capitalizeFLetter(item?.listing_type),
+            color:
+              item?.listing_type == LISTING_TYPE_LIST.RENT ? "warning"
+              : item?.listing_type == LISTING_TYPE_LIST.SALE ? "secondary"
+              : item?.listing_type == LISTING_TYPE_LIST.LEASE ? "info"
+              : "success",
+          },
+          date: commonDateFormat(item?.created_at),
+          location: capitalizeFLetter(item?.city),
+          developer: `${capitalizeFLetter(item?.developer?.first_name)} ${capitalizeFLetter(item?.developer?.last_name)}`,
+          project: capitalizeFLetter(item?.project?.name),
+          price: formatPriceRange(item?.price_range?.minimum_price, item?.price_range?.maximum_price),
+          built_up_area: item?.built_up_area,
+          publish: item?.publish === true ? "Published" : "Draft",
+          is_approved: item?.is_approved,
+          image: item?.primary_image ?? "/assets/images/real-estate/property-info-img1.png",
+        }));
+        setState({ tableList: tableData });
       }
       if (res?.status_info) {
         setState({
@@ -289,59 +318,61 @@ const CreateOpportunities = () => {
   };
 
   const handleGetProperty = async (e) => {
-    try {
-      setState({
-        property_name: e,
-        error: { ...state.error, interested_property: null },
-      });
-      if (e) {
-        const res: any = await Models.property.details(e?.value);
-        const data = [
-          {
-            title: capitalizeFLetter(res?.title),
-            status: capitalizeFLetter(res?.status),
-            id: res?.id,
-            total_area: res?.total_area,
+     try {
+       setState({ property_name: e, error: { ...state.error, interested_property: null } });
+ 
+       if (!e || (Array.isArray(e) && e.length === 0)) {
+         setState({ tableList: [] });
+         return;
+       }
+ 
+       const selectedItems = Array.isArray(e) ? e : [e];
+       const propertyDetails = await Promise.all(
+         selectedItems.map(async (item) => {
+           const res: any = await Models.property.details(item?.value);
+           return {
+             title: capitalizeFLetter(res?.title),
+             status: capitalizeFLetter(res?.status),
+             id: res?.id,
+             total_area: res?.total_area,
              property_type:
-                      res?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
-            listing_type: {
-              type: capitalizeFLetter(res?.listing_type),
-              color:
-                res?.listing_type == LISTING_TYPE_LIST.RENT
-                  ? "warning"
-                  : res?.listing_type == LISTING_TYPE_LIST.SALE
-                  ? "secondary"
-                  : res?.listing_type == LISTING_TYPE_LIST.LEASE
-                  ? "info"
-                  : "success",
-            },
-
-            date: commonDateFormat(res?.created_at),
-            location: capitalizeFLetter(res?.city),
-            developer: `${capitalizeFLetter(
-              res?.developer?.first_name,
-            )} ${capitalizeFLetter(res?.developer?.last_name)}`,
-            project: capitalizeFLetter(res?.project?.name),
-
-            price: formatPriceRange(
-                     res?.price_range?.minimum_price,
-                     res?.price_range?.maximum_price,
-                   ),
-            publish: res?.publish === true ? "Published" : "Draft",
-            is_approved: res?.is_approved,
-            image:
-              res?.primary_image?.image ??
-              "/assets/images/real-estate/property-info-img1.png",
-          },
-        ];
-        setState({ tableList: data });
-      } else {
-        setState({ tableList: [] });
-      }
-    } catch (error) {
-      console.log("✌️error --->", error);
-    }
-  };
+               res?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
+             listing_type: {
+               type: capitalizeFLetter(res?.listing_type),
+               color:
+                 res?.listing_type == LISTING_TYPE_LIST.RENT
+                   ? "warning"
+                   : res?.listing_type == LISTING_TYPE_LIST.SALE
+                   ? "secondary"
+                   : res?.listing_type == LISTING_TYPE_LIST.LEASE
+                   ? "info"
+                   : "success",
+             },
+             date: commonDateFormat(res?.created_at),
+             location: capitalizeFLetter(res?.city),
+             developer: `${capitalizeFLetter(
+               res?.developer?.first_name
+             )} ${capitalizeFLetter(res?.developer?.last_name)}`,
+             project: capitalizeFLetter(res?.project?.name),
+             price: formatPriceRange(
+               res?.price_range?.minimum_price,
+               res?.price_range?.maximum_price,
+             ),
+             built_up_area: res?.built_up_area,
+             publish: res?.publish === true ? "Published" : "Draft",
+             is_approved: res?.is_approved,
+             image:
+               res?.primary_image?.image ??
+               "/assets/images/real-estate/property-info-img1.png",
+           };
+         }),
+       );
+ 
+       setState({ tableList: propertyDetails });
+     } catch (error) {
+       console.log("✌️error --->", error);
+     }
+   };
 
   const handleSubmit = async () => {
     try {
@@ -353,7 +384,9 @@ const CreateOpportunities = () => {
         phone: state.phone,
         email: state.email,
         gender: state.gender?.value,
-        interested_property: state.property_name?.value,
+        interested_property: Array.isArray(state.property_name)
+          ? state.property_name.map((item) => item.value)
+          : state.property_name?.value,
         lead_source: state.lead_source?.value,
         assigned_to: state.assigned_to
           ? state.assigned_to?.value
@@ -384,18 +417,18 @@ const CreateOpportunities = () => {
       await Utils.Validation.lead.validate(body, { abortEarly: false });
 
       const res:any = await Models.lead.update(body, id);
-      const leadPropertyresBody = {
-              lead: res?.id,
-              property: res?.interested_property,
-              developer_user: state.userId
-            }
+      // const leadPropertyresBody = {
+      //         lead: res?.id,
+      //         property: res?.interested_property,
+      //         developer_user: state.userId
+      //       }
       
-            console.log("leadPropertyresBody", leadPropertyresBody);
+      //       console.log("leadPropertyresBody", leadPropertyresBody);
             
       
-            const leadPropertyres = await Models.lead.lead_properties_create(leadPropertyresBody);
+      //       const leadPropertyres = await Models.lead.lead_properties_create(leadPropertyresBody);
       
-            console.log("leadPropertyres", leadPropertyres);
+            // console.log("leadPropertyres", leadPropertyres);
       setState({ btnLoading: false });
       Success("Lead Updated Successfully");
       router.back();
@@ -871,6 +904,7 @@ const CreateOpportunities = () => {
                 required
                 className="w-full"
                 loadMore={() => propertyLoadMore()}
+                isMulti
               />
             </div>
 
