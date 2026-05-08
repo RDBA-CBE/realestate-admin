@@ -59,10 +59,11 @@ export const instance = (): AxiosInstance => {
   api.interceptors.response.use(
     (response) => response,
     async (error: AxiosError | any) => {
+      console.log("AxiosError", error);
       const originalRequest: any = error.config;
 
       if (
-        error.response?.data?.code === "token_not_valid" &&
+        error.response?.status === 401 && error.response?.data?.code === "token_not_valid" &&
         !originalRequest._retry
       ) {
         originalRequest._retry = true;
@@ -97,8 +98,8 @@ export const instance = (): AxiosInstance => {
             );
 
             const { access, refresh } = response.data;
-            localStorage.setItem("token", access);
-            localStorage.setItem("refresh", refresh);
+            localStorage.setItem("real_estate_admin_token", access);
+            localStorage.setItem("real_estate_admin_refresh", refresh);
 
             api!.defaults.headers.common["Authorization"] = "Bearer " + access;
             originalRequest.headers["Authorization"] = "Bearer " + access;
@@ -106,13 +107,9 @@ export const instance = (): AxiosInstance => {
             processQueue(null, access);
             resolve(api!(originalRequest));
           } catch (err) {
-            if (err.response?.data?.code === "token_not_valid") {
-              showTokenExpiredAlert();
-            } else {
-              processQueue(err, null);
-              localStorage.clear();
-              window.location.href = "/auth/signin";
-            }
+            console.log("err", err);
+            processQueue(err, null);
+            showTokenExpiredAlert();
             reject(err);
           } finally {
             isRefreshing = false;

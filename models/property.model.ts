@@ -12,6 +12,18 @@ const properties = {
       if (body?.sqft == "No") {
         url += `&sqft=${encodeURIComponent(false)}`;
       }
+      if (body?.min_built_up_area) {  
+        url += `&min_built_up_area=${encodeURIComponent(body?.min_built_up_area)}`;
+      }
+      if (body?.max_built_up_area) {
+        url += `&max_built_up_area=${encodeURIComponent(body?.max_built_up_area)}`;
+      }
+      if (body?.min_price) {
+        url += `&min_price=${encodeURIComponent(body?.min_price)}`;
+      }
+      if (body?.max_price) {
+        url += `&max_price=${encodeURIComponent(body?.max_price)}`;
+      }
 
       if (body?.is_approved == "Yes") {
         url += `&is_approved=${encodeURIComponent(true)}`;
