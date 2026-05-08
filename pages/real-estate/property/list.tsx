@@ -718,7 +718,10 @@ const List = () => {
   ).length;
 
   const debouncedSearch = useDebounce(state.search, 500);
-  const debouncedSquareFeet = useDebounce(state.squareFeet, 500);
+  const debouncedMinBuiltUpArea = useDebounce(state.min_built_up_area, 500);
+  const debouncedMaxBuiltUpArea = useDebounce(state.max_built_up_area, 500);
+  const debouncedMinPrice = useDebounce(state.min_price, 500);
+  const debouncedMaxPrice = useDebounce(state.max_price, 500);
 
   useEffect(() => {
     const group = localStorage.getItem("group") || "";
@@ -748,7 +751,7 @@ const List = () => {
     if (state.filterLocation) {
       areaList(1);
     }
-  }, [ state.filterLocation]);
+  }, [state.filterLocation]);
 
   useEffect(() => {
     if (state.userId) {
@@ -757,7 +760,10 @@ const List = () => {
   }, [
     state.userId,
     debouncedSearch,
-    debouncedSquareFeet,
+    debouncedMinBuiltUpArea,
+    debouncedMaxBuiltUpArea,
+    debouncedMinPrice,
+    debouncedMaxPrice,
     state.property_type,
     state.offer_type,
     state.status,
@@ -1245,9 +1251,17 @@ const List = () => {
     if (state.search) {
       body.search = debouncedSearch;
     }
-
-    if(state.squareFeet){
-      body.sqft = debouncedSquareFeet;
+    if (state.min_built_up_area) {
+      body.min_built_up_area = debouncedMinBuiltUpArea;
+    }
+    if (state.max_built_up_area) {
+      body.max_built_up_area = debouncedMaxBuiltUpArea;
+    }
+    if (state.min_price) {
+      body.min_price = debouncedMinPrice;
+    }
+    if (state.max_price) {
+      body.max_price = debouncedMaxPrice;
     }
 
     if (state.project) {
@@ -1258,11 +1272,11 @@ const List = () => {
     }
 
     if (state.filterLocation) {
-          body.city = state.filterLocation.value;
-        }
-        if (state.filterArea) {
-          body.area = state.filterArea.value;
-        }
+      body.city = state.filterLocation.value;
+    }
+    if (state.filterArea) {
+      body.area = state.filterArea.value;
+    }
 
     if (state.offer_type) {
       body.listing_type = state.offer_type.value;
@@ -1834,9 +1848,15 @@ const List = () => {
 
           <TextInput
             type="text"
-            placeholder="Enter the Square feet..."
-            value={state.squareFeet}
-            onChange={(e) => setState({ squareFeet: e.target.value })}
+            placeholder="Minimum Sq.ft."
+            value={state.min_built_up_area}
+            onChange={(e) => setState({ min_built_up_area: e.target.value })}
+          />
+          <TextInput
+            type="text"
+            placeholder="Maximum Sq.ft."
+            value={state.max_built_up_area}
+            onChange={(e) => setState({ max_built_up_area: e.target.value })}
           />
 
           <CustomSelect
@@ -1945,16 +1965,17 @@ const List = () => {
                             },
                           ]
                         : []),
-                        ...(state.filterLocation
+                      ...(state.filterLocation
                         ? [
                             {
                               label: `City: ${state.filterLocation.label}`,
-                              onRemove: () => setState({ filterLocation: null }),
+                              onRemove: () =>
+                                setState({ filterLocation: null }),
                             },
                           ]
                         : []),
 
-                        ...(state.filterArea
+                      ...(state.filterArea
                         ? [
                             {
                               label: `Area: ${state.filterArea.label}`,
@@ -2309,7 +2330,21 @@ const List = () => {
                 onChange={(e) => setState({ status: e })}
                 options={Property_status}
               />
-              <CustomSelect
+
+              <TextInput
+                type="text"
+                placeholder="Minimum Price."
+                value={state.min_price}
+                onChange={(e) => setState({ min_price: e.target.value })}
+              />
+              <TextInput
+                type="text"
+                placeholder="Maximum Price."
+                value={state.max_price}
+                onChange={(e) => setState({ max_price: e.target.value })}
+              />
+
+              {/* <CustomSelect
                 placeholder="Publish or Draft"
                 value={state.publish}
                 onChange={(e) => setState({ publish: e })}
@@ -2320,7 +2355,7 @@ const List = () => {
                 value={state.approvedStatus}
                 onChange={(e) => setState({ approvedStatus: e })}
                 options={APPROVED_STATUS}
-              />
+              /> */}
             </div>
             <div className="flex items-center justify-between py-3">
               <button
