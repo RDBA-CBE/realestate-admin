@@ -49,8 +49,27 @@ const UserView = () => {
 
   const getWishlist = async () => {
     try {
-      const res: any = await Models.user.wishlist(id);
-      setState({ wishlist: res?.results || res || [] });
+      const developer_id = localStorage.getItem("userId");
+      const body = { developer_id, user_id: id };
+      const res: any = await Models.user.wishlist(body);
+      // Flatten all properties from all saved lists
+      const allProperties = (res?.results || []).flatMap((list: any) =>
+        (list.properties || []).map((p: any) => ({
+          id: p.id,
+          title: p.title,
+          city: p.city,
+          listing_type: p.listing_type,
+          status: p.status,
+          primary_image: p.primary_image,
+          project: p.project?.name,
+          property_type: p.property_type?.map((t: any) => t.name).join(", ") || "-",
+          price_range: p.price_range,
+          publish: p.publish,
+          is_approved: p.is_approved,
+          created_at: list.created_at,
+        }))
+      );
+      setState({ wishlist: allProperties });
     } catch {}
   };
 
@@ -65,17 +84,24 @@ const UserView = () => {
 
   const wishlistColumns = [
     {
-      accessor: "property_title",
+      accessor: "title",
       title: "Property",
       render: (row: any) => (
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#fdf4f4]">
-            <Home className="h-4 w-4 text-[#9b0f09]" />
+          {row.primary_image ? (
+            <img src={row.primary_image} alt={row.title} className="h-10 w-14 shrink-0 rounded-lg object-cover" />
+          ) : (
+            <div className="flex h-10 w-14 shrink-0 items-center justify-center rounded-lg bg-[#fdf4f4]">
+              <Home className="h-4 w-4 text-[#9b0f09]" />
+            </div>
+          )}
+          <div>
+            <span className="cursor-pointer font-medium text-[#9b0f09] hover:underline"
+              onClick={() => router.push(`/real-estate/property/detail/${row.id}`)}>
+              {truncateText(row.title, 22)}
+            </span>
+            {row.project && <p className="text-xs text-gray-400">{row.project}</p>}
           </div>
-          <span className="cursor-pointer font-medium text-[#9b0f09] hover:underline"
-            onClick={() => router.push(`/real-estate/property/detail/${row?.property?.id || row?.id}`)}>
-            {truncateText(row?.property?.title || row?.title, 25)}
-          </span>
         </div>
       ),
     },
@@ -83,25 +109,43 @@ const UserView = () => {
       accessor: "property_type",
       title: "Type",
       render: (row: any) => (
-        <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
-          {capitalizeFLetter(row?.property?.listing_type || row?.listing_type || "-")}
+        <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">{row.property_type}</span>
+      ),
+    },
+    {
+      accessor: "listing_type",
+      title: "Offer",
+      render: (row: any) => (
+        <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-semibold text-purple-700">
+          {capitalizeFLetter(row.listing_type)}
         </span>
       ),
     },
     {
-      accessor: "location",
+      accessor: "city",
       title: "Location",
       render: (row: any) => (
         <div className="flex items-center gap-1 text-sm text-gray-500">
           <MapPin className="h-3.5 w-3.5" />
-          {capitalizeFLetter(row?.property?.city || row?.city || "-")}
+          {capitalizeFLetter(row.city || "-")}
         </div>
       ),
     },
     {
-      accessor: "added_on",
+      accessor: "publish",
+      title: "Status",
+      render: (row: any) => (
+        <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+          row.publish ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+        }`}>
+          {row.publish ? "Published" : "Draft"}
+        </span>
+      ),
+    },
+    {
+      accessor: "saved_on",
       title: "Saved On",
-      render: (row: any) => <span className="text-sm text-gray-500">{commonDateFormat(row?.created_at)}</span>,
+      render: (row: any) => <span className="text-sm text-gray-500">{commonDateFormat(row.created_at)}</span>,
     },
     {
       accessor: "action",
@@ -109,7 +153,7 @@ const UserView = () => {
       textAlignment: "center" as any,
       render: (row: any) => (
         <button className="rounded-lg border border-[#9b0f09] px-3 py-1 text-xs font-semibold text-[#9b0f09] transition hover:bg-[#9b0f09] hover:text-white"
-          onClick={() => router.push(`/real-estate/property/detail/${row?.property?.id || row?.id}`)}>
+          onClick={() => router.push(`/real-estate/property/detail/${row.id}`)}>
           View
         </button>
       ),

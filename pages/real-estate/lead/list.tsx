@@ -86,6 +86,11 @@ const List = () => {
     total: 0,
     pageSize: 10,
     selectedRecords: [],
+    from_date: "",
+    to_date: "",
+    datePreset: "",
+    custom_from: "",
+    custom_to: "",
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -117,6 +122,8 @@ const List = () => {
     state.status,
     state.date,
     state.leadType,
+    state.from_date,
+    state.to_date,
   ]);
 
   const categoryList = async (page) => {
@@ -504,12 +511,27 @@ const List = () => {
     if (state.date) {
       body.date = backendDateFormat(state.date);
     }
+    if (state.from_date) {
+      body.from_date = state.from_date;
+    }
+    if (state.to_date) {
+      body.to_date = state.to_date;
+    }
+    if (state.datePreset === "Custom") {
+      if (state.custom_from) body.from_date = state.custom_from;
+      if (state.custom_to) body.to_date = state.custom_to;
+    }
     body.developer = userId;
 
     if (state.leadType?.value === "own") {
       body.created_by = userId;
-    } else if (state.leadType?.value === "assigned") {
-      body.assigned_to = userId;
+    } 
+    if (state.leadType?.value === "admin") {
+      body.team = true;
+    }
+
+    if (state.leadType?.value === "website") {
+      body.website = true;
     }
 
     // if (state.user) {
@@ -617,6 +639,24 @@ const List = () => {
     }
   };
 
+  const handleDatePreset = (preset: string) => {
+    const today = new Date();
+    const fmt = (d: Date) => d.toISOString().slice(0, 10);
+    let from = "", to = fmt(today);
+    if (preset === "Year") {
+      from = `${today.getFullYear()}-01-01`;
+    } else if (preset === "LastMonth") {
+      from = fmt(new Date(today.getFullYear(), today.getMonth() - 1, 1));
+      to = fmt(new Date(today.getFullYear(), today.getMonth(), 0));
+    } else if (preset === "ThisMonth") {
+      from = fmt(new Date(today.getFullYear(), today.getMonth(), 1));
+    } else if (preset === "Last7Days") {
+      const d = new Date(today); d.setDate(d.getDate() - 6);
+      from = fmt(d);
+    }
+    setState({ datePreset: preset, from_date: from, to_date: to });
+  };
+
   const clearAllFilters = () => {
     setState({
       search: "",
@@ -627,6 +667,9 @@ const List = () => {
       user: null,
       recordType: null,
       leadType: null,
+      from_date: "",
+      to_date: "",
+      datePreset: "",
     });
   };
 
@@ -637,8 +680,8 @@ const List = () => {
       row.full_name || "",
       row.email || "",
       row.property || "",
-      row.lead_source || "",
-      row.status || "",
+      row.lead_source.name || "",
+      row.status.name || "",
       row.assigned_to || "",
       row.assigned_by || "",
       row.requirements || "",
@@ -880,7 +923,7 @@ const List = () => {
       visible: true,
       toggleable: false,
       sortable: false,
-      textAlignment: "center",
+      textAlign: "center",
       render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
           <button
@@ -1039,6 +1082,48 @@ const List = () => {
         </div>
       </div>
 
+       {/* Date Filter Bar */}
+          <div className="w-fit mb-4 flex flex-wrap items-center gap-0 rounded-lg border border-gray-200 bg-white overflow-hidden">
+            {["Year", "LastMonth", "ThisMonth", "Last7Days", "Custom"].map((preset) => (
+              <button
+                key={preset}
+                onClick={() => preset !== "Custom" ? handleDatePreset(preset) : setState({ datePreset: "Custom" })}
+                className={`border-r border-gray-200 px-4 py-2 text-sm font-medium transition ${
+                  state.datePreset === preset
+                    ? "bg-dred text-white"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {preset}
+              </button>
+            ))}
+            <input
+              type="datetime-local"
+              value={state.custom_from ? `${state.custom_from}T00:00` : ""}
+              onChange={(e) => setState({ custom_from: e.target.value?.slice(0, 10), datePreset: "Custom", from_date: "", to_date: "" })}
+              className="border-r border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none"
+            />
+            <input
+              type="datetime-local"
+              value={state.custom_to ? `${state.custom_to}T00:00` : ""}
+              onChange={(e) => setState({ custom_to: e.target.value?.slice(0, 10), datePreset: "Custom", from_date: "", to_date: "" })}
+              className="border-r border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none"
+            />
+            <button
+              onClick={() => leadList(1)}
+              className="border-r border-gray-200 bg-dred px-4 py-2 text-sm font-semibold text-white hover:bg-lred hover:text-dred"
+            >
+              Go
+            </button>
+           
+            <button
+              onClick={() => setState({ from_date: "", to_date: "", datePreset: "" })}
+              className=" px-4 py-2 text-sm font-semibold text-dred "
+            >
+              Clear
+            </button>
+          </div>
+
       <div className="mb-5 rounded-2xl ">
         <div className="flex items-center justify-between gap-5">
           <TextInput
@@ -1083,8 +1168,9 @@ const List = () => {
             onChange={(e) => setState({ leadType: e })}
             placeholder={"All Leads"}
             options={[
-              { value: "own", label: "Own Leads" },
-              { value: "assigned", label: "Assigned Leads" },
+              { value: "own", label: "Own Records" },
+              { value: "admin", label: "Admin Records" },
+              { value: "website", label: "Website Leads" }
             ]}
             isClearable={true}
           />
@@ -1215,6 +1301,9 @@ const List = () => {
               <div className="text-sm text-black">{state.total} Leads found</div>
             </div>
           </div>
+
+         
+
           <DataTable
             className="table-responsive"
             records={state.tableList || []}
@@ -1226,8 +1315,8 @@ const List = () => {
             page={null}
             onPageChange={(p) => {}}
             withBorder={true}
-            selectedRecords={state.selectedRecords}
-            onSelectedRecordsChange={(records) => setState({ selectedRecords: records })}
+            // selectedRecords={state.selectedRecords}
+            // onSelectedRecordsChange={(records) => setState({ selectedRecords: records })}
             paginationText={({ from, to, totalRecords }) =>
               `Showing  ${from} to ${to} of ${totalRecords} entries`
             }

@@ -75,6 +75,9 @@ const BookingList = () => {
     showStatusModal: false,
     sortBy: "",
     sortOrder: "asc",
+    from_date: "",
+    to_date: "",
+    datePreset: "",
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -424,6 +427,12 @@ const BookingList = () => {
     if (state.date) {
       body.date = backendDateFormat(state.date);
     }
+    if (state.from_date) {
+      body.from_date = state.from_date;
+    }
+    if (state.to_date) {
+      body.to_date = state.to_date;
+    }
     body.developer = userId;
 
     if (state.leadType?.value === "own") {
@@ -466,6 +475,45 @@ const BookingList = () => {
   //   }
   //   return body;
   // };
+
+  const handleDatePreset = (preset: string) => {
+    const today = new Date();
+    let from = "";
+    let to = "";
+    const fmt = (d: Date) => d.toISOString().slice(0, 10);
+
+    if (preset === "Year") {
+      from = `${today.getFullYear()}-01-01`;
+      to = fmt(today);
+    } else if (preset === "LastMonth") {
+      const first = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const last = new Date(today.getFullYear(), today.getMonth(), 0);
+      from = fmt(first); to = fmt(last);
+    } else if (preset === "ThisMonth") {
+      from = fmt(new Date(today.getFullYear(), today.getMonth(), 1));
+      to = fmt(today);
+    } else if (preset === "Last7Days") {
+      const d = new Date(today); d.setDate(d.getDate() - 6);
+      from = fmt(d); to = fmt(today);
+    }
+    setState({ datePreset: preset, from_date: from, to_date: to });
+  };
+
+  const handleGo = () => leadList(1);
+
+  const handleExcelExport = () => {
+    const headers = ["Date", "Customer Name", "Property", "Lead Source", "Status", "Requirements"];
+    const rows = state.tableList.map((row: any) => [
+      row.date || "", row.full_name || "", row.property || "",
+      row.lead_source?.name || "", row.status?.name || "", row.requirements || "",
+    ]);
+    const csv = [headers, ...rows].map((r) => r.map((c: any) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url;
+    a.download = `bookings_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+  };
 
   const handleEdit = (row) => {
     router.push(`/real-estate/lead/update/${row?.id}`);

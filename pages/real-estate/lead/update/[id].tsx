@@ -46,6 +46,7 @@ import IconMapPin from "@/components/Icon/IconMapPin";
 import { useRouter, useSearchParams } from "next/navigation";
 import Utils from "@/imports/utils.import";
 import PrivateRouter from "@/hook/privateRouter";
+import area from "../../masters/area";
 
 const CreateOpportunities = () => {
   const dispatch = useDispatch();
@@ -105,8 +106,15 @@ const CreateOpportunities = () => {
       leadSourceList(1);
       leadStatusList(1);
       IncomeTypeList();
+      cityList(1)
     }
   }, [id]);
+
+  useEffect(() => {
+      if (state.location ) {
+        areaList(1);
+      }
+    }, [state.location, ]);
 
   const leadDetails = async () => {
     try {
@@ -119,6 +127,8 @@ const CreateOpportunities = () => {
         company_name: res?.company_name,
         email: res?.email,
         phone: res?.phone,
+        area:{ value: res.area_details?.id, label: capitalizeFLetter(res.area_details?.name) },
+        location:{ value: res.location_details?.id, label: capitalizeFLetter(res.location_details?.name) },
         gender: res?.gender ? { value: res.gender, label: capitalizeFLetter(res.gender) } : null,
         next_follow_up: res?.next_follow_up,
         requirements: res?.requirements,
@@ -258,6 +268,88 @@ const CreateOpportunities = () => {
       console.log("✌️error --->", error);
     }
   };
+
+  const cityList = async (page) => {
+        try {
+          const body: any = {};
+          if (state.search) body.search = state.search;
+          const res: any = await Models.city.list(page, body);
+          const droprdown = Dropdown(res?.results, "name");
+    
+          setState({
+            cityList: droprdown,
+            total: res?.count,
+            page,
+            next: res.next,
+            previous: res.previous,
+            totalRecords: res.count,
+          });
+        } catch (error) {
+          console.log("error -->", error);
+        }
+      };
+    
+      const cityLoadMore = async () => {
+        try {
+          if (state.cityNext) {
+            const res: any = await Models.city.list(state.cityPage + 1, {});
+            const newOptions = Dropdown(res?.results, "name");
+            setState({
+              cityList: [...state.cityList, ...newOptions],
+              cityNext: res.next,
+              cityPage: state.cityPage + 1,
+            });
+          } else {
+            setState({
+              cityList: state.cityList,
+            });
+          }
+        } catch (error) {
+          console.log("error: ", error);
+        }
+      };
+    
+      const areaList = async (page) => {
+        try {
+          const body: any = {
+            location: state.location?.value || state.filterLocation?.value,
+          };
+          if (state.search) body.search = state.search;
+          const res: any = await Models.area.list(page, body);
+          const droprdown = Dropdown(res?.results, "name");
+    
+          setState({
+            areaList: droprdown,
+            total: res?.count,
+            page,
+            next: res.next,
+            previous: res.previous,
+            totalRecords: res.count,
+          });
+        } catch (error) {
+          console.log("error -->", error);
+        }
+      };
+    
+      const areaLoadMore = async () => {
+        try {
+          if (state.areaNext) {
+            const res: any = await Models.area.list(state.areaPage + 1, {});
+            const newOptions = Dropdown(res?.results, "name");
+            setState({
+              areaList: [...state.areaList, ...newOptions],
+              areaNext: res.next,
+              areaPage: state.areaPage + 1,
+            });
+          } else {
+            setState({
+              areaList: state.areaList,
+            });
+          }
+        } catch (error) {
+          console.log("error: ", error);
+        }
+      };
 
   const IncomeTypeList = async () => {
     try {
@@ -721,6 +813,35 @@ const CreateOpportunities = () => {
                 required
                 error={state.error?.phone}
               />
+
+               <CustomSelect
+                  title="City name"
+                  placeholder="Select city"
+                  options={state.cityList}
+                  value={state.location}
+                  onChange={(selectedOption) =>
+                    setState({ location: selectedOption, area: "" })
+                  }
+                  isClearable
+                  loadMore={() => cityLoadMore()}
+                  required
+                  error={state.error?.location}
+                />
+
+                <CustomSelect
+                  title="Area name"
+                  placeholder="Select Area"
+                  options={state.areaList}
+                  value={state.area}
+                  onChange={(selectedOption) =>
+                    setState({ area: selectedOption })
+                  }
+                  isClearable
+                  loadMore={() => areaLoadMore()}
+                  required
+                  error={state.error?.area}
+                  disabled={!state.location}
+                />
 
               <CustomSelect
                 title="Gender"

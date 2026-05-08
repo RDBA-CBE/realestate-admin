@@ -29,6 +29,14 @@ const lead = {
         url += `&created_by=${encodeURIComponent(body.created_by)}`;
       }
 
+       if (body?.team) {
+        url += `&team=${encodeURIComponent(body.team)}`;
+      }
+
+       if (body?.website) {
+        url += `&website=${encodeURIComponent(body.website)}`;
+      }
+
       if (body?.assigned_to) {
         url += `&assigned_to=${encodeURIComponent(body.assigned_to)}`;
       }
@@ -42,6 +50,14 @@ const lead = {
 
       if (body?.date) {
         url += `&created_after=${encodeURIComponent(body.date)}`;
+      }
+
+      if (body?.from_date) {
+        url += `&created_after=${encodeURIComponent(body.from_date)}`;
+      }
+
+      if (body?.to_date) {
+        url += `&created_before=${encodeURIComponent(body.to_date)}`;
       }
 
        if (body?.ordering) {

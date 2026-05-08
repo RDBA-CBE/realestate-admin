@@ -187,9 +187,9 @@ const user = {
     return promise;
   },
 
-  wishlist: (userId: any) => {
+  wishlist: (body: any) => {
     return instance()
-      .get(`wishlists/?user_id=${userId}`)
+      .get(`wishlists/?developer_id=${body.developer_id}&user_id=${body.user_id}`)
       .then((res) => res.data)
       .catch((error) => Promise.reject(error.response?.data || error));
   },
