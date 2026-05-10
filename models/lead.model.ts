@@ -158,6 +158,26 @@ const lead = {
     return promise;
   },
 
+  lead_properties_details: (id: any) => {
+    let promise = new Promise((resolve, reject) => {
+      let url = `/lead-selected-properties/${id}/`;
+
+      instance()
+        .get(url)
+        .then((res) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          if (error.response) {
+            reject(error.response.data.message);
+          } else {
+            reject(error);
+          }
+        });
+    });
+    return promise;
+  },
+
   logList: (leadId, body) => {
     let promise = new Promise((resolve, reject) => {
       let url = `lead-logs/?lead=${leadId}`;

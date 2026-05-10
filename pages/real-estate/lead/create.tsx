@@ -280,11 +280,9 @@ const CreateOpportunities = () => {
         return;
       }
 
-      const selectedItems = Array.isArray(e) ? e : [e];
-      const propertyDetails = await Promise.all(
-        selectedItems.map(async (item) => {
-          const res: any = await Models.property.details(item?.value);
-          return {
+      // const propertyDetails = await Promise.all(
+          const res: any = await Models.property.details(e?.value);
+          const propertyDetails= {
             title: capitalizeFLetter(res?.title),
             status: capitalizeFLetter(res?.status),
             id: res?.id,
@@ -319,10 +317,8 @@ const CreateOpportunities = () => {
               res?.primary_image?.image ??
               "/assets/images/real-estate/property-info-img1.png",
           };
-        }),
-      );
 
-      setState({ tableList: propertyDetails });
+      setState({ tableList: [propertyDetails] });
     } catch (error) {
       console.log("✌️error --->", error);
     }
@@ -343,9 +339,7 @@ const CreateOpportunities = () => {
         gender: state.gender?.value,
         location: state.location?.value,
         area: state.area?.value,
-        interested_property: Array.isArray(state.property_name)
-          ? state.property_name.map((item) => item.value)
-          : state.property_name?.value,
+        interested_property:  state.property_name?.value,
         lead_source: state.lead_source?.value,
         assigned_to: state.assigned_to ?  state.assigned_to?.value : state.userId,
         // lead_source_details: state.lead_source_details,
@@ -585,7 +579,6 @@ const CreateOpportunities = () => {
     },
   ];
 
-  console.log("property_name", state.property_name);
   
 
   return (
@@ -779,6 +772,53 @@ const CreateOpportunities = () => {
                   disabled={!state.location}
                 />
 
+              <CustomSelect
+                title="User Income Type"
+                value={state.income_type}
+                onChange={(e) => setState({ income_type: e })}
+                placeholder={"Select Income Type"}
+                options={state.IncomeTypeList}
+                error={state.error?.income_type}
+                
+                className="w-full"
+               
+              />
+
+              <CheckboxInput
+                label="Bank Loan Required"
+                checked={state.bank_loan_required}
+                onChange={(e) => setState({ bank_loan_required: !state.bank_loan_required})}
+              />
+
+              {state.bank_loan_required && (
+                <> 
+                  <TextInput
+                    title="Bank Name"
+                    value={state.bank_name}
+                    onChange={(e) => setState({ bank_name: e.target.value })}
+                    placeholder="Bank Name"
+                  
+                  />
+
+                  <TextInput
+                    title="Branch Name"
+                    value={state.branch_name}
+                    onChange={(e) => setState({ branch_name: e.target.value })}
+                    placeholder="Branch Name"
+                  
+                  />
+
+                  <TextInput
+                    title="Account Number"
+                    value={state.account_number}
+                    onChange={(e) => setState({ account_number: e.target.value })}
+                    placeholder="Account Number"
+                  
+                  />
+
+                </>
+              )}
+
 
               <CheckboxInput
                 label="Add Alternate Contact Details"
@@ -948,69 +988,11 @@ const CreateOpportunities = () => {
                 required
                 className="w-full"
                 loadMore={() => propertyLoadMore()}
-                isMulti
+                isMulti={false}
               />
             </div>
 
-            <div className=" panel border shadow-none mt-4  flex flex-col gap-5 rounded-2xl p-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl   bg-[#deffd7]">
-                  <IconUser className="text-[#82de69]" />
-                </div>
-                <div className=" " style={{ fontSize: "20px" }}>
-                  User Information
-                </div>
-              </div>
-
-              <CustomSelect
-                title="User Income Type"
-                value={state.income_type}
-                onChange={(e) => setState({ income_type: e })}
-                placeholder={"Select Income Type"}
-                options={state.IncomeTypeList}
-                error={state.error?.income_type}
-                
-                className="w-full"
-               
-              />
-
-              <CheckboxInput
-                label="Bank Loan Required"
-                checked={state.bank_loan_required}
-                onChange={(e) => setState({ bank_loan_required: !state.bank_loan_required})}
-              />
-
-              {state.bank_loan_required && (
-                <> 
-                  <TextInput
-                    title="Bank Name"
-                    value={state.bank_name}
-                    onChange={(e) => setState({ bank_name: e.target.value })}
-                    placeholder="Bank Name"
-                  
-                  />
-
-                  <TextInput
-                    title="Branch Name"
-                    value={state.branch_name}
-                    onChange={(e) => setState({ branch_name: e.target.value })}
-                    placeholder="Branch Name"
-                  
-                  />
-
-                  <TextInput
-                    title="Account Number"
-                    value={state.account_number}
-                    onChange={(e) => setState({ account_number: e.target.value })}
-                    placeholder="Account Number"
-                  
-                  />
-
-                </>
-              )}
-
-            
-            </div>
+          
 
             
         </div>

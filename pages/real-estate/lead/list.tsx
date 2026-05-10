@@ -11,6 +11,7 @@ import {
   commonDateFormat,
   Dropdown,
   Failure,
+  formatPriceRange,
   showDeleteAlert,
   Success,
   truncateText,
@@ -283,10 +284,15 @@ const List = () => {
         property_title: item?.title,
         property_image: item?.primary_image,
         property_city: item?.city,
+        property_area: item?.lead_details?.area_details?.name,
         property_listing_type: item?.listing_type,
         property_status: item?.status,
+        property_type: item?.lead_details?.properties_details
+          ?.find((p) => p?.id === item?.property)
+          ?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
         project: item?.project_name,
         price_range: { minimum_price: item?.minimum_price, maximum_price: item?.maximum_price },
+        built_up_area: item?.built_up_area,
         full_name: item?.lead_details?.full_name,
         email: item?.lead_details?.email,
         lead_source: item?.lead_details?.lead_source_info,
@@ -576,8 +582,7 @@ const List = () => {
   // };
 
   const handleEdit = (row) => {
-    router.push(`/real-estate/lead/update/${row?.id}`);
-    console.log("✌️row --->", row);
+    router.push(`/real-estate/lead/property-edit?lead=${row?.id}&property=${row?.property_id}`);
   };
 
   const clearData = () => {
@@ -721,229 +726,81 @@ const List = () => {
   };
 
   const columns = [
-
-    // {
-    //   accessor: "company_name",
-    //   title: "Company Name",
-    //   visible: true,
-    //   toggleable: true,
-    //   sortable: true,
-    //   render: (row) => (
-    //     <div
-    //       className="w-fit cursor-pointer"
-    //       onClick={(e) => {
-    //         router.push(`/real-estate/lead/view/${row?.id}`);
-    //       }}
-    //     >
-    //       <div>{row?.company_name}</div>
-    //     </div>
-    //   ),
-    // },
     {
-      accessor: "created_at",
-      title: "Date",
-      visible: true,
-      toggleable: true,
-      sortable: true,
-      width: 150,
-      render: (row) => (
-        <div
-          className="w-fit cursor-pointer"
-          onClick={(e) => {
-            router.push(`/real-estate/lead/view/${row?.id}`);
-          }}
-        >
-          <div>{row?.date}</div>
-        </div>
-      ),
-    },
-    {
-      accessor: "title",
-      title: "Property",
+      accessor: "property_title",
+      title: "Property Name",
       visible: true,
       toggleable: true,
       sortable: true,
       render: (row) => (
         <div
-          className="  gap-2 cursor-pointer"
+          className="cursor-pointer font-medium text-sm text-[#9b0f09] hover:underline"
           onClick={() => router.push(`/real-estate/property/detail/${row?.property_id}`)}
+          title={row?.property_title}
         >
-          {/* {row?.property_image && (
-            <img
-              src={row.property_image}
-              alt={row.property_title}
-              className="h-9 w-12 rounded object-cover flex-shrink-0"
-            />
-          )} */}
-          <div>
-            <div className="font-medium text-sm" title={row?.property_title}>
-              {(row?.property_title)}
-            </div>
-            {/* <div className="text-xs text-gray-400">{row?.project}</div> */}
-          </div>
+          {row?.property_title || "-"}
         </div>
       ),
     },
-
-     {
+    {
       accessor: "project",
       title: "Project",
       visible: true,
       toggleable: true,
       sortable: true,
-      width: 150,
+      render: (row) => <span>{row?.project || "-"}</span>,
+    },
+    {
+      accessor: "price_range",
+      title: "Price Range",
+      visible: true,
+      toggleable: true,
       render: (row) => (
-        <div
-          className="w-fit cursor-pointer"
-          onClick={(e) => {
-            router.push(`/real-estate/project/view/${row?.id}`);
-          }}
-        >
-          <div>{row?.project}</div>
-        </div>
+        <span className="font-semibold text-[#9b0f09]">
+          {formatPriceRange(row?.price_range?.minimum_price, row?.price_range?.maximum_price)}
+        </span>
       ),
     },
-    // {
-    //   accessor: "property_type",
-    //   title: "Property Type",
-    //   visible: true,
-    //   toggleable: true,
-    //   render: (row: any) => {
-    //     const property_type = row.property_type;
-    //     if (!property_type || property_type?.length === 0) {
-    //       return <span className="text-gray-400">-</span>;
-    //     }
-
-    //     const firstType = property_type[0];
-    //     const others = property_type.slice(1);
-    //     const maxShow = 3;
-    //     const remaining = others.length - maxShow;
-    //     const visibleTypes = others.slice(0, maxShow);
-    //     const hiddenTypes = others.slice(maxShow);
-
-    //     return (
-    //       <div className="flex items-center gap-2">
-    //         {/* First type text */}
-    //         <span
-    //           title={firstType}
-    //           className="text-sm text-gray-700 dark:text-gray-300"
-    //         >
-    //           {truncateText(firstType)}
-    //         </span>
-
-    //         {/* Avatars */}
-    //         <div className="flex items-center -space-x-2">
-    //           {visibleTypes?.map((type: string, index: number) => (
-    //             <div key={index} className="group relative z-10">
-    //               <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
-    //                 {type?.slice(0, 2)?.toUpperCase()}
-    //               </div>
-    //               {/* Tooltip */}
-    //               <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
-    //                 {type}
-    //               </div>
-    //             </div>
-    //           ))}
-    //           {remaining > 0 && (
-    //             <div className="group relative z-10">
-    //               <div className="flex h-7 w-7  items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
-    //                 +{remaining}
-    //               </div>
-    //               {/* Remaining tooltip */}
-    //               <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
-    //                 {hiddenTypes.join(", ")}
-    //               </div>
-    //             </div>
-    //           )}
-    //         </div>
-    //       </div>
-    //     );
-    //   },
-    // },
-
     {
-      accessor: "full_name",
-      title: "Customer Name",
+      accessor: "built_up_area",
+      title: "Sq.ft",
+      visible: true,
+      toggleable: true,
+      render: (row) => <span>{row?.built_up_area || "-"}</span>,
+    },
+    {
+      accessor: "property_type",
+      title: "Property Type",
+      visible: true,
+      toggleable: true,
+      render: (row: any) => {
+        const types = row?.property_type;
+        if (!types?.length) return <span className="text-gray-400">-</span>;
+        return (
+          <div className="flex flex-wrap gap-1">
+            {types.map((t: string, i: number) => (
+              <span key={i} className="inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">{t}</span>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      accessor: "property_city",
+      title: "City",
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => (
-        <span title={row?.full_name}>{(row?.full_name)}</span>
-      ),
+      render: (row) => <span>{row?.property_city || "-"}</span>,
     },
-
-    // {
-    //   accessor: "email",
-    //   title: "Email",
-
-    //   visible: true,
-    //   toggleable: true,
-    //   sortable: true,
-    //   render: (row) => <span title={row?.email}>{row?.email}</span>,
-    // },
-
-    // {
-    //   accessor: "assigned_to",
-    //   title: "Assigned To",
-    //   visible: true,
-    //   toggleable: true,
-    //   render: (row) => (
-    //     <span title={row?.assigned_to}>{truncateText(row?.assigned_to)}</span>
-    //   ),
-    // },
-
     {
-      accessor: "lead_source",
-      title: "Lead Source",
+      accessor: "property_area",
+      title: "Area",
       visible: true,
       toggleable: true,
-      render: (row) => {
-     
-        const label = row?.lead_source?.name || row?.lead_source;
-        const cls = sourceConfig[label] ?? "bg-gray-100 text-gray-600";
-        return (
-          <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>
-            {label || "-"}
-          </span>
-        );
-      },
+      sortable: true,
+      render: (row) => <span>{row?.property_area || "-"}</span>,
     },
-    {
-      accessor: "status",
-      title: "Status",
-      visible: true,
-      toggleable: true,
-      render: (row) => {
-        const cls =
-          statusConfig[row?.status?.name] ?? "bg-gray-100 text-gray-600";
-        return (
-          <span
-            className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}
-          >
-            {capitalizeFLetter(row?.status?.name)}
-          </span>
-        );
-      },
-    },
-
-    {
-      accessor: "Inquiry",
-      sortable: false,
-      render: (row) => (
-        <Tippy
-          content={row?.requirements}
-          placement="top"
-          className="rounded-lg bg-black p-1 text-sm text-white"
-        >
-          <div>
-            {row?.requirements?.length > 20
-              ? `${row.requirements.slice(0, 20)}...`
-              : row?.requirements}
-          </div>
-        </Tippy>
-      ),
-    },
-
     {
       accessor: "action",
       title: "Actions",
@@ -955,40 +812,25 @@ const List = () => {
         <div className="mx-auto flex w-max items-center gap-4">
           <button
             className="text-dred flex"
-            onClick={(e) => {
-              router.push(`/real-estate/lead/view/${row?.id}`);
-            }}
+            onClick={() => router.push(`/real-estate/lead/view/${row?.id}`)}
             title="View Lead Details"
           >
             <Eye className="h-4 w-4" />
           </button>
-
           <button
             className="flex text-success"
-            onClick={(e) => handleStatus(row)}
+            onClick={() => handleStatus(row)}
             title="Change Lead Status"
           >
             <CheckCircle className="h-4 w-4" />
           </button>
-
           <button
             className="flex text-primary"
-            onClick={(e) => {
-              handleEdit(row);
-            }}
+            onClick={() => handleEdit(row)}
             title="Edit Lead"
           >
             <IconEdit className="h-4 w-4" />
           </button>
-
-          {/* <button
-            type="button"
-            className="flex text-danger"
-            onClick={(e) => handleDelete(row)}
-            title="Delete Lead"
-          >
-            <IconTrashLines className="h-4 w-4" />
-          </button> */}
         </div>
       ),
     },
