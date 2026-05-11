@@ -390,9 +390,7 @@ export const lead = Yup.object().shape({
     .test(
       "is-required-property",
       "Please select a property",
-      (value) =>
-        (typeof value === "string" && value.length > 0) ||
-        (Array.isArray(value) && value.length > 0),
+      (value) => value !== null && value !== undefined && value !== "",
     )
     .required("Please select a property"),
 

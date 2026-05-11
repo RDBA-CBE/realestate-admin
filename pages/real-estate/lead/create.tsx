@@ -339,7 +339,7 @@ const CreateOpportunities = () => {
         gender: state.gender?.value,
         location: state.location?.value,
         area: state.area?.value,
-        interested_property:  state.property_name?.value,
+        interested_property:  [state.property_name?.value],
         lead_source: state.lead_source?.value,
         assigned_to: state.assigned_to ?  state.assigned_to?.value : state.userId,
         // lead_source_details: state.lead_source_details,

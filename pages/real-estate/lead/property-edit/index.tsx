@@ -72,7 +72,7 @@ const PropertyEdit = () => {
         leadDetail: leadRes,
         propertyDetail: { ...propertyRes, primary_image: primaryImage },
         leadPropertyId: lpRecord?.id || null,
-        property_status: propertyRes?.status
+        property_status: leadRes?.oppurtunity_status
           ? { value: propertyRes.status, label: capitalizeFLetter(propertyRes.status) }
           : null,
         inquiry_details: lpRecord?.inquiry_details || leadRes?.requirements || "",
@@ -91,6 +91,18 @@ const PropertyEdit = () => {
     } catch (error) {}
   };
 
+  const leadStatusList = async () => {
+      try {
+        const res: any = await Models.leadStatus.list(1, { pagination: "No" });
+        const dropdownList = Dropdown(res.results, "name");
+        setState({
+          leadStatusList: dropdownList,
+        });
+      } catch (error) {
+        console.log("✌️error --->", error);
+      }
+    };
+
   const handleSubmit = async () => {
     try {
       setState({ btnLoading: true });
@@ -105,6 +117,7 @@ const PropertyEdit = () => {
       if (state.leadPropertyId) {
         await Models.lead.lead_properties_update(
           {
+            oppurtunity_status: state.property_status?.value,
             inquiry_details: state.inquiry_details,
             closing_date: state.closing_date ? moment(state.closing_date).format("YYYY-MM-DD") : null,
           },
@@ -207,12 +220,7 @@ const PropertyEdit = () => {
                 value={state.property_status}
                 onChange={(e) => setState({ property_status: e })}
                 placeholder="Select Status"
-                options={[
-                  { value: "available", label: "Available" },
-                  { value: "sold", label: "Sold" },
-                  { value: "rented", label: "Rented" },
-                  { value: "pending", label: "Pending" },
-                ]}
+                options={state.leadStatusList}
               />
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-gray-700">Inquiry Details</label>

@@ -278,8 +278,13 @@ const List = () => {
         body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
       }
       const res: any = await Models.lead.lead_properties(page, body);
+      console.log("lead res", res);
+      
       const data = res?.results?.map((item) => ({
         id: item?.lead_details?.id,
+        customer_name: item?.lead_details?.full_name,
+        property_lead_id:item?.id,
+        inquiry:item?.inquiry_details,
         property_id: item?.property,
         property_title: item?.title,
         property_image: item?.primary_image,
@@ -296,6 +301,7 @@ const List = () => {
         full_name: item?.lead_details?.full_name,
         email: item?.lead_details?.email,
         lead_source: item?.lead_details?.lead_source_info,
+        opportunity_status: item?.opportunity_status,
         status: item?.lead_details?.status_info,
         date: commonDateFormat(item?.created_at),
         requirements: item?.lead_details?.requirements,
@@ -600,16 +606,16 @@ const List = () => {
     setState({ statusRow: row, showStatusModal: true, newStatus: null });
   };
 
-  const confirmStatus = async () => {
-    if (!state.newStatus) return;
+  const confirmStatus = async (statusRow, newStatus) => {
+    if (!newStatus) return;
     try {
       setState({ btnLoading: true });
-      await Models.lead.update(
-        { status: state.newStatus?.value },
-        state.statusRow?.id,
+      await Models.lead.lead_properties_update(
+        { oppurtunity_status: newStatus?.value },
+        statusRow?.property_lead_id,
       );
       setState({ showStatusModal: false, btnLoading: false });
-      leadList(state.page);
+      leadPropertyList(state.page);
       Success("Lead status updated successfully");
     } catch (error) {
       setState({ btnLoading: false });
@@ -726,6 +732,26 @@ const List = () => {
   };
 
   const columns = [
+
+    {
+      accessor: "full_name",
+      title: "Lead Name",
+      visible: true,
+      toggleable: true,
+      sortable: true,
+      render: (row) => (
+        <div
+          className=" font-medium text-sm "
+        >
+          {row?.full_name || "-"}
+        </div>
+      ),
+    },
+
+    
+
+
+
     {
       accessor: "property_title",
       title: "Property Name",
@@ -742,6 +768,7 @@ const List = () => {
         </div>
       ),
     },
+
     {
       accessor: "project",
       title: "Project",
@@ -751,56 +778,67 @@ const List = () => {
       render: (row) => <span>{row?.project || "-"}</span>,
     },
     {
-      accessor: "price_range",
-      title: "Price Range",
+      accessor: "date",
+      title: "Date",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row) => (
-        <span className="font-semibold text-[#9b0f09]">
-          {formatPriceRange(row?.price_range?.minimum_price, row?.price_range?.maximum_price)}
-        </span>
+        <div
+          className=" font-medium text-sm "
+        >
+          {row?.date || "-"}
+        </div>
       ),
     },
+
     {
-      accessor: "built_up_area",
-      title: "Sq.ft",
-      visible: true,
-      toggleable: true,
-      render: (row) => <span>{row?.built_up_area || "-"}</span>,
-    },
-    {
-      accessor: "property_type",
-      title: "Property Type",
-      visible: true,
-      toggleable: true,
-      render: (row: any) => {
-        const types = row?.property_type;
-        if (!types?.length) return <span className="text-gray-400">-</span>;
-        return (
-          <div className="flex flex-wrap gap-1">
-            {types.map((t: string, i: number) => (
-              <span key={i} className="inline-block rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-700">{t}</span>
-            ))}
-          </div>
-        );
-      },
-    },
-    {
-      accessor: "property_city",
-      title: "City",
+      accessor: "inquiry",
+      title: "Inquiry",
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => <span>{row?.property_city || "-"}</span>,
+      render: (row) => <span>{row?.inquiry || "-"}</span>,
     },
+
     {
-      accessor: "property_area",
-      title: "Area",
+      accessor: "lead_source",
+      title: "Lead Source",
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => <span>{row?.property_area || "-"}</span>,
+      render: (row) => <span>{row?.lead_source?.name || "-"}</span>,
     },
+
+    // {
+    //   accessor: "lead_status",
+    //   title: "Lead Status",
+    //   visible: true,
+    //   toggleable: true,
+    //   sortable: true,
+    //   render: (row) => <span>{row?.opportunity_status || "-"}</span>,
+    // },
+
+    // {
+    //   accessor: "price_range",
+    //   title: "Price Range",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row) => (
+    //     <span className="font-semibold text-[#9b0f09]">
+    //       {formatPriceRange(row?.price_range?.minimum_price, row?.price_range?.maximum_price)}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   accessor: "built_up_area",
+    //   title: "Sq.ft",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row) => <span>{row?.built_up_area || "-"}</span>,
+    // },
+   
+    
     {
       accessor: "action",
       title: "Actions",
@@ -835,6 +873,9 @@ const List = () => {
       ),
     },
   ];
+
+  console.log("tableList", state.tableList);
+  
 
   const filteredColumns = columns
     ?.filter((col) => col.visible !== false)
@@ -1412,7 +1453,7 @@ const List = () => {
                 Cancel
               </button>
               <button
-                onClick={confirmStatus}
+                onClick={() => confirmStatus(state.statusRow, state.newStatus)}
                 className="btn btn-dred border-none"
               >
                 {state.btnLoading ? <IconLoader /> : "Confirm"}

@@ -276,6 +276,66 @@ const lead = {
       if (body?.developer) {
         url += `&developer_user=${encodeURIComponent(body.developer)}`;
       }
+
+      if (body?.group) {
+        url += `&group=${encodeURIComponent(body.group)}`;
+      }
+      // if (body?.interested_property) {
+      //   url += `&interested_property=true`;
+      // }
+
+      if (body.created_by_group) {
+        url += `&created_by_group=${encodeURIComponent(body.created_by_group)}`;
+      }
+       if (body.assigned_to_group) {
+        url += `&assigned_to_group=${encodeURIComponent(body.assigned_to_group)}`;
+      }
+      if (body?.search) {
+        url += `&search=${encodeURIComponent(body.search)}`;
+      }
+
+      // if (body?.developer) {
+      //   url += `&developer=${encodeURIComponent(body.developer)}`;
+      // }
+
+      if (body?.created_by) {
+        url += `&created_by=${encodeURIComponent(body.created_by)}`;
+      }
+
+       if (body?.team) {
+        url += `&team=${encodeURIComponent(body.team)}`;
+      }
+
+       if (body?.website) {
+        url += `&website=${encodeURIComponent(body.website)}`;
+      }
+
+      if (body?.assigned_to) {
+        url += `&assigned_to=${encodeURIComponent(body.assigned_to)}`;
+      }
+
+      if (body?.lead_source) {
+        url += `&lead_source=${encodeURIComponent(body.lead_source)}`;
+      }
+      if (body?.status) {
+        url += `&status=${encodeURIComponent(body.status)}`;
+      }
+
+      if (body?.date) {
+        url += `&created_after=${encodeURIComponent(body.date)}`;
+      }
+
+      if (body?.from_date) {
+        url += `&created_after=${encodeURIComponent(body.from_date)}`;
+      }
+
+      if (body?.to_date) {
+        url += `&created_before=${encodeURIComponent(body.to_date)}`;
+      }
+
+       if (body?.ordering) {
+        url += `&sort_by=${body?.ordering}`;
+      }
       
 
       instance()
