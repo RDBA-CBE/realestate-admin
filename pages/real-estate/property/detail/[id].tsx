@@ -40,7 +40,7 @@ const PropertyDetail = () => {
     property: null,
     loading: true,
     lightboxIndex: null,
-    activeTab: "unit_plan",
+    activeTab: "floor_plans",
   });
 
   useEffect(() => {
@@ -52,7 +52,7 @@ const PropertyDetail = () => {
       setState({ loading: true });
       const res: any = await Models.property.details(id);
       // Set default active tab to first available plan
-      const defaultTab = res?.unit_plan ? "unit_plan" : res?.floor_plans?.length > 0 ? "floor_plans" : res?.master_plan ? "master_plan" : "unit_plan";
+      const defaultTab = res?.floor_plans ? "floor_plans" : res?.unit_plan?.length > 0 ? "unit_plan" : res?.master_plan ? "master_plan" : "unit_plan";
       setState({ property: res, loading: false, activeTab: defaultTab });
     } catch (error) {
       console.log("error", error);
@@ -200,11 +200,11 @@ const PropertyDetail = () => {
                 <div className="flex items-start gap-3 rounded-lg bg-gray-50 px-4 py-3 dark:bg-gray-800 sm:col-span-3">
                   <span className="mt-0.5 shrink-0 text-[#9b0f09]"><Layers className="h-4 w-4" /></span>
                   <div className="w-full">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Floor Plans</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Unit Plans</p>
                     <div className="mt-1.5 flex flex-wrap gap-2">
-                      {p.floor_plans.map((plan, i) => (
+                      {Array.from(new Set(p.floor_plans.map((plan: any) => plan.category?.toLowerCase()))).map((category: any, i) => (
                         <span key={i} className="rounded-full bg-[#9b0f09]/10 px-3 py-1 text-xs font-bold text-[#9b0f09] uppercase">
-                          {plan.category}
+                          {category}
                         </span>
                       ))}
                     </div>
@@ -220,8 +220,9 @@ const PropertyDetail = () => {
               {/* Tab Headers */}
               <div className="mb-4 flex gap-1 border-b border-gray-100 dark:border-gray-700">
                 {[
-                  { key: "unit_plan", label: "Unit Plan", show: !!p.unit_plan },
-                  { key: "floor_plans", label: "Floor Plans", show: p.floor_plans?.length > 0 },
+                  { key: "floor_plans", label: "Unit Plans", show: p.floor_plans?.length > 0 },
+                  { key: "unit_plan", label: "Floor Plan", show: !!p.unit_plan },
+                  
                   { key: "master_plan", label: "Master Plan", show: !!p.master_plan },
                 ]
                   .filter((t) => t.show)

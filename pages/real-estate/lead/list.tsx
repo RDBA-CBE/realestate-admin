@@ -662,12 +662,12 @@ const List = () => {
     let from = "", to = fmt(today);
     if (preset === "Year") {
       from = `${today.getFullYear()}-01-01`;
-    } else if (preset === "LastMonth") {
+    } else if (preset === "Last Month") {
       from = fmt(new Date(today.getFullYear(), today.getMonth() - 1, 1));
       to = fmt(new Date(today.getFullYear(), today.getMonth(), 0));
-    } else if (preset === "ThisMonth") {
+    } else if (preset === "This Month") {
       from = fmt(new Date(today.getFullYear(), today.getMonth(), 1));
-    } else if (preset === "Last7Days") {
+    } else if (preset === "Last 7 Days") {
       const d = new Date(today); d.setDate(d.getDate() - 6);
       from = fmt(d);
     }
@@ -994,7 +994,7 @@ const List = () => {
 
        {/* Date Filter Bar */}
           <div className="w-fit mb-4 flex flex-wrap items-center gap-0 rounded-lg border border-gray-200 bg-white overflow-hidden">
-            {["Year", "LastMonth", "ThisMonth", "Last7Days", "Custom"].map((preset) => (
+            {["Year", "Last Month", "This Month", "Last 7 Days", "Custom"].map((preset) => (
               <button
                 key={preset}
                 onClick={() => preset !== "Custom" ? handleDatePreset(preset) : setState({ datePreset: "Custom" })}
