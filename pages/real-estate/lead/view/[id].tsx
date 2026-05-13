@@ -22,6 +22,7 @@ import {
   ChevronUp,
   Pencil,
   Activity,
+  Plus,
 } from "lucide-react";
 import CustomSelect from "@/components/FormFields/CustomSelect.component";
 import CustomeDatePicker from "@/components/datePicker";
@@ -34,6 +35,8 @@ import TextArea from "@/components/FormFields/TextArea.component";
 import IconLoader from "@/components/Icon/IconLoader";
 import moment from "moment";
 import CustomPhoneInput from "@/components/phoneInput";
+import Modal from "@/components/modal/modal.component";
+import { X } from "lucide-react";
 
 const View_Lead = () => {
   const router = useRouter();
@@ -50,6 +53,14 @@ const View_Lead = () => {
     openContact: true,
     editMode: false,
     btnLoading: false,
+    showAddPropertyModal: false,
+    addPropertyLoading: false,
+    newProperty: null,
+    newInquiryDetails: "",
+    newOpportunityStatus: null,
+    propertyList: [],
+    propertyPage: 1,
+    hasMoreProperty: false,
     leadStatusList: [],
     leadSourceList: [],
     cityList: [],
@@ -67,6 +78,15 @@ const View_Lead = () => {
     location: null,
     area: null,
     gender: null,
+    alt_first_name: "",
+    alt_last_name: "",
+    alt_email: "",
+    alt_phone: "",
+    alt_gender: null,
+    bank_loan_required: false,
+    bank_name: "",
+    bank_branch: "",
+    account_number: "",
   });
 
   useEffect(() => {
@@ -106,6 +126,15 @@ const View_Lead = () => {
         lead_source: res?.lead_source_info ? { value: res.lead_source_info.id, label: res.lead_source_info.name } : null,
         location: res?.location_details ? { value: res.location_details.id, label: res.location_details.name } : null,
         area: res?.area_details ? { value: res.area_details.id, label: res.area_details.name } : null,
+        alt_first_name: res?.alternate_first_name || "",
+        alt_last_name: res?.alternate_last_name || "",
+        alt_email: res?.alternate_email || "",
+        alt_phone: res?.alternate_phone_number || "",
+        alt_gender: res?.alternate_gender ? { value: res.alternate_gender, label: capitalizeFLetter(res.alternate_gender) } : null,
+        bank_loan_required: res?.bank_loan || false,
+        bank_name: res?.bank_name || "",
+        bank_branch: res?.bank_branch || "",
+        account_number: res?.bank_account_no || "",
       });
     } catch (error) {
       setState({ loading: false });
@@ -163,6 +192,53 @@ const View_Lead = () => {
     setState({ areaList: [...state.areaList, ...Dropdown(res?.results, "name")], areaNext: res.next, areaPage: state.areaPage + 1 });
   };
 
+  const fetchPropertyList = async (page = 1) => {
+    try {
+      const userId = localStorage.getItem("userId");
+      const res: any = await Models.property.list(page, { developer: userId, pagination: "No", is_approved: true });
+      const options = Dropdown(res.results, "title");
+      setState({ propertyList: options, propertyPage: page, hasMoreProperty: res.next });
+    } catch (error) {
+      console.log("error:", error);
+    }
+  };
+
+  const propertyLoadMore = async () => {
+    if (!state.hasMoreProperty) return;
+    const userId = localStorage.getItem("userId");
+    const res: any = await Models.property.list(state.propertyPage + 1, { developer: userId, pagination: "No", is_approved: true });
+    setState({ propertyList: [...state.propertyList, ...Dropdown(res.results, "title")], propertyPage: state.propertyPage + 1, hasMoreProperty: res.next });
+  };
+
+  const closeAddPropertyModal = () => {
+    setState({ showAddPropertyModal: false, newProperty: null, newInquiryDetails: "", newOpportunityStatus: null });
+  };
+
+  const handleAddProperty = async () => {
+    if (!state.newProperty) return;
+    try {
+      setState({ addPropertyLoading: true });
+      const userId = localStorage.getItem("userId");
+      const existingIds = (d?.properties_details || []).map((p: any) => p.id);
+      const interested_property = [...existingIds, state.newProperty.value];
+      await Models.lead.update({ interested_property }, id);
+      await Models.lead.lead_properties_create({
+        lead: Number(id),
+        property: [state.newProperty.value],
+        developer_user: Number(userId),
+        ...(state.newInquiryDetails && { inquiry_details: state.newInquiryDetails }),
+        ...(state.newOpportunityStatus && { oppurtunity_status: state.newOpportunityStatus.value }),
+      });
+      setState({ addPropertyLoading: false });
+      closeAddPropertyModal();
+      Success("Property added successfully");
+      getDetails();
+    } catch (error) {
+      setState({ addPropertyLoading: false });
+      Failure("Failed to add property");
+    }
+  };
+
   const handleUpdate = async () => {
     try {
       setState({ btnLoading: true });
@@ -179,6 +255,15 @@ const View_Lead = () => {
         location: state.location?.value,
         area: state.area?.value,
         next_follow_up: state.next_follow_up ? moment(state.next_follow_up).format("YYYY-MM-DD") : null,
+        alternate_first_name: state.alt_first_name,
+        alternate_last_name: state.alt_last_name,
+        alternate_email: state.alt_email,
+        alternate_phone_number: state.alt_phone,
+        alternate_gender: state.alt_gender?.value,
+        bank_loan: state.bank_loan_required,
+        bank_name: state.bank_name,
+        bank_branch: state.bank_branch,
+        bank_account_no: state.account_number,
       };
       await Models.lead.update(body, id);
       setState({ btnLoading: false, editMode: false });
@@ -362,7 +447,7 @@ const View_Lead = () => {
             {!state.editMode ? (
               <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                 {/* Company Info */}
-                <div>
+                {/* <div>
                   <div className="mb-3 flex items-center gap-2">
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-100">
                       <span className="text-xs text-orange-500">🏢</span>
@@ -376,7 +461,7 @@ const View_Lead = () => {
                     <InfoRow label="State" value={d?.state} />
                     <InfoRow label="Country" value={d?.country} />
                   </div>
-                </div>
+                </div> */}
                 {/* Contact Info */}
                 <div>
                   <div className="mb-3 flex items-center gap-2">
@@ -391,7 +476,7 @@ const View_Lead = () => {
                     <InfoRow label="Phone Number" value={formatPhoneNumber(d?.phone)} />
                     <InfoRow label="Gender" value={capitalizeFLetter(d?.gender)} />
                     <InfoRow label="Lead Source" value={d?.lead_source_info?.name} />
-                    <InfoRow label="Status" value={d?.status_info?.name} />
+                    {/* <InfoRow label="Status" value={d?.status_info?.name} /> */}
                   </div>
                 </div>
                 {/* More Info */}
@@ -403,14 +488,40 @@ const View_Lead = () => {
                     <span className="font-semibold text-gray-700">More Information</span>
                   </div>
                   <div className="space-y-3">
-                    <InfoRow label="Requirements" value={d?.requirements} />
+                    {/* <InfoRow label="Requirements" value={d?.requirements} /> */}
                     <InfoRow label="Next Follow Up" value={commonDateFormat(d?.next_follow_up)} />
                     <InfoRow label="Location" value={d?.location_details?.name} />
                     <InfoRow label="Area" value={d?.area_details?.name} />
-                    <InfoRow label="Priority" value={capitalizeFLetter(d?.priority)} />
-                    <InfoRow label="Assigned To" value={d?.assigned_to_details ? `${d.assigned_to_details.first_name} ${d.assigned_to_details.last_name}` : "-"} />
+                    {d?.bank_loan == true &&
+                    (
+                    <>
+                    <InfoRow label="Bank Loan Required" value="Yes" />
+                    <InfoRow label="Bank Name" value={d?.bank_name} />
+                    <InfoRow label="Bank Branch" value={d?.bank_branch} />
+                    <InfoRow label="Bank Account Number" value={d?.bank_account_no} />
+                    </>
+                    )}
+                    {/* <InfoRow label="Priority" value={capitalizeFLetter(d?.priority)} /> */}
+                    {/* <InfoRow label="Assigned To" value={d?.assigned_to_details ? `${d.assigned_to_details.first_name} ${d.assigned_to_details.last_name}` : "-"} /> */}
                   </div>
                 </div>
+
+                {(d?.alternate_first_name || d?.alternate_phone_number) && (
+                  <div>
+                    <div className="mb-3 flex items-center gap-2">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-orange-100">
+                        <span className="text-xs text-orange-500">👥</span>
+                      </div>
+                      <span className="font-semibold text-gray-700">Alternate Contact</span>
+                    </div>
+                    <div className="space-y-3">
+                      <InfoRow label="Name" value={`${d?.alternate_first_name || ""} ${d?.alternate_last_name || ""}`.trim()} />
+                      <InfoRow label="Gender" value={capitalizeFLetter(d?.alternate_gender)} />
+                      <InfoRow label="Email" value={d?.alternate_email} />
+                      <InfoRow label="Phone" value={formatPhoneNumber(d?.alternate_phone_number)} />
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="space-y-4">
@@ -419,15 +530,36 @@ const View_Lead = () => {
                   <TextInput title="Last Name" value={state.last_name} onChange={(e) => setState({ last_name: e.target.value })} placeholder="Last Name" />
                   <TextInput title="Email" value={state.email} onChange={(e) => setState({ email: e.target.value })} placeholder="Email" />
                   <CustomPhoneInput value={state.phone} onChange={(v) => setState({ phone: v })} title="Phone" name="phone" />
-                  <TextInput title="Company Name" value={state.company_name} onChange={(e) => setState({ company_name: e.target.value })} placeholder="Company Name" />
+                  {/* <TextInput title="Company Name" value={state.company_name} onChange={(e) => setState({ company_name: e.target.value })} placeholder="Company Name" /> */}
                   <CustomSelect title="Gender" value={state.gender} onChange={(e) => setState({ gender: e })} placeholder="Select Gender" options={GENDER_LIST} />
                   <CustomSelect title="Lead Source" value={state.lead_source} onChange={(e) => setState({ lead_source: e })} placeholder="Lead Source" options={state.leadSourceList} />
-                  <CustomSelect title="Status" value={state.status} onChange={(e) => setState({ status: e })} placeholder="Status" options={state.leadStatusList} />
+                  {/* <CustomSelect title="Status" value={state.status} onChange={(e) => setState({ status: e })} placeholder="Status" options={state.leadStatusList} /> */}
                   <CustomeDatePicker value={state.next_follow_up} placeholder="Next Follow Up" title="Next Follow Up" onChange={(e) => setState({ next_follow_up: e })} showTimeSelect={false} />
                   <CustomSelect title="City" value={state.location} onChange={(e) => setState({ location: e, area: null })} placeholder="Select City" options={state.cityList} isClearable loadMore={cityLoadMore} />
                   <CustomSelect title="Area" value={state.area} onChange={(e) => setState({ area: e })} placeholder="Select Area" options={state.areaList} isClearable loadMore={areaLoadMore} disabled={!state.location} />
-                  <div className="md:col-span-3">
+                  {/* <div className="md:col-span-3">
                     <TextArea title="Requirements" value={state.requirements} onChange={(e) => setState({ requirements: e.target.value })} placeholder="Requirements" />
+                  </div> */}
+                  <div className="md:col-span-3 flex items-center gap-2">
+                    <input type="checkbox" id="bank_loan" checked={state.bank_loan_required} onChange={() => setState({ bank_loan_required: !state.bank_loan_required })} className="h-4 w-4" />
+                    <label htmlFor="bank_loan" className="text-sm text-gray-700">Bank Loan Required</label>
+                  </div>
+                  {state.bank_loan_required && (
+                    <>
+                      <TextInput title="Bank Name" value={state.bank_name} onChange={(e) => setState({ bank_name: e.target.value })} placeholder="Bank Name" />
+                      <TextInput title="Bank Branch" value={state.bank_branch} onChange={(e) => setState({ bank_branch: e.target.value })} placeholder="Bank Branch" />
+                      <TextInput title="Account Number" value={state.account_number} onChange={(e) => setState({ account_number: e.target.value })} placeholder="Account Number" />
+                    </>
+                  )}
+                </div>
+                <div className="mt-2 border-t border-gray-200 pt-4">
+                  <p className="mb-3 text-sm font-semibold text-gray-600">Alternate Contact</p>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                    <TextInput title="Alternate First Name" value={state.alt_first_name} onChange={(e) => setState({ alt_first_name: e.target.value })} placeholder="Alternate First Name" />
+                    <TextInput title="Alternate Last Name" value={state.alt_last_name} onChange={(e) => setState({ alt_last_name: e.target.value })} placeholder="Alternate Last Name" />
+                    <TextInput title="Alternate Email" value={state.alt_email} onChange={(e) => setState({ alt_email: e.target.value })} placeholder="Alternate Email" />
+                    <CustomPhoneInput value={state.alt_phone} onChange={(v) => setState({ alt_phone: v })} title="Alternate Phone" name="alt_phone" />
+                    <CustomSelect title="Alternate Gender" value={state.alt_gender} onChange={(e) => setState({ alt_gender: e })} placeholder="Select Gender" options={GENDER_LIST} />
                   </div>
                 </div>
                 <div className="flex justify-end gap-3">
@@ -449,6 +581,14 @@ const View_Lead = () => {
           count={d?.properties_details?.length || 0}
           open={state.openProperties}
           onToggle={() => setState({ openProperties: !state.openProperties })}
+          action={
+            <button
+              className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"
+              onClick={() => { setState({ showAddPropertyModal: true }); fetchPropertyList(1); }}
+            >
+              <Plus className="h-4 w-4" />
+            </button>
+          }
         />
         {state.openProperties && (
           <div className="border-t border-gray-200 bg-white p-5">
@@ -463,55 +603,107 @@ const View_Lead = () => {
             </div>
           </div>
         )}
+
+      <Modal
+        open={state.showAddPropertyModal}
+        close={closeAddPropertyModal}
+        maxWidth="!w-[500px]"
+        renderComponent={() => (
+          <div>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Add Property</h2>
+              <button onClick={closeAddPropertyModal} className="rounded-full p-2 hover:bg-gray-100">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex flex-col gap-4">
+              <CustomSelect
+                title="Property"
+                value={state.newProperty}
+                onChange={(e) => setState({ newProperty: e })}
+                placeholder="Select Property"
+                options={state.propertyList}
+                loadMore={propertyLoadMore}
+                required
+              />
+              <TextArea
+                title="Inquiry Details"
+                value={state.newInquiryDetails}
+                onChange={(e) => setState({ newInquiryDetails: e.target.value })}
+                placeholder="Inquiry Details"
+              />
+              <CustomSelect
+                title="Opportunity Status"
+                value={state.newOpportunityStatus}
+                onChange={(e) => setState({ newOpportunityStatus: e })}
+                placeholder="Select Opportunity Status"
+                options={state.leadStatusList}
+              />
+            </div>
+            <div className="flex items-center justify-end gap-3 pt-6">
+              <button className="btn border-dred hover:btn-mred" onClick={closeAddPropertyModal}>Cancel</button>
+              <button
+                className="btn btn-dred border-none"
+                onClick={handleAddProperty}
+                disabled={state.addPropertyLoading || !state.newProperty}
+              >
+                {state.addPropertyLoading ? <IconLoader className="h-4 w-4 animate-spin" /> : "Add"}
+              </button>
+            </div>
+          </div>
+        )}
+      />
       </div>
 
       {/* Accordion 3: Contact Information */}
-      <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+      {/* <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
         <AccordionHeader
           title="Contact Information"
-          count={1}
+          count={(d?.alternate_first_name || d?.alternate_phone_number) ? 2 : 1}
           open={state.openContact}
           onToggle={() => setState({ openContact: !state.openContact })}
         />
         {state.openContact && (
           <div className="border-t border-gray-200 bg-white p-5">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b text-left text-xs font-semibold uppercase text-gray-400">
-                  <th className="pb-2 pr-4">Name</th>
-                  <th className="pb-2 pr-4">Email</th>
-                  <th className="pb-2 pr-4">Phone Number</th>
-                  <th className="pb-2 pr-4">Gender</th>
-                  <th className="pb-2 pr-4">Location</th>
-                  <th className="pb-2">Area</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-b">
-                  <td className="py-3 pr-4 font-medium text-gray-800">{d?.full_name || "-"}</td>
-                  <td className="py-3 pr-4 text-gray-600">{d?.email || "-"}</td>
-                  <td className="py-3 pr-4 text-gray-600">{formatPhoneNumber(d?.phone) || "-"}</td>
-                  <td className="py-3 pr-4 text-gray-600">{capitalizeFLetter(d?.gender) || "-"}</td>
-                  <td className="py-3 pr-4 text-gray-600">{d?.location_details?.name || "-"}</td>
-                  <td className="py-3 text-gray-600">{d?.area_details?.name || "-"}</td>
-                </tr>
-                {(d?.alternate_first_name || d?.alternate_phone_number) && (
-                  <tr>
-                    <td className="py-3 pr-4 font-medium text-gray-800">
-                      {`${d?.alternate_first_name || ""} ${d?.alternate_last_name || ""}`.trim() || "-"}
-                    </td>
-                    <td className="py-3 pr-4 text-gray-600">{d?.alternate_email || "-"}</td>
-                    <td className="py-3 pr-4 text-gray-600">{formatPhoneNumber(d?.alternate_phone_number) || "-"}</td>
-                    <td className="py-3 pr-4 text-gray-600">{capitalizeFLetter(d?.alternate_gender) || "-"}</td>
-                    <td className="py-3 pr-4 text-gray-600">-</td>
-                    <td className="py-3 text-gray-600">-</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-100">
+                    <span className="text-xs text-blue-500">👤</span>
+                  </div>
+                  <span className="text-sm font-semibold text-gray-700">Primary Contact</span>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <InfoRow label="Name" value={d?.full_name} />
+                  <InfoRow label="Gender" value={capitalizeFLetter(d?.gender)} />
+                  <InfoRow label="Email" value={d?.email} />
+                  <InfoRow label="Phone" value={formatPhoneNumber(d?.phone)} />
+                  <InfoRow label="Location" value={d?.location_details?.name} />
+                  <InfoRow label="Area" value={d?.area_details?.name} />
+                </div>
+              </div>
+              
+              {(d?.alternate_first_name || d?.alternate_phone_number) && (
+                <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                  <div className="mb-3 flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-orange-100">
+                      <span className="text-xs text-orange-500">👥</span>
+                    </div>
+                    <span className="text-sm font-semibold text-gray-700">Alternate Contact</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <InfoRow label="Name" value={`${d?.alternate_first_name || ""} ${d?.alternate_last_name || ""}`.trim()} />
+                    <InfoRow label="Gender" value={capitalizeFLetter(d?.alternate_gender)} />
+                    <InfoRow label="Email" value={d?.alternate_email} />
+                    <InfoRow label="Phone" value={formatPhoneNumber(d?.alternate_phone_number)} />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
-      </div>
+      </div> */}
 
       {/* Log History */}
       <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">

@@ -398,9 +398,9 @@ export const lead = Yup.object().shape({
 
   next_follow_up: Yup.string().nullable().required("Next Follow Up Date is required"),
 
-  status: Yup.string().required("Status is required"),
+  opportunity_status: Yup.string().required("Status is required"),
 
-  requirements: Yup.string().required("Inquiry Details are required"),
+  inquiry_details: Yup.string().required("Inquiry Details are required"),
   assigned_to: Yup.string().required("Assigned to are required"),
 });
 

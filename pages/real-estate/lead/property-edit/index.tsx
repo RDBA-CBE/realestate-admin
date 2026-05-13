@@ -67,13 +67,16 @@ const PropertyEdit = () => {
         (item: any) => String(item?.lead) === String(lead) && String(item?.property) === String(property)
       );
 
+      console.log("lpRecord", lpRecord);
+      
+
       setState({
         loading: false,
         leadDetail: leadRes,
         propertyDetail: { ...propertyRes, primary_image: primaryImage },
         leadPropertyId: lpRecord?.id || null,
-        property_status: leadRes?.oppurtunity_status
-          ? { value: propertyRes.status, label: capitalizeFLetter(propertyRes.status) }
+        property_status: lpRecord?.opportunity_status_details
+          ? { value: lpRecord.opportunity_status_details?.id, label: capitalizeFLetter(lpRecord.opportunity_status_details?.name) }
           : null,
         inquiry_details: lpRecord?.inquiry_details || leadRes?.requirements || "",
         closing_date: lpRecord?.closing_date || null,
@@ -117,9 +120,10 @@ const PropertyEdit = () => {
       if (state.leadPropertyId) {
         await Models.lead.lead_properties_update(
           {
-            oppurtunity_status: state.property_status?.value,
+            opportunity_status: state.property_status?.value,
             inquiry_details: state.inquiry_details,
             closing_date: state.closing_date ? moment(state.closing_date).format("YYYY-MM-DD") : null,
+            next_follow_up: state.next_follow_up ? moment(state.next_follow_up).format("YYYY-MM-DD")  : null,
           },
           state.leadPropertyId
         );

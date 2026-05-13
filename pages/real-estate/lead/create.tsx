@@ -346,8 +346,8 @@ const CreateOpportunities = () => {
         next_follow_up: state.next_follow_up
           ? moment(state.next_follow_up).format("YYYY-MM-DD")
           : null,
-        status: state.status?.value,
-        requirements: capitalizeFLetter(state.requirements),
+        opportunity_status: state.status?.value,
+        inquiry_details: capitalizeFLetter(state.requirements),
         ...(state.showAlternateContact && {
           alternate_first_name: capitalizeFLetter(state.alt_first_name),
           alternate_last_name: capitalizeFLetter(state.alt_last_name),
@@ -380,9 +380,9 @@ const CreateOpportunities = () => {
       console.log("leadPropertyresBody", leadPropertyresBody);
       
 
-      const leadPropertyres = await Models.lead.lead_properties_create(leadPropertyresBody);
+      // const leadPropertyres = await Models.lead.lead_properties_create(leadPropertyresBody);
 
-      console.log("leadPropertyres", leadPropertyres);
+      // console.log("leadPropertyres", leadPropertyres);
       
 
       setState({ btnLoading: false });
@@ -927,12 +927,12 @@ const CreateOpportunities = () => {
             <CustomSelect
               value={state.status}
               onChange={(e) =>
-                setState({ status: e, error: { ...state.error, status: null } })
+                setState({ status: e, error: { ...state.error, opportunity_status: null } })
               }
               placeholder={"Status"}
               title={"Status"}
               options={state.leadStatusList}
-              error={state.error?.status}
+              error={state.error?.opportunity_status}
               required
               className="w-full"
               leftIcon={<User2Icon className="h-4 w-4 text-gray-400" />}
@@ -960,11 +960,11 @@ const CreateOpportunities = () => {
               onChange={(e) => {
                 setState({
                   requirements: e.target.value,
-                  error: { ...state.error, requirements: "" },
+                  error: { ...state.error, inquiry_details: "" },
                 });
               }}
               required
-              error={state.error?.requirements}
+              error={state.error?.inquiry_details}
             />
           </div>
 

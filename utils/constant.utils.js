@@ -240,12 +240,12 @@ export const menuConfig = {
         //   href: "/real-estate/masters/income_type",
         // },
 
-        // {
-        //   type: "link",
-        //   icon: "IconMenuForms",
-        //   label: "Lead Status",
-        //   href: "/real-estate/masters/lead_status",
-        // },
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Lead Status",
+          href: "/real-estate/masters/lead_status",
+        },
       
       ],
     },

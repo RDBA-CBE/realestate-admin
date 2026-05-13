@@ -301,7 +301,7 @@ const List = () => {
         full_name: item?.lead_details?.full_name,
         email: item?.lead_details?.email,
         lead_source: item?.lead_details?.lead_source_info,
-        opportunity_status: item?.opportunity_status,
+        opportunity_status: item?.opportunity_status_details?.name,
         status: item?.lead_details?.status_info,
         date: commonDateFormat(item?.created_at),
         requirements: item?.lead_details?.requirements,
@@ -611,7 +611,7 @@ const List = () => {
     try {
       setState({ btnLoading: true });
       await Models.lead.lead_properties_update(
-        { oppurtunity_status: newStatus?.value },
+        { opportunity_status: newStatus?.value },
         statusRow?.property_lead_id,
       );
       setState({ showStatusModal: false, btnLoading: false });
@@ -693,17 +693,22 @@ const List = () => {
   };
 
   const exportToExcel = () => {
-    const headers = ["Date", "Customer Name", "Email", "Property", "Lead Source", "Status", "Assigned To", "Assigned By", "Requirements"];
+    const headers = ["Date", "Customer Name", "Email", "Property", "Project", "City", "Area", "Lead Source", "Status", "Opportunity Status", "Assigned To", "Assigned By", "Inquiry", "Requirements"];
     const rows = state.tableList.map((row: any) => [
-      row.date || "",
+      `\t${row.date || ""}`,
       row.full_name || "",
       row.email || "",
-      row.property || "",
-      row.lead_source.name || "",
-      row.status.name || "",
-      row.assigned_to || "",
-      row.assigned_by || "",
-      row.requirements || "",
+      row.property_title || "",
+      row.project || "",
+      row.property_city || "",
+      row.property_area || "",
+      row.lead_source?.name || "",
+      row.status?.name || "",
+      row.opportunity_status || "",
+      // row.assigned_to || "",
+      // row.assigned_by || "",
+      row.inquiry || "",
+      // row.requirements || "",
     ]);
     const csvContent = [headers, ...rows]
       .map((r) => r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
@@ -810,14 +815,14 @@ const List = () => {
       render: (row) => <span>{row?.lead_source?.name || "-"}</span>,
     },
 
-    // {
-    //   accessor: "lead_status",
-    //   title: "Lead Status",
-    //   visible: true,
-    //   toggleable: true,
-    //   sortable: true,
-    //   render: (row) => <span>{row?.opportunity_status || "-"}</span>,
-    // },
+    {
+      accessor: "opportunity_status",
+      title: "Lead Status",
+      visible: true,
+      toggleable: true,
+      sortable: true,
+      render: (row) => <span>{row?.opportunity_status || "-"}</span>,
+    },
 
     // {
     //   accessor: "price_range",
