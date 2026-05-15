@@ -24,7 +24,8 @@ import {
   Success,
   useSetState,
 } from "@/utils/function.utils";
-import { UserCheck, Building2 } from "lucide-react";
+import TextArea from "@/components/FormFields/TextArea.component";
+import { UserCheck, Building2, Camera } from "lucide-react";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
 
@@ -46,6 +47,8 @@ export default function Profile() {
     profile: null,
     industry_start_year: "",
     location: "",
+    description: "",
+    developer_image: null as File | null,
   });
 
   useEffect(() => {
@@ -98,15 +101,18 @@ export default function Profile() {
       setState({ btnLoading: true });
       const userString = localStorage.getItem("userId");
       if (!userString) return;
-      const body = {
+      const body: any = {
         first_name: state.first_name,
         last_name: state.last_name,
         email: state.email,
         industry: state.industry,
         industry_start_year: state.industry_start_year,
         location: state.location,
+        description: state.description,
       };
-      await Models.user.update(body, userString);
+      if (state.developer_image) body.developer_image = state.developer_image;
+      const formData = buildFormData(body);
+      await Models.user.update(formData, userString);
       Success("Profile updated successfully");
       setState({ isOpen: false, error: {}, btnLoading: false });
       profile();
@@ -201,6 +207,8 @@ export default function Profile() {
                       industry: capitalizeFLetter(state.profile?.industry),
                       industry_start_year: state.profile?.industry_start_year,
                       location: state.profile?.location,
+                      description: state.profile?.description || "",
+                      developer_image: null,
                     })
                   }
                   className="flex items-center gap-2 rounded-md bg-[#9b0f09] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#7d0c07]"
@@ -302,6 +310,28 @@ export default function Profile() {
               onChange={(e) => setState({ industry_start_year: e.target.value })} icon={<IconMenuDatatables />} />
             <TextInput title="Location" placeholder="Enter your location" value={state.location}
               onChange={(e) => setState({ location: e.target.value })} icon={<IconMapPin />} />
+            <TextArea title="Description" placeholder="Enter your description" value={state.description}
+              onChange={(e) => setState({ description: e.target.value })} />
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Developer Image
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      setState({ developer_image: e.target.files[0] });
+                    }
+                  }}
+                  className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#9b0f09] focus:outline-none focus:ring-1 focus:ring-[#9b0f09] dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+                />
+                {state.developer_image && (
+                  <span className="text-sm text-green-600 dark:text-green-400">{state.developer_image.name}</span>
+                )}
+              </div>
+            </div>
             <div className="flex gap-3 pt-2">
               <button onClick={() => setState({ isOpen: false })}
                 className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-600 transition hover:bg-gray-50">
