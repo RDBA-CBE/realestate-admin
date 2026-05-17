@@ -242,6 +242,7 @@ const PropertyEdit = () => {
                 placeholder="Select Closing Date"
                 onChange={(e) => setState({ closing_date: e })}
                 showTimeSelect={false}
+                minDate={new Date()}
               />
               <CustomeDatePicker
                 title="Next Follow Up Date"
@@ -249,6 +250,7 @@ const PropertyEdit = () => {
                 placeholder="Select Next Follow Up Date"
                 onChange={(e) => setState({ next_follow_up: e })}
                 showTimeSelect={false}
+                minDate={new Date()}
               />
             </div>
           </div>

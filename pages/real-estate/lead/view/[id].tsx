@@ -220,15 +220,21 @@ const View_Lead = () => {
       setState({ addPropertyLoading: true });
       const userId = localStorage.getItem("userId");
       const existingIds = (d?.properties_details || []).map((p: any) => p.id);
-      const interested_property = [...existingIds, state.newProperty.value];
-      await Models.lead.update({ interested_property }, id);
-      await Models.lead.lead_properties_create({
-        lead: Number(id),
-        property: [state.newProperty.value],
-        developer_user: Number(userId),
+      const interested_property = [state.newProperty.value, ...existingIds];
+      const body={
+        interested_property: interested_property,
         ...(state.newInquiryDetails && { inquiry_details: state.newInquiryDetails }),
         ...(state.newOpportunityStatus && { oppurtunity_status: state.newOpportunityStatus.value }),
-      });
+        developer_user: Number(userId),
+      }
+      await Models.lead.update(body, id);
+      // await Models.lead.lead_properties_create({
+      //   lead: Number(id),
+      //   property: [state.newProperty.value],
+      //   developer_user: Number(userId),
+      //   ...(state.newInquiryDetails && { inquiry_details: state.newInquiryDetails }),
+      //   ...(state.newOpportunityStatus && { oppurtunity_status: state.newOpportunityStatus.value }),
+      // });
       setState({ addPropertyLoading: false });
       closeAddPropertyModal();
       Success("Property added successfully");
@@ -534,7 +540,7 @@ const View_Lead = () => {
                   <CustomSelect title="Gender" value={state.gender} onChange={(e) => setState({ gender: e })} placeholder="Select Gender" options={GENDER_LIST} />
                   <CustomSelect title="Lead Source" value={state.lead_source} onChange={(e) => setState({ lead_source: e })} placeholder="Lead Source" options={state.leadSourceList} />
                   {/* <CustomSelect title="Status" value={state.status} onChange={(e) => setState({ status: e })} placeholder="Status" options={state.leadStatusList} /> */}
-                  <CustomeDatePicker value={state.next_follow_up} placeholder="Next Follow Up" title="Next Follow Up" onChange={(e) => setState({ next_follow_up: e })} showTimeSelect={false} />
+                  <CustomeDatePicker value={state.next_follow_up} placeholder="Next Follow Up" title="Next Follow Up" onChange={(e) => setState({ next_follow_up: e })} showTimeSelect={false}  minDate={new Date()}/>
                   <CustomSelect title="City" value={state.location} onChange={(e) => setState({ location: e, area: null })} placeholder="Select City" options={state.cityList} isClearable loadMore={cityLoadMore} />
                   <CustomSelect title="Area" value={state.area} onChange={(e) => setState({ area: e })} placeholder="Select Area" options={state.areaList} isClearable loadMore={areaLoadMore} disabled={!state.location} />
                   {/* <div className="md:col-span-3">
