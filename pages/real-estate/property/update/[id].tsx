@@ -148,6 +148,7 @@ const AddPropertyPage = () => {
         image: null,
       },
     ],
+    location_url: "",
     deleteFloorPlan: null,
   });
 
@@ -269,6 +270,7 @@ const AddPropertyPage = () => {
         postal_code: res?.postal_code,
         total_area: res?.total_area,
         built_up_area: res?.built_up_area,
+        location_url: res?.location_url || "",
         // ...(res?.total_area && { total_area: formatNumber(res.total_area) }),
         // ...(res?.built_up_area && {
         //   built_up_area: formatNumber(res.built_up_area),
@@ -840,6 +842,7 @@ const AddPropertyPage = () => {
         longitude: state.longitude,
         latitude: state.latitude,
         address: state.address,
+        location_url: state.location_url,
         status: state.status?.value,
         validatePropertyType: state.property_type,
         min_price: state.min_price,
@@ -989,6 +992,7 @@ const AddPropertyPage = () => {
         longitude: state.longitude,
         latitude: state.latitude,
         address: state.address,
+        location_url: state.location_url,
         status: state.status?.value,
         validatePropertyType: state.property_type,
         min_price: state.min_price,
@@ -2495,6 +2499,14 @@ const AddPropertyPage = () => {
                       onChange={handleInputChange}
                       required
                       error={state.error?.postal_code}
+                    />
+                    <TextInput
+                      name="location_url"
+                      title="Location URL"
+                      placeholder="Enter Google Maps URL"
+                      value={state.location_url}
+                      onChange={handleInputChange}
+                      error={state.error?.location_url}
                     />
                   </div>
                 </div>

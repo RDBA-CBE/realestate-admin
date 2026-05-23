@@ -96,6 +96,7 @@ const AddPropertyPage = () => {
     state: null,
     city: null,
     postal_code: null,
+    location_url: "",
     amenities: [],
     amenitiesVisibleCount: 12,
     project: null,
@@ -494,6 +495,7 @@ const AddPropertyPage = () => {
         longitude: state.longitude,
         latitude: state.latitude,
         address: state.address,
+        location_url: state.location_url,
         location: state.location?.value,
         area: state.area?.value,
         city: state.city,
@@ -2013,6 +2015,16 @@ const AddPropertyPage = () => {
                       onChange={handleInputChange}
                       required
                       error={state.error?.postal_code}
+                    />
+
+                    <TextInput
+                      name="location_url"
+                      title="Location URL"
+                      placeholder="Enter Google Maps URL"
+                      value={state.location_url}
+                      onChange={handleInputChange}
+                      required
+                      error={state.error?.location_url}
                     />
 
                     {/* <CustomSelect
