@@ -39,7 +39,15 @@ import {
   LISTING_TYPE_LIST,
   ROLES,
 } from "@/utils/constant.utils";
-import { Building, Computer, LucideHome, User2, User2Icon, Eye, ArrowLeft } from "lucide-react";
+import {
+  Building,
+  Computer,
+  LucideHome,
+  User2,
+  User2Icon,
+  Eye,
+  ArrowLeft,
+} from "lucide-react";
 import CustomeDatePicker from "@/components/datePicker";
 import CustomPhoneInput from "@/components/phoneInput";
 import Link from "next/link";
@@ -58,9 +66,9 @@ const CreateOpportunities = () => {
   const id = router.query.leadid;
 
   const [state, setState] = useSetState({
-     userId: null,
+    userId: null,
     loading: false,
-    assigned_to:null,
+    assigned_to: null,
     company_name: "",
     first_name: "",
     last_name: "",
@@ -82,37 +90,36 @@ const CreateOpportunities = () => {
     propertyList: [],
     hasMoreProperty: false,
     error: {},
-   
   });
 
-  useEffect(()=>{
-    const userId = localStorage.getItem("userId")
-    setState({userId})
-  },[])
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    setState({ userId });
+  }, []);
 
   useEffect(() => {
     propertyList(1);
     leadSourceList();
-    IncomeTypeList()
+    IncomeTypeList();
     leadStatusList();
-    cityList(1)
+    cityList(1);
   }, []);
 
-   useEffect(() => {
-      if (state.location ) {
-        areaList(1);
-      }
-    }, [state.location, ]);
+  useEffect(() => {
+    if (state.location) {
+      areaList(1);
+    }
+  }, [state.location]);
 
   const propertyList = async (id: any) => {
     try {
       setState({ loading: true });
-    const userId = localStorage.getItem("userId")
-      
+      const userId = localStorage.getItem("userId");
+
       const body = {
         developer: userId,
-        pagination:"No",
-        is_approved: true
+        pagination: "No",
+        is_approved: true,
       };
 
       const res: any = await Models.property.list(1, body);
@@ -136,21 +143,21 @@ const CreateOpportunities = () => {
       setState({
         leadSourceList: dropdownList,
       });
-    }
-    catch (error) {
+    } catch (error) {
       console.log("✌️error --->", error);
     }
   };
 
   const IncomeTypeList = async () => {
     try {
-      const res: any = await Models.employmentType.list(1, { pagination: "No" });
+      const res: any = await Models.employmentType.list(1, {
+        pagination: "No",
+      });
       const dropdownList = Dropdown(res.results, "name");
       setState({
         IncomeTypeList: dropdownList,
       });
-    }
-    catch (error) {
+    } catch (error) {
       console.log("✌️error --->", error);
     }
   };
@@ -162,12 +169,10 @@ const CreateOpportunities = () => {
       setState({
         leadStatusList: dropdownList,
       });
+    } catch (error) {
+      console.log("✌️error --->", error);
     }
-  catch (error) {
-    console.log("✌️error --->", error);
-  }
-};
-
+  };
 
   const propertyLoadMore = async () => {
     try {
@@ -190,90 +195,93 @@ const CreateOpportunities = () => {
   };
 
   const cityList = async (page) => {
-      try {
-        const body: any = {};
-        if (state.search) body.search = state.search;
-        const res: any = await Models.city.list(page, body);
-        const droprdown = Dropdown(res?.results, "name");
-  
+    try {
+      const body: any = {};
+      if (state.search) body.search = state.search;
+      const res: any = await Models.city.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+
+      setState({
+        cityList: droprdown,
+        total: res?.count,
+        page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+      });
+    } catch (error) {
+      console.log("error -->", error);
+    }
+  };
+
+  const cityLoadMore = async () => {
+    try {
+      if (state.cityNext) {
+        const res: any = await Models.city.list(state.cityPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
         setState({
-          cityList: droprdown,
-          total: res?.count,
-          page,
-          next: res.next,
-          previous: res.previous,
-          totalRecords: res.count,
+          cityList: [...state.cityList, ...newOptions],
+          cityNext: res.next,
+          cityPage: state.cityPage + 1,
         });
-      } catch (error) {
-        console.log("error -->", error);
-      }
-    };
-  
-    const cityLoadMore = async () => {
-      try {
-        if (state.cityNext) {
-          const res: any = await Models.city.list(state.cityPage + 1, {});
-          const newOptions = Dropdown(res?.results, "name");
-          setState({
-            cityList: [...state.cityList, ...newOptions],
-            cityNext: res.next,
-            cityPage: state.cityPage + 1,
-          });
-        } else {
-          setState({
-            cityList: state.cityList,
-          });
-        }
-      } catch (error) {
-        console.log("error: ", error);
-      }
-    };
-  
-    const areaList = async (page) => {
-      try {
-        const body: any = {
-          location: state.location?.value || state.filterLocation?.value,
-        };
-        if (state.search) body.search = state.search;
-        const res: any = await Models.area.list(page, body);
-        const droprdown = Dropdown(res?.results, "name");
-  
+      } else {
         setState({
-          areaList: droprdown,
-          total: res?.count,
-          page,
-          next: res.next,
-          previous: res.previous,
-          totalRecords: res.count,
+          cityList: state.cityList,
         });
-      } catch (error) {
-        console.log("error -->", error);
       }
-    };
-  
-    const areaLoadMore = async () => {
-      try {
-        if (state.areaNext) {
-          const res: any = await Models.area.list(state.areaPage + 1, {});
-          const newOptions = Dropdown(res?.results, "name");
-          setState({
-            areaList: [...state.areaList, ...newOptions],
-            areaNext: res.next,
-            areaPage: state.areaPage + 1,
-          });
-        } else {
-          setState({
-            areaList: state.areaList,
-          });
-        }
-      } catch (error) {
-        console.log("error: ", error);
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
+  const areaList = async (page) => {
+    try {
+      const body: any = {
+        location: state.location?.value || state.filterLocation?.value,
+      };
+      if (state.search) body.search = state.search;
+      const res: any = await Models.area.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+
+      setState({
+        areaList: droprdown,
+        total: res?.count,
+        page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+      });
+    } catch (error) {
+      console.log("error -->", error);
+    }
+  };
+
+  const areaLoadMore = async () => {
+    try {
+      if (state.areaNext) {
+        const res: any = await Models.area.list(state.areaPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          areaList: [...state.areaList, ...newOptions],
+          areaNext: res.next,
+          areaPage: state.areaPage + 1,
+        });
+      } else {
+        setState({
+          areaList: state.areaList,
+        });
       }
-    };
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
 
   const handleGetProperty = async (e) => {
     try {
-      setState({ property_name: e, error: { ...state.error, interested_property: null } });
+      setState({
+        property_name: e,
+        error: { ...state.error, interested_property: null },
+      });
 
       if (!e || (Array.isArray(e) && e.length === 0)) {
         setState({ tableList: [] });
@@ -288,7 +296,8 @@ const CreateOpportunities = () => {
             id: res?.id,
             total_area: res?.total_area,
             property_type:
-              res?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
+              res?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) ||
+              [],
             listing_type: {
               type: capitalizeFLetter(res?.listing_type),
               color:
@@ -303,7 +312,7 @@ const CreateOpportunities = () => {
             date: commonDateFormat(res?.created_at),
             location: capitalizeFLetter(res?.city),
             developer: `${capitalizeFLetter(
-              res?.developer?.first_name
+              res?.developer?.first_name,
             )} ${capitalizeFLetter(res?.developer?.last_name)}`,
             project: capitalizeFLetter(res?.project?.name),
             price: formatPriceRange(
@@ -324,8 +333,6 @@ const CreateOpportunities = () => {
     }
   };
 
-  console.log("tableList", state.tableList);
-  
 
   const handleSubmit = async () => {
     try {
@@ -341,7 +348,9 @@ const CreateOpportunities = () => {
         area: state.area?.value,
         interested_property:  [state.property_name?.value],
         lead_source: state.lead_source?.value,
-        assigned_to: state.assigned_to ?  state.assigned_to?.value : state.userId,
+        assigned_to: state.assigned_to
+          ? state.assigned_to?.value
+          : state.userId,
         // lead_source_details: state.lead_source_details,
         next_follow_up: state.next_follow_up
           ? moment(state.next_follow_up).format("YYYY-MM-DD")
@@ -353,32 +362,28 @@ const CreateOpportunities = () => {
           alternate_last_name: capitalizeFLetter(state.alt_last_name),
           alternate_email: state.alt_email,
           alternate_phone_number: state.alt_phone,
-          alternate_gender: state.alt_gender.value
+          alternate_gender: state.alt_gender.value,
         }),
-        
 
-        employment_type : state.income_type?.value,
-        bank_loan  : state.bank_loan_required,
-        bank_name  : state.bank_name,
-        bank_branch : state.bank_branch,
-        bank_account_no : state.account_number,
+        employment_type: state.income_type?.value,
+        bank_loan: state.bank_loan_required,
+        bank_name: state.bank_name,
+        bank_branch: state.bank_branch,
+        bank_account_no: state.account_number,
       };
       console.log("✌️body --->", body);
 
-      
-
       await Utils.Validation.lead.validate(body, { abortEarly: false });
 
-      const res:any = await Models.lead.create(body);
+      const res: any = await Models.lead.create(body);
 
-      const leadPropertyresBody = {
-        lead: res?.id,
-        property: res?.interested_property,
-        developer_user: Number(state.userId)
-      }
+      // const leadPropertyresBody = {
+      //   lead: res?.id,
+      //   property: res?.interested_property,
+      //   developer_user: Number(state.userId),
+      // };
 
-      console.log("leadPropertyresBody", leadPropertyresBody);
-      
+      // console.log("leadPropertyresBody", leadPropertyresBody);
 
       // const leadPropertyres = await Models.lead.lead_properties_create(leadPropertyresBody);
 
@@ -401,9 +406,9 @@ const CreateOpportunities = () => {
         setState({ error: validationErrors, btnLoading: false });
         Failure("Please fill all the required fields");
       } else {
-        if(error?.email?.length > 0){
+        if (error?.email?.length > 0) {
           Failure(error?.email[0]);
-        } else if(error?.phone?.length > 0){
+        } else if (error?.phone?.length > 0) {
           Failure(error?.phone[0]);
         } else {
           Failure(error);
@@ -443,7 +448,6 @@ const CreateOpportunities = () => {
     router.push(`/real-estate/property/detail/${row?.id}`);
   };
 
-
   const allColumns = [
     {
       accessor: "title",
@@ -451,20 +455,19 @@ const CreateOpportunities = () => {
       sortable: true,
       render: (row) => (
         <div
-        onClick={() => handleView(row)}
-        className="cursor-pointer text-sm font-semibold">
-          {(row.title)}
+          onClick={() => handleView(row)}
+          className="cursor-pointer text-sm font-semibold"
+        >
+          {row.title}
         </div>
       ),
     },
     {
       accessor: "project",
       title: "Project",
-      render: (row) => (
-        <span title={row.project}>{(row.project)}</span>
-      ),
+      render: (row) => <span title={row.project}>{row.project}</span>,
     },
-     {
+    {
       accessor: "price",
       title: "Price Range",
       visible: true,
@@ -493,7 +496,10 @@ const CreateOpportunities = () => {
         const hiddenTypes = others.slice(maxShow);
         return (
           <div className="flex items-center gap-2">
-            <span title={firstType} className="text-sm text-gray-700 dark:text-gray-300">
+            <span
+              title={firstType}
+              className="text-sm text-gray-700 dark:text-gray-300"
+            >
               {truncateText(firstType)}
             </span>
             <div className="flex items-center -space-x-2">
@@ -567,11 +573,7 @@ const CreateOpportunities = () => {
       textAlignment: "center" as const,
       render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
-          <button
-            className="text-dred flex"
-            onClick={() => handleView(row)}
-
-          >
+          <button className="text-dred flex" onClick={() => handleView(row)}>
             <Eye className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -603,19 +605,16 @@ const CreateOpportunities = () => {
               Your data journey starts here...
             </div>
           </div>
-          
         </div>
 
         <div className="flex items-center gap-5">
-        <button
+          <button
             onClick={() => router.back()}
             className="flex items-center gap-1 rounded-lg border px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             <ArrowLeft className="h-4 w-4" /> Back
           </button>
-          </div>
-
-        
+        </div>
 
         {/* <div className="flex  flex-wrap items-center gap-3">
           <p>Assign To:</p>
@@ -644,7 +643,6 @@ const CreateOpportunities = () => {
 
       
         </div> */}
-
 
         {/* <div className="flex gap-5">
           <CustomSelect
@@ -679,10 +677,10 @@ const CreateOpportunities = () => {
         </div> */}
       </div>
 
-      <div className={`flex-wrap"  flex w-full gap-4  mt-4`}>
-         <div className={`mt-1 w-full md:w-1/2`}>
+      <div className={`flex-wrap"  mt-4 flex w-full  gap-4`}>
+        <div className={`mt-1 w-full md:w-1/2`}>
           <div>
-            <div className=" panel border shadow-none flex  flex-col gap-5 rounded-xl p-3">
+            <div className=" panel flex flex-col gap-5  rounded-xl border p-3 shadow-none">
               <div className="flex items-center gap-3">
                 <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl  bg-[#ffefe4]">
                   <IconUser className="text-[#ffbb55]" />
@@ -695,7 +693,12 @@ const CreateOpportunities = () => {
               <TextInput
                 title="First Name"
                 value={state.first_name}
-                onChange={(e) => setState({ first_name: e.target.value , error: { ...state.error, first_name: "" }})}
+                onChange={(e) =>
+                  setState({
+                    first_name: e.target.value,
+                    error: { ...state.error, first_name: "" },
+                  })
+                }
                 placeholder={"First Name"}
                 error={state.error?.first_name}
                 icon={<User2 height={15} width={15} />}
@@ -705,7 +708,12 @@ const CreateOpportunities = () => {
               <TextInput
                 title="Last Name"
                 value={state.last_name}
-                onChange={(e) => setState({ last_name: e.target.value, error: { ...state.error, last_name: "" } })}
+                onChange={(e) =>
+                  setState({
+                    last_name: e.target.value,
+                    error: { ...state.error, last_name: "" },
+                  })
+                }
                 placeholder={"Last Name"}
                 error={state.error?.last_name}
                 icon={<User2 height={15} width={15} />}
@@ -714,7 +722,12 @@ const CreateOpportunities = () => {
               <TextInput
                 title="Email"
                 value={state.email}
-                onChange={(e) => setState({ email: e.target.value, error: { ...state.error, email: "" } })}
+                onChange={(e) =>
+                  setState({
+                    email: e.target.value,
+                    error: { ...state.error, email: "" },
+                  })
+                }
                 placeholder={"Email"}
                 error={state.error?.email}
                 icon={<IconMail fill={false} />}
@@ -723,57 +736,64 @@ const CreateOpportunities = () => {
 
               <CustomPhoneInput
                 value={state.phone}
-                onChange={(value) => setState({ phone: value , error: { ...state.error, phone: "" }})}
+                onChange={(value) =>
+                  setState({
+                    phone: value,
+                    error: { ...state.error, phone: "" },
+                  })
+                }
                 title="Phone Number"
                 name="phone"
                 required
                 error={state.error?.phone}
               />
-                <CustomSelect
-              value={state.gender}
-              onChange={(e) =>
-                setState({ gender: e, error: { ...state.error, gender: null } })
-              }
-              placeholder={"Gender"}
-              title={"Gender"}
-              options={GENDER_LIST}
-              error={state.error?.gender}
-              required
-              className="w-full"
-              
-            />
-
-            <CustomSelect
-                  title="City name"
-                  placeholder="Select city"
-                  options={state.cityList}
-                  value={state.location}
-                  onChange={(selectedOption) =>
-                    setState({ location: selectedOption, area: "" })
-                  }
-                  isClearable
-                  loadMore={() => cityLoadMore()}
-                  required
-                  error={state.error?.location}
-                />
-
-                <CustomSelect
-                  title="Area name"
-                  placeholder="Select Area"
-                  options={state.areaList}
-                  value={state.area}
-                  onChange={(selectedOption) =>
-                    setState({ area: selectedOption })
-                  }
-                  isClearable
-                  loadMore={() => areaLoadMore()}
-                  required
-                  error={state.error?.area}
-                  disabled={!state.location}
-                />
+              <CustomSelect
+                value={state.gender}
+                onChange={(e) =>
+                  setState({
+                    gender: e,
+                    error: { ...state.error, gender: null },
+                  })
+                }
+                placeholder={"Gender"}
+                title={"Gender"}
+                options={GENDER_LIST}
+                error={state.error?.gender}
+                required
+                className="w-full"
+              />
 
               <CustomSelect
-                title="User Income Type"
+                title="City name"
+                placeholder="Select city"
+                options={state.cityList}
+                value={state.location}
+                onChange={(selectedOption) =>
+                  setState({ location: selectedOption, area: "" })
+                }
+                isClearable
+                loadMore={() => cityLoadMore()}
+                required
+                error={state.error?.location}
+              />
+
+              <CustomSelect
+                title="Area name"
+                placeholder="Select Area"
+                options={state.areaList}
+                value={state.area}
+                onChange={(selectedOption) =>
+                  setState({ area: selectedOption })
+                }
+                isClearable
+                loadMore={() => areaLoadMore()}
+                required
+                error={state.error?.area}
+                disabled={!state.location}
+              />
+
+              <CustomSelect
+                title="Income Type"
                 value={state.income_type}
                 onChange={(e) => setState({ income_type: e })}
                 placeholder={"Select Income Type"}
@@ -787,17 +807,18 @@ const CreateOpportunities = () => {
               <CheckboxInput
                 label="Bank Loan Required"
                 checked={state.bank_loan_required}
-                onChange={(e) => setState({ bank_loan_required: !state.bank_loan_required})}
+                onChange={(e) =>
+                  setState({ bank_loan_required: !state.bank_loan_required })
+                }
               />
 
               {state.bank_loan_required && (
-                <> 
+                <>
                   <TextInput
                     title="Bank Name"
                     value={state.bank_name}
                     onChange={(e) => setState({ bank_name: e.target.value })}
                     placeholder="Bank Name"
-                  
                   />
 
                   <TextInput
@@ -805,25 +826,27 @@ const CreateOpportunities = () => {
                     value={state.branch_name}
                     onChange={(e) => setState({ branch_name: e.target.value })}
                     placeholder="Branch Name"
-                  
                   />
 
                   <TextInput
                     title="Account Number"
                     value={state.account_number}
-                    onChange={(e) => setState({ account_number: e.target.value })}
+                    onChange={(e) =>
+                      setState({ account_number: e.target.value })
+                    }
                     placeholder="Account Number"
-                  
                   />
-
                 </>
               )}
-
 
               <CheckboxInput
                 label="Add Alternate Contact Details"
                 checked={state.showAlternateContact}
-                onChange={(e) => setState({ showAlternateContact: !state.showAlternateContact})}
+                onChange={(e) =>
+                  setState({
+                    showAlternateContact: !state.showAlternateContact,
+                  })
+                }
               />
 
               {state.showAlternateContact && (
@@ -831,7 +854,9 @@ const CreateOpportunities = () => {
                   <TextInput
                     title="Alternate First Name"
                     value={state.alt_first_name}
-                    onChange={(e) => setState({ alt_first_name: e.target.value })}
+                    onChange={(e) =>
+                      setState({ alt_first_name: e.target.value })
+                    }
                     placeholder={"Alternate First Name"}
                     icon={<User2 height={15} width={15} />}
                   />
@@ -839,7 +864,9 @@ const CreateOpportunities = () => {
                   <TextInput
                     title="Alternate Last Name"
                     value={state.alt_last_name}
-                    onChange={(e) => setState({ alt_last_name: e.target.value })}
+                    onChange={(e) =>
+                      setState({ alt_last_name: e.target.value })
+                    }
                     placeholder={"Alternate Last Name"}
                     icon={<User2 height={15} width={15} />}
                   />
@@ -860,26 +887,26 @@ const CreateOpportunities = () => {
                   />
 
                   <CustomSelect
-              value={state.alt_gender}
-              onChange={(e) =>
-                setState({ alt_gender: e, error: { ...state.error, alt_gender: null } })
-              }
-              placeholder={" Gender"}
-              title={"Gender"}
-              options={GENDER_LIST}
-              error={state.error?.alt_gender}
-
-              className="w-full"
-              
-            />
+                    value={state.alt_gender}
+                    onChange={(e) =>
+                      setState({
+                        alt_gender: e,
+                        error: { ...state.error, alt_gender: null },
+                      })
+                    }
+                    placeholder={" Gender"}
+                    title={"Gender"}
+                    options={GENDER_LIST}
+                    error={state.error?.alt_gender}
+                    className="w-full"
+                  />
                 </>
               )}
             </div>
-            
           </div>
         </div>
         <div className={`mt-1 w-full md:w-1/2`}>
-          <div className=" panel border shadow-none flex  flex-col gap-5 rounded-xl p-3">
+          <div className=" panel flex flex-col gap-5  rounded-xl border p-3 shadow-none">
             <div className="flex items-center gap-3">
               <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl  bg-[#deffd7]">
                 <IconUser className="text-[#82de69]" />
@@ -894,7 +921,6 @@ const CreateOpportunities = () => {
               value={state.company_name}
               onChange={(e) => setState({ company_name: e.target.value })}
               placeholder="Company Name"
-             
               icon={<Computer height={15} width={15} />}
             />
 
@@ -968,36 +994,84 @@ const CreateOpportunities = () => {
             />
           </div>
 
-          <div className=" panel border shadow-none mt-4  flex flex-col gap-5 rounded-2xl p-3">
-              <div className="flex items-center gap-3">
-                <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl   bg-[#deffd7]">
-                  <IconUser className="text-[#82de69]" />
-                </div>
-                <div className=" " style={{ fontSize: "20px" }}>
-                  Property Information
-                </div>
+          <div className=" panel mt-4 flex flex-col  gap-5 rounded-2xl border p-3 shadow-none">
+            <div className="flex items-center gap-3">
+              <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl   bg-[#deffd7]">
+                <IconUser className="text-[#82de69]" />
               </div>
-
-              <CustomSelect
-                title="Property"
-                value={state.property_name}
-                onChange={(e) => handleGetProperty(e)}
-                placeholder={"Select Property"}
-                options={state.propertyList}
-                error={state.error?.interested_property}
-                required
-                className="w-full"
-                loadMore={() => propertyLoadMore()}
-                isMulti={false}
-              />
+              <div className=" " style={{ fontSize: "20px" }}>
+                Property Information
+              </div>
             </div>
 
-          
+            <CustomSelect
+              title="Property"
+              value={state.property_name}
+              onChange={(e) => handleGetProperty(e)}
+              placeholder={"Select Property"}
+              options={state.propertyList}
+              error={state.error?.interested_property}
+              required
+              className="w-full"
+              loadMore={() => propertyLoadMore()}
+              isMulti
+            />
+          </div>
 
-            
+          {/* <div className=" panel mt-4 flex flex-col  gap-5 rounded-2xl border p-3 shadow-none">
+            <div className="flex items-center gap-3">
+              <div className="flex h-[30px] w-[30px] items-center justify-center rounded-3xl   bg-[#deffd7]">
+                <IconUser className="text-[#82de69]" />
+              </div>
+              <div className=" " style={{ fontSize: "20px" }}>
+                User Information
+              </div>
+            </div>
+
+            <CustomSelect
+              title="User Income Type"
+              value={state.income_type}
+              onChange={(e) => setState({ income_type: e })}
+              placeholder={"Select Income Type"}
+              options={state.IncomeTypeList}
+              error={state.error?.income_type}
+              className="w-full"
+            />
+
+            <CheckboxInput
+              label="Bank Loan Required"
+              checked={state.bank_loan_required}
+              onChange={(e) =>
+                setState({ bank_loan_required: !state.bank_loan_required })
+              }
+            />
+
+            {state.bank_loan_required && (
+              <>
+                <TextInput
+                  title="Bank Name"
+                  value={state.bank_name}
+                  onChange={(e) => setState({ bank_name: e.target.value })}
+                  placeholder="Bank Name"
+                />
+
+                <TextInput
+                  title="Branch Name"
+                  value={state.branch_name}
+                  onChange={(e) => setState({ branch_name: e.target.value })}
+                  placeholder="Branch Name"
+                />
+
+                <TextInput
+                  title="Account Number"
+                  value={state.account_number}
+                  onChange={(e) => setState({ account_number: e.target.value })}
+                  placeholder="Account Number"
+                />
+              </>
+            )}
+          </div> */}
         </div>
-
-       
       </div>
       {state.tableList?.length > 0 && (
         <div className={`mt-3 w-full`}>

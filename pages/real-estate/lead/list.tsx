@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
@@ -47,6 +47,7 @@ import {
   Table,
   X,
   Download,
+  XCircle,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import {
@@ -54,6 +55,7 @@ import {
   ROLES,
   sourceConfig,
   statusConfig,
+  statusChipConfig,
 } from "@/utils/constant.utils";
 import CustomeDatePicker from "@/components/datePicker";
 import { clear, group } from "console";
@@ -97,6 +99,7 @@ const List = () => {
   const debouncedSearch = useDebounce(state.search, 500);
 
   const isFirstRender = React.useRef(true);
+  const callIdRef = React.useRef(0);
 
   useEffect(() => {
     categoryList(1);
@@ -109,12 +112,11 @@ const List = () => {
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
-      // leadList(1);
-      leadPropertyList(1)
+      leadPropertyList(1);
       return;
     }
-    // leadList(1);
-    leadPropertyList(1)
+    setState({ page: 1 });
+    leadPropertyList(1);
   }, [
     debouncedSearch,
     state.user,
@@ -171,26 +173,6 @@ const List = () => {
     }
   };
 
-  const catListLoadMore = async () => {
-    try {
-      if (state.categoryNext) {
-        const res: any = await Models.category.list(state.categoryPage + 1, {});
-        const newOptions = Dropdown(res?.results, "name");
-        setState({
-          categoryList: [...state.categoryList, ...newOptions],
-          categoryNext: res.next,
-          categoryPage: state.categoryPage + 1,
-        });
-      } else {
-        setState({
-          categoryList: state.categoryList,
-        });
-      }
-    } catch (error) {
-      console.log("error: ", error);
-    }
-  };
-
   const statCount = async () => {
     try {
       const userId = localStorage.getItem("userId");
@@ -201,69 +183,44 @@ const List = () => {
 
       const res: any = await Models.lead.count(body);
       console.log("count res", res);
+      const opp_status = res?.opportunity_status_counts || [];
 
+      const getCount = (name) => {
+        return opp_status.find((item) => item.name === name)?.count || 0;
+      };
+
+      const getId = (name) => {
+        return opp_status.find((item) => item.name === name)?.id || 0;
+      };
+
+      const bodys = {
+        won: {
+          count: getCount("Won"),
+          id: getId("Won"),
+        },
+        contacted: {
+          count: getCount("Contacted"),
+          id: getId("Contacted"),
+        },
+        follow_up: {
+          count: getCount("Follow Up"),
+          id: getId("Follow Up"),
+        },
+        lose: {
+          count: getCount("Lose"),
+          id: 7,
+        },
+        total: res?.total,
+      };
+
+      console.log(bodys);
       setState({
         statCount: res,
+        opp_status: bodys,
       });
     } catch (error) {
       console.log("✌️error --->", error);
       setState({ loading: false });
-    }
-  };
-
-  const leadList = async (
-    page,
-    sortBy = state.sortBy,
-    sortOrder = state.sortOrder,
-  ) => {
-    try {
-      setState({ tableList: [] });
-      const body = bodyData();
-      if (sortBy) {
-        body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
-      }
-      const res: any = await Models.lead.list(page, body);
-      const data = res?.results?.flatMap((item) =>
-        (item?.properties_details || []).map((property) => ({
-          id: item?.id,
-          property_id: property?.id,
-          property_title: property?.title,
-          property_image: property?.primary_image,
-          property_city: property?.city,
-          property_listing_type: property?.listing_type,
-          property_status: property?.status,
-          property_type: property?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
-          project: property?.project?.name,
-          price_range: property?.price_range,
-          full_name: item?.full_name,
-          email: item?.email,
-          lead_source: item?.lead_source_info,
-          status: item?.status_info,
-          date: commonDateFormat(item?.created_at),
-          requirements: item?.requirements,
-          assigned_to: item?.assigned_to_details
-            ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
-            : "",
-          assigned_by: item?.assigned_by_details
-            ? `${item?.assigned_by_details?.first_name} ${item?.assigned_by_details?.last_name}`
-            : "",
-          company_name: item?.company_name,
-        }))
-      );
-      const group = localStorage.getItem("group");
-
-      setState({
-        tableList: data,
-        total: data?.length,
-        page: page,
-        next: res.next,
-        previous: res.previous,
-        totalRecords: data?.length,
-        group,
-        selectedRecords: [],
-      });
-    } catch (error) {
-      console.log("✌️error --->", error);
     }
   };
 
@@ -273,18 +230,19 @@ const List = () => {
     sortOrder = state.sortOrder,
   ) => {
     try {
+      const callId = ++callIdRef.current;
+      setState({ loading: true, tableList: [] });
       const body = bodyData();
       if (sortBy) {
         body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
       }
       const res: any = await Models.lead.lead_properties(page, body);
-      console.log("lead res", res);
-      
+      if (callId !== callIdRef.current) return; // stale response ignore
       const data = res?.results?.map((item) => ({
         id: item?.lead_details?.id,
         customer_name: item?.lead_details?.full_name,
-        property_lead_id:item?.id,
-        inquiry:item?.inquiry_details,
+        property_lead_id: item?.id,
+        inquiry: item?.inquiry_details,
         property_id: item?.property,
         property_title: item?.title,
         property_image: item?.primary_image,
@@ -292,11 +250,15 @@ const List = () => {
         property_area: item?.lead_details?.area_details?.name,
         property_listing_type: item?.listing_type,
         property_status: item?.status,
-        property_type: item?.lead_details?.properties_details
-          ?.find((p) => p?.id === item?.property)
-          ?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
+        property_type:
+          item?.lead_details?.properties_details
+            ?.find((p) => p?.id === item?.property)
+            ?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
         project: item?.project_name,
-        price_range: { minimum_price: item?.minimum_price, maximum_price: item?.maximum_price },
+        price_range: {
+          minimum_price: item?.minimum_price,
+          maximum_price: item?.maximum_price,
+        },
         built_up_area: item?.built_up_area,
         full_name: item?.lead_details?.full_name,
         email: item?.lead_details?.email,
@@ -316,110 +278,20 @@ const List = () => {
       const group = localStorage.getItem("group");
       setState({
         tableList: data,
-        total: data?.length,
+        total: res.count,
         page: page,
         next: res.next,
         previous: res.previous,
         totalRecords: res.count,
         group,
         selectedRecords: [],
+        loading: false,
       });
     } catch (error) {
+      setState({ loading: false });
+
       console.log("✌️error --->", error);
     }
-  };
-   
-
-
-  const createProject = async () => {
-    try {
-      setState({ btnLoading: true });
-      const body = {
-        name: state.name,
-        location: state.location,
-        description: state.description,
-        developer: 3,
-      };
-      await Utils.Validation.project.validate(body, { abortEarly: false });
-
-      const res = await Models.project.create(body);
-      clearData();
-      setState({ btnLoading: false });
-      // leadList(1);
-      Success("Preject created succssfully");
-    } catch (error) {
-      if (error instanceof Yup.ValidationError) {
-        const validationErrors = {};
-        error.inner.forEach((err) => {
-          validationErrors[err.path] = err?.message;
-        });
-        console.log("✌️validationErrors --->", validationErrors);
-
-        setState({ error: validationErrors, btnLoading: false });
-      } else {
-        Failure(error?.error);
-        setState({ btnLoading: false });
-      }
-    }
-  };
-
-  const updateProject = async () => {
-    try {
-      setState({ btnLoading: true });
-      const body = {
-        name: state.name,
-        location: state.location,
-        description: state.description,
-        developer: 3,
-      };
-      await Utils.Validation.project.validate(body, { abortEarly: false });
-
-      const res = await Models.project.update(body, state.editId);
-      console.log("createProject --->", res);
-      clearData();
-      setState({ btnLoading: false });
-      leadList(state.page);
-
-      Success("Preject updated succssfully");
-    } catch (error) {
-      if (error instanceof Yup.ValidationError) {
-        const validationErrors = {};
-        error.inner.forEach((err) => {
-          validationErrors[err.path] = err?.message;
-        });
-        console.log("✌️validationErrors --->", validationErrors);
-
-        setState({ error: validationErrors, btnLoading: false });
-      } else {
-        Failure(error?.error);
-        setState({ btnLoading: false });
-      }
-    }
-  };
-
-  const deleteDecord = async (row) => {
-    try {
-      setState({ btnLoading: true });
-
-      const res = await Models.lead.delete(row?.id);
-      clearData();
-      setState({ btnLoading: false });
-      leadList(state.page);
-
-      Success("Preject deleted succssfully");
-    } catch (error) {}
-  };
-
-  const handleDelete = (row) => {
-    showDeleteAlert(
-      () => {
-        deleteDecord(row);
-      },
-      () => {
-        Swal.fire("Cancelled", "Your Record is safe :)", "info");
-      },
-      "Are you sure want to delete lead?",
-    );
   };
 
   const developerList = async (page) => {
@@ -506,9 +378,7 @@ const List = () => {
     const group = localStorage.getItem("group");
     let body: any = {};
 
-    
-      // body.interested_property = true;
-    
+    // body.interested_property = true;
 
     if (state.search) {
       body.search = state.search;
@@ -543,7 +413,7 @@ const List = () => {
 
     if (state.leadType?.value === "own") {
       body.created_by = userId;
-    } 
+    }
     if (state.leadType?.value === "admin") {
       body.team = true;
     }
@@ -588,7 +458,9 @@ const List = () => {
   // };
 
   const handleEdit = (row) => {
-    router.push(`/real-estate/lead/property-edit?lead=${row?.id}&property=${row?.property_id}`);
+    router.push(
+      `/real-estate/lead/property-edit?lead=${row?.id}&property=${row?.property_id}`,
+    );
   };
 
   const clearData = () => {
@@ -628,17 +500,25 @@ const List = () => {
         try {
           setState({ btnLoading: true });
           await Promise.all(
-            state.selectedRecords.map((row: any) => Models.lead.delete(row?.id)),
+            state.selectedRecords.map((row: any) =>
+              Models.lead.delete(row?.id),
+            ),
           );
           setState({ selectedRecords: [], btnLoading: false });
-          leadList(state.page);
-          Success(`${state.selectedRecords.length} lead${state.selectedRecords.length > 1 ? "s" : ""} deleted successfully`);
+          // leadList(state.page);
+          Success(
+            `${state.selectedRecords.length} lead${
+              state.selectedRecords.length > 1 ? "s" : ""
+            } deleted successfully`,
+          );
         } catch (error) {
           setState({ btnLoading: false });
         }
       },
       () => Swal.fire("Cancelled", "Your Records are safe :)", "info"),
-      `Are you sure want to delete ${state.selectedRecords.length} selected lead${state.selectedRecords.length > 1 ? "s" : ""}?`,
+      `Are you sure want to delete ${
+        state.selectedRecords.length
+      } selected lead${state.selectedRecords.length > 1 ? "s" : ""}?`,
     );
   };
 
@@ -659,7 +539,8 @@ const List = () => {
   const handleDatePreset = (preset: string) => {
     const today = new Date();
     const fmt = (d: Date) => d.toISOString().slice(0, 10);
-    let from = "", to = fmt(today);
+    let from = "",
+      to = fmt(today);
     if (preset === "Year") {
       from = `${today.getFullYear()}-01-01`;
     } else if (preset === "Last Month") {
@@ -668,7 +549,8 @@ const List = () => {
     } else if (preset === "This Month") {
       from = fmt(new Date(today.getFullYear(), today.getMonth(), 1));
     } else if (preset === "Last 7 Days") {
-      const d = new Date(today); d.setDate(d.getDate() - 6);
+      const d = new Date(today);
+      d.setDate(d.getDate() - 6);
       from = fmt(d);
     }
     setState({ datePreset: preset, from_date: from, to_date: to });
@@ -687,13 +569,28 @@ const List = () => {
       from_date: "",
       to_date: "",
       datePreset: "",
-       custom_from: "",
+      custom_from: "",
       custom_to: "",
     });
   };
 
   const exportToExcel = () => {
-    const headers = ["Date", "Customer Name", "Email", "Property", "Project", "City", "Area", "Lead Source", "Status", "Opportunity Status", "Assigned To", "Assigned By", "Inquiry", "Requirements"];
+    const headers = [
+      "Date",
+      "Customer Name",
+      "Email",
+      "Property",
+      "Project",
+      "City",
+      "Area",
+      "Lead Source",
+      "Status",
+      "Opportunity Status",
+      "Assigned To",
+      "Assigned By",
+      "Inquiry",
+      "Requirements",
+    ];
     const rows = state.tableList.map((row: any) => [
       `\t${row.date || ""}`,
       row.full_name || "",
@@ -711,7 +608,9 @@ const List = () => {
       // row.requirements || "",
     ]);
     const csvContent = [headers, ...rows]
-      .map((r) => r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .map((r) =>
+        r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      )
       .join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -737,7 +636,6 @@ const List = () => {
   };
 
   const columns = [
-
     {
       accessor: "full_name",
       title: "Lead Name",
@@ -746,16 +644,10 @@ const List = () => {
       sortable: true,
       render: (row) => (
         <div
-          className=" font-medium text-sm "
-        >
-          {row?.full_name || "-"}
-        </div>
+        onClick={() => router.push(`/real-estate/lead/view/${row?.id}`)}
+        className="cursor-pointer text-sm font-medium hover:underline">{row?.full_name || "-"}</div>
       ),
     },
-
-    
-
-
 
     {
       accessor: "property_title",
@@ -765,8 +657,10 @@ const List = () => {
       sortable: true,
       render: (row) => (
         <div
-          className="cursor-pointer font-medium text-sm text-[#9b0f09] hover:underline"
-          onClick={() => router.push(`/real-estate/property/detail/${row?.property_id}`)}
+          className="cursor-pointer text-sm font-medium text-[#9b0f09] hover:underline"
+          onClick={() =>
+            router.push(`/real-estate/property/detail/${row?.property_id}`)
+          }
           title={row?.property_title}
         >
           {row?.property_title || "-"}
@@ -783,17 +677,65 @@ const List = () => {
       render: (row) => <span>{row?.project || "-"}</span>,
     },
     {
+      accessor: "lead_source",
+      title: "Lead Source",
+      visible: true,
+      toggleable: true,
+      sortable: true,
+      render: (row) => {
+        const source = row?.lead_source?.name;
+    
+        return (
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium
+            ${
+              source === "Website"
+                ? "bg-green-100 text-green-700"
+                : source === "Social Media"
+                ? "bg-blue-100 text-blue-700"
+                : source === "Referral"
+                ? "bg-purple-100 text-purple-700"
+                : source === "Walk In"
+                ? "bg-yellow-100 text-yellow-700"
+                : source === "Cold Call"
+                ? "bg-red-100 text-red-700"
+                : "bg-gray-100 text-gray-600"
+            }`}
+          >
+            {source || "-"}
+          </span>
+        );
+      },
+    },
+
+    {
+      accessor: "opportunity_status",
+      title: "Lead Status",
+      visible: true,
+      toggleable: true,
+      sortable: true,
+      render: (row) => {
+        const status = row?.opportunity_status;
+        const config = statusChipConfig[status];
+
+        return (
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium
+            ${config?.bg || "bg-gray-100"} ${config?.text || "text-gray-600"}`}
+          >
+            {status || "-"}
+          </span>
+        );
+      },
+    },
+    {
       accessor: "date",
       title: "Date",
       visible: true,
       toggleable: true,
       sortable: true,
       render: (row) => (
-        <div
-          className=" font-medium text-sm "
-        >
-          {row?.date || "-"}
-        </div>
+        <div className=" text-sm font-medium ">{row?.date || "-"}</div>
       ),
     },
 
@@ -806,44 +748,6 @@ const List = () => {
       render: (row) => <span>{row?.inquiry || "-"}</span>,
     },
 
-    {
-      accessor: "lead_source",
-      title: "Lead Source",
-      visible: true,
-      toggleable: true,
-      sortable: true,
-      render: (row) => <span>{row?.lead_source?.name || "-"}</span>,
-    },
-
-    {
-      accessor: "opportunity_status",
-      title: "Lead Status",
-      visible: true,
-      toggleable: true,
-      sortable: true,
-      render: (row) => <span>{row?.opportunity_status || "-"}</span>,
-    },
-
-    // {
-    //   accessor: "price_range",
-    //   title: "Price Range",
-    //   visible: true,
-    //   toggleable: true,
-    //   render: (row) => (
-    //     <span className="font-semibold text-[#9b0f09]">
-    //       {formatPriceRange(row?.price_range?.minimum_price, row?.price_range?.maximum_price)}
-    //     </span>
-    //   ),
-    // },
-    // {
-    //   accessor: "built_up_area",
-    //   title: "Sq.ft",
-    //   visible: true,
-    //   toggleable: true,
-    //   render: (row) => <span>{row?.built_up_area || "-"}</span>,
-    // },
-   
-    
     {
       accessor: "action",
       title: "Actions",
@@ -879,12 +783,7 @@ const List = () => {
     },
   ];
 
-  console.log("tableList", state.tableList);
-  
 
-  const filteredColumns = columns
-    ?.filter((col) => col.visible !== false)
-    ?.map(({ visible, toggleable, ...col }) => col);
 
   return (
     <>
@@ -930,7 +829,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.statCount?.total || 0}
+                {state?.total || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Total Leads
@@ -939,7 +838,11 @@ const List = () => {
           </div>
         </div>
         <div
-          onClick={() => setState({ status: { value: 6, label: "Won" } })}
+          onClick={() =>
+            setState({
+              status: { value: state.opp_status?.won?.id, label: "Won" },
+            })
+          }
           className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
           <div className="flex items-center gap-5 ">
@@ -949,7 +852,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.statCount?.won_count || 0}
+                {state.opp_status?.won?.count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Won Leads
@@ -957,8 +860,16 @@ const List = () => {
             </div>
           </div>
         </div>
+
         <div
-          onClick={() => setState({ status: { value: 2, label: "Contacted" } })}
+          onClick={() =>
+            setState({
+              status: {
+                value: state.opp_status?.contacted?.id,
+                label: "Contacted",
+              },
+            })
+          }
           className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
           <div className="flex items-center gap-5">
@@ -968,10 +879,36 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.statCount?.contacted_count || 0}
+                {state.opp_status?.contacted?.count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Contacted Leads
+              </p>
+            </div>
+          </div>
+        </div>
+        <div
+          className="cursor-pointer rounded-lg border border-gray-200 bg-purple-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+          onClick={() =>
+            setState({
+              status: {
+                value: state.opp_status?.follow_up?.id,
+                label: "Follow Up",
+              },
+            })
+          }
+        >
+          <div className="flex items-center gap-5">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <Clock className="h-10 w-10 text-purple-600" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.opp_status?.follow_up?.count || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Follow up
               </p>
             </div>
           </div>
@@ -982,12 +919,12 @@ const List = () => {
         >
           <div className="flex items-center gap-5">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
-              <Clock className="h-10 w-10 text-red-600" />
+              <XCircle className="h-10 w-10 text-red-600" />
             </div>
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.statCount?.lost_count || 0}
+                {state.opp_status?.lose?.count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Lost Leads
@@ -997,47 +934,67 @@ const List = () => {
         </div>
       </div>
 
-       {/* Date Filter Bar */}
-          <div className="w-fit mb-4 flex flex-wrap items-center gap-0 rounded-lg border border-gray-200 bg-white overflow-hidden">
-            {["Year", "Last Month", "This Month", "Last 7 Days", "Custom"].map((preset) => (
-              <button
-                key={preset}
-                onClick={() => preset !== "Custom" ? handleDatePreset(preset) : setState({ datePreset: "Custom" })}
-                className={`border-r border-gray-200 px-4 py-2 text-sm font-medium transition ${
-                  state.datePreset === preset
-                    ? "bg-dred text-white"
-                    : "text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                {preset}
-              </button>
-            ))}
-            <input
-              type="datetime-local"
-              value={state.custom_from ? `${state.custom_from}T00:00` : ""}
-              onChange={(e) => setState({ custom_from: e.target.value?.slice(0, 10), datePreset: "Custom", from_date: "", to_date: "" })}
-              className="border-r border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none"
-            />
-            <input
-              type="datetime-local"
-              value={state.custom_to ? `${state.custom_to}T00:00` : ""}
-              onChange={(e) => setState({ custom_to: e.target.value?.slice(0, 10), datePreset: "Custom", from_date: "", to_date: "" })}
-              className="border-r border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none"
-            />
+      {/* Date Filter Bar */}
+      <div className="mb-4 flex w-fit flex-wrap items-center gap-0 overflow-hidden rounded-lg border border-gray-200 bg-white">
+        {["Year", "Last Month", "This Month", "Last 7 Days", "Custom"].map(
+          (preset) => (
             <button
-              onClick={() => leadList(1)}
-              className="border-r border-gray-200 bg-dred px-4 py-2 text-sm font-semibold text-white hover:bg-lred hover:text-dred"
+              key={preset}
+              onClick={() =>
+                preset !== "Custom"
+                  ? handleDatePreset(preset)
+                  : setState({ datePreset: "Custom" })
+              }
+              className={`border-r border-gray-200 px-4 py-2 text-sm font-medium transition ${
+                state.datePreset === preset
+                  ? "bg-dred text-white"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
             >
-              Go
+              {preset}
             </button>
-           
-            {/* <button
+          ),
+        )}
+        <input
+          type="datetime-local"
+          value={state.custom_from ? `${state.custom_from}T00:00` : ""}
+          onChange={(e) =>
+            setState({
+              custom_from: e.target.value?.slice(0, 10),
+              datePreset: "Custom",
+              from_date: "",
+              to_date: "",
+            })
+          }
+          className="border-r border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none"
+        />
+        <input
+          type="datetime-local"
+          value={state.custom_to ? `${state.custom_to}T00:00` : ""}
+          onChange={(e) =>
+            setState({
+              custom_to: e.target.value?.slice(0, 10),
+              datePreset: "Custom",
+              from_date: "",
+              to_date: "",
+            })
+          }
+          className="border-r border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none"
+        />
+        <button
+          onClick={() => leadPropertyList(1)}
+          className="bg-dred hover:bg-lred hover:text-dred border-r border-gray-200 px-4 py-2 text-sm font-semibold text-white"
+        >
+          Go
+        </button>
+
+        {/* <button
               onClick={() => setState({ from_date: "", to_date: "", datePreset: "" })}
               className=" px-4 py-2 text-sm font-semibold text-dred "
             >
               Clear
             </button> */}
-          </div>
+      </div>
 
       <div className="mb-5 rounded-2xl ">
         <div className="flex items-center justify-between gap-5">
@@ -1085,7 +1042,7 @@ const List = () => {
             options={[
               { value: "own", label: "Own Records" },
               { value: "admin", label: "Admin Records" },
-              { value: "website", label: "Website Leads" }
+              { value: "website", label: "Website Leads" },
             ]}
             isClearable={true}
           />
@@ -1183,15 +1140,17 @@ const List = () => {
                       },
                     ]
                   : []),
-                  ...(state.from_date
+                ...(state.from_date
                   ? [
                       {
-                        label: `From Date: ${commonDateFormat(state.from_date)}`,
+                        label: `From Date: ${commonDateFormat(
+                          state.from_date,
+                        )}`,
                         onRemove: () => setState({ from_date: null }),
                       },
                     ]
                   : []),
-                  ...(state.to_date
+                ...(state.to_date
                   ? [
                       {
                         label: `To Date: ${commonDateFormat(state.to_date)}`,
@@ -1199,15 +1158,17 @@ const List = () => {
                       },
                     ]
                   : []),
-                   ...(state.custom_from
+                ...(state.custom_from
                   ? [
                       {
-                        label: `From Date: ${commonDateFormat(state.custom_from)}`,
+                        label: `From Date: ${commonDateFormat(
+                          state.custom_from,
+                        )}`,
                         onRemove: () => setState({ custom_from: null }),
                       },
                     ]
                   : []),
-                  ...(state.custom_to
+                ...(state.custom_to
                   ? [
                       {
                         label: `To Date: ${commonDateFormat(state.custom_to)}`,
@@ -1234,7 +1195,7 @@ const List = () => {
               ]}
               onClearAll={clearAllFilters}
             />
-            <div className="ml-auto flex items-center gap-3">
+            {/* <div className="ml-auto flex items-center gap-3">
               {state.selectedRecords?.length > 0 && (
                 <button
                   type="button"
@@ -1246,21 +1207,20 @@ const List = () => {
                 </button>
               )}
               <div className="text-sm text-black">{state.total} Leads found</div>
-            </div>
+            </div> */}
           </div>
-
-         
 
           <DataTable
             className="table-responsive"
             records={state.tableList || []}
-            columns={filteredColumns}
+            columns={columns}
             highlightOnHover
-            totalRecords={state.total || state.tableList?.length}
+            fetching={state.loading}
+            totalRecords={state.totalRecords}
             recordsPerPage={state.pageSize}
             minHeight={200}
-            page={null}
-            onPageChange={(p) => {}}
+            page={state.page}
+            onPageChange={(p) => leadPropertyList(p)}
             withBorder={true}
             // selectedRecords={state.selectedRecords}
             // onSelectedRecordsChange={(records) => setState({ selectedRecords: records })}
@@ -1305,70 +1265,6 @@ const List = () => {
           </button>
         </div>
       </div>
-
-      <Modal
-        addHeader={state.editId ? "Update Project" : "Create Project"}
-        open={state.isOpen}
-        close={() => {
-          clearData();
-        }}
-        renderComponent={() => (
-          <div className=" pb-7">
-            <form className="flex flex-col gap-3">
-              <div className=" w-full space-y-5">
-                <TextInput
-                  name="name"
-                  title="Project Name"
-                  placeholder="Enter project name"
-                  value={state.name}
-                  onChange={(e) => setState({ name: e.target.value })}
-                  error={state.error?.name}
-                  required
-                />
-
-                <TextInput
-                  name="name"
-                  title="Location"
-                  placeholder="Enter location"
-                  value={state.location}
-                  onChange={(e) => setState({ location: e.target.value })}
-                  error={state.error?.location}
-                  required
-                />
-
-                <TextArea
-                  name="description"
-                  title="Description"
-                  placeholder="Enter Description"
-                  value={state.description}
-                  onChange={(e) => setState({ description: e.target.value })}
-                />
-              </div>
-
-              <div className="mt-8 flex items-center justify-end">
-                <button
-                  type="button"
-                  className="btn border-dred hover:btn-mred gap-2"
-                  onClick={() => {
-                    clearData();
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    state.editId ? updateProject() : createProject()
-                  }
-                  className="btn btn-dred border-none ltr:ml-4 rtl:mr-4"
-                >
-                  {state.btnLoading ? <IconLoader /> : "Confirm"}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-      />
 
       <Modal
         open={state.showFilterModal}

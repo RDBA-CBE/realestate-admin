@@ -24,7 +24,7 @@ const processQueue = (error: any, token: string | null = null) => {
 
 const showTokenExpiredAlert = () => {
   const userConfirmed = window.confirm(
-    "Your token has expired. Click OK to log in again."
+    "Your token has expired. Click OK to log in again.",
   );
 
   if (userConfirmed) {
@@ -53,7 +53,7 @@ export const instance = (): AxiosInstance => {
       }
       return config;
     },
-    (error: AxiosError) => Promise.reject(error)
+    (error: AxiosError) => Promise.reject(error),
   );
 
   api.interceptors.response.use(
@@ -63,8 +63,11 @@ export const instance = (): AxiosInstance => {
       const originalRequest: any = error.config;
 
       if (
-        error.response?.status === 401 && error.response?.data?.code === "token_not_valid" &&
-        !originalRequest._retry
+        (error.response?.status === 401 &&
+          error.response?.data?.code === "token_not_valid" &&
+          !originalRequest._retry) ||
+        error.response?.data?.error ===
+          "Given token not valid for any token type"
       ) {
         originalRequest._retry = true;
 
@@ -94,7 +97,7 @@ export const instance = (): AxiosInstance => {
               `${BACKEND_URL}authentication/refresh-token/`,
               {
                 refresh: refreshToken,
-              }
+              },
             );
 
             const { access, refresh } = response.data;
@@ -118,7 +121,7 @@ export const instance = (): AxiosInstance => {
       }
 
       return Promise.reject(error);
-    }
+    },
   );
 
   return api;

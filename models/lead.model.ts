@@ -318,7 +318,7 @@ const lead = {
         url += `&lead_source=${encodeURIComponent(body.lead_source)}`;
       }
       if (body?.status) {
-        url += `&status=${encodeURIComponent(body.status)}`;
+        url += `&opportunity_status=${encodeURIComponent(body.status)}`;
       }
 
       if (body?.date) {
@@ -336,6 +336,16 @@ const lead = {
        if (body?.ordering) {
         url += `&sort_by=${body?.ordering}`;
       }
+
+      if (body?.pagination == "No") {
+          url += `&sort_by=${body?.ordering}`;
+      }
+
+      if (body?.lead) {
+        url += `&lead=${body?.lead}`;
+    }
+
+
       
 
       instance()

@@ -96,6 +96,8 @@ const View_Lead = () => {
       leadStatusList();
       leadSourceList();
       cityList(1);
+      getPropertyList();
+
     }
   }, [id]);
 
@@ -111,6 +113,7 @@ const View_Lead = () => {
     try {
       setState({ loading: true });
       const res: any = await Models.lead.details(id);
+      console.log("res:", res);
       setState({
         detail: res,
         loading: false,
@@ -139,6 +142,19 @@ const View_Lead = () => {
     } catch (error) {
       setState({ loading: false });
     }
+  };
+
+  const getPropertyList = async () => {
+    try {
+      const body={
+        lead: id,
+        pagination: "No",
+      }
+      const res: any = await Models.lead.lead_properties(1,body);
+      console.log("getPropertyList:", res);
+
+      setState({ propertyList:res?.results,propertyCount:res?.count });
+    } catch (error) {}
   };
 
   const getLogList = async () => {
@@ -588,8 +604,10 @@ const View_Lead = () => {
           open={state.openProperties}
           onToggle={() => setState({ openProperties: !state.openProperties })}
           action={
+
+         
             <button
-              className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"
+              className="flex h-6 min-w-[20px] items-center justify-center rounded bg-[#9b0f09] px-1 text-xs font-bold text-white"
               onClick={() => { setState({ showAddPropertyModal: true }); fetchPropertyList(1); }}
             >
               <Plus className="h-4 w-4" />

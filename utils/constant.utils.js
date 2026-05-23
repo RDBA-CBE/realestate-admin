@@ -69,6 +69,13 @@ export const menuConfig = {
     },
 
     {
+      type: "link",
+      icon: "IconMenuScrumboard",
+      label: "Inquiry List",
+      href: "/real-estate/inquiry/admin_booking_list",
+    },
+
+    {
       type: "submenu",
       icon: "IconMenuDashboard",
       label: "Users",
@@ -126,12 +133,12 @@ export const menuConfig = {
           href: "/real-estate/masters/income_type",
         },
 
-        // {
-        //   type: "link",
-        //   icon: "IconMenuForms",
-        //   label: "Lead Status",
-        //   href: "/real-estate/masters/lead_status",
-        // },
+        {
+          type: "link",
+          icon: "IconMenuForms",
+          label: "Lead Status",
+          href: "/real-estate/masters/lead_status",
+        },
       
       ],
     },
@@ -181,12 +188,25 @@ export const menuConfig = {
       href: "/real-estate/lead/list",
     },
 
+    // {
+    //   type: "link",
+    //   icon: "IconMenuScrumboard",
+    //   label: "Bookings List",
+    //   href: "/real-estate/inquiry/bookingList",
+    // },
+
     {
-      type: "link",
-      icon: "IconMenuScrumboard",
-      label: "Bookings List",
-      href: "/real-estate/inquiry/bookingList",
-    },
+      type: "submenu",
+      icon: "IconMenuDashboard",
+      label: "Inquiry",
+      key: "Inquiry",
+      children: [
+        { type: "link", label: "Booking Inquiry", href: "/real-estate/inquiry/dev_booking_inquiry_list" },
+        { type: "link", label: "Call Back", href: "/real-estate/inquiry/dev_call_inquiry_list" },
+      ]
+},
+
+
 
     {
       type: "link",
@@ -1298,4 +1318,35 @@ export const sourceConfig = {
   "Social Media": "border border-purple-500 bg-purple-50 text-purple-600",
   "Walk In": "border border-orange-500 bg-orange-50 text-orange-600",
   Website: "border border-cyan-500 bg-cyan-50 text-cyan-600",
+};
+
+export const statusChipConfig = {
+  "Won": {
+    bg: "bg-green-100",
+    text: "text-green-700",
+  },
+  "Contacted": {
+    bg: "bg-blue-100",
+    text: "text-blue-700",
+  },
+  "Follow Up": {
+    bg: "bg-yellow-100",
+    text: "text-yellow-700",
+  },
+  "Call Back": {
+    bg: "bg-purple-100",
+    text: "text-purple-700",
+  },
+  "Line Busy": {
+    bg: "bg-orange-100",
+    text: "text-orange-700",
+  },
+  "Lose": {
+    bg: "bg-red-100",
+    text: "text-red-700",
+  },
+  "Not Required": {
+    bg: "bg-gray-100",
+    text: "text-gray-700",
+  },
 };

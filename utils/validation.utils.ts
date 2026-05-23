@@ -401,7 +401,7 @@ export const lead = Yup.object().shape({
   opportunity_status: Yup.string().required("Status is required"),
 
   inquiry_details: Yup.string().required("Inquiry Details are required"),
-  assigned_to: Yup.string().required("Assigned to are required"),
+  assigned_to: Yup.string().optional(),
 });
 
 export const change_password = Yup.object().shape({

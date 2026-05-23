@@ -20,6 +20,7 @@ import virtualTour from "@/models/virtual_tour.model";
 import city from "@/models/city.model";
 import area from "@/models/area.model";
 import employmentType from "@/models/employmentType.model";
+import inquiry from "@/models/inquiry.model";
 
 export const Models = {
   auth,
@@ -41,7 +42,8 @@ export const Models = {
   leadStatus,
   city,
   area,
-  employmentType
+  employmentType,
+  inquiry
   
 };
 
