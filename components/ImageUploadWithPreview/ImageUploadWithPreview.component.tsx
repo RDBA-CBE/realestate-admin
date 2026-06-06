@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useRef } from "react";
+import React, { useCallback, useState, useRef, useEffect } from "react";
 import { Upload, X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface ImageUploadProps {
@@ -7,6 +7,9 @@ interface ImageUploadProps {
   acceptedFormats?: string[];
   minWidth?: number;
   minHeight?: number;
+  initialImages?: File[];
+  initialImageUrl?: string;
+  title?: string;
 }
 
 const ImageUploadWithPreview: React.FC<ImageUploadProps> = ({
@@ -15,12 +18,42 @@ const ImageUploadWithPreview: React.FC<ImageUploadProps> = ({
   acceptedFormats = ["image/jpeg", "image/png"],
   minWidth = 2048,
   minHeight = 768,
+  initialImages = [],
+  initialImageUrl,
 }) => {
   const [images, setImages] = useState<{ file: File; preview: string }[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const allowMultiple = maxFiles !== 1;
+
+  const hasLoadedInitialImages = useRef(false);
+
+  useEffect(() => {
+    if (!hasLoadedInitialImages.current) {
+      if (initialImages?.length > 0) {
+        const initialImageObjects = initialImages.map((file) => ({
+          file,
+          preview: URL.createObjectURL(file),
+        }));
+        setImages(initialImageObjects);
+        hasLoadedInitialImages.current = true;
+      } else if (initialImageUrl) {
+        setImages([{
+          file: new File([], initialImageUrl, { type: "image/placeholder" }),
+          preview: initialImageUrl,
+        }]);
+        hasLoadedInitialImages.current = true;
+      }
+    }
+  }, [initialImages, initialImageUrl]);
+
+  useEffect(() => {
+    return () => {
+      images.forEach((image) => URL.revokeObjectURL(image.preview));
+    };
+  }, [images]);
 
   const validateImage = (file: File): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -67,7 +100,9 @@ const ImageUploadWithPreview: React.FC<ImageUploadProps> = ({
     }
 
     if (newImages.length > 0) {
-      const updatedImages = [...images, ...newImages].slice(0, maxFiles);
+      const updatedImages = allowMultiple
+        ? [...images, ...newImages].slice(0, maxFiles)
+        : [newImages[0]];
       setImages(updatedImages);
       onImagesChange(updatedImages.map((img) => img.file));
     }
@@ -145,7 +180,7 @@ const ImageUploadWithPreview: React.FC<ImageUploadProps> = ({
         <input
           ref={fileInputRef}
           type="file"
-          multiple
+          multiple={allowMultiple}
           accept={acceptedFormats.join(",")}
           onChange={handleFileInput}
           className="hidden"

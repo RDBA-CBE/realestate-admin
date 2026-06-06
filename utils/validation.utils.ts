@@ -1,6 +1,7 @@
 import moment from "moment";
 import * as Yup from "yup";
 import { LISTING_TYPE, PROPERTY_TYPE } from "./constant.utils";
+import area from "@/pages/real-estate/masters/area";
 
 export const sessionCreate = Yup.object().shape({
   lounge_type: Yup.string().required("Lounge type is required"),
@@ -29,7 +30,9 @@ export const property_type = Yup.object().shape({
   listing_type: Yup.string().required("Offer Type is required").nullable(),
   // property_type: Yup.string().required("Property Type is required").nullable(),
   title: Yup.string().required("Property Name is required").nullable(),
-  city: Yup.string().required("City is required").nullable(),
+  location: Yup.string().nullable(),
+  area: Yup.string().nullable(),
+  // city: Yup.string().required("City is required").nullable(),
   state: Yup.string().required("State is required").nullable(),
   country: Yup.string().required("Country is required").nullable(),
   postal_code: Yup.string().required("Zip Code is required").nullable(),
@@ -37,8 +40,19 @@ export const property_type = Yup.object().shape({
   total_area: Yup.string().required("Total area is required").nullable(),
   built_up_area: Yup.string().required("Build up area is required").nullable(),
   min_price: Yup.string().required("Minimum is required").nullable(),
-
-  max_price: Yup.string().required("Maximum is required").nullable(),
+  max_price: Yup.string()
+    .required("Maximum is required")
+    .nullable()
+    .test(
+      "max-greater-than-min",
+      "Maximum price must be greater than minimum price",
+      function (value) {
+        const { min_price } = this.parent;
+        if (!min_price || !value) return true;
+        return parseFloat(value) > parseFloat(min_price);
+      }
+    ),
+  price_per_sqft: Yup.string().required("Price Per Sq.ft is required").nullable(),
 
   property_type: Yup.array()
     .required("Property Type is required is required")
@@ -87,7 +101,9 @@ export const propertySaleCreate = Yup.object().shape({
   description: Yup.string().required("Description is required").nullable(),
   listing_type: Yup.string().required("Property Type is required").nullable(),
   developer: Yup.string().required("Developer is required").nullable(),
-  city: Yup.string().required("City is required").nullable(),
+  location: Yup.string().nullable(),
+  area: Yup.string().nullable(),
+  // city: Yup.string().required("City is required").nullable(),
   state: Yup.string().required("State is required").nullable(),
   country: Yup.string().required("Country is required").nullable(),
   postal_code: Yup.string().required("Zip Code is required").nullable(),
@@ -109,11 +125,19 @@ export const propertySaleCreate = Yup.object().shape({
       otherwise: (schema) => schema.nullable(),
     }),
   project: Yup.string().required("Project is required").nullable(),
-  // price_per_sqft: Yup.string()
-  //   .required("Price Per Sq.ft is required")
-  //   .nullable(),
   min_price: Yup.string().required("Min Price is required").nullable(),
-  max_price: Yup.string().required("Max Price is required").nullable(),
+  max_price: Yup.string()
+    .required("Max Price is required")
+    .nullable()
+    .test(
+      "max-greater-than-min",
+      "Maximum price must be greater than minimum price",
+      function (value) {
+        const { min_price } = this.parent;
+        if (!min_price || !value) return true;
+        return parseFloat(value) > parseFloat(min_price);
+      }
+    ),
 
   longitude: Yup.string()
     .required("Longitude is required")
@@ -165,7 +189,9 @@ export const propertyLeaseCreate = Yup.object().shape({
   description: Yup.string().required("Description is required").nullable(),
   listing_type: Yup.string().required("Property Type is required").nullable(),
   developer: Yup.string().required("Developer is required").nullable(),
-  city: Yup.string().required("City is required").nullable(),
+  location: Yup.string().nullable(),
+  area: Yup.string().nullable(),
+  // city: Yup.string().required("City is required").nullable(),
   state: Yup.string().required("State is required").nullable(),
   country: Yup.string().required("Country is required").nullable(),
   postal_code: Yup.string().required("Zip Code is required").nullable(),
@@ -202,7 +228,18 @@ export const propertyLeaseCreate = Yup.object().shape({
     .required("Amenities is required")
     .min(1, "At least one amenities is required"),
   min_price: Yup.string().required("Min Price is required").nullable(),
-  max_price: Yup.string().required("Max Price is required").nullable(),
+  max_price: Yup.string()
+    .required("Max Price is required")
+    .nullable()
+    .test(
+      "max-greater-than-min",
+      "Maximum price must be greater than minimum price",
+      function (value) {
+        const { min_price } = this.parent;
+        if (!min_price || !value) return true;
+        return parseFloat(value) > parseFloat(min_price);
+      }
+    ),
   lease_duration: Yup.string()
     .required("Lease Duration is required")
     .nullable(),
@@ -263,7 +300,18 @@ export const propertyRentCreate = Yup.object().shape({
     .required("Amenities is required")
     .min(1, "At least one amenities is required"),
   min_price: Yup.string().required("Min Price is required").nullable(),
-  max_price: Yup.string().required("Max Price is required").nullable(),
+  max_price: Yup.string()
+    .required("Max Price is required")
+    .nullable()
+    .test(
+      "max-greater-than-min",
+      "Maximum price must be greater than minimum price",
+      function (value) {
+        const { min_price } = this.parent;
+        if (!min_price || !value) return true;
+        return parseFloat(value) > parseFloat(min_price);
+      }
+    ),
   rent_duration: Yup.string().required("Rent duration is required").nullable(),
   group: Yup.string().nullable(),
   developer: Yup.string()
@@ -290,6 +338,7 @@ export const category = Yup.object().shape({
 export const project = Yup.object().shape({
   name: Yup.string().required("Project Name is required"),
   location: Yup.string().required("Location is required"),
+  area: Yup.string().required("Area is required"),
 });
 
 export const amenity = Yup.object().shape({
@@ -322,26 +371,38 @@ export const lead = Yup.object().shape({
 
   last_name: Yup.string().required("Last Name is required"),
   phone: Yup.string()
+    .nullable()
     .required("Phone Number is required")
     .test("is-valid-phone", "Enter a valid phone number", (value) => {
-      // Allow both formats: 10 digits OR 91 followed by 10 digits
+      if (!value) return false;
       return /^(91)?[0-9]{10}$/.test(value);
     }),
+
+  gender: Yup.string().required("Gender is required"),
+  area: Yup.string().required("Area is required"),
+  location: Yup.string().required("City is required"),
+ 
 
   email: Yup.string()
     .required("Email is required")
     .email("Enter a valid email"),
 
-  interested_property: Yup.string().required("Please select a property"),
+  interested_property: Yup.mixed()
+    .test(
+      "is-required-property",
+      "Please select a property",
+      (value) => value !== null && value !== undefined && value !== "",
+    )
+    .required("Please select a property"),
 
   lead_source: Yup.string().required("Lead Source is required"),
 
-  next_follow_up: Yup.string().required("Next Follow Up Date is required"),
+  next_follow_up: Yup.string().nullable().required("Next Follow Up Date is required"),
 
-  status: Yup.string().required("Status is required"),
+  opportunity_status: Yup.string().required("Status is required"),
 
-  requirements: Yup.string().required("Inquiry Details are required"),
-  assigned_to: Yup.string().required("Assigned to are required"),
+  inquiry_details: Yup.string().required("Inquiry Details are required"),
+  assigned_to: Yup.string().optional(),
 });
 
 export const change_password = Yup.object().shape({

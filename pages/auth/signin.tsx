@@ -19,7 +19,6 @@ import * as Yup from "yup";
 import Models from "@/imports/models.import";
 import PrimaryButton from "@/components/FormFields/PrimaryButton.component";
 import { userData } from "@/store/userConfigSlice";
-import ReCAPTCHA from "react-google-recaptcha";
 import { CAPTCHA_SITE_KEY } from "@/utils/constant.utils";
 
 
@@ -54,8 +53,8 @@ const LoginBoxed = () => {
       await Utils.Validation.login.validate(body, { abortEarly: false });
       const res: any = await Models.auth.login(body);
       Success("Login Successfully");
-      localStorage.setItem("token", res.access);
-      localStorage.setItem("refresh", res.refresh);
+      localStorage.setItem("real_estate_admin_token", res.access);
+      localStorage.setItem("real_estate_admin_refresh", res.refresh);
       localStorage.setItem("userId", res.user_id);
       if (res?.groups?.length > 0) {
         localStorage.setItem("group", res.groups[0]?.name);

@@ -104,7 +104,7 @@ const CustomSelect = (props: SelectProps) => {
       )}
       <div className="relative">
         {leftIcon && (
-          <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10 pointer-events-none">
+          <div className={`absolute ${error ? "top-[18px]" : "top-1/2"} left-3 top-1/2 transform -translate-y-1/2 z-10 pointer-events-none`}>
             {leftIcon}
           </div>
         )}

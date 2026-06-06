@@ -1,4 +1,4 @@
-"use client";
+"use client"
 
 import React, { useEffect, useState } from "react";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
@@ -124,7 +124,6 @@ const List = () => {
     state.leadType,
     state.from_date,
     state.to_date,
-    // state.leadStatus
   ]);
 
   const categoryList = async (page) => {
@@ -230,9 +229,7 @@ const List = () => {
           property_city: property?.city,
           property_listing_type: property?.listing_type,
           property_status: property?.status,
-          property_type:
-            property?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) ||
-            [],
+          property_type: property?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
           project: property?.project?.name,
           price_range: property?.price_range,
           full_name: item?.full_name,
@@ -248,7 +245,7 @@ const List = () => {
             ? `${item?.assigned_by_details?.first_name} ${item?.assigned_by_details?.last_name}`
             : "",
           company_name: item?.company_name,
-        })),
+        }))
       );
       const group = localStorage.getItem("group");
 
@@ -270,9 +267,8 @@ const List = () => {
   const leadPropertyList = async (
     page,
     sortBy = state.sortBy,
-    sortOrder = state.sortOrder,
-  ) => {
-    try {
+    sortOrder = state.sortOrder,) => { 
+     try {
       const body = bodyData();
       if (sortBy) {
         body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
@@ -311,9 +307,11 @@ const List = () => {
     } catch (error) {
       console.log("✌️error --->", error);
     }
-  };
+   }
 
-  console.log("tablePropertyList", state.tablePropertyList);
+   console.log("tablePropertyList", state.tablePropertyList);
+   
+
 
   const createProject = async () => {
     try {
@@ -490,9 +488,9 @@ const List = () => {
     const group = localStorage.getItem("group");
     let body: any = {};
 
-    // body.interested_property = true;
-
-    body.status = 6; // Won status
+    
+      // body.interested_property = true;
+    
 
     if (state.search) {
       body.search = state.search;
@@ -506,9 +504,9 @@ const List = () => {
       body.property_type = state.property_type;
     }
 
-    // if (state.status) {
-    //   body.status = state.status.value;
-    // }
+    if (state.status) {
+      body.status = state.status.value;
+    }
 
     if (state.date) {
       body.date = backendDateFormat(state.date);
@@ -527,7 +525,7 @@ const List = () => {
 
     if (state.leadType?.value === "own") {
       body.created_by = userId;
-    }
+    } 
     if (state.leadType?.value === "admin") {
       body.team = true;
     }
@@ -613,25 +611,17 @@ const List = () => {
         try {
           setState({ btnLoading: true });
           await Promise.all(
-            state.selectedRecords.map((row: any) =>
-              Models.lead.delete(row?.id),
-            ),
+            state.selectedRecords.map((row: any) => Models.lead.delete(row?.id)),
           );
           setState({ selectedRecords: [], btnLoading: false });
           leadList(state.page);
-          Success(
-            `${state.selectedRecords.length} lead${
-              state.selectedRecords.length > 1 ? "s" : ""
-            } deleted successfully`,
-          );
+          Success(`${state.selectedRecords.length} lead${state.selectedRecords.length > 1 ? "s" : ""} deleted successfully`);
         } catch (error) {
           setState({ btnLoading: false });
         }
       },
       () => Swal.fire("Cancelled", "Your Records are safe :)", "info"),
-      `Are you sure want to delete ${
-        state.selectedRecords.length
-      } selected lead${state.selectedRecords.length > 1 ? "s" : ""}?`,
+      `Are you sure want to delete ${state.selectedRecords.length} selected lead${state.selectedRecords.length > 1 ? "s" : ""}?`,
     );
   };
 
@@ -652,8 +642,7 @@ const List = () => {
   const handleDatePreset = (preset: string) => {
     const today = new Date();
     const fmt = (d: Date) => d.toISOString().slice(0, 10);
-    let from = "",
-      to = fmt(today);
+    let from = "", to = fmt(today);
     if (preset === "Year") {
       from = `${today.getFullYear()}-01-01`;
     } else if (preset === "LastMonth") {
@@ -662,8 +651,7 @@ const List = () => {
     } else if (preset === "ThisMonth") {
       from = fmt(new Date(today.getFullYear(), today.getMonth(), 1));
     } else if (preset === "Last7Days") {
-      const d = new Date(today);
-      d.setDate(d.getDate() - 6);
+      const d = new Date(today); d.setDate(d.getDate() - 6);
       from = fmt(d);
     }
     setState({ datePreset: preset, from_date: from, to_date: to });
@@ -682,23 +670,11 @@ const List = () => {
       from_date: "",
       to_date: "",
       datePreset: "",
-      custom_from: "",
-      custom_to: "",
     });
   };
 
   const exportToExcel = () => {
-    const headers = [
-      "Date",
-      "Customer Name",
-      "Email",
-      "Property",
-      "Lead Source",
-      "Status",
-      "Assigned To",
-      "Assigned By",
-      "Requirements",
-    ];
+    const headers = ["Date", "Customer Name", "Email", "Property", "Lead Source", "Status", "Assigned To", "Assigned By", "Requirements"];
     const rows = state.tableList.map((row: any) => [
       row.date || "",
       row.full_name || "",
@@ -711,9 +687,7 @@ const List = () => {
       row.requirements || "",
     ]);
     const csvContent = [headers, ...rows]
-      .map((r) =>
-        r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
-      )
+      .map((r) => r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
       .join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -739,6 +713,7 @@ const List = () => {
   };
 
   const columns = [
+
     // {
     //   accessor: "company_name",
     //   title: "Company Name",
@@ -782,10 +757,8 @@ const List = () => {
       sortable: true,
       render: (row) => (
         <div
-          className="flex cursor-pointer items-center gap-2"
-          onClick={() =>
-            router.push(`/real-estate/property/detail/${row?.property_id}`)
-          }
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => router.push(`/real-estate/property/detail/${row?.property_id}`)}
         >
           {/* {row?.property_image && (
             <img
@@ -795,8 +768,8 @@ const List = () => {
             />
           )} */}
           <div>
-            <div className="text-sm font-medium" title={row?.property_title}>
-              {row?.property_title}
+            <div className="font-medium text-sm" title={row?.property_title}>
+              {(row?.property_title)}
             </div>
             <div className="text-xs text-gray-400">{row?.project}</div>
           </div>
@@ -867,7 +840,9 @@ const List = () => {
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => <span title={row?.full_name}>{row?.full_name}</span>,
+      render: (row) => (
+        <span title={row?.full_name}>{(row?.full_name)}</span>
+      ),
     },
 
     // {
@@ -896,12 +871,11 @@ const List = () => {
       visible: true,
       toggleable: true,
       render: (row) => {
+     
         const label = row?.lead_source?.name || row?.lead_source;
         const cls = sourceConfig[label] ?? "bg-gray-100 text-gray-600";
         return (
-          <span
-            className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}
-          >
+          <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>
             {label || "-"}
           </span>
         );
@@ -962,15 +936,15 @@ const List = () => {
             <Eye className="h-4 w-4" />
           </button>
 
-          {/* <button
+          <button
             className="flex text-success"
             onClick={(e) => handleStatus(row)}
             title="Change Lead Status"
           >
             <CheckCircle className="h-4 w-4" />
-          </button> */}
+          </button>
 
-          {/* <button
+          <button
             className="flex text-primary"
             onClick={(e) => {
               handleEdit(row);
@@ -978,7 +952,7 @@ const List = () => {
             title="Edit Lead"
           >
             <IconEdit className="h-4 w-4" />
-          </button> */}
+          </button>
 
           {/* <button
             type="button"
@@ -1002,10 +976,10 @@ const List = () => {
       <div className=" mb-3 flex items-center justify-between gap-5">
         <div className=" items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
-            Booking List
+            Lead List
           </h5>
           <p className="text-gray-600 dark:text-gray-400">
-            Manage Booking listings
+            Manage Lead listings and opportunities
           </p>
         </div>
         <div className="flex gap-3">
@@ -1017,17 +991,17 @@ const List = () => {
             <Download className="h-4 w-4" />
             Export
           </button>
-          {/* <button
+          <button
             type="button"
             className="btn btn-dred w-full border-none md:mb-0 md:w-auto"
             onClick={() => router.push("/real-estate/lead/create")}
           >
             + Create
-          </button> */}
+          </button>
         </div>
       </div>
 
-      {/* <div className="mb-6 flex gap-4">
+      <div className="mb-6 flex gap-4">
         <div
           onClick={() => {
             setState({ status: null });
@@ -1106,69 +1080,49 @@ const List = () => {
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
 
-      {/* Date Filter Bar */}
-      <div className="mb-4 flex w-fit flex-wrap items-center gap-0 overflow-hidden rounded-lg border border-gray-200 bg-white">
-        {["Year", "LastMonth", "ThisMonth", "Last7Days", "Custom"].map(
-          (preset) => (
+       {/* Date Filter Bar */}
+          <div className="w-fit mb-4 flex flex-wrap items-center gap-0 rounded-lg border border-gray-200 bg-white overflow-hidden">
+            {["Year", "LastMonth", "ThisMonth", "Last7Days", "Custom"].map((preset) => (
+              <button
+                key={preset}
+                onClick={() => preset !== "Custom" ? handleDatePreset(preset) : setState({ datePreset: "Custom" })}
+                className={`border-r border-gray-200 px-4 py-2 text-sm font-medium transition ${
+                  state.datePreset === preset
+                    ? "bg-dred text-white"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {preset}
+              </button>
+            ))}
+            <input
+              type="datetime-local"
+              value={state.custom_from ? `${state.custom_from}T00:00` : ""}
+              onChange={(e) => setState({ custom_from: e.target.value?.slice(0, 10), datePreset: "Custom", from_date: "", to_date: "" })}
+              className="border-r border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none"
+            />
+            <input
+              type="datetime-local"
+              value={state.custom_to ? `${state.custom_to}T00:00` : ""}
+              onChange={(e) => setState({ custom_to: e.target.value?.slice(0, 10), datePreset: "Custom", from_date: "", to_date: "" })}
+              className="border-r border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none"
+            />
             <button
-              key={preset}
-              onClick={() =>
-                preset !== "Custom"
-                  ? handleDatePreset(preset)
-                  : setState({ datePreset: "Custom" })
-              }
-              className={`border-r border-gray-200 px-4 py-2 text-sm font-medium transition ${
-                state.datePreset === preset
-                  ? "bg-dred text-white"
-                  : "text-gray-600 hover:bg-gray-50"
-              }`}
+              onClick={() => leadList(1)}
+              className="border-r border-gray-200 bg-dred px-4 py-2 text-sm font-semibold text-white hover:bg-lred hover:text-dred"
             >
-              {preset}
+              Go
             </button>
-          ),
-        )}
-        <input
-          type="datetime-local"
-          value={state.custom_from ? `${state.custom_from}T00:00` : ""}
-          onChange={(e) =>
-            setState({
-              custom_from: e.target.value?.slice(0, 10),
-              datePreset: "Custom",
-              from_date: "",
-              to_date: "",
-            })
-          }
-          className="border-r border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none"
-        />
-        <input
-          type="datetime-local"
-          value={state.custom_to ? `${state.custom_to}T00:00` : ""}
-          onChange={(e) =>
-            setState({
-              custom_to: e.target.value?.slice(0, 10),
-              datePreset: "Custom",
-              from_date: "",
-              to_date: "",
-            })
-          }
-          className="border-r border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none"
-        />
-        <button
-          onClick={() => leadList(1)}
-          className="bg-dred hover:bg-lred hover:text-dred border-r border-gray-200 px-4 py-2 text-sm font-semibold text-white"
-        >
-          Go
-        </button>
-
-        {/* <button
+           
+            <button
               onClick={() => setState({ from_date: "", to_date: "", datePreset: "" })}
               className=" px-4 py-2 text-sm font-semibold text-dred "
             >
               Clear
-            </button> */}
-      </div>
+            </button>
+          </div>
 
       <div className="mb-5 rounded-2xl ">
         <div className="flex items-center justify-between gap-5">
@@ -1199,7 +1153,7 @@ const List = () => {
             isClearable={true}
           />
 
-          {/* <CustomSelect
+          <CustomSelect
             value={state.status}
             onChange={(e) => setState({ status: e })}
             placeholder={"Status"}
@@ -1207,7 +1161,7 @@ const List = () => {
             error={state.errors?.status}
             required
             className="w-full"
-          /> */}
+          />
 
           <CustomSelect
             value={state.leadType}
@@ -1216,7 +1170,7 @@ const List = () => {
             options={[
               { value: "own", label: "Own Records" },
               { value: "admin", label: "Admin Records" },
-              { value: "website", label: "Website Leads" },
+              { value: "website", label: "Website Leads" }
             ]}
             isClearable={true}
           />
@@ -1243,12 +1197,12 @@ const List = () => {
             </>
           )} */}
 
-          {/* <CustomeDatePicker
+          <CustomeDatePicker
             value={state.date}
             placeholder="Choose Date"
             onChange={(e) => setState({ date: e })}
             showTimeSelect={false}
-          /> */}
+          />
 
           {state.group == "Admin" && (
             <button
@@ -1314,41 +1268,6 @@ const List = () => {
                       },
                     ]
                   : []),
-                ...(state.from_date
-                  ? [
-                      {
-                        label: `From Date: ${commonDateFormat(
-                          state.from_date,
-                        )}`,
-                        onRemove: () => setState({ from_date: null }),
-                      },
-                    ]
-                  : []),
-                ...(state.to_date
-                  ? [
-                      {
-                        label: `To Date: ${commonDateFormat(state.to_date)}`,
-                        onRemove: () => setState({ to_date: null }),
-                      },
-                    ]
-                  : []),
-                  ...(state.custom_from
-                                    ? [
-                                        {
-                                          label: `From Date: ${commonDateFormat(state.custom_from)}`,
-                                          onRemove: () => setState({ custom_from: null }),
-                                        },
-                                      ]
-                                    : []),
-                ...(state.custom_to
-                  ? [
-                      {
-                        label: `To Date: ${commonDateFormat(state.custom_to)}`,
-                        onRemove: () => setState({ custom_to: null }),
-                      },
-                    ]
-                  : []),
-               
                 ...(state.role
                   ? [
                       {
@@ -1379,11 +1298,11 @@ const List = () => {
                   Delete ({state.selectedRecords.length})
                 </button>
               )}
-              <div className="text-sm text-black">
-                {state.total} Leads found
-              </div>
+              <div className="text-sm text-black">{state.total} Leads found</div>
             </div>
           </div>
+
+         
 
           <DataTable
             className="table-responsive"

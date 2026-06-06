@@ -1,9 +1,10 @@
-import React, { useEffect } from "react";
+import React, { use, useEffect } from "react";
 import { DataTable } from "mantine-datatable";
 import IconEdit from "@/components/Icon/IconEdit";
 import IconTrash from "@/components/Icon/IconTrash";
 import {
   capitalizeFLetter,
+  Dropdown,
   Failure,
   showDeleteAlert,
   Success,
@@ -16,11 +17,15 @@ import TextInput from "@/components/FormFields/TextInput.component";
 import TextArea from "@/components/FormFields/TextArea.component";
 import Swal from "sweetalert2";
 import useDebounce from "@/hook/useDebounce";
+import * as Yup from "yup";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
 import PrivateRouter from "@/hook/privateRouter";
+import CustomSelect from "@/components/FormFields/CustomSelect.component";
+import city from "./city";
+import { log } from "console";
 
-const LeadStatus = () => {
+const Area = () => {
   const [state, setState] = useSetState({
     isOpen: false,
     btnLoading: false,
@@ -36,17 +41,22 @@ const LeadStatus = () => {
   const debouncedSearch = useDebounce(state.search, 500);
 
   useEffect(() => {
-    leadStatusList(1);
+    areaList(1);
   }, [debouncedSearch]);
 
-  const leadStatusList = async (page) => {
+  useEffect(() => {
+    cityList(1);
+  }, []);
+
+  const areaList = async (page) => {
     try {
       const body: any = {};
       if (state.search) body.search = state.search;
-      const res: any = await Models.leadStatus.list(page, body);
+      const res: any = await Models.area.list(page, body);
       const data = res?.results?.map((item) => ({
         name: item?.name,
         id: item?.id,
+        city: item?.location_details,
       }));
       setState({
         tableList: data,
@@ -61,38 +71,80 @@ const LeadStatus = () => {
     }
   };
 
-  const createLeadStatus = async () => {
+  const cityList = async (page) => {
+      try {
+        const body: any = {};
+        if (state.search) body.search = state.search;
+        const res: any = await Models.city.list(page, body);
+        const droprdown = Dropdown(res?.results, "name");
+        
+        setState({
+          cityList: droprdown,
+          total: res?.count,
+          page,
+          next: res.next,
+          previous: res.previous,
+          totalRecords: res.count,
+        });
+      } catch (error) {
+        console.log("error -->", error);
+      }
+    };
+
+     const cityLoadMore = async () => {
+        try {
+          if (state.cityNext) {
+            const res: any = await Models.city.list(state.cityPage + 1, {});
+            const newOptions = Dropdown(res?.results, "name");
+            setState({
+              cityList: [...state.cityList, ...newOptions],
+              cityNext: res.next,
+              cityPage: state.cityPage + 1,
+            });
+          } else {
+            setState({
+              cityList: state.cityList,
+            });
+          }
+        } catch (error) {
+          console.log("error: ", error);
+        }
+      };
+
+  const createArea = async () => {
     try {
       setState({ btnLoading: true });
-      const body = { name: capitalizeFLetter(state.name), };
+      const body = { name:  capitalizeFLetter(state.name) , location: state.city.value };
       if (!body.name) {
         setState({ error: { name: "Name is required" }, btnLoading: false });
         return;
       }
-      await Models.leadStatus.create(body);
+      console.log("body", body);
+      
+      await Models.area.create(body);
       clearData();
       setState({ btnLoading: false });
-      leadStatusList(1);
-      Success("Lead Status created successfully");
+      areaList(1);
+      Success("Area created successfully");
     } catch (error: any) {
       Failure(error?.name?.[0] || "Something went wrong");
       setState({ btnLoading: false });
     }
   };
 
-  const updateLeadStatus = async () => {
+  const updateArea = async () => {
     try {
       setState({ btnLoading: true });
-      const body = { name: capitalizeFLetter(state.name) };
+      const body = { name: capitalizeFLetter(state.name), city: state.city?.id };
       if (!body.name) {
-        setState({ error: { name: "Name is required" }, btnLoading: false });
+        setState({ error: { name: "Name is required" , city:"City is required"}, btnLoading: false });
         return;
       }
-      await Models.leadStatus.update(body, state.editId);
+      await Models.area.update(body, state.editId);
       clearData();
       setState({ btnLoading: false });
-      leadStatusList(state.page);
-      Success("Lead Status updated successfully");
+      areaList(state.page);
+      Success("Area updated successfully");
     } catch (error: any) {
       Failure(error?.name?.[0] || "Something went wrong");
       setState({ btnLoading: false });
@@ -102,11 +154,11 @@ const LeadStatus = () => {
   const deleteRecord = async (row) => {
     try {
       setState({ btnLoading: true });
-      await Models.leadStatus.delete(row?.id);
+      await Models.area.delete(row?.id);
       clearData();
       setState({ btnLoading: false });
-      leadStatusList(state.page);
-      Success("Lead Status deleted successfully");
+      areaList(state.page);
+      Success("City deleted successfully");
     } catch (error) {
       setState({ btnLoading: false });
     }
@@ -116,15 +168,17 @@ const LeadStatus = () => {
     showDeleteAlert(
       () => deleteRecord(row),
       () => Swal.fire("Cancelled", "Your Record is safe :)", "info"),
-      "Are you sure want to delete this lead status?",
+      "Are you sure want to delete this city?",
     );
   };
 
   const handleEdit = (row) => {
     setState({
       name: row.name,
+      description: row.description,
       isOpen: true,
       editId: row?.id,
+      city: row.city ? { value: row.city.id, label: row.city.name } : null
     });
   };
 
@@ -132,25 +186,30 @@ const LeadStatus = () => {
     setState({
       editId: null,
       name: "",
+      description: "",
       isOpen: false,
       error: {},
+      city: {},
     });
   };
 
   const handleNextPage = () => {
-    if (state.next) leadStatusList(state.page + 1);
+    if (state.next) areaList(state.page + 1);
   };
 
   const handlePreviousPage = () => {
-    if (state.previous) leadStatusList(state.page - 1);
+    if (state.previous) areaList(state.page - 1);
   };
+
+  console.log("cityList",state.cityList);
+  
 
   return (
     <>
       <div className="mb-5 flex items-center justify-between gap-5">
         <div>
           <h5 className="text-lg font-semibold dark:text-white-light">
-            Lead Status List
+            Area List
           </h5>
         </div>
         <button
@@ -161,7 +220,7 @@ const LeadStatus = () => {
           + Create
         </button>
       </div>
-
+      
       {/* <div className="mb-5 rounded-2xl ">
         <div className="flex items-center justify-between gap-5">
           <div>
@@ -208,7 +267,13 @@ const LeadStatus = () => {
                   </div>
                 ),
               },
-            
+              {
+                accessor: "city",
+                title: "City",
+                render: (row: any) => (
+                  <span>{row.city.name || "-"}</span>
+                ),
+              },
               {
                 accessor: "actions",
                 title: "Actions",
@@ -256,7 +321,7 @@ const LeadStatus = () => {
       </div>
 
       <Modal
-        addHeader={state.editId ? "Update Lead Status" : "Create Lead Status"}
+        addHeader={state.editId ? "Update Area" : "Create Area"}
         open={state.isOpen}
         close={() => clearData()}
         renderComponent={() => (
@@ -265,8 +330,8 @@ const LeadStatus = () => {
               <div className="w-full space-y-5">
                 <TextInput
                   name="name"
-                  title="Lead Status Name"
-                  placeholder="Enter lead status name"
+                  title="Area Name"
+                  placeholder="Enter Area name"
                   value={state.name}
                   onChange={(e) =>
                     setState({ name: e.target.value, error: { ...state.error, name: "" } })
@@ -274,7 +339,28 @@ const LeadStatus = () => {
                   error={state.error?.name}
                   required
                 />
-              
+
+                <CustomSelect
+                        title="City name"
+                        placeholder="Select city"
+                        options={state.cityList}
+                        value={state.city}
+                        onChange={(selectedOption) =>
+                          setState({ city: selectedOption })
+                        }
+                        isClearable
+                        loadMore={() => cityLoadMore()}
+                        required
+                      error={state.error?.city}
+                      />
+
+                {/* <TextArea
+                  name="description"
+                  title="Description"
+                  placeholder="Enter description"
+                  value={state.description}
+                  onChange={(e) => setState({ description: e.target.value })}
+                /> */}
               </div>
               <div className="mt-8 flex items-center justify-end">
                 <button
@@ -286,7 +372,7 @@ const LeadStatus = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => state.editId ? updateLeadStatus() : createLeadStatus()}
+                  onClick={() => state.editId ? updateArea() : createArea()}
                   className="btn btn-dred border-none ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
@@ -300,4 +386,4 @@ const LeadStatus = () => {
   );
 };
 
-export default PrivateRouter(LeadStatus);
+export default PrivateRouter(Area);

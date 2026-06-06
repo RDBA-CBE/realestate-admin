@@ -67,6 +67,7 @@ import {
   Key,
   Clock,
   Verified,
+  XCircle,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
@@ -93,38 +94,55 @@ const List = () => {
   // }, []);
 
   const tableColumns = [
-    {
-      accessor: "title",
-      title: "Property Info",
-      visible: true,
-      toggleable: true,
-      sortable: true,
-      render: (row) => (
-        <div
-          className="relative"
-          onMouseEnter={(e) => {
-            const rect = (
-              e.currentTarget as HTMLElement
-            ).getBoundingClientRect();
-            setTooltip({ row, x: rect.left, y: rect.top });
-          }}
-          onMouseLeave={() => setTooltip(null)}
-        >
-          <Link
-            className="flex gap-3 font-semibold"
-            href={`${FRONTEND_URL}/property-detail/${row?.id}`}
-            target="_blank"
-          >
-            <div className="flex flex-col justify-between">
-              <div>
-                <div className="cursor-pointer text-sm">
-                  {truncateText(row.title)}
+     {
+          accessor: "title",
+          title: "Property Name",
+          visible: true,
+          toggleable: true,
+          sortable: true,
+          render: (row) => (
+            <div className="relative">
+              <div
+                className="flex gap-3 "
+                onClick={() => handleView(row)}
+                onMouseEnter={(e) => {
+                  const rect = (
+                    e.currentTarget as HTMLElement
+                  ).getBoundingClientRect();
+                  setTooltip({ row, x: rect.left, y: rect.top });
+                }}
+                onMouseLeave={() => setTooltip(null)}
+              >
+                <div className="flex flex-col justify-between">
+                  <div>
+                    <div className="flex cursor-pointer gap-3 text-sm">
+                      {row.title}
+                      {row.is_approved ? (
+                        <CheckCircle className="mt-0.5 h-3.5 w-3.5 text-green-500" />
+                      ) : (
+                        <Clock className="mt-0.5 h-3.5 w-3.5 text-yellow-500" />
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
+             
             </div>
-          </Link>
-        </div>
-      ),
+          ),
+        },
+
+     {
+      accessor: "price",
+      title: "Price Range",
+      visible: true,
+      toggleable: true,
+    },
+
+     {
+      accessor: "built_up_area",
+      title: "Sq.ft",
+      visible: true,
+      toggleable: true,
     },
     
     {
@@ -179,51 +197,65 @@ const List = () => {
         );
       },
     },
-    {
-      accessor: "role",
-      title: "Offer Type",
-      visible: true,
-      toggleable: true,
-      render: (row: any) => (
-        <span className={`badge badge-outline-${row?.listing_type?.color} `}>
-          {row?.listing_type?.type}
-        </span>
-      ),
+
+     {
+      accessor: "city",
+      sortable: true,
+      render: (row: any) => <span>{row.city.name || "-"}</span>,
     },
     {
-      accessor: "publish",
-      title: "Publish Status",
-      visible: true,
-      toggleable: true,
-      render: (row: any) => (
-        <span
-          className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-            row?.publish === "Published"
-              ? "bg-lred text-dred border-dred"
-              : "bg-gray-200 text-gray-700"
-          }`}
-        >
-          {row?.publish}
-        </span>
-      ),
+      accessor: "area",
+      sortable: true,
+      render: (row: any) => <span>{row.area.name || "-"}</span>,
     },
-    {
-      accessor: "is_approved",
-      title: "Approved Status",
-      visible: true,
-      toggleable: true,
-      render: (row: any) => (
-        <span
-          className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-            row?.is_approved == true
-              ? "bg-green-100 text-green-700"
-              : "bg-yellow-100 text-gray-700"
-          }`}
-        >
-          {row?.is_approved == true ? "Approved" : "Pending"}
-        </span>
-      ),
-    },
+
+    // {
+    //   accessor: "role",
+    //   title: "Offer Type",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => (
+    //     <span className={`badge badge-outline-${row?.listing_type?.color} `}>
+    //       {row?.listing_type?.type}
+    //     </span>
+    //   ),
+    // },
+
+
+    // {
+    //   accessor: "publish",
+    //   title: "Publish Status",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => (
+    //     <span
+    //       className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+    //         row?.publish === "Published"
+    //           ? "bg-lred text-dred border-dred"
+    //           : "bg-gray-200 text-gray-700"
+    //       }`}
+    //     >
+    //       {row?.publish}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   accessor: "is_approved",
+    //   title: "Approved Status",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => (
+    //     <span
+    //       className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+    //         row?.is_approved == true
+    //           ? "bg-green-100 text-green-700"
+    //           : "bg-yellow-100 text-gray-700"
+    //       }`}
+    //     >
+    //       {row?.is_approved == true ? "Approved" : "Pending"}
+    //     </span>
+    //   ),
+    // },
     {
       accessor: "action",
       title: "Actions",
@@ -255,6 +287,24 @@ const List = () => {
           >
             <Globe className="h-3.5 w-3.5" />
           </button>
+          {/* {row?.is_approved == true ?
+          (<button
+            type="button"
+            className={`flex text-green-500 `}
+           
+            title= "Approved" 
+          >
+            <CircleCheck className="h-3.5 w-3.5" />
+          </button>)
+            :
+          (<button
+            type="button"
+            className={`flex text-danger`}
+           
+            title= "Pending"
+          >
+            <XCircle className="h-3.5 w-3.5" />
+          </button>)} */}
           <button
             type="button"
             className="flex text-danger"
@@ -658,7 +708,11 @@ const List = () => {
         image:
           item?.primary_image ??
           "/assets/images/real-estate/property-info-img1.png",
-          industry_name:item?.developer?.industry
+          industry_name:item?.developer?.industry,
+        built_up_area: item?.built_up_area,
+        total_unit: item?.total_unit,
+         city: item?.location || "-",
+        area: item?.area || "-",
       }));
 
       setState({
@@ -946,11 +1000,15 @@ const List = () => {
   };
 
   const handleEdit = async (row) => {
-    router.push(`/real-estate/property/update/${row?.id}`);
+    router.push(`/real-estate/property/update/${row?.id}?project_id=${id}`);
   };
 
     const handleView = async (row) => {
     router.push(`/real-estate/property/detail/${row?.id}`);
+  };
+
+  const handleCreate = async (row) => {
+    router.push(`/real-estate/property/create?project_id=${id}`);
   };
 
   const handleStatus = async (row) => {
@@ -1102,9 +1160,9 @@ const List = () => {
             <div>
               <h2 className="text-base font-bold text-gray-900 dark:text-white">{capitalizeFLetter(state.project?.name)}</h2>
               <div className="mt-1 flex items-center gap-4 text-xs text-gray-500">
-                {state.project?.location && (
+                {state.project?.location.name && (
                   <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />{state.project.location}
+                    <MapPin className="h-3 w-3" />{state.project.location.name}
                   </span>
                 )}
                 {state.project?.created_at && (
@@ -1129,7 +1187,7 @@ const List = () => {
           <button
             type="button"
             className="btn btn-dred w-full border-none md:mb-0 md:w-auto"
-            onClick={() => router.push("/real-estate/property/create")}
+            onClick={handleCreate}
           >
             + Create
           </button>
@@ -1692,10 +1750,10 @@ const List = () => {
         )}
       />
 
-      {/* Fixed tooltip rendered outside table */}
+     {/* Fixed tooltip rendered outside table */}
       {tooltip && (
         <div
-          className="border-dred bg-lred pointer-events-none fixed z-[99999] w-56 rounded-lg border p-3 shadow-lg dark:bg-gray-800"
+          className="border-dred bg-lred pointer-events-none fixed z-[99999] w-80 rounded-lg border p-3 shadow-lg dark:bg-gray-800"
           style={{
             top: tooltip.y - 8,
             left: tooltip.x,
@@ -1705,20 +1763,62 @@ const List = () => {
           <div className="mb-1 font-semibold text-[#000]">
             {tooltip.row.title}
           </div>
+          {/* Unit Count Highlight */}
+          <div className="bg-dred mb-3 mt-2 flex w-fit items-center justify-between gap-3 rounded-2xl px-3 py-1">
+            <span className="text-sm  text-white/80">Total Units</span>
+            <span className="text-md text-white">
+              {tooltip.row.total_unit ?? "—"}
+            </span>
+          </div>
+
+          {/* {tooltip.row.industry_name && (
+            <div className="mb-1 flex items-start gap-2 text-xs">
+              <span className="shrink-0 font-semibold text-gray-500">
+                Developer:
+              </span>
+              <span className="text-gray-800 dark:text-white">
+                {tooltip.row.industry_name}
+              </span>
+            </div>
+          )} */}
+          {tooltip.row?.listing_type?.type && (
+            <div className="mb-1 flex items-start gap-2 text-xs">
+              <span className="shrink-0 font-semibold text-gray-500">
+                Offer Type:
+              </span>
+              <span
+                className={`font-semibold ${
+                  tooltip.row.listing_type.type?.toLowerCase() === "sale"
+                    ? "text-blue-500"
+                    : "text-purple-500"
+                }`}
+              >
+                {tooltip.row.listing_type.type}
+              </span>
+            </div>
+          )}
+
+          {tooltip.row?.publish && (
+            <div className="mb-1 flex items-start gap-2 text-xs">
+              <span className="shrink-0 font-semibold text-gray-500">
+                Publish:
+              </span>
+              <span
+                className={`font-semibold ${
+                  tooltip.row.publish === "Published"
+                    ? "text-green-600"
+                    : "text-gray-500"
+                }`}
+              >
+                {tooltip.row.publish}
+              </span>
+            </div>
+          )}
+
           {tooltip.row?.created_by && (
             <div className="mb-1 flex items-start gap-2 text-xs">
               <span className="shrink-0 font-semibold text-gray-500">
                 Created By:
-              </span>
-              <span className="text-gray-800 dark:text-white">
-                {tooltip.row.created_by}
-              </span>
-            </div>
-          )}
-          {tooltip.row?.industry_name && (
-            <div className="mb-1 flex items-start gap-2 text-xs">
-              <span className="shrink-0 font-semibold text-gray-500">
-                Developer:
               </span>
               <span className="text-gray-800 dark:text-white">
                 {tooltip.row.industry_name}

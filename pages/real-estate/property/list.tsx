@@ -64,11 +64,13 @@ import {
   X,
   SlidersHorizontal,
   Globe,
+  Download,
   Tag,
   Key,
   Clock,
   Verified,
   Copy,
+  XCircle,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
@@ -95,70 +97,74 @@ const List = () => {
   const tableColumns = [
     {
       accessor: "title",
-      title: "Property Info",
+      title: "Property Name",
       visible: true,
       toggleable: true,
       sortable: true,
       render: (row) => (
-        <div
-          className="relative"
-          
-        >
+        <div className="relative">
           <div
-            className="flex gap-3 font-semibold"
+            className="flex gap-3 "
             onClick={() => handleView(row)}
-          
-          >
-            <div className="flex flex-col justify-between "
             onMouseEnter={(e) => {
-            const rect = (
-              e.currentTarget as HTMLElement
-            ).getBoundingClientRect();
-            setTooltip({ row, x: rect.left, y: rect.top });
-          }}
-          onMouseLeave={() => setTooltip(null)}
+              const rect = (
+                e.currentTarget as HTMLElement
+              ).getBoundingClientRect();
+              setTooltip({ row, x: rect.left, y: rect.top });
+            }}
+            onMouseLeave={() => setTooltip(null)}
           >
+            <div className="flex flex-col justify-between">
               <div>
-                <div className="cursor-pointer text-sm">
-                  {truncateText(row.title)}
+                <div className="flex cursor-pointer gap-3 text-sm">
+                  {row.title}
+                  {row.is_approved ? (
+                    <CheckCircle className="mt-0.5 h-3.5 w-3.5 text-green-500" />
+                  ) : (
+                    <Clock className="mt-0.5 h-3.5 w-3.5 text-yellow-500" />
+                  )}
                 </div>
               </div>
             </div>
-            
           </div>
           <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDuplicate(row);
-                      }}
-                      title="Duplicate Property"
-                      className="mt-1 w-fit text-xs font-medium text-blue-600 underline hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                      disabled={state.duplicatingId === row?.id}
-                    >
-                      {state.duplicatingId === row?.id
-                        ? "Duplicating..."
-                        : "Duplicate"}
-                    </button>
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDuplicate(row);
+            }}
+            title="Duplicate Property"
+            className="mt-1 w-fit text-xs  text-blue-600 underline hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={state.duplicatingId === row?.id}
+          >
+            {state.duplicatingId === row?.id ? "Duplicating..." : "Duplicate"}
+          </button>
         </div>
       ),
     },
 
-    // {
-    //   accessor: "price",
-    //   title: "Price Range",
-    //   visible: true,
-    //   toggleable: true,
-    // },
     {
       accessor: "project",
       title: "Project",
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => (
-        <span title={row.project}>{truncateText(row.project)}</span>
-      ),
+      render: (row) => <span title={row.project}>{row.project}</span>,
     },
+
+    {
+      accessor: "price",
+      title: "Price Range",
+      visible: true,
+      toggleable: true,
+    },
+
+    {
+      accessor: "built_up_area",
+      title: "Sq.ft",
+      visible: true,
+      toggleable: true,
+    },
+
     // {
     //   accessor: "created_by",
     //   title: "Created By",
@@ -241,17 +247,29 @@ const List = () => {
         );
       },
     },
+
     {
-      accessor: "role",
-      title: "Offer Type",
-      visible: true,
-      toggleable: true,
-      render: (row: any) => (
-        <span className={`badge badge-outline-${row?.listing_type?.color} `}>
-          {row?.listing_type?.type}
-        </span>
-      ),
+      accessor: "city",
+      sortable: true,
+      render: (row: any) => <span>{row.city.name || "-"}</span>,
     },
+    {
+      accessor: "area",
+      sortable: true,
+      render: (row: any) => <span>{row.area.name || "-"}</span>,
+    },
+
+    // {
+    //   accessor: "role",
+    //   title: "Offer Type",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => (
+    //     <span className={`badge badge-outline-${row?.listing_type?.color} `}>
+    //       {row?.listing_type?.type}
+    //     </span>
+    //   ),
+    // },
     // {
     //   accessor: "status",
     //   title: "Status",
@@ -264,41 +282,41 @@ const List = () => {
     //   visible: true,
     //   toggleable: true,
     // },
-    {
-      accessor: "publish",
-      title: "Publish Status",
-      visible: true,
-      toggleable: true,
-      render: (row: any) => (
-        <span
-          className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-            row?.publish === "Published"
-              ? "bg-lred text-dred border-dred"
-              : "bg-gray-200 text-gray-700"
-          }`}
-        >
-          {row?.publish}
-        </span>
-      ),
-    },
+    // {
+    //   accessor: "publish",
+    //   title: "Publish Status",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => (
+    //     <span
+    //       className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+    //         row?.publish === "Published"
+    //           ? "bg-lred text-dred border-dred"
+    //           : "bg-gray-200 text-gray-700"
+    //       }`}
+    //     >
+    //       {row?.publish}
+    //     </span>
+    //   ),
+    // },
 
-    {
-      accessor: "is_approved",
-      title: "Approved Status",
-      visible: true,
-      toggleable: true,
-      render: (row: any) => (
-        <span
-          className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-            row?.is_approved == true
-              ? "bg-green-100 text-green-700"
-              : "bg-yellow-100 text-gray-700"
-          }`}
-        >
-          {row?.is_approved == true ? "Approved" : "Pending"}
-        </span>
-      ),
-    },
+    // {
+    //   accessor: "is_approved",
+    //   title: "Approved Status",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => (
+    //     <span
+    //       className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+    //         row?.is_approved == true
+    //           ? "bg-green-100 text-green-700"
+    //           : "bg-yellow-100 text-gray-700"
+    //       }`}
+    //     >
+    //       {row?.is_approved == true ? "Approved" : "Pending"}
+    //     </span>
+    //   ),
+    // },
 
     {
       accessor: "action",
@@ -342,6 +360,26 @@ const List = () => {
           >
             <Globe className="h-3.5 w-3.5" />
           </button>
+
+          {/* {row?.is_approved == true ?
+          (<button
+            type="button"
+            className={`flex text-green-500 `}
+           
+            title= "Approved" 
+          >
+            <CircleCheck className="h-3.5 w-3.5" />
+          </button>)
+            :
+          (<button
+            type="button"
+            className={`flex text-danger`}
+           
+            title= "Pending"
+          >
+            <XCircle className="h-3.5 w-3.5" />
+          </button>)} */}
+
           <button
             type="button"
             className="flex text-danger"
@@ -388,6 +426,27 @@ const List = () => {
                   title={row.title}
                 >
                   {truncateText(row.title)}
+                </div>
+                <div className="mt-1 flex items-center gap-2">
+                  {row.listing_type?.type && (
+                    <span
+                      title={`${row.listing_type?.type || ""}${
+                        row.total_unit ? " · " + row.total_unit + " units" : ""
+                      }${row.publish ? " · " + row.publish : ""}`}
+                      className={`cursor-default text-[10px] font-bold uppercase ${
+                        row.listing_type.type?.toLowerCase() === "sale"
+                          ? "text-blue-500"
+                          : "text-purple-500"
+                      }`}
+                    >
+                      {row.listing_type.type?.charAt(0)}
+                    </span>
+                  )}
+                  {row.is_approved ? (
+                    <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+                  ) : (
+                    <Clock className="h-3.5 w-3.5 text-yellow-500" />
+                  )}
                 </div>
               </div>
               {group == "Seller" ? (
@@ -659,6 +718,10 @@ const List = () => {
   ).length;
 
   const debouncedSearch = useDebounce(state.search, 500);
+  const debouncedMinBuiltUpArea = useDebounce(state.min_built_up_area, 500);
+  const debouncedMaxBuiltUpArea = useDebounce(state.max_built_up_area, 500);
+  const debouncedMinPrice = useDebounce(state.min_price, 500);
+  const debouncedMaxPrice = useDebounce(state.max_price, 500);
 
   useEffect(() => {
     const group = localStorage.getItem("group") || "";
@@ -679,9 +742,16 @@ const List = () => {
     developerList(1);
     statCount();
     projectList(1);
+    cityList(1);
   }, []);
 
   console.log("state.userId", state.userId);
+
+  useEffect(() => {
+    if (state.filterLocation) {
+      areaList(1);
+    }
+  }, [state.filterLocation]);
 
   useEffect(() => {
     if (state.userId) {
@@ -690,6 +760,10 @@ const List = () => {
   }, [
     state.userId,
     debouncedSearch,
+    debouncedMinBuiltUpArea,
+    debouncedMaxBuiltUpArea,
+    debouncedMinPrice,
+    debouncedMaxPrice,
     state.property_type,
     state.offer_type,
     state.status,
@@ -701,7 +775,9 @@ const List = () => {
     state.recordType,
     state.team,
     state.project,
-    state.approvedStatus
+    state.approvedStatus,
+    state.filterLocation,
+    state.filterArea,
   ]);
 
   useEffect(() => {
@@ -791,11 +867,15 @@ const List = () => {
           item?.price_range?.minimum_price,
           item?.price_range?.maximum_price,
         ),
+        built_up_area: item?.built_up_area,
         is_approved: item?.is_approved,
         image:
           item?.primary_image ??
           "/assets/images/real-estate/property-info-img1.png",
-        industry_name:item?.developer?.industry
+        industry_name: item?.developer?.industry,
+        total_unit: item?.total_unit,
+        city: item?.location || "-",
+        area: item?.area || "-",
         // ...item
       }));
 
@@ -934,6 +1014,88 @@ const List = () => {
     }
   };
 
+  const cityList = async (page) => {
+    try {
+      const body: any = {};
+      if (state.search) body.search = state.search;
+      const res: any = await Models.city.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+
+      setState({
+        cityList: droprdown,
+        total: res?.count,
+        page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+      });
+    } catch (error) {
+      console.log("error -->", error);
+    }
+  };
+
+  const cityLoadMore = async () => {
+    try {
+      if (state.cityNext) {
+        const res: any = await Models.city.list(state.cityPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          cityList: [...state.cityList, ...newOptions],
+          cityNext: res.next,
+          cityPage: state.cityPage + 1,
+        });
+      } else {
+        setState({
+          cityList: state.cityList,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
+  const areaList = async (page) => {
+    try {
+      const body: any = {
+        location: state.location?.value || state.filterLocation?.value,
+      };
+      if (state.search) body.search = state.search;
+      const res: any = await Models.area.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+
+      setState({
+        areaList: droprdown,
+        total: res?.count,
+        page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+      });
+    } catch (error) {
+      console.log("error -->", error);
+    }
+  };
+
+  const areaLoadMore = async () => {
+    try {
+      if (state.areaNext) {
+        const res: any = await Models.area.list(state.areaPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          areaList: [...state.areaList, ...newOptions],
+          areaNext: res.next,
+          areaPage: state.areaPage + 1,
+        });
+      } else {
+        setState({
+          areaList: state.areaList,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
   const agentList = async (page) => {
     try {
       const body = {
@@ -1021,7 +1183,6 @@ const List = () => {
       setState({ team: null });
     }
   };
-  console.log("team", state.team);
 
   const deleteDecord = async (row: any) => {
     try {
@@ -1059,7 +1220,9 @@ const List = () => {
           setState({ selectedRecords: [], btnLoading: false });
           propertyList(state.page);
           Success(
-            `${state.selectedRecords.length} propert${state.selectedRecords.length > 1 ? "ies" : "y"} deleted successfully`,
+            `${state.selectedRecords.length} propert${
+              state.selectedRecords.length > 1 ? "ies" : "y"
+            } deleted successfully`,
           );
         } catch (error) {
           setState({ btnLoading: false });
@@ -1068,7 +1231,9 @@ const List = () => {
       () => {
         Swal.fire("Cancelled", "Your Records are safe :)", "info");
       },
-      `Are you sure want to delete ${state.selectedRecords.length} selected propert${state.selectedRecords.length > 1 ? "ies" : "y"}?`,
+      `Are you sure want to delete ${
+        state.selectedRecords.length
+      } selected propert${state.selectedRecords.length > 1 ? "ies" : "y"}?`,
     );
   };
 
@@ -1086,11 +1251,31 @@ const List = () => {
     if (state.search) {
       body.search = debouncedSearch;
     }
+    if (state.min_built_up_area) {
+      body.min_built_up_area = debouncedMinBuiltUpArea;
+    }
+    if (state.max_built_up_area) {
+      body.max_built_up_area = debouncedMaxBuiltUpArea;
+    }
+    if (state.min_price) {
+      body.min_price = debouncedMinPrice;
+    }
+    if (state.max_price) {
+      body.max_price = debouncedMaxPrice;
+    }
+
     if (state.project) {
       body.project = state.project.value;
     }
     if (state.property_type?.length > 0) {
       body.property_type = state.property_type?.map((item) => item?.value);
+    }
+
+    if (state.filterLocation) {
+      body.city = state.filterLocation.value;
+    }
+    if (state.filterArea) {
+      body.area = state.filterArea.value;
     }
 
     if (state.offer_type) {
@@ -1105,7 +1290,8 @@ const List = () => {
     }
 
     if (state.approvedStatus) {
-      body.is_approved = state.approvedStatus?.value == "Approved" ? true : false;
+      body.is_approved =
+        state.approvedStatus?.value == "Approved" ? true : false;
     }
 
     if (state?.team == true) {
@@ -1298,9 +1484,7 @@ const List = () => {
       await Models.property.update(body, row?.id);
       propertyList(state.page);
       Success("Property Approved successfully");
-    } catch (error) {
-
-    }
+    } catch (error) {}
   };
 
   const handlePublish = async (row) => {
@@ -1374,6 +1558,13 @@ const List = () => {
       recordType: null,
       project: null,
       team: null,
+      filterLocation: null,
+      filterArea: null,
+      max_price:"",
+      min_price:"",
+      max_built_up_area:"",
+      min_built_up_area:"",
+
     });
   };
 
@@ -1385,7 +1576,7 @@ const List = () => {
       status: "",
       role: null,
       user: "",
-      showFilterModal:false
+      showFilterModal: false,
 
       // developer: "",
       // agent: "",
@@ -1416,6 +1607,53 @@ const List = () => {
     ?.filter((col) => col.visible !== false)
     ?.map(({ visible, toggleable, ...col }) => col);
 
+  const exportToExcel = () => {
+    const headers = [
+      "Title",
+      "Project",
+      "Developer",
+      "Agent",
+      "Price",
+      "Status",
+      "Offer Type",
+      "Property Type",
+      "Location",
+      "Publish",
+      "Total Units",
+      "Date",
+    ];
+    const rows = state.tableList.map((row: any) => [
+      row.title || "",
+      row.project || "",
+      row.developer || "",
+      row.agent || "",
+      row.price || "",
+      row.status || "",
+      row.listing_type?.type || "",
+      Array.isArray(row.property_type)
+        ? row.property_type.join(", ")
+        : row.property_type || "",
+      row.location || "",
+      row.publish || "",
+      row.total_unit || "",
+      row.date || "",
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map((r) =>
+        r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      )
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Properties_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   const activeFilterCount = [
     state.group == "Admin" && state.role,
     state.group == "Admin" && state.user,
@@ -1445,7 +1683,15 @@ const List = () => {
             Manage property listings and status
           </p>
         </div>
-        <div className="flex gap-5">
+        <div className="flex gap-3">
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-lg border border-green-600 px-3 py-2 text-sm font-semibold text-green-600 transition hover:bg-green-600 hover:text-white"
+            onClick={exportToExcel}
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </button>
           <button
             type="button"
             className="btn btn-dred w-full  border-none md:mb-0 md:w-auto"
@@ -1478,7 +1724,10 @@ const List = () => {
         </div>
         <div
           onClick={() =>
-            setState({ offer_type: { value: "sale", label: "Sale" }, approvedStatus: "" })
+            setState({
+              offer_type: { value: "sale", label: "Sale" },
+              approvedStatus: "",
+            })
           }
           className="cursor-pointer rounded-lg border border-purple-200 bg-purple-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -1499,7 +1748,10 @@ const List = () => {
         </div>
         <div
           onClick={() =>
-            setState({ offer_type: { value: "lease", label: "Lease" } , approvedStatus: "" })
+            setState({
+              offer_type: { value: "lease", label: "Lease" },
+              approvedStatus: "",
+            })
           }
           className="cursor-pointer  rounded-lg border border-sky-200 bg-sky-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
@@ -1518,11 +1770,15 @@ const List = () => {
             </div>
           </div>
         </div>
-        <div className="cursor-pointer rounded-lg border border-green-300 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
-         onClick={() =>
-            setState({ approvedStatus: { value: "Approved", label: "Approved" }, offer_type: "" })
+        <div
+          className="cursor-pointer rounded-lg border border-green-300 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+          onClick={() =>
+            setState({
+              approvedStatus: { value: "Approved", label: "Approved" },
+              offer_type: "",
+            })
           }
-          >
+        >
           <div className="flex items-center gap-5">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
               <Verified className="h-10 w-10 text-green-600" />
@@ -1530,7 +1786,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                 {state.statCount?.approved_count || 0}
+                {state.statCount?.approved_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Approved Properties
@@ -1539,11 +1795,15 @@ const List = () => {
           </div>
         </div>
 
-        <div className="cursor-pointer rounded-lg border border-yellow-300 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
-         onClick={() =>
-            setState({ approvedStatus: { value: "Pending", label: "Pending" }, offer_type: "" })
+        <div
+          className="cursor-pointer rounded-lg border border-yellow-300 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+          onClick={() =>
+            setState({
+              approvedStatus: { value: "Pending", label: "Pending" },
+              offer_type: "",
+            })
           }
-          >
+        >
           <div className="flex items-center gap-5">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
               <Clock className="h-10 w-10 text-yellow-600" />
@@ -1551,7 +1811,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                 {state.statCount?.pending_count || 0}
+                {state.statCount?.pending_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Pending Properties
@@ -1572,7 +1832,7 @@ const List = () => {
           />
 
           <CustomSelect
-            placeholder="Project Type"
+            placeholder="Project"
             value={state.project}
             onChange={(e) => setState({ project: e })}
             options={state?.projectList}
@@ -1589,6 +1849,19 @@ const List = () => {
             isClearable={true}
             isMulti
             loadMore={() => catListLoadMore()}
+          />
+
+          <TextInput
+            type="text"
+            placeholder="Minimum Sq.ft."
+            value={state.min_built_up_area}
+            onChange={(e) => setState({ min_built_up_area: e.target.value })}
+          />
+          <TextInput
+            type="text"
+            placeholder="Maximum Sq.ft."
+            value={state.max_built_up_area}
+            onChange={(e) => setState({ max_built_up_area: e.target.value })}
           />
 
           <CustomSelect
@@ -1670,7 +1943,7 @@ const List = () => {
                             },
                           ]
                         : []),
-                        ...(state.project
+                      ...(state.project
                         ? [
                             {
                               label: `Project: ${state.project.label}`,
@@ -1689,11 +1962,45 @@ const List = () => {
                               }),
                           }))
                         : []),
-                        ...(state.recordType
+                        ...(state.min_built_up_area
+                        ? [
+                            {
+                              label: `Records: ${state.min_built_up_area}`,
+                              onRemove: () => setState({ min_built_up_area: null }),
+                            },
+                          ]
+                        : []),
+                       ...(state.max_built_up_area
+                        ? [
+                            {
+                              label: `Records: ${state.max_built_up_area}`,
+                              onRemove: () => setState({ max_built_up_area: null }),
+                            },
+                          ]
+                        : []),
+                      ...(state.recordType
                         ? [
                             {
                               label: `Records: ${state.recordType.label}`,
                               onRemove: () => setState({ recordType: null }),
+                            },
+                          ]
+                        : []),
+                      ...(state.filterLocation
+                        ? [
+                            {
+                              label: `City: ${state.filterLocation.label}`,
+                              onRemove: () =>
+                                setState({ filterLocation: null }),
+                            },
+                          ]
+                        : []),
+
+                      ...(state.filterArea
+                        ? [
+                            {
+                              label: `Area: ${state.filterArea.label}`,
+                              onRemove: () => setState({ filterArea: null }),
                             },
                           ]
                         : []),
@@ -1714,7 +2021,23 @@ const List = () => {
                           ]
                         : []),
 
-                        
+                        ...(state.min_price
+                        ? [
+                            {
+                              label: `Records: ${state.min_price}`,
+                              onRemove: () => setState({ min_price: null }),
+                            },
+                          ]
+                        : []),
+                        ...(state.max_price
+                        ? [
+                            {
+                              label: `Records: ${state.max_price}`,
+                              onRemove: () => setState({ max_price: null }),
+                            },
+                          ]
+                        : []),
+
                       ...(state.publish
                         ? [
                             {
@@ -1728,11 +2051,11 @@ const List = () => {
                         ? [
                             {
                               label: `Approved Status: ${state.approvedStatus.label}`,
-                              onRemove: () => setState({ approvedStatus: null }),
+                              onRemove: () =>
+                                setState({ approvedStatus: null }),
                             },
                           ]
                         : []),
-                      
                     ]}
                     onClearAll={clearAllFilters}
                   />
@@ -1741,7 +2064,7 @@ const List = () => {
                     {state.selectedRecords?.length > 0 && (
                       <button
                         type="button"
-                        className="flex items-center gap-2 rounded-lg border border-red-600  px-3 py-1.5 text-sm font-medium text-red-600 "
+                        className="flex items-center gap-2 rounded-lg border border-red-600  px-3 py-1.5 text-sm  text-red-600 "
                         onClick={handleBulkDelete}
                       >
                         <IconTrashLines className="h-4 w-4" />
@@ -2005,6 +2328,34 @@ const List = () => {
               </button>
             </div>
             <div className="grid grid-cols-1 gap-4 py-3 md:grid-cols-2">
+              <div>
+                <CustomSelect
+                  placeholder="Select city"
+                  options={state.cityList}
+                  value={state.filterLocation}
+                  onChange={(selectedOption) =>
+                    setState({ filterLocation: selectedOption, filterArea: "" })
+                  }
+                  isClearable
+                  loadMore={() => cityLoadMore()}
+                  required
+                />
+              </div>
+
+              <div>
+                <CustomSelect
+                  placeholder="Select Area"
+                  options={state.areaList}
+                  value={state.filterArea}
+                  onChange={(selectedOption) =>
+                    setState({ filterArea: selectedOption })
+                  }
+                  isClearable
+                  loadMore={() => areaLoadMore()}
+                  required
+                  disabled={!state.filterLocation}
+                />
+              </div>
               <CustomSelect
                 placeholder="Offer Type"
                 value={state.offer_type}
@@ -2017,7 +2368,21 @@ const List = () => {
                 onChange={(e) => setState({ status: e })}
                 options={Property_status}
               />
-              <CustomSelect
+
+              <TextInput
+                type="text"
+                placeholder="Minimum Price."
+                value={state.min_price}
+                onChange={(e) => setState({ min_price: e.target.value })}
+              />
+              <TextInput
+                type="text"
+                placeholder="Maximum Price."
+                value={state.max_price}
+                onChange={(e) => setState({ max_price: e.target.value })}
+              />
+
+              {/* <CustomSelect
                 placeholder="Publish or Draft"
                 value={state.publish}
                 onChange={(e) => setState({ publish: e })}
@@ -2028,7 +2393,7 @@ const List = () => {
                 value={state.approvedStatus}
                 onChange={(e) => setState({ approvedStatus: e })}
                 options={APPROVED_STATUS}
-              />
+              /> */}
             </div>
             <div className="flex items-center justify-between py-3">
               <button
@@ -2051,7 +2416,7 @@ const List = () => {
       {/* Fixed tooltip rendered outside table */}
       {tooltip && (
         <div
-          className="border-dred bg-lred pointer-events-none fixed z-[99999] w-56 rounded-lg border p-3 shadow-lg dark:bg-gray-800"
+          className="border-dred bg-lred pointer-events-none fixed z-[99999] w-80 rounded-lg border p-3 shadow-lg dark:bg-gray-800"
           style={{
             top: tooltip.y - 8,
             left: tooltip.x,
@@ -2061,20 +2426,62 @@ const List = () => {
           <div className="mb-1 font-semibold text-[#000]">
             {tooltip.row.title}
           </div>
+          {/* Unit Count Highlight */}
+          <div className="bg-dred mb-3 mt-2 flex w-fit items-center justify-between gap-3 rounded-2xl px-3 py-1">
+            <span className="text-sm  text-white/80">Total Units</span>
+            <span className="text-md text-white">
+              {tooltip.row.total_unit ?? "—"}
+            </span>
+          </div>
+
+          {/* {tooltip.row.industry_name && (
+            <div className="mb-1 flex items-start gap-2 text-xs">
+              <span className="shrink-0 font-semibold text-gray-500">
+                Developer:
+              </span>
+              <span className="text-gray-800 dark:text-white">
+                {tooltip.row.industry_name}
+              </span>
+            </div>
+          )} */}
+          {tooltip.row?.listing_type?.type && (
+            <div className="mb-1 flex items-start gap-2 text-xs">
+              <span className="shrink-0 font-semibold text-gray-500">
+                Offer Type:
+              </span>
+              <span
+                className={`font-semibold ${
+                  tooltip.row.listing_type.type?.toLowerCase() === "sale"
+                    ? "text-blue-500"
+                    : "text-purple-500"
+                }`}
+              >
+                {tooltip.row.listing_type.type}
+              </span>
+            </div>
+          )}
+
+          {tooltip.row?.publish && (
+            <div className="mb-1 flex items-start gap-2 text-xs">
+              <span className="shrink-0 font-semibold text-gray-500">
+                Publish:
+              </span>
+              <span
+                className={`font-semibold ${
+                  tooltip.row.publish === "Published"
+                    ? "text-green-600"
+                    : "text-gray-500"
+                }`}
+              >
+                {tooltip.row.publish}
+              </span>
+            </div>
+          )}
+
           {tooltip.row?.created_by && (
             <div className="mb-1 flex items-start gap-2 text-xs">
               <span className="shrink-0 font-semibold text-gray-500">
                 Created By:
-              </span>
-              <span className="text-gray-800 dark:text-white">
-                {tooltip.row.created_by}
-              </span>
-            </div>
-          )}
-          {tooltip.row.industry_name && (
-            <div className="mb-1 flex items-start gap-2 text-xs">
-              <span className="shrink-0 font-semibold text-gray-500">
-                Developer:
               </span>
               <span className="text-gray-800 dark:text-white">
                 {tooltip.row.industry_name}

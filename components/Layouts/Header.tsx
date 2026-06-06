@@ -145,7 +145,7 @@ const Header = () => {
 
       //   dispatch(userData(res));
 
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("real_estate_admin_token");
 
       console.log("token", token);
 
@@ -158,7 +158,7 @@ const Header = () => {
 
   const onLogOut = async () => {
     try {
-      const reFreshToken = localStorage.getItem("refresh");
+      const reFreshToken = localStorage.getItem("real_estate_admin_refresh");
       const body = {
         refresh: reFreshToken,
       };

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from "react";
 import { DataTable, DataTableSortStatus } from "mantine-datatable";
@@ -11,6 +11,7 @@ import {
   commonDateFormat,
   Dropdown,
   Failure,
+  formatPriceRange,
   showDeleteAlert,
   Success,
   truncateText,
@@ -45,6 +46,8 @@ import {
   SlidersHorizontal,
   Table,
   X,
+  Download,
+  XCircle,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import {
@@ -52,6 +55,7 @@ import {
   ROLES,
   sourceConfig,
   statusConfig,
+  statusChipConfig,
 } from "@/utils/constant.utils";
 import CustomeDatePicker from "@/components/datePicker";
 import { clear, group } from "console";
@@ -82,22 +86,37 @@ const List = () => {
     showStatusModal: false,
     sortBy: "",
     sortOrder: "asc",
+    total: 0,
+    pageSize: 10,
+    selectedRecords: [],
+    from_date: "",
+    to_date: "",
+    datePreset: "",
+    custom_from: "",
+    custom_to: "",
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
 
+  const isFirstRender = React.useRef(true);
+  const callIdRef = React.useRef(0);
+
   useEffect(() => {
-    leadList(1);
     categoryList(1);
     groupList();
-    setState({ visibleColumns: columns });
     statCount();
     leadSourceList();
     leadStatusList();
   }, []);
 
   useEffect(() => {
-    leadList(1);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      leadPropertyList(1);
+      return;
+    }
+    setState({ page: 1 });
+    leadPropertyList(1);
   }, [
     debouncedSearch,
     state.user,
@@ -108,6 +127,8 @@ const List = () => {
     state.status,
     state.date,
     state.leadType,
+    state.from_date,
+    state.to_date,
   ]);
 
   const categoryList = async (page) => {
@@ -152,26 +173,6 @@ const List = () => {
     }
   };
 
-  const catListLoadMore = async () => {
-    try {
-      if (state.categoryNext) {
-        const res: any = await Models.category.list(state.categoryPage + 1, {});
-        const newOptions = Dropdown(res?.results, "name");
-        setState({
-          categoryList: [...state.categoryList, ...newOptions],
-          categoryNext: res.next,
-          categoryPage: state.categoryPage + 1,
-        });
-      } else {
-        setState({
-          categoryList: state.categoryList,
-        });
-      }
-    } catch (error) {
-      console.log("error: ", error);
-    }
-  };
-
   const statCount = async () => {
     try {
       const userId = localStorage.getItem("userId");
@@ -182,9 +183,40 @@ const List = () => {
 
       const res: any = await Models.lead.count(body);
       console.log("count res", res);
+      const opp_status = res?.opportunity_status_counts || [];
 
+      const getCount = (name) => {
+        return opp_status.find((item) => item.name === name)?.count || 0;
+      };
+
+      const getId = (name) => {
+        return opp_status.find((item) => item.name === name)?.id || 0;
+      };
+
+      const bodys = {
+        won: {
+          count: getCount("Won"),
+          id: getId("Won"),
+        },
+        contacted: {
+          count: getCount("Contacted"),
+          id: getId("Contacted"),
+        },
+        follow_up: {
+          count: getCount("Follow Up"),
+          id: getId("Follow Up"),
+        },
+        lose: {
+          count: getCount("Lose"),
+          id: 7,
+        },
+        total: res?.total,
+      };
+
+      console.log(bodys);
       setState({
         statCount: res,
+        opp_status: bodys,
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -192,141 +224,74 @@ const List = () => {
     }
   };
 
-  const leadList = async (
+  const leadPropertyList = async (
     page,
     sortBy = state.sortBy,
     sortOrder = state.sortOrder,
   ) => {
     try {
+      const callId = ++callIdRef.current;
+      setState({ loading: true, tableList: [] });
       const body = bodyData();
       if (sortBy) {
         body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
       }
-      const res: any = await Models.lead.list(page, body);
+      const res: any = await Models.lead.lead_properties(page, body);
+      if (callId !== callIdRef.current) return; // stale response ignore
       const data = res?.results?.map((item) => ({
-        company_name: item?.company_name,
-        full_name: item?.full_name,
-        lead_source: item?.lead_source_info,
-        status: item?.status_info,
-        id: item?.id,
-        date: commonDateFormat(item?.created_at),
-        email: item?.email,
-        property: item?.property_details?.title,
+        id: item?.lead_details?.id,
+        customer_name: item?.lead_details?.full_name,
+        property_lead_id: item?.id,
+        inquiry: item?.inquiry_details,
+        property_id: item?.property,
+        property_title: item?.title,
+        property_image: item?.primary_image,
+        property_city: item?.city,
+        property_area: item?.lead_details?.area_details?.name,
+        property_listing_type: item?.listing_type,
+        property_status: item?.status,
         property_type:
-          item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
-        requirements: item?.requirements,
-        assigned_to: item?.assigned_to_details
-          ? `${item?.assigned_to_details?.first_name} ${item?.assigned_to_details?.last_name}`
+          item?.lead_details?.properties_details
+            ?.find((p) => p?.id === item?.property)
+            ?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
+        project: item?.project_name,
+        price_range: {
+          minimum_price: item?.minimum_price,
+          maximum_price: item?.maximum_price,
+        },
+        built_up_area: item?.built_up_area,
+        full_name: item?.lead_details?.full_name,
+        email: item?.lead_details?.email,
+        lead_source: item?.lead_details?.lead_source_info,
+        opportunity_status: item?.opportunity_status_details?.name,
+        status: item?.lead_details?.status_info,
+        date: commonDateFormat(item?.created_at),
+        requirements: item?.lead_details?.requirements,
+        assigned_to: item?.lead_details?.assigned_to_details
+          ? `${item?.lead_details?.assigned_to_details?.first_name} ${item?.lead_details?.assigned_to_details?.last_name}`
           : "",
-        assigned_by: item?.assigned_by_details
-          ? `${item?.assigned_by_details?.first_name} ${item?.assigned_by_details?.last_name}`
+        assigned_by: item?.lead_details?.assigned_by_details
+          ? `${item?.lead_details?.assigned_by_details?.first_name} ${item?.lead_details?.assigned_by_details?.last_name}`
           : "",
+        company_name: item?.lead_details?.company_name,
       }));
       const group = localStorage.getItem("group");
-
       setState({
         tableList: data,
-        total: res?.count,
+        total: res.count,
         page: page,
         next: res.next,
         previous: res.previous,
         totalRecords: res.count,
         group,
+        selectedRecords: [],
+        loading: false,
       });
     } catch (error) {
+      setState({ loading: false });
+
       console.log("✌️error --->", error);
     }
-  };
-
-  const createProject = async () => {
-    try {
-      setState({ btnLoading: true });
-      const body = {
-        name: state.name,
-        location: state.location,
-        description: state.description,
-        developer: 3,
-      };
-      await Utils.Validation.project.validate(body, { abortEarly: false });
-
-      const res = await Models.project.create(body);
-      clearData();
-      setState({ btnLoading: false });
-      leadList(1);
-      Success("Preject created succssfully");
-    } catch (error) {
-      if (error instanceof Yup.ValidationError) {
-        const validationErrors = {};
-        error.inner.forEach((err) => {
-          validationErrors[err.path] = err?.message;
-        });
-        console.log("✌️validationErrors --->", validationErrors);
-
-        setState({ error: validationErrors, btnLoading: false });
-      } else {
-        Failure(error?.error);
-        setState({ btnLoading: false });
-      }
-    }
-  };
-
-  const updateProject = async () => {
-    try {
-      setState({ btnLoading: true });
-      const body = {
-        name: state.name,
-        location: state.location,
-        description: state.description,
-        developer: 3,
-      };
-      await Utils.Validation.project.validate(body, { abortEarly: false });
-
-      const res = await Models.project.update(body, state.editId);
-      console.log("createProject --->", res);
-      clearData();
-      setState({ btnLoading: false });
-      leadList(state.page);
-
-      Success("Preject updated succssfully");
-    } catch (error) {
-      if (error instanceof Yup.ValidationError) {
-        const validationErrors = {};
-        error.inner.forEach((err) => {
-          validationErrors[err.path] = err?.message;
-        });
-        console.log("✌️validationErrors --->", validationErrors);
-
-        setState({ error: validationErrors, btnLoading: false });
-      } else {
-        Failure(error?.error);
-        setState({ btnLoading: false });
-      }
-    }
-  };
-
-  const deleteDecord = async (row) => {
-    try {
-      setState({ btnLoading: true });
-
-      const res = await Models.lead.delete(row?.id);
-      clearData();
-      setState({ btnLoading: false });
-      leadList(state.page);
-
-      Success("Preject deleted succssfully");
-    } catch (error) {}
-  };
-
-  const handleDelete = (row) => {
-    showDeleteAlert(
-      () => {
-        deleteDecord(row);
-      },
-      () => {
-        Swal.fire("Cancelled", "Your Record is safe :)", "info");
-      },
-      "Are you sure want to delete lead?",
-    );
   };
 
   const developerList = async (page) => {
@@ -413,6 +378,8 @@ const List = () => {
     const group = localStorage.getItem("group");
     let body: any = {};
 
+    // body.interested_property = true;
+
     if (state.search) {
       body.search = state.search;
     }
@@ -432,12 +399,27 @@ const List = () => {
     if (state.date) {
       body.date = backendDateFormat(state.date);
     }
+    if (state.from_date) {
+      body.from_date = state.from_date;
+    }
+    if (state.to_date) {
+      body.to_date = state.to_date;
+    }
+    if (state.datePreset === "Custom") {
+      if (state.custom_from) body.from_date = state.custom_from;
+      if (state.custom_to) body.to_date = state.custom_to;
+    }
     body.developer = userId;
 
     if (state.leadType?.value === "own") {
       body.created_by = userId;
-    } else if (state.leadType?.value === "assigned") {
-      body.assigned_to = userId;
+    }
+    if (state.leadType?.value === "admin") {
+      body.team = true;
+    }
+
+    if (state.leadType?.value === "website") {
+      body.website = true;
     }
 
     // if (state.user) {
@@ -476,8 +458,9 @@ const List = () => {
   // };
 
   const handleEdit = (row) => {
-    router.push(`/real-estate/lead/update/${row?.id}`);
-    console.log("✌️row --->", row);
+    router.push(
+      `/real-estate/lead/property-edit?lead=${row?.id}&property=${row?.property_id}`,
+    );
   };
 
   const clearData = () => {
@@ -495,34 +478,82 @@ const List = () => {
     setState({ statusRow: row, showStatusModal: true, newStatus: null });
   };
 
-  const confirmStatus = async () => {
-    if (!state.newStatus) return;
+  const confirmStatus = async (statusRow, newStatus) => {
+    if (!newStatus) return;
     try {
       setState({ btnLoading: true });
-      await Models.lead.update(
-        { status: state.newStatus?.value },
-        state.statusRow?.id,
+      await Models.lead.lead_properties_update(
+        { opportunity_status: newStatus?.value },
+        statusRow?.property_lead_id,
       );
       setState({ showStatusModal: false, btnLoading: false });
-      leadList(state.page);
+      leadPropertyList(state.page);
       Success("Lead status updated successfully");
     } catch (error) {
       setState({ btnLoading: false });
     }
   };
 
+  const handleBulkDelete = () => {
+    showDeleteAlert(
+      async () => {
+        try {
+          setState({ btnLoading: true });
+          await Promise.all(
+            state.selectedRecords.map((row: any) =>
+              Models.lead.delete(row?.id),
+            ),
+          );
+          setState({ selectedRecords: [], btnLoading: false });
+          // leadList(state.page);
+          Success(
+            `${state.selectedRecords.length} lead${
+              state.selectedRecords.length > 1 ? "s" : ""
+            } deleted successfully`,
+          );
+        } catch (error) {
+          setState({ btnLoading: false });
+        }
+      },
+      () => Swal.fire("Cancelled", "Your Records are safe :)", "info"),
+      `Are you sure want to delete ${
+        state.selectedRecords.length
+      } selected lead${state.selectedRecords.length > 1 ? "s" : ""}?`,
+    );
+  };
+
   const handleNextPage = () => {
     if (state.next) {
       const newPage = state.page + 1;
-      leadList(newPage);
+      leadPropertyList(newPage);
     }
   };
 
   const handlePreviousPage = () => {
     if (state.previous) {
       const newPage = state.page - 1;
-      leadList(newPage);
+      leadPropertyList(newPage);
     }
+  };
+
+  const handleDatePreset = (preset: string) => {
+    const today = new Date();
+    const fmt = (d: Date) => d.toISOString().slice(0, 10);
+    let from = "",
+      to = fmt(today);
+    if (preset === "Year") {
+      from = `${today.getFullYear()}-01-01`;
+    } else if (preset === "Last Month") {
+      from = fmt(new Date(today.getFullYear(), today.getMonth() - 1, 1));
+      to = fmt(new Date(today.getFullYear(), today.getMonth(), 0));
+    } else if (preset === "This Month") {
+      from = fmt(new Date(today.getFullYear(), today.getMonth(), 1));
+    } else if (preset === "Last 7 Days") {
+      const d = new Date(today);
+      d.setDate(d.getDate() - 6);
+      from = fmt(d);
+    }
+    setState({ datePreset: preset, from_date: from, to_date: to });
   };
 
   const clearAllFilters = () => {
@@ -535,7 +566,59 @@ const List = () => {
       user: null,
       recordType: null,
       leadType: null,
+      from_date: "",
+      to_date: "",
+      datePreset: "",
+      custom_from: "",
+      custom_to: "",
     });
+  };
+
+  const exportToExcel = () => {
+    const headers = [
+      "Date",
+      "Customer Name",
+      "Email",
+      "Property",
+      "Project",
+      "City",
+      "Area",
+      "Lead Source",
+      "Status",
+      "Opportunity Status",
+      "Assigned To",
+      "Assigned By",
+      "Inquiry",
+      "Requirements",
+    ];
+    const rows = state.tableList.map((row: any) => [
+      `\t${row.date || ""}`,
+      row.full_name || "",
+      row.email || "",
+      row.property_title || "",
+      row.project || "",
+      row.property_city || "",
+      row.property_area || "",
+      row.lead_source?.name || "",
+      row.status?.name || "",
+      row.opportunity_status || "",
+      // row.assigned_to || "",
+      // row.assigned_by || "",
+      row.inquiry || "",
+      // row.requirements || "",
+    ]);
+    const csvContent = [headers, ...rows]
+      .map((r) =>
+        r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      )
+      .join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `leads_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
   const clearFilter = () => {
@@ -552,204 +635,117 @@ const List = () => {
     });
   };
 
-  const filteredColumns = state.visibleColumns
-    ?.filter((col) => col.visible !== false)
-    ?.map(({ visible, toggleable, ...col }) => col);
-
   const columns = [
-
-    // {
-    //   accessor: "company_name",
-    //   title: "Company Name",
-    //   visible: true,
-    //   toggleable: true,
-    //   sortable: true,
-    //   render: (row) => (
-    //     <div
-    //       className="w-fit cursor-pointer"
-    //       onClick={(e) => {
-    //         router.push(`/real-estate/lead/view/${row?.id}`);
-    //       }}
-    //     >
-    //       <div>{row?.company_name}</div>
-    //     </div>
-    //   ),
-    // },
-    {
-      accessor: "created_at",
-      title: "Date",
-      visible: true,
-      toggleable: true,
-      sortable: true,
-      width: 150,
-      render: (row) => (
-        <div
-          className="w-fit cursor-pointer"
-          onClick={(e) => {
-            router.push(`/real-estate/lead/view/${row?.id}`);
-          }}
-        >
-          <div>{row?.date}</div>
-        </div>
-      ),
-    },
-    {
-      accessor: "title",
-      title: "Property",
-      visible: true,
-      toggleable: true,
-      sortable: true,
-      render: (row) => (
-        <div
-          className="w-fit cursor-pointer"
-          onClick={(e) => {
-            router.push(`/real-estate/lead/view/${row?.id}`);
-          }}
-          title={row?.property}
-        >
-          <div>{truncateText(row?.property)}</div>
-        </div>
-      ),
-    },
-    // {
-    //   accessor: "property_type",
-    //   title: "Property Type",
-    //   visible: true,
-    //   toggleable: true,
-    //   render: (row: any) => {
-    //     const property_type = row.property_type;
-    //     if (!property_type || property_type?.length === 0) {
-    //       return <span className="text-gray-400">-</span>;
-    //     }
-
-    //     const firstType = property_type[0];
-    //     const others = property_type.slice(1);
-    //     const maxShow = 3;
-    //     const remaining = others.length - maxShow;
-    //     const visibleTypes = others.slice(0, maxShow);
-    //     const hiddenTypes = others.slice(maxShow);
-
-    //     return (
-    //       <div className="flex items-center gap-2">
-    //         {/* First type text */}
-    //         <span
-    //           title={firstType}
-    //           className="text-sm text-gray-700 dark:text-gray-300"
-    //         >
-    //           {truncateText(firstType)}
-    //         </span>
-
-    //         {/* Avatars */}
-    //         <div className="flex items-center -space-x-2">
-    //           {visibleTypes?.map((type: string, index: number) => (
-    //             <div key={index} className="group relative z-10">
-    //               <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
-    //                 {type?.slice(0, 2)?.toUpperCase()}
-    //               </div>
-    //               {/* Tooltip */}
-    //               <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
-    //                 {type}
-    //               </div>
-    //             </div>
-    //           ))}
-    //           {remaining > 0 && (
-    //             <div className="group relative z-10">
-    //               <div className="flex h-7 w-7  items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
-    //                 +{remaining}
-    //               </div>
-    //               {/* Remaining tooltip */}
-    //               <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
-    //                 {hiddenTypes.join(", ")}
-    //               </div>
-    //             </div>
-    //           )}
-    //         </div>
-    //       </div>
-    //     );
-    //   },
-    // },
-
     {
       accessor: "full_name",
-      title: "Customer Name",
+      title: "Lead Name",
       visible: true,
       toggleable: true,
       sortable: true,
       render: (row) => (
-        <span title={row?.full_name}>{truncateText(row?.full_name)}</span>
+        <div
+        onClick={() => router.push(`/real-estate/lead/view/${row?.id}`)}
+        className="cursor-pointer text-sm font-medium hover:underline">{row?.full_name || "-"}</div>
       ),
     },
 
-    // {
-    //   accessor: "email",
-    //   title: "Email",
+    {
+      accessor: "property_title",
+      title: "Property Name",
+      visible: true,
+      toggleable: true,
+      sortable: true,
+      render: (row) => (
+        <div
+          className="cursor-pointer text-sm font-medium text-[#9b0f09] hover:underline"
+          onClick={() =>
+            router.push(`/real-estate/property/detail/${row?.property_id}`)
+          }
+          title={row?.property_title}
+        >
+          {row?.property_title || "-"}
+        </div>
+      ),
+    },
 
-    //   visible: true,
-    //   toggleable: true,
-    //   sortable: true,
-    //   render: (row) => <span title={row?.email}>{row?.email}</span>,
-    // },
-
-    // {
-    //   accessor: "assigned_to",
-    //   title: "Assigned To",
-    //   visible: true,
-    //   toggleable: true,
-    //   render: (row) => (
-    //     <span title={row?.assigned_to}>{truncateText(row?.assigned_to)}</span>
-    //   ),
-    // },
-
+    {
+      accessor: "project",
+      title: "Project",
+      visible: true,
+      toggleable: true,
+      sortable: true,
+      render: (row) => <span>{row?.project || "-"}</span>,
+    },
     {
       accessor: "lead_source",
       title: "Lead Source",
       visible: true,
       toggleable: true,
+      sortable: true,
       render: (row) => {
-     
-        const label = row?.lead_source?.name || row?.lead_source;
-        const cls = sourceConfig[label] ?? "bg-gray-100 text-gray-600";
-        return (
-          <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}>
-            {label || "-"}
-          </span>
-        );
-      },
-    },
-    {
-      accessor: "status",
-      title: "Status",
-      visible: true,
-      toggleable: true,
-      render: (row) => {
-        const cls =
-          statusConfig[row?.status?.name] ?? "bg-gray-100 text-gray-600";
+        const source = row?.lead_source?.name;
+    
         return (
           <span
-            className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${cls}`}
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium
+            ${
+              source === "Website"
+                ? "bg-green-100 text-green-700"
+                : source === "Social Media"
+                ? "bg-blue-100 text-blue-700"
+                : source === "Referral"
+                ? "bg-purple-100 text-purple-700"
+                : source === "Walk In"
+                ? "bg-yellow-100 text-yellow-700"
+                : source === "Cold Call"
+                ? "bg-red-100 text-red-700"
+                : "bg-gray-100 text-gray-600"
+            }`}
           >
-            {capitalizeFLetter(row?.status?.name)}
+            {source || "-"}
           </span>
         );
       },
     },
 
     {
-      accessor: "requirements",
-      sortable: false,
+      accessor: "opportunity_status",
+      title: "Lead Status",
+      visible: true,
+      toggleable: true,
+      sortable: true,
+      render: (row) => {
+        const status = row?.opportunity_status;
+        const config = statusChipConfig[status];
+
+        return (
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium
+            ${config?.bg || "bg-gray-100"} ${config?.text || "text-gray-600"}`}
+          >
+            {status || "-"}
+          </span>
+        );
+      },
+    },
+    {
+      accessor: "date",
+      title: "Date",
+      visible: true,
+      toggleable: true,
+      sortable: true,
       render: (row) => (
-        <Tippy
-          content={row?.requirements}
-          placement="top"
-          className="rounded-lg bg-black p-1 text-sm text-white"
-        >
-          <div>
-            {row?.requirements?.length > 20
-              ? `${row.requirements.slice(0, 20)}...`
-              : row?.requirements}
-          </div>
-        </Tippy>
+        <div className=" text-sm font-medium ">{row?.date || "-"}</div>
       ),
+    },
+
+    {
+      accessor: "inquiry",
+      title: "Inquiry",
+      visible: true,
+      toggleable: true,
+      sortable: true,
+      render: (row) => <span>{row?.inquiry || "-"}</span>,
     },
 
     {
@@ -758,49 +754,36 @@ const List = () => {
       visible: true,
       toggleable: false,
       sortable: false,
-      textAlignment: "center",
+      textAlign: "center",
       render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
           <button
             className="text-dred flex"
-            onClick={(e) => {
-              router.push(`/real-estate/lead/view/${row?.id}`);
-            }}
+            onClick={() => router.push(`/real-estate/lead/view/${row?.id}`)}
             title="View Lead Details"
           >
             <Eye className="h-4 w-4" />
           </button>
-
           <button
             className="flex text-success"
-            onClick={(e) => handleStatus(row)}
+            onClick={() => handleStatus(row)}
             title="Change Lead Status"
           >
             <CheckCircle className="h-4 w-4" />
           </button>
-
           <button
             className="flex text-primary"
-            onClick={(e) => {
-              handleEdit(row);
-            }}
+            onClick={() => handleEdit(row)}
             title="Edit Lead"
           >
             <IconEdit className="h-4 w-4" />
           </button>
-
-          {/* <button
-            type="button"
-            className="flex text-danger"
-            onClick={(e) => handleDelete(row)}
-            title="Delete Lead"
-          >
-            <IconTrashLines className="h-4 w-4" />
-          </button> */}
         </div>
       ),
     },
   ];
+
+
 
   return (
     <>
@@ -813,7 +796,15 @@ const List = () => {
             Manage Lead listings and opportunities
           </p>
         </div>
-        <div className="flex gap-5">
+        <div className="flex gap-3">
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-lg border border-green-600 px-3 py-2 text-sm font-semibold text-green-600 transition hover:bg-green-600 hover:text-white"
+            onClick={exportToExcel}
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </button>
           <button
             type="button"
             className="btn btn-dred w-full border-none md:mb-0 md:w-auto"
@@ -838,7 +829,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.statCount?.total || 0}
+                {state?.total || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Total Leads
@@ -847,7 +838,11 @@ const List = () => {
           </div>
         </div>
         <div
-          onClick={() => setState({ status: { value: 6, label: "Won" } })}
+          onClick={() =>
+            setState({
+              status: { value: state.opp_status?.won?.id, label: "Won" },
+            })
+          }
           className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
           <div className="flex items-center gap-5 ">
@@ -857,7 +852,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.statCount?.won_count || 0}
+                {state.opp_status?.won?.count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Won Leads
@@ -865,8 +860,16 @@ const List = () => {
             </div>
           </div>
         </div>
+
         <div
-          onClick={() => setState({ status: { value: 2, label: "Contacted" } })}
+          onClick={() =>
+            setState({
+              status: {
+                value: state.opp_status?.contacted?.id,
+                label: "Contacted",
+              },
+            })
+          }
           className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
           <div className="flex items-center gap-5">
@@ -876,10 +879,36 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.statCount?.contacted_count || 0}
+                {state.opp_status?.contacted?.count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Contacted Leads
+              </p>
+            </div>
+          </div>
+        </div>
+        <div
+          className="cursor-pointer rounded-lg border border-gray-200 bg-purple-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+          onClick={() =>
+            setState({
+              status: {
+                value: state.opp_status?.follow_up?.id,
+                label: "Follow Up",
+              },
+            })
+          }
+        >
+          <div className="flex items-center gap-5">
+            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+              <Clock className="h-10 w-10 text-purple-600" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+                {state.opp_status?.follow_up?.count || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Follow up
               </p>
             </div>
           </div>
@@ -890,12 +919,12 @@ const List = () => {
         >
           <div className="flex items-center gap-5">
             <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
-              <Clock className="h-10 w-10 text-red-600" />
+              <XCircle className="h-10 w-10 text-red-600" />
             </div>
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.statCount?.lost_count || 0}
+                {state.opp_status?.lose?.count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Lost Leads
@@ -903,6 +932,68 @@ const List = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Date Filter Bar */}
+      <div className="mb-4 flex w-fit flex-wrap items-center gap-0 overflow-hidden rounded-lg border border-gray-200 bg-white">
+        {["Year", "Last Month", "This Month", "Last 7 Days", "Custom"].map(
+          (preset) => (
+            <button
+              key={preset}
+              onClick={() =>
+                preset !== "Custom"
+                  ? handleDatePreset(preset)
+                  : setState({ datePreset: "Custom" })
+              }
+              className={`border-r border-gray-200 px-4 py-2 text-sm font-medium transition ${
+                state.datePreset === preset
+                  ? "bg-dred text-white"
+                  : "text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              {preset}
+            </button>
+          ),
+        )}
+        <input
+          type="datetime-local"
+          value={state.custom_from ? `${state.custom_from}T00:00` : ""}
+          onChange={(e) =>
+            setState({
+              custom_from: e.target.value?.slice(0, 10),
+              datePreset: "Custom",
+              from_date: "",
+              to_date: "",
+            })
+          }
+          className="border-r border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none"
+        />
+        <input
+          type="datetime-local"
+          value={state.custom_to ? `${state.custom_to}T00:00` : ""}
+          onChange={(e) =>
+            setState({
+              custom_to: e.target.value?.slice(0, 10),
+              datePreset: "Custom",
+              from_date: "",
+              to_date: "",
+            })
+          }
+          className="border-r border-gray-200 px-3 py-2 text-sm text-gray-600 outline-none"
+        />
+        <button
+          onClick={() => leadPropertyList(1)}
+          className="bg-dred hover:bg-lred hover:text-dred border-r border-gray-200 px-4 py-2 text-sm font-semibold text-white"
+        >
+          Go
+        </button>
+
+        {/* <button
+              onClick={() => setState({ from_date: "", to_date: "", datePreset: "" })}
+              className=" px-4 py-2 text-sm font-semibold text-dred "
+            >
+              Clear
+            </button> */}
       </div>
 
       <div className="mb-5 rounded-2xl ">
@@ -949,8 +1040,9 @@ const List = () => {
             onChange={(e) => setState({ leadType: e })}
             placeholder={"All Leads"}
             options={[
-              { value: "own", label: "Own Leads" },
-              { value: "assigned", label: "Assigned Leads" },
+              { value: "own", label: "Own Records" },
+              { value: "admin", label: "Admin Records" },
+              { value: "website", label: "Website Leads" },
             ]}
             isClearable={true}
           />
@@ -977,12 +1069,12 @@ const List = () => {
             </>
           )} */}
 
-          <CustomeDatePicker
+          {/* <CustomeDatePicker
             value={state.date}
             placeholder="Choose Date"
             onChange={(e) => setState({ date: e })}
             showTimeSelect={false}
-          />
+          /> */}
 
           {state.group == "Admin" && (
             <button
@@ -1048,6 +1140,42 @@ const List = () => {
                       },
                     ]
                   : []),
+                ...(state.from_date
+                  ? [
+                      {
+                        label: `From Date: ${commonDateFormat(
+                          state.from_date,
+                        )}`,
+                        onRemove: () => setState({ from_date: null }),
+                      },
+                    ]
+                  : []),
+                ...(state.to_date
+                  ? [
+                      {
+                        label: `To Date: ${commonDateFormat(state.to_date)}`,
+                        onRemove: () => setState({ to_date: null }),
+                      },
+                    ]
+                  : []),
+                ...(state.custom_from
+                  ? [
+                      {
+                        label: `From Date: ${commonDateFormat(
+                          state.custom_from,
+                        )}`,
+                        onRemove: () => setState({ custom_from: null }),
+                      },
+                    ]
+                  : []),
+                ...(state.custom_to
+                  ? [
+                      {
+                        label: `To Date: ${commonDateFormat(state.custom_to)}`,
+                        onRemove: () => setState({ custom_to: null }),
+                      },
+                    ]
+                  : []),
                 ...(state.role
                   ? [
                       {
@@ -1067,24 +1195,40 @@ const List = () => {
               ]}
               onClearAll={clearAllFilters}
             />
-            <div className="ml-auto text-sm text-black">
-              {state.total} Leads found
-            </div>
+            {/* <div className="ml-auto flex items-center gap-3">
+              {state.selectedRecords?.length > 0 && (
+                <button
+                  type="button"
+                  className="flex items-center gap-2 rounded-lg border border-red-600 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50"
+                  onClick={handleBulkDelete}
+                >
+                  <IconTrashLines className="h-4 w-4" />
+                  Delete ({state.selectedRecords.length})
+                </button>
+              )}
+              <div className="text-sm text-black">{state.total} Leads found</div>
+            </div> */}
           </div>
+
           <DataTable
             className="table-responsive"
             records={state.tableList || []}
-            columns={filteredColumns}
+            columns={columns}
             highlightOnHover
-            totalRecords={state.taskList?.length}
+            fetching={state.loading}
+            totalRecords={state.totalRecords}
             recordsPerPage={state.pageSize}
             minHeight={200}
-            page={null}
-            onPageChange={(p) => {}}
+            page={state.page}
+            onPageChange={(p) => leadPropertyList(p)}
             withBorder={true}
+            // selectedRecords={state.selectedRecords}
+            // onSelectedRecordsChange={(records) => setState({ selectedRecords: records })}
             paginationText={({ from, to, totalRecords }) =>
               `Showing  ${from} to ${to} of ${totalRecords} entries`
             }
+            noRecordsText={state.tableList?.length ? "" : "No records"}
+            emptyState={state.tableList?.length ? <></> : undefined}
             sortStatus={{
               columnAccessor: state.sortBy,
               direction: state.sortOrder as "asc" | "desc",
@@ -1095,7 +1239,7 @@ const List = () => {
                 sortOrder: direction,
                 page: 1,
               });
-              leadList(1, columnAccessor, direction);
+              leadPropertyList(1, columnAccessor, direction);
             }}
             style={{ zIndex: 0 }}
           />
@@ -1121,70 +1265,6 @@ const List = () => {
           </button>
         </div>
       </div>
-
-      <Modal
-        addHeader={state.editId ? "Update Project" : "Create Project"}
-        open={state.isOpen}
-        close={() => {
-          clearData();
-        }}
-        renderComponent={() => (
-          <div className=" pb-7">
-            <form className="flex flex-col gap-3">
-              <div className=" w-full space-y-5">
-                <TextInput
-                  name="name"
-                  title="Project Name"
-                  placeholder="Enter project name"
-                  value={state.name}
-                  onChange={(e) => setState({ name: e.target.value })}
-                  error={state.error?.name}
-                  required
-                />
-
-                <TextInput
-                  name="name"
-                  title="Location"
-                  placeholder="Enter location"
-                  value={state.location}
-                  onChange={(e) => setState({ location: e.target.value })}
-                  error={state.error?.location}
-                  required
-                />
-
-                <TextArea
-                  name="description"
-                  title="Description"
-                  placeholder="Enter Description"
-                  value={state.description}
-                  onChange={(e) => setState({ description: e.target.value })}
-                />
-              </div>
-
-              <div className="mt-8 flex items-center justify-end">
-                <button
-                  type="button"
-                  className="btn border-dred hover:btn-mred gap-2"
-                  onClick={() => {
-                    clearData();
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    state.editId ? updateProject() : createProject()
-                  }
-                  className="btn btn-dred border-none ltr:ml-4 rtl:mr-4"
-                >
-                  {state.btnLoading ? <IconLoader /> : "Confirm"}
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-      />
 
       <Modal
         open={state.showFilterModal}
@@ -1274,7 +1354,7 @@ const List = () => {
                 Cancel
               </button>
               <button
-                onClick={confirmStatus}
+                onClick={() => confirmStatus(state.statusRow, state.newStatus)}
                 className="btn btn-dred border-none"
               >
                 {state.btnLoading ? <IconLoader /> : "Confirm"}

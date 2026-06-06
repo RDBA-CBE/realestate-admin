@@ -24,7 +24,7 @@ const processQueue = (error: any, token: string | null = null) => {
 
 const showTokenExpiredAlert = () => {
   const userConfirmed = window.confirm(
-    "Your token has expired. Click OK to log in again."
+    "Your token has expired. Click OK to log in again.",
   );
 
   if (userConfirmed) {
@@ -47,27 +47,31 @@ export const instance = (): AxiosInstance => {
 
   api.interceptors.request.use(
     (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
-      const accessToken = localStorage.getItem("token");
+      const accessToken = localStorage.getItem("real_estate_admin_token");
       if (accessToken && config.headers) {
         config.headers["Authorization"] = `Bearer ${accessToken}`;
       }
       return config;
     },
-    (error: AxiosError) => Promise.reject(error)
+    (error: AxiosError) => Promise.reject(error),
   );
 
   api.interceptors.response.use(
     (response) => response,
     async (error: AxiosError | any) => {
+      console.log("AxiosError", error);
       const originalRequest: any = error.config;
 
       if (
-        error.response?.data?.code === "token_not_valid" &&
-        !originalRequest._retry
+        (error.response?.status === 401 &&
+          error.response?.data?.code === "token_not_valid" &&
+          !originalRequest._retry) ||
+        error.response?.data?.error ===
+          "Given token not valid for any token type"
       ) {
         originalRequest._retry = true;
 
-        const refreshToken = localStorage.getItem("refresh");
+        const refreshToken = localStorage.getItem("real_estate_admin_refresh");
         if (!refreshToken) {
           showTokenExpiredAlert();
           return Promise.reject(error);
@@ -93,12 +97,12 @@ export const instance = (): AxiosInstance => {
               `${BACKEND_URL}authentication/refresh-token/`,
               {
                 refresh: refreshToken,
-              }
+              },
             );
 
             const { access, refresh } = response.data;
-            localStorage.setItem("token", access);
-            localStorage.setItem("refresh", refresh);
+            localStorage.setItem("real_estate_admin_token", access);
+            localStorage.setItem("real_estate_admin_refresh", refresh);
 
             api!.defaults.headers.common["Authorization"] = "Bearer " + access;
             originalRequest.headers["Authorization"] = "Bearer " + access;
@@ -106,13 +110,9 @@ export const instance = (): AxiosInstance => {
             processQueue(null, access);
             resolve(api!(originalRequest));
           } catch (err) {
-            if (err.response?.data?.code === "token_not_valid") {
-              showTokenExpiredAlert();
-            } else {
-              processQueue(err, null);
-              localStorage.clear();
-              window.location.href = "/auth/signin";
-            }
+            console.log("err", err);
+            processQueue(err, null);
+            showTokenExpiredAlert();
             reject(err);
           } finally {
             isRefreshing = false;
@@ -121,7 +121,7 @@ export const instance = (): AxiosInstance => {
       }
 
       return Promise.reject(error);
-    }
+    },
   );
 
   return api;

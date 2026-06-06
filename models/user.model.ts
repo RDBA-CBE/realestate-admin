@@ -187,16 +187,16 @@ const user = {
     return promise;
   },
 
-  wishlist: (userId: any) => {
+  wishlist: (body: any) => {
     return instance()
-      .get(`wishlists/?user=${userId}`)
+      .get(`wishlists/?developer_id=${body.developer_id}&user_id=${body.user_id}`)
       .then((res) => res.data)
       .catch((error) => Promise.reject(error.response?.data || error));
   },
 
-  enquiries: (userId: any) => {
+  enquiries: (body: any) => {
     return instance()
-      .get(`leads/?created_by=${userId}`)
+      .get(`leads/?developer_property_users=${body.developer_id}&user_id=${body.user_id}&website=true`)
       .then((res) => res.data)
       .catch((error) => Promise.reject(error.response?.data || error));
   },

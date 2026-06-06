@@ -40,6 +40,7 @@ const PropertyDetail = () => {
     property: null,
     loading: true,
     lightboxIndex: null,
+    activeTab: "floor_plans",
   });
 
   useEffect(() => {
@@ -50,7 +51,9 @@ const PropertyDetail = () => {
     try {
       setState({ loading: true });
       const res: any = await Models.property.details(id);
-      setState({ property: res, loading: false });
+      // Set default active tab to first available plan
+      const defaultTab = res?.floor_plans ? "floor_plans" : res?.unit_plan?.length > 0 ? "unit_plan" : res?.master_plan ? "master_plan" : "unit_plan";
+      setState({ property: res, loading: false, activeTab: defaultTab });
     } catch (error) {
       console.log("error", error);
       setState({ loading: false });
@@ -117,7 +120,16 @@ const PropertyDetail = () => {
           <span className={`rounded-full px-3 py-1.5 text-sm font-semibold ${publishColor}`}>{p.publish ? "Published" : "Draft"}</span>
           <span className={`rounded-full px-3 py-1.5 text-sm font-semibold ${approvedColor}`}>{p.is_approved ? "Approved" : "Pending Approval"}</span>
           <span className="rounded-full bg-purple-100 px-3 py-1.5 text-sm font-semibold text-purple-700">{capitalizeFLetter(p.listing_type)}</span>
+           <button
+            type="button"
+            className="btn btn-dred w-full  border-none md:mb-0 md:w-auto"
+            onClick={() => router.push(`/real-estate/property/update/${id}`)}
+          >
+            + Update
+          </button>
         </div>
+
+       
       </div>
 
       <div className="grid grid-cols-1 gap-5 xl:grid-cols-3">
@@ -183,8 +195,98 @@ const PropertyDetail = () => {
                   </div>
                 </div>
               ))}
+              {/* Floor Plans summary */}
+              {p.floor_plans?.length > 0 && (
+                <div className="flex items-start gap-3 rounded-lg bg-gray-50 px-4 py-3 dark:bg-gray-800 sm:col-span-3">
+                  <span className="mt-0.5 shrink-0 text-[#9b0f09]"><Layers className="h-4 w-4" /></span>
+                  <div className="w-full">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Unit Plans</p>
+                    <div className="mt-1.5 flex flex-wrap gap-2">
+                      {Array.from(new Set(p.floor_plans.map((plan: any) => plan.category?.toLowerCase()))).map((category: any, i) => (
+                        <span key={i} className="rounded-full bg-[#9b0f09]/10 px-3 py-1 text-xs font-bold text-[#9b0f09] uppercase">
+                          {category}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+
+          {/* Plans Tabs: Unit Plan / Floor Plans / Master Plan */}
+          {(p.unit_plan || p.floor_plans?.length > 0 || p.master_plan) && (
+            <div className="panel rounded-xl">
+              {/* Tab Headers */}
+              <div className="mb-4 flex gap-1 border-b border-gray-100 dark:border-gray-700">
+                {[
+                  { key: "floor_plans", label: "Unit Plans", show: p.floor_plans?.length > 0 },
+                  { key: "unit_plan", label: "Floor Plan", show: !!p.unit_plan },
+                  
+                  { key: "master_plan", label: "Master Plan", show: !!p.master_plan },
+                ]
+                  .filter((t) => t.show)
+                  .map((tab) => (
+                    <button
+                      key={tab.key}
+                      onClick={() => setState({ activeTab: tab.key })}
+                      className={`px-4 py-2 text-sm font-semibold transition-all ${
+                        state.activeTab === tab.key
+                          ? "border-b-2 border-[#9b0f09] text-[#9b0f09]"
+                          : "text-gray-400 hover:text-gray-600"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+              </div>
+
+              {/* Unit Plan Tab */}
+              {state.activeTab === "unit_plan" && p.unit_plan && (
+                <img
+                  src={p.unit_plan}
+                  alt="Unit Plan"
+                  className="w-full rounded-lg object-contain max-h-[500px]"
+                />
+              )}
+
+              {/* Floor Plans Tab */}
+              {state.activeTab === "floor_plans" && p.floor_plans?.length > 0 && (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {p.floor_plans.map((plan, i) => (
+                    <div key={i} className="rounded-xl border border-gray-100 p-4 dark:border-gray-700">
+                      <div className="mb-3 flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-bold text-gray-800 dark:text-white uppercase">{plan.category}</p>
+                          <p className="text-xs text-gray-400">{plan.type} · Floor {plan.floor_no}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-bold text-[#9b0f09]">{plan.square_feet} sq.ft</p>
+                          <p className="text-xs text-gray-500">₹{Number(plan.price).toLocaleString("en-IN")}</p>
+                        </div>
+                      </div>
+                      {plan.image && (
+                        <img
+                          src={plan.image}
+                          alt={plan.category}
+                          className="w-full rounded-lg object-contain max-h-48 bg-gray-50"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Master Plan Tab */}
+              {state.activeTab === "master_plan" && p.master_plan && (
+                <img
+                  src={p.master_plan}
+                  alt="Master Plan"
+                  className="w-full rounded-lg object-contain max-h-[500px]"
+                />
+              )}
+            </div>
+          )}
 
           {/* Description */}
           {p.description && (
@@ -200,7 +302,7 @@ const PropertyDetail = () => {
             <div className="mb-3 flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#9b0f09]" />
               <span>
-                {[p.address, p.city, p.state, p.country, p.postal_code]
+                {[p.address, p.state, p.country, p.postal_code]
                   .filter(Boolean)
                   .map(capitalizeFLetter)
                   .join(", ")}
@@ -297,9 +399,9 @@ const PropertyDetail = () => {
                 </div>
                 <div>
                   <p className="text-base font-bold text-gray-800 dark:text-white">{capitalizeFLetter(p.project.name)}</p>
-                  {p.project.location && (
+                  {p.project.location?.name && (
                     <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
-                      <MapPin className="h-3.5 w-3.5" />{p.project.location}
+                      <MapPin className="h-3.5 w-3.5" />{p.project.location?.name}
                     </p>
                   )}
                   <span className={`mt-1.5 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${

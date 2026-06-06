@@ -20,7 +20,7 @@ const leadStatus = {
   create: (data: any) => {
     let promise = new Promise((resolve, reject) => {
       instance()
-        .post(`opportunity-statuses/`, data)
+        .post(`lead-statuses/`, data)
         .then((res) => resolve(res.data))
         .catch((error) => {
           if (error.response) reject(error.response.data);
@@ -33,7 +33,7 @@ const leadStatus = {
   update: (data: any, id: any) => {
     let promise = new Promise((resolve, reject) => {
       instance()
-        .patch(`opportunity-statuses/${id}/`, data)
+        .patch(`lead-statuses/${id}/`, data)
         .then((res) => resolve(res.data))
         .catch((error) => {
           if (error.response) reject(error.response.data);
@@ -46,7 +46,7 @@ const leadStatus = {
   delete: (id: any) => {
     let promise = new Promise((resolve, reject) => {
       instance()
-        .delete(`opportunity-statuses/${id}/`)
+        .delete(`lead-statuses/${id}/`)
         .then((res) => resolve(res.data))
         .catch((error) => {
           if (error.response) reject(error.response.data);

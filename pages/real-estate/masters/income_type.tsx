@@ -16,11 +16,12 @@ import TextInput from "@/components/FormFields/TextInput.component";
 import TextArea from "@/components/FormFields/TextArea.component";
 import Swal from "sweetalert2";
 import useDebounce from "@/hook/useDebounce";
+import * as Yup from "yup";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
 import PrivateRouter from "@/hook/privateRouter";
 
-const LeadStatus = () => {
+const IncomeType = () => {
   const [state, setState] = useSetState({
     isOpen: false,
     btnLoading: false,
@@ -36,14 +37,14 @@ const LeadStatus = () => {
   const debouncedSearch = useDebounce(state.search, 500);
 
   useEffect(() => {
-    leadStatusList(1);
+    incomeTypeList(1);
   }, [debouncedSearch]);
 
-  const leadStatusList = async (page) => {
+  const incomeTypeList = async (page) => {
     try {
       const body: any = {};
       if (state.search) body.search = state.search;
-      const res: any = await Models.leadStatus.list(page, body);
+      const res: any = await Models.employmentType.list(page, body);
       const data = res?.results?.map((item) => ({
         name: item?.name,
         id: item?.id,
@@ -61,26 +62,26 @@ const LeadStatus = () => {
     }
   };
 
-  const createLeadStatus = async () => {
+  const createIncomeType = async () => {
     try {
       setState({ btnLoading: true });
-      const body = { name: capitalizeFLetter(state.name), };
+      const body = { name:  capitalizeFLetter(state.name) };
       if (!body.name) {
         setState({ error: { name: "Name is required" }, btnLoading: false });
         return;
       }
-      await Models.leadStatus.create(body);
+      await Models.employmentType.create(body);
       clearData();
       setState({ btnLoading: false });
-      leadStatusList(1);
-      Success("Lead Status created successfully");
+      incomeTypeList(1);
+      Success("Income type created successfully");
     } catch (error: any) {
       Failure(error?.name?.[0] || "Something went wrong");
       setState({ btnLoading: false });
     }
   };
 
-  const updateLeadStatus = async () => {
+  const updateIncomeType = async () => {
     try {
       setState({ btnLoading: true });
       const body = { name: capitalizeFLetter(state.name) };
@@ -88,11 +89,11 @@ const LeadStatus = () => {
         setState({ error: { name: "Name is required" }, btnLoading: false });
         return;
       }
-      await Models.leadStatus.update(body, state.editId);
+      await Models.employmentType.update(body, state.editId);
       clearData();
       setState({ btnLoading: false });
-      leadStatusList(state.page);
-      Success("Lead Status updated successfully");
+      incomeTypeList(state.page);
+      Success("Income type updated successfully");
     } catch (error: any) {
       Failure(error?.name?.[0] || "Something went wrong");
       setState({ btnLoading: false });
@@ -102,11 +103,11 @@ const LeadStatus = () => {
   const deleteRecord = async (row) => {
     try {
       setState({ btnLoading: true });
-      await Models.leadStatus.delete(row?.id);
+      await Models.employmentType.delete(row?.id);
       clearData();
       setState({ btnLoading: false });
-      leadStatusList(state.page);
-      Success("Lead Status deleted successfully");
+      incomeTypeList(state.page);
+      Success("Income type deleted successfully");
     } catch (error) {
       setState({ btnLoading: false });
     }
@@ -116,13 +117,14 @@ const LeadStatus = () => {
     showDeleteAlert(
       () => deleteRecord(row),
       () => Swal.fire("Cancelled", "Your Record is safe :)", "info"),
-      "Are you sure want to delete this lead status?",
+      "Are you sure want to delete this income type?",
     );
   };
 
   const handleEdit = (row) => {
     setState({
       name: row.name,
+      description: row.description,
       isOpen: true,
       editId: row?.id,
     });
@@ -132,17 +134,18 @@ const LeadStatus = () => {
     setState({
       editId: null,
       name: "",
+      description: "",
       isOpen: false,
       error: {},
     });
   };
 
   const handleNextPage = () => {
-    if (state.next) leadStatusList(state.page + 1);
+    if (state.next) incomeTypeList(state.page + 1);
   };
 
   const handlePreviousPage = () => {
-    if (state.previous) leadStatusList(state.page - 1);
+    if (state.previous) incomeTypeList(state.page - 1);
   };
 
   return (
@@ -150,7 +153,7 @@ const LeadStatus = () => {
       <div className="mb-5 flex items-center justify-between gap-5">
         <div>
           <h5 className="text-lg font-semibold dark:text-white-light">
-            Lead Status List
+            Income Type List
           </h5>
         </div>
         <button
@@ -208,7 +211,13 @@ const LeadStatus = () => {
                   </div>
                 ),
               },
-            
+              // {
+              //   accessor: "description",
+              //   title: "Description",
+              //   render: (row: any) => (
+              //     <span>{row.description || "-"}</span>
+              //   ),
+              // },
               {
                 accessor: "actions",
                 title: "Actions",
@@ -256,7 +265,7 @@ const LeadStatus = () => {
       </div>
 
       <Modal
-        addHeader={state.editId ? "Update Lead Status" : "Create Lead Status"}
+        addHeader={state.editId ? "Update Income Type" : "Create Income Type"}
         open={state.isOpen}
         close={() => clearData()}
         renderComponent={() => (
@@ -265,8 +274,8 @@ const LeadStatus = () => {
               <div className="w-full space-y-5">
                 <TextInput
                   name="name"
-                  title="Lead Status Name"
-                  placeholder="Enter lead status name"
+                  title="Income Type Name"
+                  placeholder="Enter income type name"
                   value={state.name}
                   onChange={(e) =>
                     setState({ name: e.target.value, error: { ...state.error, name: "" } })
@@ -274,7 +283,13 @@ const LeadStatus = () => {
                   error={state.error?.name}
                   required
                 />
-              
+                {/* <TextArea
+                  name="description"
+                  title="Description"
+                  placeholder="Enter description"
+                  value={state.description}
+                  onChange={(e) => setState({ description: e.target.value })}
+                /> */}
               </div>
               <div className="mt-8 flex items-center justify-end">
                 <button
@@ -286,7 +301,7 @@ const LeadStatus = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => state.editId ? updateLeadStatus() : createLeadStatus()}
+                  onClick={() => state.editId ? updateIncomeType() : createIncomeType()}
                   className="btn btn-dred border-none ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}
@@ -300,4 +315,4 @@ const LeadStatus = () => {
   );
 };
 
-export default PrivateRouter(LeadStatus);
+export default PrivateRouter(IncomeType);

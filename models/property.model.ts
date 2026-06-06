@@ -9,6 +9,22 @@ const properties = {
         url += `&is_approved=${encodeURIComponent(false)}`;
       }
 
+      if (body?.sqft == "No") {
+        url += `&sqft=${encodeURIComponent(false)}`;
+      }
+      if (body?.min_built_up_area) {  
+        url += `&min_built_up_area=${encodeURIComponent(body?.min_built_up_area)}`;
+      }
+      if (body?.max_built_up_area) {
+        url += `&max_built_up_area=${encodeURIComponent(body?.max_built_up_area)}`;
+      }
+      if (body?.min_price) {
+        url += `&min_price=${encodeURIComponent(body?.min_price)}`;
+      }
+      if (body?.max_price) {
+        url += `&max_price=${encodeURIComponent(body?.max_price)}`;
+      }
+
       if (body?.is_approved == "Yes") {
         url += `&is_approved=${encodeURIComponent(true)}`;
       }
@@ -83,6 +99,10 @@ const properties = {
         url += `&project=${body?.project}`;
       }
 
+      if (body?.property_type_name) {
+        url += `&property_type_name=${encodeURIComponent(body?.property_type_name)}`;
+      }
+
       if (body?.ordering) {
         url += `&sort_by=${body?.ordering}`;
       }
@@ -99,6 +119,14 @@ const properties = {
       }
       if (body?.is_approved == false) {
         url += `&is_approved=${encodeURIComponent(body.is_approved)}`;
+      }
+
+      if(body?.city){
+        url += `&location=${encodeURIComponent(body.city)}`;
+      }
+
+      if(body?.area){
+        url += `&area=${encodeURIComponent(body.area)}`;
       }
 
       instance()

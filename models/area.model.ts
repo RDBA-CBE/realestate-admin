@@ -1,11 +1,12 @@
 import instance from "@/utils/axios.utils";
 
-const leadStatus = {
+const area = {
   list: (page, body) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `opportunity-statuses?page=${page}`;
+      let url = `areas?page=${page}`;
       if (body?.search) url += `&search=${encodeURIComponent(body.search)}`;
       if (body?.pagination == "No") url += `&pagination=${false}`;
+      if(body?.location) url += `&location=${body.location}`;
       instance()
         .get(url)
         .then((res) => resolve(res.data))
@@ -20,7 +21,7 @@ const leadStatus = {
   create: (data: any) => {
     let promise = new Promise((resolve, reject) => {
       instance()
-        .post(`opportunity-statuses/`, data)
+        .post(`areas/`, data)
         .then((res) => resolve(res.data))
         .catch((error) => {
           if (error.response) reject(error.response.data);
@@ -33,7 +34,7 @@ const leadStatus = {
   update: (data: any, id: any) => {
     let promise = new Promise((resolve, reject) => {
       instance()
-        .patch(`opportunity-statuses/${id}/`, data)
+        .patch(`areas/${id}/`, data)
         .then((res) => resolve(res.data))
         .catch((error) => {
           if (error.response) reject(error.response.data);
@@ -46,7 +47,7 @@ const leadStatus = {
   delete: (id: any) => {
     let promise = new Promise((resolve, reject) => {
       instance()
-        .delete(`opportunity-statuses/${id}/`)
+        .delete(`areas/${id}/`)
         .then((res) => resolve(res.data))
         .catch((error) => {
           if (error.response) reject(error.response.data);
@@ -57,4 +58,4 @@ const leadStatus = {
   },
 };
 
-export default leadStatus;
+export default area;
