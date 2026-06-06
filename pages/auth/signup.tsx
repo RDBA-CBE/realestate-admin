@@ -21,7 +21,7 @@ import Models from "@/imports/models.import";
 import * as Yup from "yup";
 import IconLockDots from "@/components/Icon/IconLockDots";
 import IconEyeOff from "@/components/Icon/IconEyeOff";
-import ReCAPTCHA from "react-google-recaptcha";
+// import ReCAPTCHA from "react-google-recaptcha";
 import { CAPTCHA_SITE_KEY } from "@/utils/constant.utils";
 import IconEye from "@/components/Icon/IconEye";
 

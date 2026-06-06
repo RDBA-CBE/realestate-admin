@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const ReadMore = ({ children, charLimit = 100,className, readMoreText = 'Read more', readLessText = 'Read less' }) => {
+const ReadMore = ({ children, charLimit = 100,className=null, readMoreText = 'Read more', readLessText = 'Read less' }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     const toggleReadMore = () => {
