@@ -7,7 +7,7 @@ import { useSetState } from "@mantine/hooks";
 import CustomSelect from "@/components/FormFields/CustomSelect.component";
 import PrivateRouter from "@/hook/privateRouter";
 import Models from "@/imports/models.import";
-import { capitalizeFLetter, formatDate, Success, truncateText } from "@/utils/function.utils";
+import { capitalizeFLetter, formatDate, Success, truncateLowerText, truncateText } from "@/utils/function.utils";
 
 import useDebounce from "@/hook/useDebounce";
 
@@ -372,7 +372,7 @@ const List = () => {
                 sortable:true, 
                 render: (row) => (
                   <span title={row.email}>
-                    {truncateText(row.email)}
+                    {truncateLowerText(row.email)}
                   </span>
                 )
               },

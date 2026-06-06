@@ -19,6 +19,7 @@ import useDebounce from "@/hook/useDebounce";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
 import PrivateRouter from "@/hook/privateRouter";
+import Paginations from "@/pages/elements/paginations";
 
 const LeadStatus = () => {
   const [state, setState] = useSetState({
@@ -64,7 +65,7 @@ const LeadStatus = () => {
   const createLeadStatus = async () => {
     try {
       setState({ btnLoading: true });
-      const body = { name: capitalizeFLetter(state.name), };
+      const body = { name: capitalizeFLetter(state.name) };
       if (!body.name) {
         setState({ error: { name: "Name is required" }, btnLoading: false });
         return;
@@ -116,7 +117,7 @@ const LeadStatus = () => {
     showDeleteAlert(
       () => deleteRecord(row),
       () => Swal.fire("Cancelled", "Your Record is safe :)", "info"),
-      "Are you sure want to delete this lead status?",
+      "Are you sure want to delete this lead status?"
     );
   };
 
@@ -141,8 +142,8 @@ const LeadStatus = () => {
     if (state.next) leadStatusList(state.page + 1);
   };
 
-  const handlePreviousPage = () => {
-    if (state.previous) leadStatusList(state.page - 1);
+  const handlePageChange = (page) => {
+    leadStatusList(page);
   };
 
   return (
@@ -188,9 +189,9 @@ const LeadStatus = () => {
               gap: "10px",
             }}
           >
-           <div className="text-sm text-black">
-            {state.total} Properties types found
-          </div>
+            <div className="text-sm text-black">
+              {state.total} Properties types found
+            </div>
           </div>
           <DataTable
             className="table-responsive"
@@ -208,7 +209,7 @@ const LeadStatus = () => {
                   </div>
                 ),
               },
-            
+
               {
                 accessor: "actions",
                 title: "Actions",
@@ -237,22 +238,23 @@ const LeadStatus = () => {
           />
         </div>
 
-        <div className="mt-5 flex justify-end gap-3">
-          <button
-            disabled={!state.previous}
-            onClick={handlePreviousPage}
-            className={`btn border-none p-2 ${!state.previous ? "btn-disabled" : "btn-dred"}`}
+        {state.tableList?.length > 0 && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingTop: "10px",
+            }}
           >
-            <IconArrowBackward />
-          </button>
-          <button
-            disabled={!state.next}
-            onClick={handleNextPage}
-            className={`btn border-none p-2 ${!state.next ? "btn-disabled" : "btn-dred"}`}
-          >
-            <IconArrowForward />
-          </button>
-        </div>
+            <Paginations
+              totalPage={state.total}
+              itemsPerPage={10}
+              currentPages={state.page}
+              activeNumber={handlePageChange}
+            />
+          </div>
+        )}
       </div>
 
       <Modal
@@ -269,12 +271,14 @@ const LeadStatus = () => {
                   placeholder="Enter lead status name"
                   value={state.name}
                   onChange={(e) =>
-                    setState({ name: e.target.value, error: { ...state.error, name: "" } })
+                    setState({
+                      name: e.target.value,
+                      error: { ...state.error, name: "" },
+                    })
                   }
                   error={state.error?.name}
                   required
                 />
-              
               </div>
               <div className="mt-8 flex items-center justify-end">
                 <button
@@ -286,7 +290,9 @@ const LeadStatus = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => state.editId ? updateLeadStatus() : createLeadStatus()}
+                  onClick={() =>
+                    state.editId ? updateLeadStatus() : createLeadStatus()
+                  }
                   className="btn btn-dred border-none ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}

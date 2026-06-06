@@ -11,6 +11,12 @@ export const useSetState = (initialState: any) => {
   return [state, newSetState];
 };
 
+export const pageCounts = (currentPage:number, totalRecords:number) => {
+  let result = `${currentPage}-${totalRecords ? Math.min(currentPage * 10, totalRecords) : 0} of ${totalRecords ? totalRecords : 0}`;
+
+  return result;
+};
+
 export const Success = (message: string) => {
   const toast = Swal.mixin({
     toast: true,
@@ -596,4 +602,15 @@ export const truncateText = (text: string, maxLength: number = 10) => {
   return capitalized.length > maxLength
     ? capitalized?.substring(0, maxLength) + "..."
     : capitalized;
+};
+
+export const truncateLowerText = (text: string, maxLength: number = 10) => {
+  if (!text) return "";
+
+  const capitalized =
+    text?.charAt(0).toUpperCase() + text?.slice(1)?.toLowerCase();
+
+  return text.length > maxLength
+    ? text?.substring(0, maxLength) + "..."
+    : text;
 };

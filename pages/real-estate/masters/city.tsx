@@ -20,6 +20,7 @@ import * as Yup from "yup";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
 import PrivateRouter from "@/hook/privateRouter";
+import Paginations from "@/pages/elements/paginations";
 
 const City = () => {
   const [state, setState] = useSetState({
@@ -144,8 +145,8 @@ const City = () => {
     if (state.next) cityList(state.page + 1);
   };
 
-  const handlePreviousPage = () => {
-    if (state.previous) cityList(state.page - 1);
+  const handlePageChange = (page) => {
+     cityList(page);
   };
 
   return (
@@ -246,7 +247,25 @@ const City = () => {
           />
         </div>
 
-        <div className="mt-5 flex justify-end gap-3">
+        {state.tableList?.length > 0 && (
+        <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingTop: "10px",
+            }}
+          >
+            <Paginations
+              totalPage={state.total}
+              itemsPerPage={10}
+              currentPages={state.page}
+              activeNumber={handlePageChange}
+            />
+          </div>
+        )}
+
+        {/* <div className="mt-5 flex justify-end gap-3">
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
@@ -261,7 +280,7 @@ const City = () => {
           >
             <IconArrowForward />
           </button>
-        </div>
+        </div> */}
       </div>
 
       <Modal

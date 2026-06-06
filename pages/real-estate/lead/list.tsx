@@ -12,6 +12,7 @@ import {
   Dropdown,
   Failure,
   formatPriceRange,
+  pageCounts,
   showDeleteAlert,
   Success,
   truncateText,
@@ -62,6 +63,8 @@ import { clear, group } from "console";
 import FilterChips from "@/components/FilterChips/FilterChips.component";
 import { render } from "@fullcalendar/core/preact";
 import user from "@/models/user.model";
+import Paginations from "@/pages/elements/paginations";
+import page from "../test/test.screen";
 
 const List = () => {
   const router = useRouter();
@@ -94,6 +97,8 @@ const List = () => {
     datePreset: "",
     custom_from: "",
     custom_to: "",
+    currentPage: 0,
+    totalRecord: 0,
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -150,7 +155,7 @@ const List = () => {
       const res: any = await Models.user.groups();
       const droprdown = Dropdown(res?.results, "name");
       const filter = droprdown?.filter(
-        (item) => item?.label != "Admin" && item?.label != "Buyer",
+        (item) => item?.label != "Admin" && item?.label != "Buyer"
       );
 
       setState({
@@ -227,7 +232,7 @@ const List = () => {
   const leadPropertyList = async (
     page,
     sortBy = state.sortBy,
-    sortOrder = state.sortOrder,
+    sortOrder = state.sortOrder
   ) => {
     try {
       const callId = ++callIdRef.current;
@@ -459,7 +464,7 @@ const List = () => {
 
   const handleEdit = (row) => {
     router.push(
-      `/real-estate/lead/property-edit?lead=${row?.id}&property=${row?.property_id}`,
+      `/real-estate/lead/property-edit?lead=${row?.id}&property=${row?.property_id}`
     );
   };
 
@@ -484,7 +489,7 @@ const List = () => {
       setState({ btnLoading: true });
       await Models.lead.lead_properties_update(
         { opportunity_status: newStatus?.value },
-        statusRow?.property_lead_id,
+        statusRow?.property_lead_id
       );
       setState({ showStatusModal: false, btnLoading: false });
       leadPropertyList(state.page);
@@ -500,16 +505,14 @@ const List = () => {
         try {
           setState({ btnLoading: true });
           await Promise.all(
-            state.selectedRecords.map((row: any) =>
-              Models.lead.delete(row?.id),
-            ),
+            state.selectedRecords.map((row: any) => Models.lead.delete(row?.id))
           );
           setState({ selectedRecords: [], btnLoading: false });
           // leadList(state.page);
           Success(
             `${state.selectedRecords.length} lead${
               state.selectedRecords.length > 1 ? "s" : ""
-            } deleted successfully`,
+            } deleted successfully`
           );
         } catch (error) {
           setState({ btnLoading: false });
@@ -518,7 +521,7 @@ const List = () => {
       () => Swal.fire("Cancelled", "Your Records are safe :)", "info"),
       `Are you sure want to delete ${
         state.selectedRecords.length
-      } selected lead${state.selectedRecords.length > 1 ? "s" : ""}?`,
+      } selected lead${state.selectedRecords.length > 1 ? "s" : ""}?`
     );
   };
 
@@ -609,7 +612,7 @@ const List = () => {
     ]);
     const csvContent = [headers, ...rows]
       .map((r) =>
-        r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+        r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(",")
       )
       .join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -644,8 +647,11 @@ const List = () => {
       sortable: true,
       render: (row) => (
         <div
-        onClick={() => router.push(`/real-estate/lead/view/${row?.id}`)}
-        className="cursor-pointer text-sm font-medium hover:underline">{row?.full_name || "-"}</div>
+          onClick={() => router.push(`/real-estate/lead/view/${row?.id}`)}
+          className="cursor-pointer text-sm font-medium hover:underline"
+        >
+          {row?.full_name || "-"}
+        </div>
       ),
     },
 
@@ -684,7 +690,7 @@ const List = () => {
       sortable: true,
       render: (row) => {
         const source = row?.lead_source?.name;
-    
+
         return (
           <span
             className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium
@@ -783,7 +789,10 @@ const List = () => {
     },
   ];
 
-
+  const handlePageChange = (page: number) => {
+    setState({ page: page });
+    leadPropertyList(page);
+  };
 
   return (
     <>
@@ -829,7 +838,7 @@ const List = () => {
 
             <div className="flex flex-col">
               <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state?.total || 0}
+                {state?.statCount?.total_opportunity_status_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
                 Total Leads
@@ -953,7 +962,7 @@ const List = () => {
             >
               {preset}
             </button>
-          ),
+          )
         )}
         <input
           type="datetime-local"
@@ -1144,7 +1153,7 @@ const List = () => {
                   ? [
                       {
                         label: `From Date: ${commonDateFormat(
-                          state.from_date,
+                          state.from_date
                         )}`,
                         onRemove: () => setState({ from_date: null }),
                       },
@@ -1162,7 +1171,7 @@ const List = () => {
                   ? [
                       {
                         label: `From Date: ${commonDateFormat(
-                          state.custom_from,
+                          state.custom_from
                         )}`,
                         onRemove: () => setState({ custom_from: null }),
                       },
@@ -1209,6 +1218,11 @@ const List = () => {
               <div className="text-sm text-black">{state.total} Leads found</div>
             </div> */}
           </div>
+          <div className="flex items-center justify-end pb-2 pr-3">
+            <div className="rounded-lg bg-gray-300 p-1 font-semibold">
+              {pageCounts(state.page, state.total)}
+            </div>
+          </div>
 
           <DataTable
             className="table-responsive"
@@ -1216,17 +1230,17 @@ const List = () => {
             columns={columns}
             highlightOnHover
             fetching={state.loading}
-            totalRecords={state.totalRecords}
-            recordsPerPage={state.pageSize}
+            // totalRecords={state.totalRecords}
+            // recordsPerPage={state.pageSize}
             minHeight={200}
-            page={state.page}
-            onPageChange={(p) => leadPropertyList(p)}
+            // page={state.page}
+            // onPageChange={(p) => leadPropertyList(p)}
             withBorder={true}
             // selectedRecords={state.selectedRecords}
             // onSelectedRecordsChange={(records) => setState({ selectedRecords: records })}
-            paginationText={({ from, to, totalRecords }) =>
-              `Showing  ${from} to ${to} of ${totalRecords} entries`
-            }
+            // paginationText={({ from, to, totalRecords }) =>
+            //   `Showing  ${from} to ${to} of ${totalRecords} entries`
+            // }
             noRecordsText={state.tableList?.length ? "" : "No records"}
             emptyState={state.tableList?.length ? <></> : undefined}
             sortStatus={{
@@ -1243,8 +1257,25 @@ const List = () => {
             }}
             style={{ zIndex: 0 }}
           />
+          {state.tableList?.length>0 &&
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingTop: "10px",
+            }}
+          >
+            <Paginations
+              totalPage={state.total}
+              itemsPerPage={10}
+              currentPages={state.page}
+              activeNumber={handlePageChange}
+            />
+          </div>
+          }
         </div>
-        <div className="mt-5 flex justify-end gap-3">
+        {/* <div className="mt-5 flex justify-end gap-3">
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
@@ -1263,7 +1294,7 @@ const List = () => {
           >
             <IconArrowForward />
           </button>
-        </div>
+        </div> */}
       </div>
 
       <Modal

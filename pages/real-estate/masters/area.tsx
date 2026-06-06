@@ -24,6 +24,7 @@ import PrivateRouter from "@/hook/privateRouter";
 import CustomSelect from "@/components/FormFields/CustomSelect.component";
 import city from "./city";
 import { log } from "console";
+import Paginations from "@/pages/elements/paginations";
 
 const Area = () => {
   const [state, setState] = useSetState({
@@ -72,55 +73,57 @@ const Area = () => {
   };
 
   const cityList = async (page) => {
-      try {
-        const body: any = {};
-        if (state.search) body.search = state.search;
-        const res: any = await Models.city.list(page, body);
-        const droprdown = Dropdown(res?.results, "name");
-        
-        setState({
-          cityList: droprdown,
-          total: res?.count,
-          page,
-          next: res.next,
-          previous: res.previous,
-          totalRecords: res.count,
-        });
-      } catch (error) {
-        console.log("error -->", error);
-      }
-    };
+    try {
+      const body: any = {};
+      if (state.search) body.search = state.search;
+      const res: any = await Models.city.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+      setState({
+        cityList: droprdown,
+        total: res?.count,
+        page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+      });
+    } catch (error) {
+      console.log("error -->", error);
+    }
+  };
 
-     const cityLoadMore = async () => {
-        try {
-          if (state.cityNext) {
-            const res: any = await Models.city.list(state.cityPage + 1, {});
-            const newOptions = Dropdown(res?.results, "name");
-            setState({
-              cityList: [...state.cityList, ...newOptions],
-              cityNext: res.next,
-              cityPage: state.cityPage + 1,
-            });
-          } else {
-            setState({
-              cityList: state.cityList,
-            });
-          }
-        } catch (error) {
-          console.log("error: ", error);
-        }
-      };
+  const cityLoadMore = async () => {
+    try {
+      if (state.cityNext) {
+        const res: any = await Models.city.list(state.cityPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          cityList: [...state.cityList, ...newOptions],
+          cityNext: res.next,
+          cityPage: state.cityPage + 1,
+        });
+      } else {
+        setState({
+          cityList: state.cityList,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
 
   const createArea = async () => {
     try {
       setState({ btnLoading: true });
-      const body = { name:  capitalizeFLetter(state.name) , location: state.city.value };
+      const body = {
+        name: capitalizeFLetter(state.name),
+        location: state.city.value,
+      };
       if (!body.name) {
         setState({ error: { name: "Name is required" }, btnLoading: false });
         return;
       }
       console.log("body", body);
-      
+
       await Models.area.create(body);
       clearData();
       setState({ btnLoading: false });
@@ -135,9 +138,15 @@ const Area = () => {
   const updateArea = async () => {
     try {
       setState({ btnLoading: true });
-      const body = { name: capitalizeFLetter(state.name), city: state.city?.id };
+      const body = {
+        name: capitalizeFLetter(state.name),
+        city: state.city?.id,
+      };
       if (!body.name) {
-        setState({ error: { name: "Name is required" , city:"City is required"}, btnLoading: false });
+        setState({
+          error: { name: "Name is required", city: "City is required" },
+          btnLoading: false,
+        });
         return;
       }
       await Models.area.update(body, state.editId);
@@ -168,7 +177,7 @@ const Area = () => {
     showDeleteAlert(
       () => deleteRecord(row),
       () => Swal.fire("Cancelled", "Your Record is safe :)", "info"),
-      "Are you sure want to delete this city?",
+      "Are you sure want to delete this city?"
     );
   };
 
@@ -178,7 +187,7 @@ const Area = () => {
       description: row.description,
       isOpen: true,
       editId: row?.id,
-      city: row.city ? { value: row.city.id, label: row.city.name } : null
+      city: row.city ? { value: row.city.id, label: row.city.name } : null,
     });
   };
 
@@ -197,12 +206,11 @@ const Area = () => {
     if (state.next) areaList(state.page + 1);
   };
 
-  const handlePreviousPage = () => {
-    if (state.previous) areaList(state.page - 1);
+  const handlePageChange = (page) => {
+    areaList(page);
   };
 
-  console.log("cityList",state.cityList);
-  
+  console.log("cityList", state.cityList);
 
   return (
     <>
@@ -220,7 +228,7 @@ const Area = () => {
           + Create
         </button>
       </div>
-      
+
       {/* <div className="mb-5 rounded-2xl ">
         <div className="flex items-center justify-between gap-5">
           <div>
@@ -247,9 +255,9 @@ const Area = () => {
               gap: "10px",
             }}
           >
-           <div className="text-sm text-black">
-            {state.total} Properties types found
-          </div>
+            <div className="text-sm text-black">
+              {state.total} Properties types found
+            </div>
           </div>
           <DataTable
             className="table-responsive"
@@ -270,9 +278,7 @@ const Area = () => {
               {
                 accessor: "city",
                 title: "City",
-                render: (row: any) => (
-                  <span>{row.city.name || "-"}</span>
-                ),
+                render: (row: any) => <span>{row.city.name || "-"}</span>,
               },
               {
                 accessor: "actions",
@@ -301,8 +307,24 @@ const Area = () => {
             withBorder={true}
           />
         </div>
-
-        <div className="mt-5 flex justify-end gap-3">
+        {state.tableList?.length > 0 && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingTop: "10px",
+            }}
+          >
+            <Paginations
+              totalPage={state.total}
+              itemsPerPage={10}
+              currentPages={state.page}
+              activeNumber={handlePageChange}
+            />
+          </div>
+        )}
+        {/* <div className="mt-5 flex justify-end gap-3">
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
@@ -317,7 +339,7 @@ const Area = () => {
           >
             <IconArrowForward />
           </button>
-        </div>
+        </div> */}
       </div>
 
       <Modal
@@ -334,25 +356,28 @@ const Area = () => {
                   placeholder="Enter Area name"
                   value={state.name}
                   onChange={(e) =>
-                    setState({ name: e.target.value, error: { ...state.error, name: "" } })
+                    setState({
+                      name: e.target.value,
+                      error: { ...state.error, name: "" },
+                    })
                   }
                   error={state.error?.name}
                   required
                 />
 
                 <CustomSelect
-                        title="City name"
-                        placeholder="Select city"
-                        options={state.cityList}
-                        value={state.city}
-                        onChange={(selectedOption) =>
-                          setState({ city: selectedOption })
-                        }
-                        isClearable
-                        loadMore={() => cityLoadMore()}
-                        required
-                      error={state.error?.city}
-                      />
+                  title="City name"
+                  placeholder="Select city"
+                  options={state.cityList}
+                  value={state.city}
+                  onChange={(selectedOption) =>
+                    setState({ city: selectedOption })
+                  }
+                  isClearable
+                  loadMore={() => cityLoadMore()}
+                  required
+                  error={state.error?.city}
+                />
 
                 {/* <TextArea
                   name="description"
@@ -372,7 +397,7 @@ const Area = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => state.editId ? updateArea() : createArea()}
+                  onClick={() => (state.editId ? updateArea() : createArea())}
                   className="btn btn-dred border-none ltr:ml-4 rtl:mr-4"
                 >
                   {state.btnLoading ? <IconLoader /> : "Confirm"}

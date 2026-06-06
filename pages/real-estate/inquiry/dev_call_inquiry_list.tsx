@@ -59,6 +59,7 @@ import { clear, group } from "console";
 import FilterChips from "@/components/FilterChips/FilterChips.component";
 import { render } from "@fullcalendar/core/preact";
 import user from "@/models/user.model";
+import Paginations from "@/pages/elements/paginations";
 
 const List = () => {
   const router = useRouter();
@@ -130,7 +131,7 @@ const List = () => {
       if (sortBy) {
         body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
       }
-      const res: any = await Models.lead.list(page, body);
+      // const res: any = await Models.lead.list(page, body);
 
       const response: any = await Models.inquiry.callback(page, body);
       console.log("response", response);
@@ -424,7 +425,7 @@ const List = () => {
 
     {
       accessor: "created_at",
-      title: "Date",
+      title: "Created Date",
       visible: true,
       toggleable: true,
       sortable: true,
@@ -455,8 +456,8 @@ const List = () => {
         >
           <div className="cursor-default">
             {row?.message?.length > 20
-              ? `${row.message.slice(0, 15)}...`
-              : row?.message || "-"}
+              ? `${capitalizeFLetter(row.message.slice(0, 15))}...`
+              : capitalizeFLetter(row?.message) || "-"}
           </div>
         </Tippy>
       ),
@@ -484,6 +485,10 @@ const List = () => {
       ),
     },
   ];
+
+  const handlePageChange = (page) => {
+    leadList(page);
+  }
 
   const filteredColumns = columns
     ?.filter((col) => col.visible !== false)
@@ -793,7 +798,24 @@ const List = () => {
             style={{ zIndex: 0 }}
           />
         </div>
-        <div className="mt-5 flex justify-end gap-3">
+        {state.tableList?.length>0 &&
+        <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingTop: "10px",
+            }}
+          >
+            <Paginations
+              totalPage={state.total}
+              itemsPerPage={10}
+              currentPages={state.page}
+              activeNumber={handlePageChange}
+            />
+          </div>
+          }
+        {/* <div className="mt-5 flex justify-end gap-3">
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
@@ -812,7 +834,7 @@ const List = () => {
           >
             <IconArrowForward />
           </button>
-        </div>
+        </div> */}
       </div>
     </>
   );

@@ -61,6 +61,7 @@ import user from "@/models/user.model";
 import moment from "moment";
 import FullCalendar from "@fullcalendar/react";
 import Calendar from "@/pages/apps/calendar";
+import Paginations from "@/pages/elements/paginations";
 
 const List = () => {
   const router = useRouter();
@@ -148,7 +149,9 @@ const List = () => {
           created_at: commonDateFormat(item?.created_at),
           interested_area: item?.search,
           schedule_date_time: item?.schedule_date_time
-            ? moment(item?.schedule_date_time).format("DD-MM-YYYY HH:mm")
+            // ? item?.schedule_date_time
+            ? moment(item?.schedule_date_time).format("DD-MM-YYYY")
+
             : null,
           created_date: item?.created_at
             ? moment(item?.created_at).format("DD-MM-YYYY")
@@ -200,7 +203,7 @@ const List = () => {
           start: item?.schedule_date_time,
           end: item?.schedule_date_time,
           className: "primary",
-          description: item?.message || "",
+          description: capitalizeFLetter(item?.message )|| "",
           email: item?.email || "",
           phone: item?.phone_number || "",
           created_at: item?.created_at || "",
@@ -479,9 +482,7 @@ const List = () => {
       render: (row) => (
         <div
           className="w-fit cursor-pointer"
-          onClick={(e) => {
-            router.push(`/real-estate/lead/view/${row?.id}`);
-          }}
+          
         >
           <div>{row?.schedule_date_time}</div>
         </div>
@@ -521,8 +522,8 @@ const List = () => {
         >
           <div className="cursor-default">
             {row?.message?.length > 20
-              ? `${row.message.slice(0, 15)}...`
-              : row?.message || "-"}
+              ? `${capitalizeFLetter(row.message.slice(0, 15))}...`
+              : capitalizeFLetter(row?.message) || "-"}
           </div>
         </Tippy>
       ),
@@ -581,6 +582,11 @@ const List = () => {
       ),
     },
   ];
+
+  const handlePageChange = (page) => {
+    setState({ page });
+    leadList(page);
+  }
 
   const filteredColumns = columns
     ?.filter((col) => col.visible !== false)
@@ -791,7 +797,24 @@ const List = () => {
             style={{ zIndex: 0 }}
           />
         </div>
-        <div className="mt-5 flex justify-end gap-3">
+        { state.tableList?.length > 0 && (
+        <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+             paddingTop: "10px",
+              // alignItems: "center",
+            }}
+          >
+            <Paginations
+              totalPage={state.total}
+              itemsPerPage={10}
+              currentPages={state.page}
+              activeNumber={handlePageChange}
+            />
+          </div>
+          )}
+        {/* <div className="mt-5 flex justify-end gap-3">
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
@@ -810,7 +833,7 @@ const List = () => {
           >
             <IconArrowForward />
           </button>
-        </div>
+        </div> */}
         <Calendar events={state.calendarEvents || []} />
       </div>
     </>

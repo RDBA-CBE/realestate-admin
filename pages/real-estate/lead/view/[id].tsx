@@ -556,7 +556,7 @@ const View_Lead = () => {
                   <CustomSelect title="Gender" value={state.gender} onChange={(e) => setState({ gender: e })} placeholder="Select Gender" options={GENDER_LIST} />
                   <CustomSelect title="Lead Source" value={state.lead_source} onChange={(e) => setState({ lead_source: e })} placeholder="Lead Source" options={state.leadSourceList} />
                   {/* <CustomSelect title="Status" value={state.status} onChange={(e) => setState({ status: e })} placeholder="Status" options={state.leadStatusList} /> */}
-                  <CustomeDatePicker value={state.next_follow_up} placeholder="Next Follow Up" title="Next Follow Up" onChange={(e) => setState({ next_follow_up: e })} showTimeSelect={false}  minDate={new Date()}/>
+                  {/* <CustomeDatePicker value={state.next_follow_up} placeholder="Next Follow Up" title="Next Follow Up" onChange={(e) => setState({ next_follow_up: e })} showTimeSelect={false}  minDate={new Date()}/> */}
                   <CustomSelect title="City" value={state.location} onChange={(e) => setState({ location: e, area: null })} placeholder="Select City" options={state.cityList} isClearable loadMore={cityLoadMore} />
                   <CustomSelect title="Area" value={state.area} onChange={(e) => setState({ area: e })} placeholder="Select Area" options={state.areaList} isClearable loadMore={areaLoadMore} disabled={!state.location} />
                   {/* <div className="md:col-span-3">

@@ -22,6 +22,7 @@ import {
   Dropdown,
   useSetState,
   truncateText,
+  truncateLowerText,
 } from "@/utils/function.utils";
 import moment from "moment";
 import Swal from "sweetalert2";
@@ -36,6 +37,7 @@ import { FILTER_ROLES, roleList } from "@/utils/constant.utils";
 import { Briefcase, CheckCircle, Clock, EyeIcon, Hourglass } from "lucide-react";
 import FilterChips from "@/components/FilterChips/FilterChips.component";
 import { useRouter } from "next/navigation";
+import Paginations from "@/pages/elements/paginations";
 
 const List = () => {
 
@@ -356,6 +358,10 @@ const List = () => {
     }
   };
 
+  const handlePageChange=(page) => {
+    usersList(page);
+  }
+
   return (
     <>
       <div className=" mb-3 flex items-center justify-between gap-5">
@@ -542,7 +548,7 @@ const List = () => {
                 title: "Email",
                 sortable:true,
                 render: (row) => (
-                  <span title={row.email}>{truncateText(row.email)}</span>
+                  <span title={row.email}>{truncateLowerText(row.email)}</span>
                 ),
               },
               { accessor: "inquiry_count", title: "Inquiry Count",
@@ -624,8 +630,25 @@ const List = () => {
                 }}
           />
         </div>
+        {state.tableList?.length > 0 && (
+        <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingTop: "10px",
+            }}
+          >
+            <Paginations
+              totalPage={state.total}
+              itemsPerPage={10}
+              currentPages={state.page}
+              activeNumber={handlePageChange}
+            />
+          </div>
+        )}
 
-        <div className="me-2 mt-5 flex justify-end gap-3">
+        {/* <div className="me-2 mt-5 flex justify-end gap-3">
           <button
             disabled={!state?.previous}
             onClick={handlePreviousPage}
@@ -644,7 +667,7 @@ const List = () => {
           >
             <IconArrowForward />
           </button>
-        </div>
+        </div> */}
       </div>
 
       <Modal
