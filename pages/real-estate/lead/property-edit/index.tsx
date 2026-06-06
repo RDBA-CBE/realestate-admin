@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
@@ -56,19 +56,23 @@ const PropertyEdit = () => {
       const propFromLead = leadRes?.properties_details?.find(
         (p: any) => String(p?.id) === String(property)
       );
-      const primaryImage = propFromLead?.primary_image
-        || propertyRes?.images?.[0]?.image_url
-        || propertyRes?.images?.[0]?.image
-        || null;
+      const primaryImage =
+        propFromLead?.primary_image ||
+        propertyRes?.images?.[0]?.image_url ||
+        propertyRes?.images?.[0]?.image ||
+        null;
 
       // find the lead_property record id from lead_properties list
-      const lpRes: any = await Models.lead.lead_properties(1, { developer: localStorage.getItem("userId") });
+      const lpRes: any = await Models.lead.lead_properties(1, {
+        developer: localStorage.getItem("userId"),
+      });
       const lpRecord = lpRes?.results?.find(
-        (item: any) => String(item?.lead) === String(lead) && String(item?.property) === String(property)
+        (item: any) =>
+          String(item?.lead) === String(lead) &&
+          String(item?.property) === String(property)
       );
 
       console.log("lpRecord", lpRecord);
-      
 
       setState({
         loading: false,
@@ -76,9 +80,15 @@ const PropertyEdit = () => {
         propertyDetail: { ...propertyRes, primary_image: primaryImage },
         leadPropertyId: lpRecord?.id || null,
         property_status: lpRecord?.opportunity_status_details
-          ? { value: lpRecord.opportunity_status_details?.id, label: capitalizeFLetter(lpRecord.opportunity_status_details?.name) }
+          ? {
+              value: lpRecord.opportunity_status_details?.id,
+              label: capitalizeFLetter(
+                lpRecord.opportunity_status_details?.name
+              ),
+            }
           : null,
-        inquiry_details: lpRecord?.inquiry_details || leadRes?.requirements || "",
+        inquiry_details:
+          lpRecord?.inquiry_details || leadRes?.requirements || "",
         closing_date: lpRecord?.closing_date || null,
         next_follow_up: leadRes?.next_follow_up || null,
       });
@@ -95,16 +105,16 @@ const PropertyEdit = () => {
   };
 
   const leadStatusList = async () => {
-      try {
-        const res: any = await Models.leadStatus.list(1, { pagination: "No" });
-        const dropdownList = Dropdown(res.results, "name");
-        setState({
-          leadStatusList: dropdownList,
-        });
-      } catch (error) {
-        console.log("✌️error --->", error);
-      }
-    };
+    try {
+      const res: any = await Models.leadStatus.list(1, { pagination: "No" });
+      const dropdownList = Dropdown(res.results, "name");
+      setState({
+        leadStatusList: dropdownList,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
 
   const handleSubmit = async () => {
     try {
@@ -112,7 +122,11 @@ const PropertyEdit = () => {
 
       // update lead next_follow_up
       await Models.lead.update(
-        { next_follow_up: state.next_follow_up ? moment(state.next_follow_up).format("YYYY-MM-DD") : null },
+        {
+          next_follow_up: state.next_follow_up
+            ? moment(state.next_follow_up).format("YYYY-MM-DD")
+            : null,
+        },
         lead
       );
 
@@ -122,8 +136,12 @@ const PropertyEdit = () => {
           {
             opportunity_status: state.property_status?.value,
             inquiry_details: state.inquiry_details,
-            closing_date: state.closing_date ? moment(state.closing_date).format("YYYY-MM-DD") : null,
-            next_follow_up: state.next_follow_up ? moment(state.next_follow_up).format("YYYY-MM-DD")  : null,
+            closing_date: state.closing_date
+              ? moment(state.closing_date).format("YYYY-MM-DD")
+              : null,
+            next_follow_up: state.next_follow_up
+              ? moment(state.next_follow_up).format("YYYY-MM-DD")
+              : null,
           },
           state.leadPropertyId
         );
@@ -144,25 +162,31 @@ const PropertyEdit = () => {
   const InfoRow = ({ label, value }: { label: string; value: any }) => (
     <div className="flex flex-col gap-0.5">
       <span className="text-xs text-gray-400">{label}</span>
-      <span className="text-sm font-semibold text-gray-800 dark:text-white">{value || "-"}</span>
+      <span className="text-sm font-semibold text-gray-800 dark:text-white">
+        {value || "-"}
+      </span>
     </div>
   );
 
-  if (state.loading) {
-    return (
-      <div className="flex h-40 items-center justify-center">
-        <IconLoader className="h-6 w-6 animate-spin text-[#9b0f09]" />
-      </div>
-    );
-  }
+  // if (state.loading) {
+  //   return (
+  //     <div className="flex h-40 items-center justify-center">
+  //       <IconLoader className="h-6 w-6 animate-spin text-[#9b0f09]" />
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h5 className="text-lg font-bold text-gray-800 dark:text-white">Property & Lead Details</h5>
-          <p className="text-sm text-gray-500">{l?.full_name} · {p?.title}</p>
+          <h5 className="text-lg font-bold text-gray-800 dark:text-white">
+            Property & Lead Details
+          </h5>
+          <p className="text-sm text-gray-500">
+            {l?.full_name} · {p?.title}
+          </p>
         </div>
         <button
           onClick={() => router.back()}
@@ -175,49 +199,12 @@ const PropertyEdit = () => {
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         {/* Property Information */}
         <div className="panel rounded-xl">
-          <div className="mb-4 flex items-center gap-2">
-            <span className="text-base font-bold text-gray-800">Property Information</span>
-          </div>
-          {p?.primary_image && (
-            <img
-              src={p.primary_image}
-              alt={p.title}
-              className="mb-4 h-48 w-full rounded-lg object-cover"
-            />
-          )}
-          <div className="grid grid-cols-2 gap-4">
-            <InfoRow label="Property Name" value={p?.title} />
-            <InfoRow label="Project" value={p?.project?.name} />
-            <InfoRow label="Price Range" value={formatPriceRange(p?.price_range?.minimum_price, p?.price_range?.maximum_price)} />
-            <InfoRow label="Sq.ft" value={p?.built_up_area} />
-            <InfoRow label="Property Type" value={p?.property_type?.map((t: any) => capitalizeFLetter(t?.name)).join(", ")} />
-            <InfoRow label="City" value={p?.city} />
-            <InfoRow label="Area" value={p?.area?.name} />
-            <InfoRow label="Bedrooms" value={p?.bedrooms} />
-            <InfoRow label="Bathrooms" value={p?.bathrooms} />
-            <InfoRow label="Listing Type" value={capitalizeFLetter(p?.listing_type)} />
-          </div>
-        </div>
-
-        {/* Lead Information */}
-        <div className="panel rounded-xl">
-          <div className="mb-4 flex items-center gap-2">
-            <span className="text-base font-bold text-gray-800">Lead Information</span>
-          </div>
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <InfoRow label="Customer Name" value={l?.full_name} />
-            <InfoRow label="Phone" value={l?.phone} />
-            <InfoRow label="Email" value={l?.email} />
-            <InfoRow label="Lead Source" value={l?.lead_source_info?.name} />
-            <InfoRow label="Status" value={l?.status_info?.name} />
-            <InfoRow label="Priority" value={capitalizeFLetter(l?.priority)} />
-            <InfoRow label="Location" value={l?.location_details?.name} />
-            <InfoRow label="Area" value={l?.area_details?.name} />
-          </div>
-
           {/* Editable Fields */}
-          <div className="border-t border-gray-100 pt-5">
-            <p className="mb-4 text-sm font-bold text-gray-700">Edit Details</p>
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-base font-bold text-gray-800">
+              Update Opportunity
+            </span>
+          </div>
             <div className="space-y-4">
               <CustomSelect
                 title="Property Status"
@@ -227,13 +214,19 @@ const PropertyEdit = () => {
                 options={state.leadStatusList}
               />
               <div className="flex flex-col gap-1">
-                <label className="text-sm font-medium text-gray-700">Inquiry Details</label>
+                {/* <label className="text-sm font-medium text-gray-700"> */}
+        <label className=" block text-sm font-bold text-gray-700">
+
+                  Inquiry Details
+                </label>
                 <textarea
                   className="form-textarea w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#9b0f09] focus:outline-none"
                   rows={3}
                   placeholder="Enter inquiry details"
                   value={state.inquiry_details}
-                  onChange={(e) => setState({ inquiry_details: e.target.value })}
+                  onChange={(e) =>
+                    setState({ inquiry_details: e.target.value })
+                  }
                 />
               </div>
               <CustomeDatePicker
@@ -253,19 +246,89 @@ const PropertyEdit = () => {
                 minDate={new Date()}
               />
             </div>
+
+          <div className="mt-10 flex justify-end gap-3">
+            <button
+              className="btn border-dred hover:btn-mred"
+              onClick={() => router.back()}
+              
+            >
+              Cancel
+            </button>
+            <button
+              className="btn btn-dred border-none"
+              onClick={handleSubmit}
+              disabled={state.btnLoading}
+            >
+              {state.btnLoading ? (
+                <IconLoader className="h-4 w-4 animate-spin" />
+              ) : (
+                "Submit"
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Lead Information */}
+        <div className="panel rounded-xl">
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-base font-bold text-gray-800">
+              Lead Information
+            </span>
+          </div>
+          <div className="mb-6 grid grid-cols-2 gap-4">
+            <InfoRow label="Customer Name" value={l?.full_name} />
+            <InfoRow label="Phone" value={l?.phone} />
+            <InfoRow label="Email" value={l?.email} />
+            <InfoRow label="Lead Source" value={l?.lead_source_info?.name} />
+            <InfoRow label="Status" value={l?.status_info?.name} />
+            <InfoRow label="Priority" value={capitalizeFLetter(l?.priority)} />
+            <InfoRow label="Location" value={l?.location_details?.name} />
+            <InfoRow label="Area" value={l?.area_details?.name} />
+          </div>
+
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-base font-bold text-gray-800">
+              Property Information
+            </span>
+          </div>
+          {p?.primary_image && (
+            <img
+              src={p.primary_image}
+              alt={p.title}
+              className="mb-4 h-48 w-full rounded-lg object-cover"
+            />
+          )}
+          <div className="grid grid-cols-2 gap-4">
+            <InfoRow label="Property Name" value={p?.title} />
+            <InfoRow label="Project" value={p?.project?.name} />
+            <InfoRow
+              label="Price Range"
+              value={formatPriceRange(
+                p?.price_range?.minimum_price,
+                p?.price_range?.maximum_price
+              )}
+            />
+            <InfoRow label="Sq.ft" value={p?.built_up_area} />
+            <InfoRow
+              label="Property Type"
+              value={p?.property_type
+                ?.map((t: any) => capitalizeFLetter(t?.name))
+                .join(", ")}
+            />
+            <InfoRow label="City" value={p?.city} />
+            <InfoRow label="Area" value={p?.area?.name} />
+            <InfoRow label="Bedrooms" value={p?.bedrooms} />
+            <InfoRow label="Bathrooms" value={p?.bathrooms} />
+            <InfoRow
+              label="Listing Type"
+              value={capitalizeFLetter(p?.listing_type)}
+            />
           </div>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex justify-end gap-3">
-        <button className="btn border-dred hover:btn-mred" onClick={() => router.back()}>
-          Cancel
-        </button>
-        <button className="btn btn-dred border-none" onClick={handleSubmit} disabled={state.btnLoading}>
-          {state.btnLoading ? <IconLoader className="h-4 w-4 animate-spin" /> : "Submit"}
-        </button>
-      </div>
     </div>
   );
 };

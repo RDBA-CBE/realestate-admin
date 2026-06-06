@@ -354,6 +354,7 @@ const View_CallInquiry = () => {
       Success("Lead Created Successfully");
       router.push("/real-estate/lead/list");
     } catch (error: any) {
+      console.log("error",error)
       if (error instanceof Yup.ValidationError) {
         const validationErrors = {};
         error.inner.forEach((err) => {
@@ -365,7 +366,8 @@ const View_CallInquiry = () => {
       } else {
         if (error?.email?.length > 0) Failure(error?.email[0]);
         else if (error?.phone?.length > 0) Failure(error?.phone[0]);
-        else Failure(error);
+        // else if()
+        else Failure(error?.error);
         setState({ btnLoading: false });
       }
     }
@@ -582,7 +584,17 @@ const View_CallInquiry = () => {
                   label="Phone"
                   value={d?.phone_number}
                 />
+               
                 <InfoRow
+                  icon={<Calendar className="h-4 w-4" />}
+                  label="Schedule Date"
+                  value={
+                    d?.schedule_date_time
+                      ? moment(d.schedule_date_time).format("DD MMM YYYY")
+                      : "-"
+                  }
+                />
+                 <InfoRow
                   icon={<Calendar className="h-4 w-4" />}
                   label="Submitted On"
                   value={
@@ -758,9 +770,9 @@ const View_CallInquiry = () => {
                       label="Built-up Area"
                       value={
                         property.built_up_area
-                          ? `${Number(
-                              property.built_up_area,
-                            ).toLocaleString()} sqft`
+                          ? `${
+                              property.built_up_area
+                            } sqft`
                           : "-"
                       }
                     />

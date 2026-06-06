@@ -159,13 +159,13 @@ const SidebarDynamic = () => {
           <div className="block flex items-center justify-between px-2 py-3 lg:hidden">
             <Link href="/" className="main-logo flex shrink-0 items-center ">
               <img
-                className="ml-[5px] w-8 flex-none"
-                src="/assets/images/logo.svg"
+                className="ml-[5px] w-40 flex-none"
+                src="/assets/images/boom-logo.png"
                 alt="logo"
               />
-              <span className="align-middle text-2xl font-semibold dark:text-white-light lg:inline ltr:ml-1.5 rtl:mr-1.5">
+              {/* <span className="align-middle text-2xl font-semibold dark:text-white-light lg:inline ltr:ml-1.5 rtl:mr-1.5">
                 {t("REPUTE")}
-              </span>
+              </span> */}
             </Link>
             <button
               type="button"

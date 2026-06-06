@@ -20,6 +20,7 @@ import * as Yup from "yup";
 import IconArrowBackward from "@/components/Icon/IconArrowBackward";
 import IconArrowForward from "@/components/Icon/IconArrowForward";
 import PrivateRouter from "@/hook/privateRouter";
+import Paginations from "@/pages/elements/paginations";
 
 const LeadSource = () => {
   const [state, setState] = useSetState({
@@ -145,8 +146,8 @@ const LeadSource = () => {
     if (state.next) leadSourceList(state.page + 1);
   };
 
-  const handlePreviousPage = () => {
-    if (state.previous) leadSourceList(state.page - 1);
+  const handlePageChange = (page) => {
+   leadSourceList(page);
   };
 
   return (
@@ -246,8 +247,25 @@ const LeadSource = () => {
             withBorder={true}
           />
         </div>
+        {state.tableList?.length > 0 && (
+        <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingTop: "10px",
+            }}
+          >
+            <Paginations
+              totalPage={state.total}
+              itemsPerPage={10}
+              currentPages={state.page}
+              activeNumber={handlePageChange}
+            />
+          </div>
+        )}
 
-        <div className="mt-5 flex justify-end gap-3">
+        {/* <div className="mt-5 flex justify-end gap-3">
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
@@ -262,7 +280,7 @@ const LeadSource = () => {
           >
             <IconArrowForward />
           </button>
-        </div>
+        </div> */}
       </div>
 
       <Modal

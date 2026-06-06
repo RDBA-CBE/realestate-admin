@@ -76,6 +76,7 @@ import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
 import { clear } from "console";
 import PrivateRouter from "@/hook/privateRouter";
+import Paginations from "@/pages/elements/paginations";
 
 const List = () => {
   const router = useRouter();
@@ -1660,6 +1661,10 @@ const List = () => {
     state.publish,
   ].filter(Boolean).length;
 
+  const handlePageChange = (page: number) => {
+    propertyList(page);
+  }
+
   const FILTER_ADMINROLES = [
     {
       value: "own",
@@ -2289,8 +2294,25 @@ const List = () => {
             // )
           }
         </div>
+        {state.tableList?.length > 0 && (
+        <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingTop: "10px",
+            }}
+          >
+            <Paginations
+              totalPage={state.total}
+              itemsPerPage={10}
+              currentPages={state.page}
+              activeNumber={handlePageChange}
+            />
+          </div>
+        )}
 
-        <div className="me-2 mt-5 flex justify-end gap-3">
+        {/* <div className="me-2 mt-5 flex justify-end gap-3">
           <button
             disabled={!state?.previous}
             onClick={handlePreviousPage}
@@ -2309,7 +2331,7 @@ const List = () => {
           >
             <IconArrowForward />
           </button>
-        </div>
+        </div> */}
       </div>
 
       <Modal

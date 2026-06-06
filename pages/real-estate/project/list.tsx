@@ -33,6 +33,7 @@ import IconTrashLines from "@/components/Icon/IconTrashLines";
 import area from "../masters/area";
 import { s } from "@fullcalendar/core/internal-common";
 import { filter } from "lodash";
+import Paginations from "@/pages/elements/paginations";
 
 const list = () => {
   const router = useRouter();
@@ -335,8 +336,8 @@ const list = () => {
 
       setState({
         cityList: droprdown,
-        total: res?.count,
-        page,
+        // total: res?.count,
+        // page,
         next: res.next,
         previous: res.previous,
         totalRecords: res.count,
@@ -377,8 +378,8 @@ const list = () => {
 
       setState({
         areaList: droprdown,
-        total: res?.count,
-        page,
+        // total: res?.count,
+        // page,
         next: res.next,
         previous: res.previous,
         totalRecords: res.count,
@@ -564,7 +565,6 @@ const list = () => {
     }
   };
 
-  console.log("team", state?.team);
 
   // const getuserList = (e) => {
   //   setState({ role: e, user: null });
@@ -664,6 +664,11 @@ const list = () => {
       text: "text-purple-700",
     },
   ];
+
+  const handlePageChange = (page) => {
+    // setState({ page });
+    projectList(page);
+  }
 
   return (
     <>
@@ -993,7 +998,7 @@ const list = () => {
             },
           ]}
           highlightOnHover
-          totalRecords={state.taskList?.length}
+          totalRecords={state.tableList?.length}
           recordsPerPage={state.pageSize}
           minHeight={200}
           page={null}
@@ -1065,7 +1070,24 @@ const list = () => {
             ),
           }}
         />
-        <div className="mt-5 flex justify-end gap-3">
+        {state.tableList?.length > 0 && (
+        <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingTop: "10px",
+            }}
+          >
+            <Paginations
+              totalPage={state.total}
+              itemsPerPage={10}
+              currentPages={state.page}
+              activeNumber={handlePageChange}
+            />
+          </div>
+        )}
+        {/* <div className="mt-5 flex justify-end gap-3">
           <button
             disabled={!state.previous}
             onClick={handlePreviousPage}
@@ -1084,7 +1106,7 @@ const list = () => {
           >
             <IconArrowForward />
           </button>
-        </div>
+        </div> */}
       </div>
 
       <Modal
