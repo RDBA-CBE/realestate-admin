@@ -368,7 +368,7 @@ const AddPropertyPage = () => {
       if (res?.listing_type == LISTING_TYPE_LIST.SALE) {
         setState({
           price: formatNumber(res?.price),
-          // price_per_sqft: formatNumber(res?.price_per_sqft),
+          price_per_sqft: formatNumber(res?.price_per_sqft),
         });
       }
 
@@ -773,6 +773,7 @@ const AddPropertyPage = () => {
         images: state.imageList,
         amenities: state.amenities,
         project: state.project?.value,
+        price_per_sqft: state.price_per_sqft,
         lease_duration: state.lease_duration,
         developer: state.developer?.value,
         min_price: state.min_price,
@@ -844,6 +845,7 @@ const AddPropertyPage = () => {
         address: state.address,
         location_url: state.location_url,
         status: state.status?.value,
+        price_per_sqft: state.price_per_sqft,
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
@@ -941,7 +943,7 @@ const AddPropertyPage = () => {
           console.log(error);
 
           const errorMessages = Object.entries(error)
-            .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
+            .map(([field, messages]: any) => `${field}: ${messages?.join(", ")}`)
             .join("; ");
 
           Failure(errorMessages || error);
@@ -994,6 +996,7 @@ const AddPropertyPage = () => {
         address: state.address,
         location_url: state.location_url,
         status: state.status?.value,
+        price_per_sqft: state.price_per_sqft,
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
@@ -1914,7 +1917,7 @@ const AddPropertyPage = () => {
                             required
                             error={state.error?.price}
                           /> */}
-                          {/* <NumberInput
+                          <NumberInput
                             name="price_per_sqft"
                             title="Price Per Sq.ft"
                             placeholder="Enter Price Per Sq.ft"
@@ -1922,7 +1925,7 @@ const AddPropertyPage = () => {
                             onChange={handleInputChange}
                             required
                             error={state.error?.price_per_sqft}
-                          /> */}
+                          />
                           <NumberInput
                             name="min_price"
                             title="Minimum Price"

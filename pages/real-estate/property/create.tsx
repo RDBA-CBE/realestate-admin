@@ -507,6 +507,7 @@ const AddPropertyPage = () => {
         project: state.project?.value,
         min_price: state.min_price,
         max_price: state.max_price,
+        price_per_sqft:state.price_per_sqft,
         lease_duration: state.lease_duration,
         developer: state.developer?.value,
       };
@@ -585,6 +586,7 @@ const AddPropertyPage = () => {
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
+        price_per_sqft:state.price_per_sqft,
         price: state.max_price,
       };
 
@@ -618,6 +620,8 @@ const AddPropertyPage = () => {
       delete saleBody.group;
       saleBody.minimum_price = state.min_price;
       saleBody.maximum_price = state.max_price;
+      saleBody.price_per_sqft = state.price_per_sqft;
+
 
       const formData = buildFormData(saleBody);
 
@@ -722,6 +726,7 @@ const AddPropertyPage = () => {
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
+        price_per_sqft:state.price_per_sqft,
         price: state.max_price,
       };
 
@@ -754,6 +759,7 @@ const AddPropertyPage = () => {
       delete buyBody.group;
       buyBody.minimum_price = state.min_price;
       buyBody.maximum_price = state.max_price;
+      buyBody.price_per_sqft = state.price_per_sqft;
 
       const formData = buildFormData(buyBody);
 
@@ -848,6 +854,7 @@ const AddPropertyPage = () => {
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
+        price_per_sqft:state.price_per_sqft,
         price: state.max_price,
       };
 
@@ -873,6 +880,7 @@ const AddPropertyPage = () => {
       delete buyBody.group;
       buyBody.minimum_price = state.min_price;
       buyBody.maximum_price = state.max_price;
+      buyBody.price_per_sqft = state.price_per_sqft;
 
       const formData = buildFormData(buyBody);
 
@@ -1490,7 +1498,7 @@ const AddPropertyPage = () => {
                       {state.listing_type?.label == LISTING_TYPE.SALE ||
                       !state.listing_type ? (
                         <>
-                          {/*<NumberInput
+                          <NumberInput
                             name="price_per_sqft"
                             title="Price Per Sq.ft"
                             placeholder="Enter Price Per Sq.ft"
@@ -1498,7 +1506,7 @@ const AddPropertyPage = () => {
                             onChange={handleInputChange}
                             required
                             error={state.error?.price_per_sqft}
-                          />*/}
+                          />
 
                           <NumberInput
                             name="min_price"

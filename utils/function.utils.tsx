@@ -412,6 +412,46 @@ export const buildFormData = (data: Record<string, any>): FormData => {
   return formData;
 };
 
+export const dynamicInputbuildFormData = (data: Record<string, any>): FormData => {
+  const formData = new FormData();
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (value === null || value === undefined) return;
+
+    // Arrays
+    if (Array.isArray(value)) {
+      const hasFile = value.some(
+        (item) => item instanceof File || item instanceof Blob
+      );
+
+      if (hasFile) {
+        value.forEach((item) => {
+          formData.append(key, item);
+        });
+      } else {
+        formData.append(key, JSON.stringify(value));
+      }
+    }
+
+    // Files / Blobs
+    else if (value instanceof File || value instanceof Blob) {
+      formData.append(key, value);
+    }
+
+    // Objects
+    else if (typeof value === "object") {
+      formData.append(key, JSON.stringify(value));
+    }
+
+    // Primitives
+    else {
+      formData.append(key, String(value));
+    }
+  });
+
+  return formData;
+};
+
 export const getTimeZone = (time) => {
   const tz = time.split(")")[1].trim();
   return tz;

@@ -52,6 +52,7 @@ export const property_type = Yup.object().shape({
         return parseFloat(value) > parseFloat(min_price);
       }
     ),
+  price_per_sqft: Yup.string().required("Price Per Sq.ft is required").nullable(),
 
   property_type: Yup.array()
     .required("Property Type is required is required")
