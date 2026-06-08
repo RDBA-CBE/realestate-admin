@@ -1014,7 +1014,7 @@ const CreateOpportunities = () => {
               required
               className="w-full"
               loadMore={() => propertyLoadMore()}
-              isMulti
+              // isMulti
             />
           </div>
 
