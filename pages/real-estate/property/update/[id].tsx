@@ -778,6 +778,7 @@ const AddPropertyPage = () => {
         developer: state.developer?.value,
         min_price: state.min_price,
         max_price: state.max_price,
+        location_url: state.location_url,
       };
 
       await Utils.Validation.property_type.validate(body, {
@@ -799,7 +800,9 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
-        console.log("✌️validationErrors --->", validationErrors);
+        // const errorMessages = error.inner.map((err) => `${err.message}`).join("\n");
+        // Failure(errorMessages || "Please fill all required fields");
+        Failure("Please fill all required fields");
         setState({ error: validationErrors, btnLoading: false });
       } else {
         Failure(error?.error);
@@ -934,28 +937,26 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
-        Failure("Please Fill all the required fields");
+        // const errorMessages = error.inner.map((err) => `• ${err.message}`).join("\n");
+        // Failure(errorMessages || "Please fill all required fields");
+        Failure("Please fill all required fields");
         console.log("✌️validationErrors --->", validationErrors);
-
         setState({ error: validationErrors, btnLoading: false });
       } else {
         if (error && typeof error === "object") {
           console.log(error);
-
           const errorMessages = Object.entries(error)
             .map(([field, messages]: any) => `${field}: ${messages?.join(", ")}`)
             .join("; ");
-
           Failure(errorMessages || error);
         } else {
           Failure(error || "Something went wrong");
         }
         setState({ btnLoading: false, btnLoading1: false });
-      }
+      } 
     }
-  };
-
-  const createLeaseProperty = async (type: string) => {
+  }
+    const createLeaseProperty  = async (type: string) => {
     try {
       // setState({ btnLoading: true });
 
@@ -1081,23 +1082,21 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
-        Failure("Please Fill all the required fields");
+        // const errorMessages = error.inner.map((err) => `• ${err.message}`).join("\n");
+        // Failure(errorMessages || "Please fill all required fields");
+        Failure("Please fill all required fields");
         console.log("✌️validationErrors --->", validationErrors);
-
         setState({ error: validationErrors, btnLoading: false });
       } else {
         if (error && typeof error === "object") {
           console.log(error);
-
           const errorMessages = Object.entries(error)
             .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
             .join("; ");
-
           Failure(errorMessages);
         } else {
           Failure(error || "Something went wrong");
         }
-        setState({ btnLoading: false });
         setState({ btnLoading: false, btnLoading1: false });
       }
     }
@@ -2510,6 +2509,7 @@ const AddPropertyPage = () => {
                       value={state.location_url}
                       onChange={handleInputChange}
                       error={state.error?.location_url}
+                      required
                     />
                   </div>
                 </div>

@@ -341,6 +341,14 @@ const List = () => {
             className="table-responsive"
             records={state?.tableList || []}
             columns={[
+              ...(state.role?.value === "developer" ? [{
+                              accessor: "industry",
+                              title: "Industry Name",
+                              sortable: true,
+                              render: (row) => (
+                                <span title={row.industry}>{truncateText(row.industry)}</span>
+                              ),
+                            }] : []),
               {
                 accessor: "name",
                 title: "Name",
@@ -348,7 +356,7 @@ const List = () => {
 
                 render: (row) => (
                   <div className="flex w-fit items-center font-semibold">
-                    <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2">
+                    {/* <div className="w-max rounded-full bg-white-dark/30 p-0.5 ltr:mr-2 rtl:ml-2"> */}
                       {/* <img
                         className="h-8 w-8 cursor-pointer rounded-full object-cover"
                         src={`/assets/images/profile-${row.id}.jpeg`}
@@ -357,7 +365,7 @@ const List = () => {
                       <div className=" flex h-8 w-8 items-center justify-center rounded-full bg-[#9b0f09] text-sm text-white shadow ltr:mr-2 rtl:ml-2">
                         {row?.first_name?.charAt(0)?.toUpperCase() || "U"}
                       </div>
-                    </div>
+                    {/* </div> */}
                     <div
                       className="cursor-pointer"
                       
