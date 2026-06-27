@@ -52,7 +52,15 @@ export const property_type = Yup.object().shape({
         return parseFloat(value) > parseFloat(min_price);
       }
     ),
-  price_per_sqft: Yup.string().required("Price Per Sq.ft is required").nullable(),
+  price_per_sqft: Yup.string()
+    .nullable()
+    .when("listing_type", {
+      is: (val) => val === "sale",
+      then: (schema) => schema.required("Price Per Sq.ft is required"),
+      otherwise: (schema) => schema.nullable(),
+    }),
+
+  location_url: Yup.string().required("Location URL is required").nullable(),
 
   property_type: Yup.array()
     .required("Property Type is required is required")
@@ -110,13 +118,6 @@ export const propertySaleCreate = Yup.object().shape({
   status: Yup.string().required("Status is required").nullable(),
 
   total_area: Yup.string().required("Total Area is required").nullable(),
-  // furnishing: Yup.string()
-  //   .nullable()
-  //   .when("validatePropertyType", {
-  //     is: (val) => val?.label !== PROPERTY_TYPE.AGRICULTURAL,
-  //     then: (schema) => schema.required("Furnishing is required"),
-  //     otherwise: (schema) => schema.nullable(),
-  //   }),
   built_up_area: Yup.string()
     .nullable()
     .when("validatePropertyType", {
@@ -138,6 +139,8 @@ export const propertySaleCreate = Yup.object().shape({
         return parseFloat(value) > parseFloat(min_price);
       }
     ),
+  price_per_sqft: Yup.string().nullable(),
+  location_url: Yup.string().required("Location URL is required").nullable(),
 
   longitude: Yup.string()
     .required("Longitude is required")
@@ -197,13 +200,6 @@ export const propertyLeaseCreate = Yup.object().shape({
   postal_code: Yup.string().required("Zip Code is required").nullable(),
   total_area: Yup.string().required("Total Area is required").nullable(),
   status: Yup.string().required("Status is required").nullable(),
-  // furnishing: Yup.string()
-  //   .nullable()
-  //   .when("validatePropertyType", {
-  //     is: (val) => val?.label !== PROPERTY_TYPE.AGRICULTURAL,
-  //     then: (schema) => schema.required("Furnishing is required"),
-  //     otherwise: (schema) => schema.nullable(),
-  //   }),
   built_up_area: Yup.string()
     .nullable()
     .when("validatePropertyType", {
@@ -212,9 +208,7 @@ export const propertyLeaseCreate = Yup.object().shape({
       otherwise: (schema) => schema.nullable(),
     }),
   project: Yup.string().required("Project is required").nullable(),
-  // price_per_sqft: Yup.string()
-  //   .required("Price Per Sq.ft is required")
-  //   .nullable(),
+  location_url: Yup.string().required("Location URL is required").nullable(),
 
   longitude: Yup.string().required("Longitude is required").nullable(),
   latitude: Yup.string().required("Latitude is required").nullable(),

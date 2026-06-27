@@ -510,6 +510,7 @@ const AddPropertyPage = () => {
         price_per_sqft:state.price_per_sqft,
         lease_duration: state.lease_duration,
         developer: state.developer?.value,
+        
       };
 
       await Utils.Validation.property_type.validate(body, {

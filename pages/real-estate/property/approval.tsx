@@ -74,92 +74,59 @@ const List = () => {
   const tableColumns = [
     {
       accessor: "title",
-      title: "Property Info",
+      title: "Property Name",
       visible: true,
       toggleable: true,
       sortable: true,
       render: (row) => (
-        <div
-          className="relative"
-          onMouseEnter={(e) => {
-            const rect = (
-              e.currentTarget as HTMLElement
-            ).getBoundingClientRect();
-            setTooltip({ row, x: rect.left, y: rect.top });
-          }}
-          onMouseLeave={() => setTooltip(null)}
-        >
-          <Link
-            className="flex gap-3 font-semibold"
-            href={`${FRONTEND_URL}/property-detail/${row?.id}`}
-            target="_blank"
+        <div className="relative">
+          <div
+            className="flex gap-3"
+            onClick={() => handleView(row)}
+            onMouseEnter={(e) => {
+              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+              setTooltip({ row, x: rect.left, y: rect.top });
+            }}
+            onMouseLeave={() => setTooltip(null)}
           >
-            <div className="flex flex-col justify-between ">
-              <div>
-                <div
-                  className="cursor-pointer text-sm"
-                  // title={row.title}
-                >
-                  {truncateText(row.title)}
-                </div>
+            <div className="flex flex-col justify-between">
+              <div className="flex cursor-pointer gap-3 text-sm">
+                {row.title}
+                {row.is_approved ? (
+                  <CheckCircle className="mt-0.5 h-3.5 w-3.5 text-green-500" />
+                ) : (
+                  <Clock className="mt-0.5 h-3.5 w-3.5 text-yellow-500" />
+                )}
               </div>
             </div>
-          </Link>
+          </div>
         </div>
       ),
     },
 
-    // {
-    //   accessor: "price",
-    //   title: "Price Range",
-    //   visible: true,
-    //   toggleable: true,
-    // },
     {
       accessor: "project",
       title: "Project",
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => (
-        <span title={row.project}>{truncateText(row.project)}</span>
-      ),
+      render: (row) => <span title={row.project}>{row.project}</span>,
     },
 
-    // {
-    //   accessor: "created_by",
-    //   title: "Created By",
-    //   visible: true,
-    //   toggleable: true,
-    //    render: (row)=>(
-    //   <span title={row.created_by}>
-    //     {truncateText(row.created_by)}
-    //   </span>
-    //   )
-    // },
+    {
+      accessor: "price",
+      title: "Price Range",
+      visible: true,
+      toggleable: true,
+    },
 
-    // {
-    //   accessor: "developer",
-    //   title: "Developer",
-    //   visible: true,
-    //   toggleable: true,
-    //   render: (row)=>(
-    //   <span title={row.developer}>
-    //     {truncateText(row.developer)}
-    //   </span>
-    //   )
-    // },
-    // {
-    //   accessor: "agent",
-    //   title: "Agent",
-    //   visible: true,
-    //   toggleable: true,
-    //   render: (row)=>(
-    //   <span title={row.agent}>
-    //     {truncateText(row.agent)}
-    //   </span>
-    //   )
-    // },
+    {
+      accessor: "built_up_area",
+      title: "Sq.ft",
+      visible: true,
+      toggleable: true,
+    },
+
     {
       accessor: "property_type",
       title: "Property Type",
@@ -180,22 +147,15 @@ const List = () => {
 
         return (
           <div className="flex items-center gap-2">
-            {/* First type text */}
-            <span
-              title={firstType}
-              className="text-sm text-gray-700 dark:text-gray-300"
-            >
+            <span title={firstType} className="text-sm text-gray-700 dark:text-gray-300">
               {truncateText(firstType)}
             </span>
-
-            {/* Avatars */}
             <div className="flex items-center -space-x-2">
               {visibleTypes?.map((type: string, index: number) => (
                 <div key={index} className="group relative z-10">
                   <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
                     {type?.slice(0, 2)?.toUpperCase()}
                   </div>
-                  {/* Tooltip */}
                   <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
                     {type}
                   </div>
@@ -203,10 +163,9 @@ const List = () => {
               ))}
               {remaining > 0 && (
                 <div className="group relative z-10">
-                  <div className="flex h-7 w-7  items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
                     +{remaining}
                   </div>
-                  {/* Remaining tooltip */}
                   <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
                     {hiddenTypes.join(", ")}
                   </div>
@@ -217,100 +176,49 @@ const List = () => {
         );
       },
     },
-    {
-      accessor: "role",
-      title: "Offer Type",
-      visible: true,
-      toggleable: true,
-      render: (row: any) => (
-        <span className={`badge badge-outline-${row?.listing_type?.color} `}>
-          {row?.listing_type?.type}
-        </span>
-      ),
-    },
-    {
-      accessor: "publish",
-      title: "Publish Status",
-      visible: true,
-      toggleable: true,
-      render: (row: any) => (
-        <span
-          className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-            row?.publish === "Published"
-              ? "bg-lred text-dred border-dred"
-              : "bg-gray-200 text-gray-700"
-          }`}
-        >
-          {row?.publish}
-        </span>
-      ),
-    },
 
     {
-      accessor: "is_approved",
-      title: "Approved Status",
-      visible: true,
-      toggleable: true,
-      render: (row: any) => (
-        <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-          row?.is_approved == true ? "bg-green-100 text-green-700" : "bg-yellow-100 text-gray-700"
-        }`}>
-          {row?.is_approved == true ? "Approved" : "Pending"}
-        </span>
-      ),
+      accessor: "city",
+      sortable: true,
+      render: (row: any) => <span>{row.city?.name || "-"}</span>,
     },
-
-    // {
-    //   accessor: "status",
-    //   title: "Status",
-    //   visible: true,
-    //   toggleable: true,
-    // },
-    // {
-    //   accessor: "date",
-    //   title: "Date",
-    //   visible: true,
-    //   toggleable: true,
-    // },
+    {
+      accessor: "area",
+      sortable: true,
+      render: (row: any) => <span>{row.area?.name || "-"}</span>,
+    },
 
     {
       accessor: "action",
       title: "Actions",
       visible: true,
-      toggleable: false, // Actions column cannot be hidden
+      toggleable: false,
       sortable: false,
       textAlignment: "center",
       render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
-          <div className="flex gap-5">
-            <button
-              className="text-dred flex"
-              onClick={(e) => {
-                handleView(row);
-              }}
-              title="View Details"
-            
-            >
-              <Eye className="h-3.5 w-3.5" />
-            </button>
-
-            <button
-              type="button"
-              className="flex text-success hover:text-success"
-              onClick={() => handleApprove(row)}
-              title="Change Approval Status"
-            >
-              <CircleCheck className="h-3.5 w-3.5 " /> 
-            </button>
-
-            <button
-              type="button"
-              className="flex text-danger"
-              onClick={(e) => handleDelete(row)}
-            >
-              <IconTrashLines className="h-4 w-4 " />
-            </button>
-          </div>
+          <button
+            className="text-dred flex"
+            onClick={() => handleView(row)}
+            title="View Details"
+          >
+            <Eye className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            className="flex text-success hover:text-success"
+            onClick={() => handleApprove(row)}
+            title="Change Approval Status"
+          >
+            <CircleCheck className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            className="flex text-danger"
+            onClick={() => handleDelete(row)}
+          >
+            <IconTrashLines className="h-4 w-4" />
+          </button>
         </div>
       ),
     },
@@ -534,6 +442,7 @@ const List = () => {
     viewMode: "table",
     sortBy: "",
     sortOrder: "asc",
+    selectedRecords: [],
   });
 
   const visibleCount = state.visibleColumns.filter((col) => col.visible).length;
@@ -640,6 +549,10 @@ const List = () => {
         image:
           item?.primary_image ??
           "/assets/images/real-estate/property-info-img1.png",
+        is_approved: item?.is_approved,
+        built_up_area: item?.built_up_area,
+        city: item?.location || "-",
+        area: item?.area || "-",
       }));
       console.log("✌️data --->", data);
 
@@ -706,14 +619,62 @@ const List = () => {
 
   const handleDelete = (row) => {
     showDeleteAlert(
-      () => {
-        deleteDecord(row);
-      },
-      () => {
-        Swal.fire("Cancelled", "Your Record is safe :)", "info");
-      },
+      () => { deleteDecord(row); },
+      () => { Swal.fire("Cancelled", "Your Record is safe :)", "info"); },
       "Are you sure want to delete property?",
     );
+  };
+
+  const handleBulkDelete = () => {
+    showDeleteAlert(
+      async () => {
+        try {
+          setState({ btnLoading: true });
+          await Promise.all(
+            state.selectedRecords.map((row: any) => Models.property.delete(row?.id)),
+          );
+          setState({ selectedRecords: [], btnLoading: false });
+          propertyList(state.page);
+          Success(`${state.selectedRecords.length} propert${
+            state.selectedRecords.length > 1 ? "ies" : "y"
+          } deleted successfully`);
+        } catch (error) {
+          setState({ btnLoading: false });
+        }
+      },
+      () => { Swal.fire("Cancelled", "Your Records are safe :)", "info"); },
+      `Are you sure want to delete ${state.selectedRecords.length} selected propert${
+        state.selectedRecords.length > 1 ? "ies" : "y"
+      }?`,
+    );
+  };
+
+  const handleBulkApprove = async () => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `Change approval status for ${state.selectedRecords.length} selected propert${
+        state.selectedRecords.length > 1 ? "ies" : "y"
+      }?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, change it!",
+      cancelButtonText: "Cancel",
+      padding: "2em",
+    });
+    if (!result.isConfirmed) return;
+    try {
+      setState({ btnLoading: true });
+      await Promise.all(
+        state.selectedRecords.map((row: any) =>
+          Models.property.update({ is_approved: !row.is_approved }, row?.id),
+        ),
+      );
+      setState({ selectedRecords: [], btnLoading: false });
+      propertyList(state.page);
+      Success("Approval status updated successfully");
+    } catch (error) {
+      setState({ btnLoading: false });
+    }
   };
 
   const handleView = async (row) => {
@@ -1077,27 +1038,26 @@ const List = () => {
                   }
                 />
                 <div className="ml-auto flex shrink-0 items-center gap-3">
-                  {/* <div className="flex items-center gap-1 rounded-md">
-                    <button
-                      onClick={() => setState({ viewMode: "table" })}
-                      className="rounded-md p-2 transition-all duration-200"
-                    >
-                      <Table
-                        size={18}
-                        color={state.viewMode == "table" ? "#9b0f09" : "grey"}
-                      />
-                    </button>
-                    <div className="h-6 w-px bg-gray-300" />
-                    <button
-                      onClick={() => setState({ viewMode: "image" })}
-                      className="rounded-md p-2 transition-all duration-200"
-                    >
-                      <Calendar
-                        size={18}
-                        color={state.viewMode == "image" ? "#9b0f09" : "grey"}
-                      />
-                    </button>
-                  </div> */}
+                  {state.selectedRecords?.length > 0 && (
+                    <>
+                      <button
+                        type="button"
+                        className="flex items-center gap-2 rounded-lg border border-green-600 px-3 py-1.5 text-sm text-green-600"
+                        onClick={handleBulkApprove}
+                      >
+                        <CircleCheck className="h-4 w-4" />
+                        Change Approval ({state.selectedRecords.length})
+                      </button>
+                      <button
+                        type="button"
+                        className="flex items-center gap-2 rounded-lg border border-red-600 px-3 py-1.5 text-sm text-red-600"
+                        onClick={handleBulkDelete}
+                      >
+                        <IconTrashLines className="h-4 w-4" />
+                        Delete ({state.selectedRecords.length})
+                      </button>
+                    </>
+                  )}
                   <div className="text-sm text-black">
                     {state.total} Properties found
                   </div>
@@ -1110,6 +1070,8 @@ const List = () => {
                 columns={filteredColumns}
                 highlightOnHover
                 minHeight={200}
+                selectedRecords={state.selectedRecords}
+                onSelectedRecordsChange={(records) => setState({ selectedRecords: records })}
                 sortStatus={{
                   columnAccessor: state.sortBy,
                   direction: state.sortOrder as "asc" | "desc",
