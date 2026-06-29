@@ -217,6 +217,9 @@ const List = () => {
     }
   };
 
+  console.log("calendarEvents", state.calendarEvents);
+  
+
   const bodyData = () => {
     const userId = localStorage.getItem("userId");
     const group = localStorage.getItem("group");
