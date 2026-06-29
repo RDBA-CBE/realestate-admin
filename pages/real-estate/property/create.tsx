@@ -589,6 +589,7 @@ const AddPropertyPage = () => {
         max_price: state.max_price,
         price_per_sqft:state.price_per_sqft,
         price: state.max_price,
+        location_url: state.location_url,
       };
 
       // if (state.group !== "Developer") {
@@ -729,6 +730,7 @@ const AddPropertyPage = () => {
         max_price: state.max_price,
         price_per_sqft:state.price_per_sqft,
         price: state.max_price,
+        location_url: state.location_url,
       };
 
       // if (state.group !== "Developer") {
