@@ -222,6 +222,9 @@ const List = () => {
         industry: state.industry,
       };
 
+      console.log("body", body);
+      
+
       await Utils.Validation.userUpdate.validate(body, { abortEarly: false });
 
       const res = await Models.user.update(body, state.editId);

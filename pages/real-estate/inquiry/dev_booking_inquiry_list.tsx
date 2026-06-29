@@ -94,6 +94,7 @@ const List = () => {
     datePreset: "",
     custom_from: "",
     custom_to: "",
+    calendarEvents: [],
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -104,6 +105,7 @@ const List = () => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       leadList(1);
+      calenderList(1);
       return;
     }
     leadList(1);
@@ -216,6 +218,9 @@ const List = () => {
       console.log("✌️error --->", error);
     }
   };
+
+  console.log("calendarEvents", state.calendarEvents);
+  
 
   const bodyData = () => {
     const userId = localStorage.getItem("userId");
