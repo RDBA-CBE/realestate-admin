@@ -22,7 +22,7 @@ const floorPlans = {
 
   create: (data: any) => {
     let promise = new Promise((resolve, reject) => {
-      let url = `floor-plans/`;
+    let url = `floor-plans/`;
     const config = {
       headers: {
         "Content-Type": "multipart/form-data; charset=utf-8;",

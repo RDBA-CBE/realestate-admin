@@ -47,8 +47,13 @@ const user = {
   create: (data: any) => {
     let promise = new Promise((resolve, reject) => {
       let url = `users/`;
+      const config = {
+      headers: {
+        "Content-Type": "multipart/form-data; charset=utf-8;",
+      },
+    };
       instance()
-        .post(url, data)
+        .post(url, data, config)
         .then((res) => {
           resolve(res.data);
         })
@@ -66,9 +71,14 @@ const user = {
   update: (data: any, id: any) => {
     let promise = new Promise((resolve, reject) => {
       let url = `users/${id}/`;
+      const config = {
+      headers: {
+        "Content-Type": "multipart/form-data; charset=utf-8;",
+      },
+    };
 
       instance()
-        .patch(url, data)
+        .patch(url, data, config)
         .then((res) => {
           resolve(res.data);
         })

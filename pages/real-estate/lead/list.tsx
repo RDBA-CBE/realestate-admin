@@ -1219,7 +1219,7 @@ const List = () => {
             </div> */}
           </div>
           <div className="flex items-center justify-end pb-2 pr-3">
-            <div className="rounded-lg bg-gray-300 p-1 font-semibold">
+            <div className=" p-1 font-semibold">
               {pageCounts(state.page, state.total)}
             </div>
           </div>

@@ -74,6 +74,8 @@ export default function Profile() {
     }
   };
 
+  console.log("profile", state.profile);
+
   const submitForm = async (e: any) => {
     e.preventDefault();
     try {
@@ -152,74 +154,80 @@ export default function Profile() {
   // };
 
   const updateProfile = async () => {
-  try {
-    setState({ btnLoading: true });
+    try {
+      setState({ btnLoading: true });
 
-    const userString = localStorage.getItem("userId");
-    if (!userString) return;
+      const userString = localStorage.getItem("userId");
+      if (!userString) return;
 
-    // Normal JSON body
-    const body: any = {
-      first_name: state.first_name,
-      last_name: state.last_name,
-      email: state.email,
-      industry: state.industry,
-      industry_start_year: state.industry_start_year,
-      years_in_business: state?.years_in_business,
-      location: state?.location?.map((item: any) => item.value),
-      description: state.description,
-      specialization: state.specialization,
-    };
+      // Normal JSON body
+      const body: any = {
+        first_name: state.first_name,
+        last_name: state.last_name,
+        email: state.email,
+        industry: state.industry,
+        industry_start_year: state.industry_start_year,
+        years_in_business: state?.years_in_business,
+        location: state?.location?.map((item: any) => item.value),
+        description: state.description,
+        specialization: state.specialization,
+        developer_image: state.developer_image || null
+      };
 
-    console.log("body", body);
-
-    // If image exists → send multipart/form-data
-    if (state.developer_image) {
-      const formData = new FormData();
-
-      // Append image only
-      formData.append("developer_image", state.developer_image);
-
-      // Append remaining fields as JSON
-      Object.keys(body).forEach((key) => {
-        formData.append(key, JSON.stringify(body[key]));
-      });
-
+      console.log("body", body);
+       const formData = buildFormData(body);
       await Models.user.update(formData, userString);
-    } else {
-      // No image → send normal JSON
-      await Models.user.update(body, userString);
-    }
 
-    Success("Profile updated successfully");
+      // If image exists → send multipart/form-data
+      // if (state.developer_image) {
+      //   const formData = buildFormData(body);
 
-    setState({
-      isOpen: false,
-      error: {},
-      btnLoading: false,
-    });
+      //   // Append image only
+      //   formData("developer_image", state.developer_image);
 
-    profile();
-  } catch (error: any) {
-    console.log("error", error);
+      //   Append remaining fields as JSON
+      //   Object.keys(body).forEach((key) => {
+      //     formData.append(key, JSON.stringify(body[key]));
+      //   });
 
-    if (error instanceof Yup.ValidationError) {
-      const validationErrors: any = {};
+      //   await Models.user.update(formData, userString);
+      // } else {
+      //   // No image → send normal JSON
+      //   await Models.user.update(body, userString);
+      // }
 
-      error.inner.forEach((err) => {
-        validationErrors[err.path!] = err.message;
-      });
+      Success("Profile updated successfully");
 
       setState({
-        error: validationErrors,
+        isOpen: false,
+        error: {},
         btnLoading: false,
       });
-    } else {
-      setState({ btnLoading: false });
-      Failure(error?.error);
+
+      profile();
+    } catch (error: any) {
+      console.log("error", error);
+
+      if (error instanceof Yup.ValidationError) {
+        const validationErrors: any = {};
+
+        error.inner.forEach((err) => {
+          validationErrors[err.path!] = err.message;
+        });
+
+        setState({
+          error: validationErrors,
+          btnLoading: false,
+        });
+      } else {
+        setState({ btnLoading: false });
+        Failure(error?.error);
+      }
     }
-  }
-};
+  };
+
+  console.log("state.developer_image", state.developer_image);
+  
 
   const cityList = async (page) => {
     try {
@@ -368,7 +376,7 @@ export default function Profile() {
                       })),
                       description: state.profile?.description || "",
                       specialization: state.profile?.specialization || [],
-                      developer_image: null,
+                      developer_image: state.profile?.developer_image || null,
                     })
                   }
                   className="flex items-center gap-2 rounded-md bg-[#9b0f09] px-4 py-2 text-sm font-medium text-white transition hover:bg-[#7d0c07]"
@@ -416,7 +424,9 @@ export default function Profile() {
                   <InfoCard
                     icon={<IconMapPin className="h-4 w-4" />}
                     label="Location"
-                    value={`${state.profile?.location?.map((item)=>(item?.name)).join(", ")}`}
+                    value={`${state.profile?.location
+                      ?.map((item) => item?.name)
+                      .join(", ")}`}
                   />
                 )}
               </div>
@@ -625,11 +635,23 @@ export default function Profile() {
                   }}
                   className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#9b0f09] focus:outline-none focus:ring-1 focus:ring-[#9b0f09] dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                 />
-                {state.developer_image && (
-                  <span className="text-sm text-green-600 dark:text-green-400">
-                    {state.developer_image.name}
-                  </span>
-                )}
+                {state.developer_image &&
+                  (state.developer_image.name ? (
+                    <span className="text-sm text-green-600 dark:text-green-400">
+                      {state.developer_image.name}
+                    </span>
+                  ) : (
+                    <div className="flex flex-col items-center h-10 w-30 ">
+                    <img
+                      src={state.developer_image}
+                      alt="Preview"
+                      className="h-full w-full object-cover"
+                    />
+                    <p className="text-xs text-red-600 dark:text-red-400 cursor-pointer" onClick={() => setState({ developer_image: null })}>
+                      remove
+                    </p>
+                    </div>
+                  ))}
               </div>
             </div>
 

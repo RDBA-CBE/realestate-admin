@@ -132,6 +132,7 @@ const List = () => {
   ) => {
     try {
       setState({ tableList: [] });
+     
       const body = bodyData();
       if (sortBy) {
         body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
@@ -187,8 +188,12 @@ const List = () => {
   ) => {
     try {
       setState({ tableList: [] });
+
+       const userId = localStorage.getItem("userId");
+     
       const body = {
         pagination: "No",
+        developer_user : userId || null,
       };
 
       const response: any = await Models.inquiry.booking_inquiry(page, body);
@@ -227,6 +232,8 @@ const List = () => {
     const group = localStorage.getItem("group");
     let body: any = {};
 
+   
+    body.developer_user = userId || null;
     // body.interested_property = true;
 
     body.status = 6; // Won status

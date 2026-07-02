@@ -173,7 +173,7 @@ const List = () => {
     let body: any = {};
 
     // body.interested_property = true;
-
+    body.developer_user = userId || null;
     body.status = 6; // Won status
 
     if (state.search) {

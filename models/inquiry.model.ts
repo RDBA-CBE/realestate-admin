@@ -4,6 +4,9 @@ const inquiry = {
   callback: (page: any, body: any) => {
     let promise = new Promise((resolve, reject) => {
       let url = `callbacks/?page=${page}`;
+      if(body?.developer_user) {
+        url += `&developer_id=${body?.developer_user}`;
+      }
       if (body?.search) {
         url += `&search=${body?.search}`;
       }
@@ -39,6 +42,9 @@ const inquiry = {
   booking_inquiry: (page: any, body: any) => {
     let promise = new Promise((resolve, reject) => {
       let url = `apartment-callbacks/?page=${page}`;
+      if(body?.developer_user) {
+        url += `&developer_id=${body?.developer_user}`;
+      }
       if (body?.search) {
         url += `&search=${body?.search}`;
       }

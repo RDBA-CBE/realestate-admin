@@ -357,9 +357,11 @@ const View_CallInquiry = () => {
         setState({ error: validationErrors, btnLoading: false });
         Failure("Please fill all the required fields");
       } else {
+        console.log("error", error);
+        
         if (error?.email?.length > 0) Failure(error?.email[0]);
         else if (error?.phone?.length > 0) Failure(error?.phone[0]);
-        else Failure(error);
+        else Failure(error?.error);
         setState({ btnLoading: false });
       }
     }

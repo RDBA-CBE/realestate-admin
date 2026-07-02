@@ -945,12 +945,12 @@ const AddPropertyPage = () => {
       } else {
         if (error && typeof error === "object") {
           console.log(error);
-          const errorMessages = Object.entries(error)
-            .map(([field, messages]: any) => `${field}: ${messages?.join(", ")}`)
-            .join("; ");
-          Failure(errorMessages || error);
+          // const errorMessages = Object.entries(error)
+          //   .map(([field, messages]: any) => `${field}: ${messages?.join(", ")}`)
+          //   .join("; ");
+          Failure( error.error);
         } else {
-          Failure(error || "Something went wrong");
+          Failure(error.error || "Something went wrong");
         }
         setState({ btnLoading: false, btnLoading1: false });
       } 
