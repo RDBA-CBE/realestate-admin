@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { setPageTitle } from "../../store/themeConfigSlice";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import BlankLayout from "@/components/Layouts/BlankLayout";
 import IconMail from "@/components/Icon/IconMail";
@@ -29,6 +29,12 @@ const RegisterBoxed = () => {
   const dispatch = useDispatch();
   const router = useRouter();
   const [signupCaptchaToken, setSignupCaptchaToken] = useState("");
+  const captchaRef = useRef<ReCAPTCHA>(null);
+
+  const resetCaptcha = () => {
+    captchaRef.current?.reset();
+    setSignupCaptchaToken("");
+  };
 
   const [state, setState] = useSetState({
     showPassword: false,
@@ -40,6 +46,7 @@ const RegisterBoxed = () => {
     password: "",
     passwordStrength: "",
     btnLoading: false,
+    error: {} as Record<string, string>,
   });
 
   useEffect(() => {
@@ -49,7 +56,7 @@ const RegisterBoxed = () => {
   const submitForm = async (e: any) => {
     e.preventDefault();
     try {
-      setState({ btnLoading: true });
+      setState({ btnLoading: true, error: {} });
       const body = {
         email: state.email.trim(),
         first_name: state.first_name,
@@ -71,6 +78,7 @@ const RegisterBoxed = () => {
       // if (res?.groups?.length > 0) {
       //   localStorage.setItem("group", res.groups[0]);
       // }
+      resetCaptcha();
       router.replace("/auth/signin");
       setState({ btnLoading: false });
     } catch (error) {
@@ -84,6 +92,7 @@ const RegisterBoxed = () => {
         setState({ error: validationErrors, btnLoading: false });
       } else {
         Failure(error?.error);
+        resetCaptcha();
         setState({ btnLoading: false });
       }
     }
@@ -157,7 +166,6 @@ const RegisterBoxed = () => {
                   onChange={handleInputChange}
                   placeholder={"Phone Number"}
                   error={state.error?.phone}
-                  required
                 />
                 <CustomSelect
                   value={state.assignRole}
@@ -247,7 +255,15 @@ const RegisterBoxed = () => {
                   Sign in
                 </button> */}
                 {/* <PrimaryButton text={"Sign In"} /> */}
-                <div className="flex justify-center mt-4">
+                <div className="flex flex-col items-center gap-2 mt-4">
+                    <ReCAPTCHA
+                      ref={captchaRef}
+                      sitekey={CAPTCHA_SITE_KEY}
+                      onChange={(token) => setSignupCaptchaToken(token || "")}
+                    />
+                    {state.error?.recaptcha_token && (
+                      <p className="text-red-500 text-sm">{state.error.recaptcha_token}</p>
+                    )}
                   <PrimaryButton
                   type="submit"
                   text="Submit"

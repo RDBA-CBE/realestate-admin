@@ -1160,9 +1160,9 @@ const List = () => {
             <div>
               <h2 className="text-base font-bold text-gray-900 dark:text-white">{capitalizeFLetter(state.project?.name)}</h2>
               <div className="mt-1 flex items-center gap-4 text-xs text-gray-500">
-                {state.project?.location.name && (
+                {state.project?.location?.name && (
                   <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />{state.project.location.name}
+                    <MapPin className="h-3 w-3" />{state.project.location?.name}
                   </span>
                 )}
                 {state.project?.created_at && (
