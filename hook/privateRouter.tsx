@@ -7,6 +7,7 @@ const PrivateRouter = (WrappedComponent, allowedRoles = []) => {
     const router = useRouter();
     const [authorized, setAuthorized] = useState(false);
     const [checked, setChecked] = useState(false);
+    
 
     useEffect(() => {
       const token = localStorage.getItem("real_estate_admin_token");
