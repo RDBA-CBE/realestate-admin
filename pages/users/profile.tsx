@@ -19,6 +19,7 @@ import Models from "@/imports/models.import";
 import Utils from "@/imports/utils.import";
 import {
   buildFormData,
+  buildFormDatas,
   capitalizeFLetter,
   Dropdown,
   dynamicInputbuildFormData,
@@ -171,11 +172,14 @@ export default function Profile() {
         location: state?.location?.map((item: any) => item.value),
         description: state.description,
         specialization: state.specialization,
-        developer_image: state.developer_image || null
+        // developer_image: state.developer_image || null
       };
+      if (state.developer_image instanceof File) {
+        body.developer_image = state.developer_image;
+      }
 
       console.log("body", body);
-       const formData = buildFormData(body);
+       const formData = buildFormDatas(body);
       await Models.user.update(formData, userString);
 
       // If image exists → send multipart/form-data
@@ -302,7 +306,7 @@ export default function Profile() {
             <div className="h-20 w-full bg-[#9b0f09]" />
             <div className="flex flex-col items-center px-5 pb-5">
               {state.profile?.developer_image ? (
-                <div className="-mt-10 mb-3 flex h-20 w-20 items-center justify-center rounded-full border-4 border-[#9b0f09] bg-[#fff] text-2xl font-bold text-white shadow">
+                <div className="-mt-10 mb-3 flex h-20 w-20 items-center justify-center rounded-full border-4 border-[#9b0f09] bg-[#fff] text-2xl font-bold text-white shadow overflow-hidden">
                   <img src={state.profile?.developer_image} alt="" />
                 </div>
               ) : (
