@@ -19,6 +19,7 @@
     "@mantine/core": "^5.10.5",
     "@mantine/hooks": "^5.10.5",
     "@next/font": "13.1.2",
+    "@react-google-maps/api": "^2.20.8",
     "@reduxjs/toolkit": "^1.9.1",
     "@tippyjs/react": "^4.2.6",
     "@types/node": "18.11.18",

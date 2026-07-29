@@ -46,6 +46,7 @@ import CheckboxInput from "@/components/FormFields/CheckBoxInput.component";
 import TextArea from "@/components/FormFields/TextArea.component";
 import NumberInput from "@/components/FormFields/NumberInputs.component";
 import { useEffect } from "react";
+import GoogleMapPicker from "@/components/GoogleMapPicker/GoogleMapPicker.component";
 import useDebounce from "@/hook/useDebounce";
 import Utils from "@/imports/utils.import";
 import * as Yup from "yup";
@@ -2373,12 +2374,18 @@ const AddPropertyPage = () => {
                       error={state.error?.longitude}
                     />
                   </div>
-                  <div className="mt-4 flex h-60 w-full items-center justify-center rounded rounded-md bg-gray-100 text-gray-400">
-                    <iframe
-                      className="h-64 w-full rounded-2xl"
-                      src={`https://maps.google.com/maps?q=${state?.latitude},${state?.longitude}&z=13&ie=UTF8&iwloc=&output=embed`}
-                    />
-                  </div>
+                  <p className="mt-1 text-xs text-gray-500">Click on the map to pick a location — latitude & longitude will auto-fill.</p>
+                  <GoogleMapPicker
+                    lat={state.latitude}
+                    lng={state.longitude}
+                    onChange={(lat, lng) =>
+                      setState({
+                        latitude: lat,
+                        longitude: lng,
+                        error: { ...state.error, latitude: "", longitude: "" },
+                      })
+                    }
+                  />
                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     {/* <TextInput
                       name="city"

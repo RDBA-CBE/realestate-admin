@@ -21,6 +21,7 @@ import city from "@/models/city.model";
 import area from "@/models/area.model";
 import employmentType from "@/models/employmentType.model";
 import inquiry from "@/models/inquiry.model";
+import seo from "@/models/seo.model";
 
 export const Models = {
   auth,
@@ -43,7 +44,8 @@ export const Models = {
   city,
   area,
   employmentType,
-  inquiry
+  inquiry,
+  seo
   
 };
 

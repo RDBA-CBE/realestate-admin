@@ -10,6 +10,10 @@ export const FRONTEND_URL = "https://realestate-front-eight.vercel.app/";
 
 export const  CAPTCHA_SITE_KEY = "6LfnN1MtAAAAAPV6RW89JCZzOcnuLZHk-fdp2UDO"
 
+// export const  GOOGLE_MAP_KEY = "AIzaSyDXnGL4drIl5Biu4zjLdtB1K4ULx8F4K_0"
+
+export const  GOOGLE_MAP_KEY = "AIzaSyAWxyD1EXpqx06uFLW2y5oy--Wei6v3Lb4"
+
 
 
 // menuConfig.ts

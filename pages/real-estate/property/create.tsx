@@ -24,7 +24,9 @@ import {
 import {
   facingDirection,
   FLOOR_FLAN,
+  FRONTEND_URL,
   FURNISHING_TYPE,
+  GOOGLE_MAP_KEY,
   LISTING_TYPE,
   ListType,
   PLAN_TYPE,
@@ -38,7 +40,8 @@ import CustomSelect from "@/components/FormFields/CustomSelect.component";
 import CheckboxInput from "@/components/FormFields/CheckBoxInput.component";
 import TextArea from "@/components/FormFields/TextArea.component";
 import NumberInput from "@/components/FormFields/NumberInputs.component";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
+import GoogleMapPicker from "@/components/GoogleMapPicker/GoogleMapPicker.component";
 import useDebounce from "@/hook/useDebounce";
 import Utils from "@/imports/utils.import";
 import * as Yup from "yup";
@@ -51,6 +54,12 @@ import VideoUpload from "@/components/videoUpload/videoUpload.compoent";
 import PrivateRouter from "@/hook/privateRouter";
 import { property } from "lodash";
 import floorPlans from "@/models/floor_plan.model";
+import CategorySelector, {
+  transformCategoryData,
+} from "@/components/FormFields/categorySelect";
+import AccordionSelect from "@/components/FormFields/AccordionSelect";
+
+
 
 const AddPropertyPage = () => {
   const router = useRouter();
@@ -120,6 +129,7 @@ const AddPropertyPage = () => {
       },
     ],
     urlfromProject: false,
+    isOpen:false
   });
 
   useEffect(() => {
@@ -139,7 +149,9 @@ const AddPropertyPage = () => {
     // projectList(1);
     developerList(1);
     agentList(1);
-    cityList(1)
+    cityList(1);
+    seoCategoryList();
+
   }, []);
 
   useEffect(() => {
@@ -149,18 +161,16 @@ const AddPropertyPage = () => {
   }, [state.developer]);
 
   useEffect(() => {
-      if (state.location ) {
-        areaList(1);
-      }
-    }, [state.location]);
+    if (state.location) {
+      areaList(1);
+    }
+  }, [state.location]);
 
-    useEffect(() => {
-      if (state?.project?.value ) {
-        fetchProject();
-      }
-    }, [state?.project?.value ]);
-
-    
+  useEffect(() => {
+    if (state?.project?.value) {
+      fetchProject();
+    }
+  }, [state?.project?.value]);
 
   const debouncedAmenitySearch = useDebounce(state.amenitySearch, 500);
 
@@ -211,6 +221,18 @@ const AddPropertyPage = () => {
     }
   };
 
+  const seoCategoryList = async () => {
+    try {
+      const res: any = await Models.seo.list(1, {});
+      setState({
+        seoCategoryList: transformCategoryData(res?.results || []),
+        rawSeoCategoryList: res?.results || [],
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
   const categoryList = async (page) => {
     try {
       const res: any = await Models.category.list(page, {});
@@ -247,7 +269,7 @@ const AddPropertyPage = () => {
     if (state.developerList?.length > 0) {
       const userId = localStorage.getItem("userId");
       const matched = state.developerList.find(
-        (item) => String(item.value) === String(userId),
+        (item) => String(item.value) === String(userId)
       );
       if (matched) setState({ developer: matched });
     }
@@ -294,7 +316,7 @@ const AddPropertyPage = () => {
   useEffect(() => {
     if (state.projectList?.length > 0) {
       const matched = state.projectList.find(
-        (item) => String(item.value) === String(projectId),
+        (item) => String(item.value) === String(projectId)
       );
       if (matched) setState({ project: matched });
     }
@@ -325,19 +347,23 @@ const AddPropertyPage = () => {
     }
   };
 
-   const fetchProject = async () => {
-      try {
-        setState({ projectLoading: true });
-        const res: any = await Models.project.details(state.project?.value);
-        setState({ projectDetail: res, projectLoading: false,
-          location: res?.location ? { value: res.location.id, label: res.location.name } : null,
-          area: res?.area ? { value: res.area.id, label: res.area.name } : null,
-         });
-      } catch (error) {
-        console.log("✌️error --->", error);
-        setState({ projectLoading: false });
-      }
-    };
+  const fetchProject = async () => {
+    try {
+      setState({ projectLoading: true });
+      const res: any = await Models.project.details(state.project?.value);
+      setState({
+        projectDetail: res,
+        projectLoading: false,
+        location: res?.location
+          ? { value: res.location.id, label: res.location.name }
+          : null,
+        area: res?.area ? { value: res.area.id, label: res.area.name } : null,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+      setState({ projectLoading: false });
+    }
+  };
 
   const agentList = async (page) => {
     try {
@@ -394,87 +420,87 @@ const AddPropertyPage = () => {
     }
   };
 
-   const cityList = async (page) => {
-      try {
-        const body: any = {};
-        if (state.search) body.search = state.search;
-        const res: any = await Models.city.list(page, body);
-        const droprdown = Dropdown(res?.results, "name");
-  
-        setState({
-          cityList: droprdown,
-          total: res?.count,
-          page,
-          next: res.next,
-          previous: res.previous,
-          totalRecords: res.count,
-        });
-      } catch (error) {
-        console.log("error -->", error);
-      }
-    };
-  
-    const cityLoadMore = async () => {
-      try {
-        if (state.cityNext) {
-          const res: any = await Models.city.list(state.cityPage + 1, {});
-          const newOptions = Dropdown(res?.results, "name");
-          setState({
-            cityList: [...state.cityList, ...newOptions],
-            cityNext: res.next,
-            cityPage: state.cityPage + 1,
-          });
-        } else {
-          setState({
-            cityList: state.cityList,
-          });
-        }
-      } catch (error) {
-        console.log("error: ", error);
-      }
-    };
+  const cityList = async (page) => {
+    try {
+      const body: any = {};
+      if (state.search) body.search = state.search;
+      const res: any = await Models.city.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
 
-    const areaList = async (page) => {
-        try {
-          const body: any = {
-            location: state.location?.value || state.filterLocation?.value,
-          };
-          if (state.search) body.search = state.search;
-          const res: any = await Models.area.list(page, body);
-          const droprdown = Dropdown(res?.results, "name");
-    
-          setState({
-            areaList: droprdown,
-            total: res?.count,
-            page,
-            next: res.next,
-            previous: res.previous,
-            totalRecords: res.count,
-          });
-        } catch (error) {
-          console.log("error -->", error);
-        }
+      setState({
+        cityList: droprdown,
+        total: res?.count,
+        page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+      });
+    } catch (error) {
+      console.log("error -->", error);
+    }
+  };
+
+  const cityLoadMore = async () => {
+    try {
+      if (state.cityNext) {
+        const res: any = await Models.city.list(state.cityPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          cityList: [...state.cityList, ...newOptions],
+          cityNext: res.next,
+          cityPage: state.cityPage + 1,
+        });
+      } else {
+        setState({
+          cityList: state.cityList,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
+  const areaList = async (page) => {
+    try {
+      const body: any = {
+        location: state.location?.value || state.filterLocation?.value,
       };
-    
-      const areaLoadMore = async () => {
-        try {
-          if (state.areaNext) {
-            const res: any = await Models.area.list(state.areaPage + 1, {});
-            const newOptions = Dropdown(res?.results, "name");
-            setState({
-              areaList: [...state.areaList, ...newOptions],
-              areaNext: res.next,
-              areaPage: state.areaPage + 1,
-            });
-          } else {
-            setState({
-              areaList: state.areaList,
-            });
-          }
-        } catch (error) {
-          console.log("error: ", error);
-        }
-      };
+      if (state.search) body.search = state.search;
+      const res: any = await Models.area.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+
+      setState({
+        areaList: droprdown,
+        total: res?.count,
+        page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+      });
+    } catch (error) {
+      console.log("error -->", error);
+    }
+  };
+
+  const areaLoadMore = async () => {
+    try {
+      if (state.areaNext) {
+        const res: any = await Models.area.list(state.areaPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          areaList: [...state.areaList, ...newOptions],
+          areaNext: res.next,
+          areaPage: state.areaPage + 1,
+        });
+      } else {
+        setState({
+          areaList: state.areaList,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
 
   const onSubmit = async (type: string) => {
     try {
@@ -507,10 +533,9 @@ const AddPropertyPage = () => {
         project: state.project?.value,
         min_price: state.min_price,
         max_price: state.max_price,
-        price_per_sqft:state.price_per_sqft,
+        price_per_sqft: state.price_per_sqft,
         lease_duration: state.lease_duration,
         developer: state.developer?.value,
-        
       };
 
       await Utils.Validation.property_type.validate(body, {
@@ -532,7 +557,7 @@ const AddPropertyPage = () => {
           validationErrors[err.path] = err?.message;
         });
         console.log("error", error);
-        
+
         Failure("Please Fill all the required fields");
         setState({ error: validationErrors, btnLoading: false });
       } else {
@@ -587,7 +612,7 @@ const AddPropertyPage = () => {
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
-        price_per_sqft:state.price_per_sqft,
+        price_per_sqft: state.price_per_sqft,
         price: state.max_price,
         location_url: state.location_url,
       };
@@ -624,7 +649,6 @@ const AddPropertyPage = () => {
       saleBody.maximum_price = state.max_price;
       saleBody.price_per_sqft = state.price_per_sqft;
 
-
       const formData = buildFormData(saleBody);
 
       const res: any = await Models.property.create(formData);
@@ -640,7 +664,7 @@ const AddPropertyPage = () => {
 
       if (state.floorPlans.length > 0) {
         state.floorPlans?.map((item, index) =>
-          createFloorPlans(res?.id, item, index),
+          createFloorPlans(res?.id, item, index)
         );
       }
 
@@ -659,7 +683,7 @@ const AddPropertyPage = () => {
           validationErrors[err.path] = err?.message;
         });
         console.log("error", error);
-        
+
         Failure("Please Fill all the required fields");
 
         setState({ error: validationErrors, btnLoading: false });
@@ -728,7 +752,7 @@ const AddPropertyPage = () => {
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
-        price_per_sqft:state.price_per_sqft,
+        price_per_sqft: state.price_per_sqft,
         price: state.max_price,
         location_url: state.location_url,
       };
@@ -779,7 +803,7 @@ const AddPropertyPage = () => {
 
       if (state.floorPlans?.length > 0) {
         state.floorPlans?.map((item, index) =>
-          createFloorPlans(res?.id, item, index),
+          createFloorPlans(res?.id, item, index)
         );
       }
 
@@ -857,7 +881,7 @@ const AddPropertyPage = () => {
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
-        price_per_sqft:state.price_per_sqft,
+        price_per_sqft: state.price_per_sqft,
         price: state.max_price,
       };
 
@@ -901,7 +925,7 @@ const AddPropertyPage = () => {
 
       if (state.floorPlans.length > 0) {
         state.floorPlans?.map((item, index) =>
-          createFloorPlans(res?.id, item, index),
+          createFloorPlans(res?.id, item, index)
         );
       }
 
@@ -1024,6 +1048,8 @@ const AddPropertyPage = () => {
     { id: 7, title: "Media", icon: File },
     { id: 3, title: "Location", icon: MapPin },
     { id: 4, title: "Amenities", icon: Home },
+    { id: 6, title: "SEO", icon: File },
+
     // { id: 5, title: "Extra Facilities", icon: Star },
     // { id: 6, title: "Contact Information", icon: Phone },
   ];
@@ -1058,7 +1084,7 @@ const AddPropertyPage = () => {
   const updateFloorPlan = (index, field, value) => {
     setState({
       floorPlans: state.floorPlans.map((plan, i) =>
-        i === index ? { ...plan, [field]: value } : plan,
+        i === index ? { ...plan, [field]: value } : plan
       ),
     });
   };
@@ -1070,6 +1096,228 @@ const AddPropertyPage = () => {
       setState({ openAccordions: [index] });
     }
   };
+
+  const buildCanonicalUrl = (
+    parentCategory: any,
+    slug: string,
+    rawList: any[]
+  ): string => {
+    const base = (FRONTEND_URL || "").replace(/\/$/, "");
+    const parts: string[] = [];
+    if (parentCategory?.id) {
+      const findSlugs = (
+        nodes: any[],
+        targetId: number,
+        path: string[]
+      ): string[] | null => {
+        for (const node of nodes) {
+          if (node.id === targetId) return [...path, node.slug || ""];
+          const sub = node.subcategories || node.children || [];
+          const found = findSlugs(sub, targetId, [...path, node.slug || ""]);
+          if (found) return found;
+        }
+        return null;
+      };
+      const slugPath = findSlugs(rawList, parentCategory.id, []);
+      if (slugPath) parts.push(...slugPath.filter(Boolean));
+    }
+    if (slug) parts.push(slug);
+    return parts.length ? `${base}/${parts.join("/")}` : base;
+  };
+
+  const handleEdit = (item: {
+    id: number;
+    name: string;
+    slug?: string;
+    description?: string;
+    title?: string;
+    category_id?: number;
+    depth: number;
+    ancestors?: any[];
+    type?: string;
+    parent_id?: number;
+    child_id?: number;
+  }) => {
+    let parent_category = null;
+    if (item.ancestors?.length) {
+      const ancestors = item.ancestors.filter(Boolean);
+      const label = ancestors
+        .map((a: any) => a?.name || "Untitled category")
+        .join(" > ");
+      const last = ancestors[ancestors.length - 1];
+      if (last) {
+        parent_category = {
+          id: last.id,
+          label,
+          type: `level${item.depth - 1}`,
+          depth: item.depth - 1,
+          category_id: ancestors[0]?.id,
+        };
+      }
+    }
+    setState({
+      isOpen: true,
+      editItem: item,
+      name: item?.name,
+      slug: item.slug || "",
+      catDescription: item.description || "",
+      catTitle: item.title || "",
+      canonical_url: buildCanonicalUrl(
+        parent_category,
+        item.slug || "",
+        state.rawSeoCategoryList || []
+      ),
+      parent_category,
+    });
+  };
+
+  const delete_category = (item: {
+    id: number;
+    name: string;
+    depth: number;
+  }) => {
+    setState({ deleteConfirmItem: item });
+  };
+
+  const confirm_delete_category = async () => {
+    const item = state.deleteConfirmItem;
+    if (!item) return;
+    try {
+      setState({ catLoading: true, deleteConfirmItem: null });
+      if (item.depth === 0) {
+        await Models.seo.delete_category(item.id);
+      } else {
+        await Models.seo.delete_sub_category(item.id);
+      }
+      const listRes: any = await Models.seo.list(1, {});
+      const existingSelected = Array.isArray(state.seoCategorySelected)
+        ? state.seoCategorySelected.filter((s: any) => s.id !== item.id)
+        : [];
+      const updatedList = transformCategoryData(listRes?.results || []);
+      const parent_ids = existingSelected
+        .filter((s: any) => s.depth === 0)
+        .map((s: any) => s.id);
+      const child_ids = existingSelected
+        .filter((s: any) => s.depth === 1)
+        .map((s: any) => s.id);
+      const sub_child_ids = existingSelected
+        .filter((s: any) => s.depth === 2)
+        .map((s: any) => s.id);
+      setState({
+        seoCategoryList: updatedList,
+        rawSeoCategoryList: listRes?.results || [],
+        seoCategorySelected: existingSelected,
+        seoCategory: { parent_ids, child_ids, sub_child_ids },
+        catLoading: false,
+      });
+    } catch (error) {
+      setState({ catLoading: false });
+      console.log("✌️delete_category error --->", error);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setState({
+      isOpen: false,
+      editItem: null,
+      name: "",
+      slug: "",
+      catDescription: "",
+      catTitle: "",
+      canonical_url: "",
+      parent_category: null,
+    });
+  };
+
+  const handleFieldChange = (field: string, value: any) => {
+    setState({
+      [field]: value,
+      error: { ...state.error, [field]: undefined },
+    });
+  };
+
+  const create_category = async () => {
+    try {
+      setState({ catLoading: true });
+      let res: any;
+      if (state.parent_category?.id) {
+        const body: any = { name: state?.name, slug: state.slug, description: state.catDescription, title: state.catTitle, canonical_url: state.canonical_url };
+
+        const selected = state.parent_category;
+        if (selected.depth === 0) {
+          body.category_id = selected.id;
+        } else {
+          body.parent_id = selected.id;
+          body.category_id = selected.category_id;
+        }
+        res = await Models.seo.create_sub_category(body);
+      } else {
+        res = await Models.seo.create_category({ name: state?.name, slug: state.slug, description: state.catDescription, title: state.catTitle, canonical_url: state.canonical_url });
+      }
+      const listRes: any = await Models.seo.list(1, {});
+      const updatedList = transformCategoryData(listRes?.results || []);
+      const existingSelected = Array.isArray(state.seoCategorySelected) ? state.seoCategorySelected : [];
+      const newDepth = state.parent_category ? (state.parent_category.depth ?? 0) + 1 : 0;
+      const newSelected = res?.id ? { id: res.id, name: res?.name, depth: newDepth } : null;
+      setState({
+        seoCategoryList: updatedList,
+        rawSeoCategoryList: listRes?.results || [],
+        seoCategorySelected: newSelected ? [...existingSelected, newSelected] : existingSelected,
+        catLoading: false,
+        isOpen: false,
+        name: "",
+        slug: "",
+        catDescription: "",
+        catTitle: "",
+        canonical_url: "",
+        parent_category: null,
+      });
+    } catch (error) {
+      setState({ catLoading: false });
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const update_category = async () => {
+    try {
+      setState({ catLoading: true });
+      const item = state.editItem;
+      const body: any = { name: state?.name, slug: state.slug, description: state.catDescription, title: state.catTitle, canonical_url: state.canonical_url };
+      if (item?.depth === 0) {
+        await Models.seo.update_parent_cat(body, item.id);
+      } else {
+        const selected = state.parent_category;
+        const subBody: any = { ...body };
+        if (selected) {
+          subBody.parent_id = selected.depth === 0 ? null : selected.id;
+          subBody.category_id = selected.depth === 0 ? selected.id : selected.category_id;
+        } else {
+          subBody.category_id = item?.ancestors?.[0]?.id || item?.category_id;
+          subBody.parent_id = item?.depth > 1 ? item?.ancestors?.[item.ancestors.length - 1]?.id : null;
+        }
+        if (!subBody.parent_id) delete subBody.parent_id;
+        await Models.seo.update_sub_cat(subBody, item.id);
+      }
+      const listRes: any = await Models.seo.list(1, {});
+      setState({
+        seoCategoryList: transformCategoryData(listRes?.results || []),
+        rawSeoCategoryList: listRes?.results || [],
+        catLoading: false,
+        isOpen: false,
+        editItem: null,
+        name: "",
+        slug: "",
+        catDescription: "",
+        catTitle: "",
+        canonical_url: "",
+        parent_category: null,
+      });
+    } catch (error) {
+      setState({ catLoading: false });
+      console.log("✌️error --->", error);
+    }
+  };
+
 
   return (
     <>
@@ -1572,7 +1820,7 @@ const AddPropertyPage = () => {
               {/* {state.property_type?.label !== PROPERTY_TYPE.AGRICULTURAL && */}
               {step.id === 5 && (
                 <div className="panel rounded-lg border p-6 shadow-none">
-                  <h2 className="text-lg font-semibold mb-4">Plans</h2>
+                  <h2 className="mb-4 text-lg font-semibold">Plans</h2>
 
                   <div className=" grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="">
@@ -1589,9 +1837,7 @@ const AddPropertyPage = () => {
                     </div>
 
                     <div className="">
-                      <h3 className="mb-4 font-medium ">
-                        Master Plans
-                      </h3>
+                      <h3 className="mb-4 font-medium ">Master Plans</h3>
                       <ImageUploadWithPreview
                         maxFiles={1}
                         onImagesChange={(images) =>
@@ -1602,18 +1848,12 @@ const AddPropertyPage = () => {
                         }
                       />
                     </div>
-
-                  
                   </div>
 
                   <div className="mt-6">
-                    <h3 className="text-md mb-4 font-semibold">
-                        Unit Plans
-                      </h3>
-                 
+                    <h3 className="text-md mb-4 font-semibold">Unit Plans</h3>
 
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-1">
-                      
                       {state.floorPlans?.map((plan, index) => (
                         <div key={index} className="rounded-lg border">
                           <div
@@ -1680,7 +1920,7 @@ const AddPropertyPage = () => {
                                   updateFloorPlan(
                                     index,
                                     "squareFeet",
-                                    e.target.value,
+                                    e.target.value
                                   )
                                 }
                                 required={plan.category ? true : false}
@@ -1696,7 +1936,7 @@ const AddPropertyPage = () => {
                                   updateFloorPlan(
                                     index,
                                     "price",
-                                    e.target.value,
+                                    e.target.value
                                   )
                                 }
                                 required={plan.category ? true : false}
@@ -1726,7 +1966,7 @@ const AddPropertyPage = () => {
                                   updateFloorPlan(
                                     index,
                                     "floorNo",
-                                    e.target.value,
+                                    e.target.value
                                   )
                                 }
                                 required={plan.category ? true : false}
@@ -1747,21 +1987,21 @@ const AddPropertyPage = () => {
                                 e.preventDefault();
                                 e.currentTarget.classList.add(
                                   "border-blue-400",
-                                  "bg-blue-50",
+                                  "bg-blue-50"
                                 );
                               }}
                               onDragLeave={(e) => {
                                 e.preventDefault();
                                 e.currentTarget.classList.remove(
                                   "border-blue-400",
-                                  "bg-blue-50",
+                                  "bg-blue-50"
                                 );
                               }}
                               onDrop={(e) => {
                                 e.preventDefault();
                                 e.currentTarget.classList.remove(
                                   "border-blue-400",
-                                  "bg-blue-50",
+                                  "bg-blue-50"
                                 );
 
                                 const files = e.dataTransfer.files;
@@ -1850,8 +2090,7 @@ const AddPropertyPage = () => {
                         Add Floor Plan
                       </button>
                     </div>
-
-                     </div>
+                  </div>
                 </div>
               )}
 
@@ -1934,7 +2173,7 @@ const AddPropertyPage = () => {
                     <NumberInput
                       name="latitude"
                       title="Latitude of the Location"
-                      placeholder="Enter location"
+                      placeholder="Enter latitude"
                       value={state.latitude}
                       onChange={handleInputChange}
                       required
@@ -1943,19 +2182,28 @@ const AddPropertyPage = () => {
                     <NumberInput
                       name="longitude"
                       title="Longitude of the Location"
-                      placeholder="Enter location"
+                      placeholder="Enter longitude"
                       value={state.longitude}
                       onChange={handleInputChange}
                       required
                       error={state.error?.longitude}
                     />
                   </div>
-                  <div className="mt-4 flex h-60 w-full items-center justify-center rounded rounded-md bg-gray-100 text-gray-400">
-                    <iframe
-                      className="h-64 w-full rounded-2xl"
-                      src={`https://maps.google.com/maps?q=${state?.latitude},${state?.longitude}&z=13&ie=UTF8&iwloc=&output=embed`}
-                    />
-                  </div>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Click on the map to pick a location — latitude & longitude
+                    will auto-fill.
+                  </p>
+                  <GoogleMapPicker
+                    lat={state.latitude}
+                    lng={state.longitude}
+                    onChange={(lat, lng) =>
+                      setState({
+                        latitude: lat,
+                        longitude: lng,
+                        error: { ...state.error, latitude: "", longitude: "" },
+                      })
+                    }
+                  />
                   <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2">
                     {/* <TextInput
                       name="city"
@@ -1968,35 +2216,34 @@ const AddPropertyPage = () => {
                     /> */}
 
                     <CustomSelect
-                  title="City name"
-                  placeholder="Select city"
-                  options={state.cityList}
-                  value={state.location}
-                  onChange={(selectedOption) =>
-                    setState({ location: selectedOption, area: "" })
-                  }
-                  isClearable
-                  loadMore={() => cityLoadMore()}
-                  required
-                  error={state.error?.location}
-                  disabled={state.project?.value}
-                />
+                      title="City name"
+                      placeholder="Select city"
+                      options={state.cityList}
+                      value={state.location}
+                      onChange={(selectedOption) =>
+                        setState({ location: selectedOption, area: "" })
+                      }
+                      isClearable
+                      loadMore={() => cityLoadMore()}
+                      required
+                      error={state.error?.location}
+                      disabled={state.project?.value}
+                    />
 
-                <CustomSelect
-                  title="Area name"
-                  placeholder="Select Area"
-                  options={state.areaList}
-                  value={state.area}
-                  onChange={(selectedOption) =>
-                    setState({ area: selectedOption })
-                  }
-                  isClearable
-                  loadMore={() => areaLoadMore()}
-                  required
-                  error={state.error?.area}
-                  disabled={state.project?.value}
-
-                />
+                    <CustomSelect
+                      title="Area name"
+                      placeholder="Select Area"
+                      options={state.areaList}
+                      value={state.area}
+                      onChange={(selectedOption) =>
+                        setState({ area: selectedOption })
+                      }
+                      isClearable
+                      loadMore={() => areaLoadMore()}
+                      required
+                      error={state.error?.area}
+                      disabled={state.project?.value}
+                    />
 
                     <TextInput
                       name="state"
@@ -2077,7 +2324,6 @@ const AddPropertyPage = () => {
                   </div>
 
                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-                    
                     {/* <CustomSelect
                       title="Country"
                       placeholder="Enter Country"
@@ -2096,7 +2342,6 @@ const AddPropertyPage = () => {
                       required
                       error={state.error?.country}
                     /> */}
-                    
                   </div>
                 </div>
               )}
@@ -2142,11 +2387,11 @@ const AddPropertyPage = () => {
                           const aChecked = selected.includes(a.value) ? 0 : 1;
                           const bChecked = selected.includes(b.value) ? 0 : 1;
                           return aChecked - bChecked;
-                        },
+                        }
                       );
                       const visible = sorted.slice(
                         0,
-                        state.amenitiesVisibleCount,
+                        state.amenitiesVisibleCount
                       );
                       return visible.map((amenity) => (
                         <CheckboxInput
@@ -2157,10 +2402,10 @@ const AddPropertyPage = () => {
                           checked={selected.includes(amenity.value)}
                           onChange={() => {
                             const updatedAmenities = selected.includes(
-                              amenity.value,
+                              amenity.value
                             )
                               ? selected.filter(
-                                  (item) => item !== amenity.value,
+                                  (item) => item !== amenity.value
                                 )
                               : [...selected, amenity.value];
                             setState({
@@ -2189,7 +2434,7 @@ const AddPropertyPage = () => {
                         {Math.min(
                           12,
                           (state.amenityList?.length || 0) -
-                            state.amenitiesVisibleCount,
+                            state.amenitiesVisibleCount
                         )}{" "}
                         more)
                       </button>
@@ -2212,6 +2457,74 @@ const AddPropertyPage = () => {
                       {state.error?.amenities}
                     </p>
                   )}
+                </div>
+              )}
+
+              {step.id === 6 && (
+                <div className="panel rounded-lg border shadow-none">
+                  <div className="grid grid-cols-1 gap-5">
+                    <div className="flex items-center justify-between gap-5 ">
+                    <h2 className=" text-lg font-semibold">
+                      SEO
+                    </h2>
+                      <span
+                        onClick={() => setState({ isOpen: true })}
+                        className="text-dred text-dblue cursor-pointer font-bold underline"
+                      >
+                        New Category
+                      </span>
+                    </div>
+                    <div className="w-full overflow-hidden">
+                      <CategorySelector
+                        key={state.seoCategoryList?.length}
+                        categoryData={state.seoCategoryList}
+                        value={state.seoCategorySelected}
+                        onChange={(payload, rawSelected) =>
+                          setState({
+                            seoCategory: payload,
+                            seoCategorySelected: rawSelected,
+                            error: { ...state.error, seoCategory: undefined },
+                          })
+                        }
+                        onEdit={handleEdit}
+                        onDelete={delete_category}
+                      />
+                    </div>
+                    {state.error?.seoCategory && (
+                      <p className="mt-2 text-sm text-red-600">
+                        {state.error.seoCategory}
+                      </p>
+                    )}
+                    <TextInput
+                      title="Meta Title"
+                      placeholder="Enter meta title"
+                      value={state.meta_title}
+                      onChange={(e) =>
+                        setState({
+                          meta_title: e.target.value,
+                          error: { ...state.error, meta_title: undefined },
+                        })
+                      }
+                      error={state.error?.meta_title}
+                      required
+                    />
+                    <TextArea
+                      title="Meta Description"
+                      placeholder="Enter meta description"
+                      value={state.meta_description}
+                      onChange={(e) =>
+                        setState({
+                          meta_description: e.target.value,
+                          error: {
+                            ...state.error,
+                            meta_description: undefined,
+                          },
+                        })
+                      }
+                      error={state.error?.meta_description}
+                      required
+                    />
+                  </div>
                 </div>
               )}
 
@@ -2382,6 +2695,116 @@ const AddPropertyPage = () => {
                 </button>
               </div>
             </form>
+          </div>
+        )}
+      />
+
+      <Modal
+        closeIcon
+        maxWidth="max-w-3xl"
+        subTitle={
+          state.editItem ? `Edit "${state.editItem?.name}"` : "Add new category"
+        }
+        open={state.isOpen}
+        close={handleCloseModal}
+        renderComponent={() => (
+          <div className="w-full">
+            <div className="min-h-[400px]">
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-1">
+                  <>
+                    <TextInput
+                      title="Category Name"
+                      placeholder="Category Name"
+                      value={state?.name}
+                      onChange={(e) => setState({ name: e.target.value })}
+                      required
+                    />
+                    <TextInput
+                      title="Title"
+                      placeholder="Title"
+                      value={state.catTitle}
+                      onChange={(e) => setState({ catTitle: e.target.value })}
+                    />
+                    {(!state.editItem || state.editItem?.depth > 0) && (
+                      <AccordionSelect
+                        title="Parent Category"
+                        apiData={state.rawSeoCategoryList || []}
+                        value={state.parent_category}
+                        onChange={(option) => {
+                          handleFieldChange("parent_category", option);
+                          setState({
+                            canonical_url: buildCanonicalUrl(
+                              option,
+                              state.slug,
+                              state.rawSeoCategoryList || []
+                            ),
+                          });
+                        }}
+                        placeholder="Select parent category"
+                        excludeId={state.editItem?.id}
+                      />
+                    )}
+                    <TextInput
+                      title="Slug"
+                      placeholder="slug"
+                      value={state.slug}
+                      onChange={(e) => {
+                        const slug = e.target.value;
+                        setState({
+                          slug,
+                          canonical_url: buildCanonicalUrl(
+                            state.parent_category,
+                            slug,
+                            state.rawSeoCategoryList || []
+                          ),
+                        });
+                      }}
+                    />
+                    <TextInput
+                      title="Canonical URL"
+                      placeholder="Canonical URL"
+                      value={state.canonical_url}
+                      onChange={(e) =>
+                        setState({ canonical_url: e.target.value })
+                      }
+                      disabled
+                    />
+                    <TextArea
+                      title="Description"
+                      placeholder="Description"
+                      value={state.catDescription}
+                      onChange={(e) =>
+                        setState({ catDescription: e.target.value })
+                      }
+                    />
+                  </>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleCloseModal()}
+                  className="rounded-lg border px-6 py-2"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => state.editItem ? update_category() : create_category()}
+                  className="btn btn-dred rounded-lg px-6 py-2 text-white border-none"
+                  disabled={state.catLoading}
+                >
+                  {state.catLoading
+                    ? state.editItem
+                      ? "Updating..."
+                      : "Creating..."
+                    : state.editItem
+                    ? "Update"
+                    : "Create"}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       />
