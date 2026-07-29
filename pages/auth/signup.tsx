@@ -24,6 +24,8 @@ import IconEyeOff from "@/components/Icon/IconEyeOff";
 // import ReCAPTCHA from "react-google-recaptcha";
 import { CAPTCHA_SITE_KEY } from "@/utils/constant.utils";
 import IconEye from "@/components/Icon/IconEye";
+import ReCAPTCHA from "react-google-recaptcha";
+
 
 const RegisterBoxed = () => {
   const dispatch = useDispatch();
