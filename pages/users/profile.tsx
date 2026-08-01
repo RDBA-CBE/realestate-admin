@@ -171,11 +171,12 @@ export default function Profile() {
         location: state?.location?.map((item: any) => item.value),
         description: state.description,
         specialization: state.specialization,
-        developer_image: state.developer_image || null
+        developer_image: state.developer_image instanceof File ? state.developer_image : null
       };
 
       console.log("body", body);
-       const formData = buildFormData(body);
+
+      const formData = buildFormData(body);
       await Models.user.update(formData, userString);
 
       // If image exists → send multipart/form-data
