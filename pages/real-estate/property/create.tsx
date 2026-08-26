@@ -253,6 +253,9 @@ const AddPropertyPage = () => {
     }
   }, [state.developerList]);
 
+  console.log("developer", state.developer);
+  
+
   const projectList = async (page) => {
     try {
       const body = {

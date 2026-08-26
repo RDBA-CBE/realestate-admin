@@ -411,3 +411,12 @@ export const change_password = Yup.object().shape({
     .required("Confirm Password is required")
     .oneOf([Yup.ref("new_password")], "Passwords must match"),
 });
+
+
+export const profile  = Yup.object().shape({
+  first_name : Yup.string().required("First Name is required"),
+  last_name : Yup.string().required("Last Name is required"),
+  email : Yup.string().required("Email is required").email("Enter a valid email"),
+  industry : Yup.string().nullable().required("Industry name is required"),
+ 
+});

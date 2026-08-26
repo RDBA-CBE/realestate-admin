@@ -177,7 +177,7 @@ const LoginBoxed = () => {
                 loading={state.btnLoading}
               />
             </form>
-            <div className="relative my-7 text-center md:mb-9">
+           {/* <div className="relative my-7 text-center md:mb-9">
               <span className="absolute inset-x-0 top-3 h-px w-full -translate-y-1 bg-[#ffb1b1] dark:bg-white-dark"></span>
               <span className="relative bg-lred px-2 font-medium uppercase text-white-dark dark:bg-dark dark:text-white-light">
                 or
@@ -192,6 +192,7 @@ const LoginBoxed = () => {
                 SIGN UP
               </Link>
             </div>
+            */}
           </div>
         </div>
       </div>

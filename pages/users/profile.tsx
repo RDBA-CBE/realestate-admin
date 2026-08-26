@@ -171,14 +171,17 @@ export default function Profile() {
         years_in_business: state?.years_in_business,
         location: state?.location?.map((item: any) => item.value),
         description: state.description,
-        specialization: state.specialization,
-        developer_image: state.developer_image instanceof File ? state.developer_image : null
+        specialization: JSON.stringify(state.specialization),
       };
       if (state.developer_image instanceof File) {
         body.developer_image = state.developer_image;
+      } else if (state.developer_image === null) {
+        body.developer_image = "";
       }
 
       console.log("body", body);
+
+      await Utils.Validation.profile.validate(body, { abortEarly: false });
 
       const formData = buildFormData(body);
       await Models.user.update(formData, userString);
@@ -563,6 +566,7 @@ export default function Profile() {
               onChange={(e) => setState({ first_name: e.target.value })}
               error={state.error?.first_name}
               icon={<IconUser fill />}
+              required
             />
             <TextInput
               title="Last Name"
@@ -571,6 +575,7 @@ export default function Profile() {
               onChange={(e) => setState({ last_name: e.target.value })}
               error={state.error?.last_name}
               icon={<IconUser fill />}
+              required
             />
             <TextInput
               title="Email Address"
@@ -579,6 +584,7 @@ export default function Profile() {
               onChange={(e) => setState({ email: e.target.value })}
               error={state.error?.email}
               icon={<IconMail fill />}
+              required
             />
             <TextInput
               title="Industry Name"
@@ -586,6 +592,8 @@ export default function Profile() {
               value={state.industry}
               onChange={(e) => setState({ industry: e.target.value })}
               icon={<IconHome />}
+              required
+              error={state.error?.industry}
             />
             <NumberInput
               title="Industry Start Year"
@@ -641,20 +649,26 @@ export default function Profile() {
                   className="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-[#9b0f09] focus:outline-none focus:ring-1 focus:ring-[#9b0f09] dark:border-gray-600 dark:bg-gray-800 dark:text-white"
                 />
                 {state.developer_image &&
-                  (state.developer_image.name ? (
+                  (state.developer_image instanceof File ? (
                     <span className="text-sm text-green-600 dark:text-green-400">
                       {state.developer_image.name}
                     </span>
                   ) : (
-                    <div className="flex flex-col items-center h-10 w-30 ">
-                    <img
-                      src={state.developer_image}
-                      alt="Preview"
-                      className="h-full w-full object-cover"
-                    />
-                    <p className="text-xs text-red-600 dark:text-red-400 cursor-pointer" onClick={() => setState({ developer_image: null })}>
-                      remove
-                    </p>
+                    <div className="relative inline-block">
+                      <img
+                        src={state.developer_image}
+                        alt="Preview"
+                        className="h-10 w-10 rounded-lg border border-gray-200 object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setState({ developer_image: null })}
+                        className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-[#9b0f09] text-white shadow"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                        </svg>
+                      </button>
                     </div>
                   ))}
               </div>
