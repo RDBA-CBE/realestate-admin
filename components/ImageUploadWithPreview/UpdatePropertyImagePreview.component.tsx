@@ -43,7 +43,7 @@ interface ImageItem {
 const UpdatePropertyImagePreview: React.FC<ImageUploadProps> = ({
   existingImages = [],
   maxFiles = 10,
-  acceptedFormats = ["image/jpeg", "image/png"],
+  acceptedFormats = ["image/webp"],
   minWidth = 2048,
   minHeight = 768,
   propertyId,
@@ -107,7 +107,7 @@ const UpdatePropertyImagePreview: React.FC<ImageUploadProps> = ({
 
       if (!acceptedFormats.includes(file.type)) {
         setError(
-          `Invalid file format: ${file.name}. Please upload JPEG or PNG files.`
+          `Invalid file format: ${file.name}. Please upload WebP files only.`
         );
         continue;
       }
@@ -396,7 +396,7 @@ const UpdatePropertyImagePreview: React.FC<ImageUploadProps> = ({
               : "Upload/Drag photos of your property"}
           </p>
           <p className="text-sm text-gray-500">
-            Photos must be JPEG or PNG format and
+            Photos must be WebP format and
             Maximum file size 5MB
              at least {minWidth}x
             {minHeight}

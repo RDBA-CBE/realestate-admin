@@ -88,6 +88,7 @@ const AddPropertyPage = () => {
     //Media
     images: [],
     video: null,
+    voucher: null,
     unit_plans: [],
     master_plans: [],
     latitude: null,
@@ -614,6 +615,7 @@ const AddPropertyPage = () => {
       if (state.unit_plans?.length > 0) saleBody.unit_plan = state.unit_plans;
       if (state.master_plans?.length > 0)
         saleBody.master_plan = state.master_plans;
+      if (state.voucher) saleBody.voucher_url = state.voucher;
 
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
         abortEarly: false,
@@ -756,6 +758,7 @@ const AddPropertyPage = () => {
       if (state.unit_plans?.length > 0) buyBody.unit_plan = state.unit_plans;
       if (state.master_plans?.length > 0)
         buyBody.master_plan = state.master_plans;
+      if (state.voucher) buyBody.voucher_url = state.voucher;
       await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
         abortEarly: false,
       });
@@ -1770,7 +1773,7 @@ const AddPropertyPage = () => {
                                 const files = e.dataTransfer.files;
                                 if (files.length > 0) {
                                   const file = files[0];
-                                  if (file.type.startsWith("image/")) {
+                                  if (file.type === "image/webp") {
                                     updateFloorPlan(index, "image", file);
                                   }
                                 }
@@ -1818,7 +1821,7 @@ const AddPropertyPage = () => {
                                     Drag & drop or click to upload
                                   </span>
                                   <span className="mt-1 text-xs text-gray-400">
-                                    PNG, JPG, WEBP up to 5MB
+                                    WebP only, up to 5MB
                                   </span>
                                 </>
                               )}
@@ -1827,7 +1830,7 @@ const AddPropertyPage = () => {
                                 id={`file-input-${index}`}
                                 type="file"
                                 className="hidden"
-                                accept="image/*"
+                                accept="image/webp"
                                 onChange={(e) => {
                                   const file = e.target.files[0];
                                   if (file) {
@@ -1900,6 +1903,26 @@ const AddPropertyPage = () => {
                       value={state.virtual_tour}
                       onChange={handleInputChange}
                     />
+                  </div>
+
+                  <div className="mt-4">
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Voucher <span className="text-xs text-gray-400">(PDF)</span>
+                    </label>
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      className="block w-full cursor-pointer rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-700 file:mr-4 file:border-0 file:bg-[#9b0f09] file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-[#7a0c07] focus:outline-none"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setState({ voucher: file });
+                      }}
+                    />
+                    {state.voucher && (
+                      <p className="mt-1 text-xs text-gray-500">
+                        Selected: {state.voucher.name}
+                      </p>
+                    )}
                   </div>
                 </div>
               )}

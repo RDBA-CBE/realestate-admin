@@ -57,10 +57,13 @@ export const property_type = Yup.object().shape({
         return parseFloat(value) > parseFloat(min_price);
       }
     ),
-  price_per_sqft: Yup.string()
+    price_per_sqft: Yup.string()
+    .transform((value, originalValue) => {
+      return Number.isNaN(originalValue) ? null : value;
+    })
     .nullable()
     .when("listing_type", {
-      is: (val) => val === "sale",
+      is: "sale",
       then: (schema) => schema.required("Price Per Sq.ft is required"),
       otherwise: (schema) => schema.nullable(),
     }),
@@ -410,13 +413,4 @@ export const change_password = Yup.object().shape({
   confirm_password: Yup.string()
     .required("Confirm Password is required")
     .oneOf([Yup.ref("new_password")], "Passwords must match"),
-});
-
-
-export const profile  = Yup.object().shape({
-  first_name : Yup.string().required("First Name is required"),
-  last_name : Yup.string().required("Last Name is required"),
-  email : Yup.string().required("Email is required").email("Enter a valid email"),
-  industry : Yup.string().nullable().required("Industry name is required"),
- 
 });
