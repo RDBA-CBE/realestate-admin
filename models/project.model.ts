@@ -43,6 +43,22 @@ const project = {
         url += `&team=${encodeURIComponent(body.team)}`;
       }
 
+      if (body?.from_date) {
+        url += `&from_date=${encodeURIComponent(body.from_date)}`;
+      }
+
+      if (body?.to_date) {
+        url += `&to_date=${encodeURIComponent(body.to_date)}`;
+      }
+
+      if(body.has_conversion_rate)  {
+        url += `&has_conversion_rate=${encodeURIComponent(body.has_conversion_rate)}`;
+      }
+
+      if(body.demand_status)  {
+        url += `&demand_status=${encodeURIComponent(body.demand_status)}`;
+      }
+
       //  if (body?.agent) {
       //   url += `&agent=${encodeURIComponent(body.agent)}`;
       // }

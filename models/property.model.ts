@@ -128,6 +128,14 @@ const properties = {
       if(body?.area){
         url += `&area=${encodeURIComponent(body.area)}`;
       }
+      
+      if(body?.from_created_date){
+        url += `&from_created_date=${encodeURIComponent(body.from_created_date)}`;
+      }
+
+      if(body?.to_created_date){
+        url += `&to_created_date=${encodeURIComponent(body.to_created_date)}`;
+      }
 
       instance()
         .get(url, body)

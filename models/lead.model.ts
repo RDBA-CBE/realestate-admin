@@ -333,6 +333,22 @@ const lead = {
         url += `&created_before=${encodeURIComponent(body.to_date)}`;
       }
 
+      if (body?.created_after) {
+        url += `&created_after=${encodeURIComponent(body.created_after)}`;
+      }
+
+      if (body?.created_before) {
+        url += `&created_before=${encodeURIComponent(body.created_before)}`;
+      }
+
+       if (body?.from_opportunity_status_date) {
+        url += `&from_opportunity_status_date=${encodeURIComponent(body.from_opportunity_status_date)}`;
+      }
+
+      if (body?.to_opportunity_status_date) {
+        url += `&to_opportunity_status_date=${encodeURIComponent(body.to_opportunity_status_date)}`;
+      }
+
        if (body?.ordering) {
         url += `&sort_by=${body?.ordering}`;
       }

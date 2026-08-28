@@ -60,6 +60,7 @@ const inquiry = {
       if (body?.to_date) {
         url += `&date_to=${body?.to_date}`;
       }
+      
       if (body?.ordering) {
         url += `&ordering=${body?.ordering}`;
       }

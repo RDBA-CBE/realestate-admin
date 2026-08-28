@@ -4,6 +4,7 @@ interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   title?: string;
   error?: string;
   className?: string;
+  parentClass?: string;
   icon?: React.ReactNode; 
   rightIcon?: React.ReactNode;
   rightIconOnlick?:any
@@ -18,6 +19,7 @@ const TextInput: React.FC<TextInputProps> = ({
   name,
   required,
   className = "",
+  parentClass,
   error,
   icon,
   rightIcon,
@@ -25,7 +27,7 @@ const TextInput: React.FC<TextInputProps> = ({
   ...rest
 }) => {
   return (
-    <div className="w-full">
+    <div className={`${parentClass || "w-full"}`}>
       {title && (
         <label
           htmlFor={name}
