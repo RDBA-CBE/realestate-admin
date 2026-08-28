@@ -1906,8 +1906,8 @@ const AddPropertyPage = () => {
                   </div>
 
                   <div className="mt-4">
-                    <label className="mb-1 block text-sm font-medium text-gray-700">
-                      Voucher <span className="text-xs text-gray-400">(PDF)</span>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">
+                      Brochure <span className="text-sm text-gray-400 ">(PDF)</span>
                     </label>
                     <input
                       type="file"

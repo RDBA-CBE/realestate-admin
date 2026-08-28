@@ -2334,8 +2334,8 @@ const AddPropertyPage = () => {
                   </div>
 
                   <div className="mt-4">
-                    <label className="block text-sm font-bold text-gray-700 mb-1">
-                      Voucher <span className="text-xs text-gray-400">(PDF)</span>
+                   <label className="block text-sm font-bold text-gray-700 mb-1">
+                      Brochure <span className="text-sm text-gray-400 ">(PDF)</span>
                     </label>
 
                     {/* Show existing PDF if no new file selected */}
