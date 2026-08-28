@@ -57,10 +57,13 @@ export const property_type = Yup.object().shape({
         return parseFloat(value) > parseFloat(min_price);
       }
     ),
-  price_per_sqft: Yup.string()
+    price_per_sqft: Yup.string()
+    .transform((value, originalValue) => {
+      return Number.isNaN(originalValue) ? null : value;
+    })
     .nullable()
     .when("listing_type", {
-      is: (val) => val === "sale",
+      is: "sale",
       then: (schema) => schema.required("Price Per Sq.ft is required"),
       otherwise: (schema) => schema.nullable(),
     }),

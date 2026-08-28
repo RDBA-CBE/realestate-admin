@@ -15,7 +15,7 @@ interface ImageUploadProps {
 const ImageUploadWithPreview: React.FC<ImageUploadProps> = ({
   onImagesChange,
   maxFiles = 10,
-  acceptedFormats = ["image/jpeg", "image/png"],
+  acceptedFormats = ["image/webp"],
   minWidth = 2048,
   minHeight = 768,
   initialImages = [],
@@ -77,7 +77,7 @@ const ImageUploadWithPreview: React.FC<ImageUploadProps> = ({
 
       if (!acceptedFormats.includes(file.type)) {
         setError(
-          `Invalid file format: ${file.name}. Please upload JPEG or PNG files.`
+          `Invalid file format: ${file.name}. Please upload WebP files only.`
         );
         continue;
       }
@@ -193,7 +193,7 @@ const ImageUploadWithPreview: React.FC<ImageUploadProps> = ({
             Upload/Drag photos of your property
           </p>
           <p className="text-sm text-gray-500">
-            Photos must be JPEG or PNG format and max size 5MB
+            Photos must be WebP format and max size 5MB
             
              {/* at least {minWidth}x
             {minHeight} */}

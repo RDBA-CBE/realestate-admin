@@ -104,6 +104,8 @@ const AddPropertyPage = () => {
     master_plans: [],
     unit_plan_url: null,
     master_plan_url: null,
+    voucher: null,
+    voucher_url: null,
     latitude: null,
     longitude: null,
     country: null,
@@ -271,6 +273,7 @@ const AddPropertyPage = () => {
         total_area: res?.total_area,
         built_up_area: res?.built_up_area,
         location_url: res?.location_url || "",
+        voucher_url: res?.voucher_url || null,
         // ...(res?.total_area && { total_area: formatNumber(res.total_area) }),
         // ...(res?.built_up_area && {
         //   built_up_area: formatNumber(res.built_up_area),
@@ -810,6 +813,7 @@ const AddPropertyPage = () => {
       }
     }
   };
+  console.log("state.voucher",state.voucher)
 
   const createSaleProperty = async (type: string) => {
     try {
@@ -878,6 +882,10 @@ const AddPropertyPage = () => {
       if (state.master_plans?.length > 0 && state.master_plans[0]?.size > 0) {
         saleBody.master_plan = state.master_plans;
       }
+      if (state.voucher && typeof state.voucher === "object" && "name" in state.voucher) {
+        saleBody.voucher_url = state.voucher;
+      }
+      console.log('saleBody',saleBody)
 
       await Utils.Validation.propertySaleCreate.validate(saleBody, {
         abortEarly: false,
@@ -1026,6 +1034,9 @@ const AddPropertyPage = () => {
       }
       if (state.master_plans?.length > 0 && state.master_plans[0]?.size > 0) {
         buyBody.master_plan = state.master_plans;
+      }
+      if (state.voucher && typeof state.voucher === "object" && "name" in state.voucher) {
+        buyBody.voucher_url = state.voucher;
       }
 
       await Utils.Validation.propertyLeaseCreate.validate(buyBody, {
@@ -2187,7 +2198,7 @@ const AddPropertyPage = () => {
                                   const files = e.dataTransfer.files;
                                   if (files.length > 0) {
                                     const file = files[0];
-                                    if (file.type.startsWith("image/")) {
+                                    if (file.type === "image/webp") {
                                       updateFloorPlan(index, "image", file);
                                     }
                                   }
@@ -2235,7 +2246,7 @@ const AddPropertyPage = () => {
                                       Drag & drop or click to upload
                                     </span>
                                     <span className="mt-1 text-xs text-gray-400">
-                                      PNG, JPG, WEBP up to 5MB
+                                      WebP only, up to 5MB
                                     </span>
                                   </>
                                 )}
@@ -2244,7 +2255,7 @@ const AddPropertyPage = () => {
                                   id={`file-input-${index}`}
                                   type="file"
                                   className="hidden"
-                                  accept="image/*"
+                                  accept="image/webp"
                                   onChange={(e) => {
                                     const file = e.target.files[0];
                                     if (file) {
@@ -2320,6 +2331,45 @@ const AddPropertyPage = () => {
                       value={state.virtual_tour}
                       onChange={handleInputChange}
                     />
+                  </div>
+
+                  <div className="mt-4">
+                   <label className="block text-sm font-bold text-gray-700 mb-1">
+                      Brochure <span className="text-sm text-gray-400 ">(PDF)</span>
+                    </label>
+
+                    {/* Show existing PDF if no new file selected */}
+                    {state.voucher_url && !state.voucher && (
+                      <div className="mb-2 flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 shrink-0 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/>
+                        </svg>
+                        <a
+                          href={state.voucher_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="truncate text-sm text-blue-600 underline"
+                        >
+                          {state.voucher_url.split("/").pop()}
+                        </a>
+                        <span className="ml-auto shrink-0 text-xs text-gray-400">Current</span>
+                      </div>
+                    )}
+
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      className="block w-full cursor-pointer rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-700 file:mr-4 file:border-0 file:bg-[#9b0f09] file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-[#7a0c07] focus:outline-none"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setState({ voucher: file });
+                      }}
+                    />
+                    {state.voucher && (
+                      <p className="mt-1 text-xs text-gray-500">
+                        Selected: {state.voucher.name}
+                      </p>
+                    )}
                   </div>
                 </div>
               )}
