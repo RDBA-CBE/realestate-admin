@@ -343,6 +343,7 @@ const View_CallInquiry = () => {
         bank_name: capitalizeFLetter(state.bank_name),
         bank_branch: capitalizeFLetter(state.branch_name),
         bank_account_no: state.account_number,
+        apartment: true
       };
 
       await Utils.Validation.lead.validate(body, { abortEarly: false });

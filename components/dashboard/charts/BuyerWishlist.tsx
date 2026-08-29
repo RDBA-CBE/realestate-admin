@@ -49,7 +49,7 @@ export default function BuyerWishlist({ dashboardData }: { dashboardData?: any }
           </span>
         </div>
       ) : (
-        <div className="my-2 space-y-3">
+        <div className="my-2 space-y-5">
           {projects.map((item, index) => (
             <div key={item.project_name + index} className="group">
               <div className="mb-1 flex items-center justify-between gap-2 text-xs">

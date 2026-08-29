@@ -2,7 +2,7 @@ import React from 'react';
 import DashboardApexChart from './DashboardApexChart';
 import { BarChart3 } from 'lucide-react';
 
-const SERIES_COLORS = ['#8b181b', '#2563eb', '#d97706', '#16a34a', '#9333ea', '#0284c7', '#0d9488'];
+const SERIES_COLORS = ['#8b181b', '#2563eb', '#d97706', '#074e21', '#9333ea', '#0284c7', '#0d9488'];
 
 export default function PricePerSqft({ dashboardData }: { dashboardData?: any }) {
   const items: any[] = dashboardData?.charts?.price_per_sqft_over_time ?? [];
@@ -45,11 +45,11 @@ export default function PricePerSqft({ dashboardData }: { dashboardData?: any })
       min: 0,
       forceNiceScale: true,
       title: {
-        text: 'Price ($ / sq.ft)',
+        text: 'Price (₹ / sq.ft)',
         style: { color: '#000', fontSize: '12px', fontWeight: 600 },
       },
       labels: {
-        formatter: (value: number) => `$${value}`,
+        formatter: (value: number) => `₹₹{value}`,
         style: { colors: '#000', fontSize: '10px' },
       },
     },
@@ -59,7 +59,7 @@ export default function PricePerSqft({ dashboardData }: { dashboardData?: any })
     tooltip: {
       shared: true,
       intersect: false,
-      y: { formatter: (value: number) => `$${value.toLocaleString()} / sq.ft` },
+      y: { formatter: (value: number) => `₹₹{value.toLocaleString()} / sq.ft` },
     },
   };
 
@@ -81,18 +81,18 @@ export default function PricePerSqft({ dashboardData }: { dashboardData?: any })
       </div>
 
       {!hasData ? (
-        <div className="flex h-[250px] flex-col items-center justify-center gap-2 text-slate-400">
+        <div className="flex h-[300px] flex-col items-center justify-center gap-2 text-slate-400">
           <BarChart3 className="h-8 w-8 opacity-40" />
           <span className="text-sm font-semibold text-slate-500">No data found</span>
           <span className="text-xs text-slate-400">No price per sq.ft data available for the selected period</span>
         </div>
       ) : (
-        <div className="my-2 h-[250px] w-full">
+        <div className="my-2 h-[300px] w-full">
           <DashboardApexChart
             type="area"
             series={series.map((s) => ({ name: s.name, data: s.data }))}
             options={options}
-            height={240}
+            height={300}
           />
         </div>
       )}

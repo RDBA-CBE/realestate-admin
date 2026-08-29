@@ -3,8 +3,8 @@ import DashboardApexChart from './DashboardApexChart';
 import { PieChart } from 'lucide-react';
 
 const COLORS = [
-   '#2563eb',  '#16a34a', '#9333ea','#3b3b3b',
-  '#0284c7', '#0d9488','#d97706', '#db2777', '#8b181b',
+   '#0134a1',  '#074e21', '#9333ea','#8b6318',
+  '#015985', '#0d9488','#d97706', '#7e033a', '#8b181b',
 ];
 
 export default function PropertyTypeDonut({ dashboardData }: { dashboardData?: any }) {
@@ -18,16 +18,16 @@ export default function PropertyTypeDonut({ dashboardData }: { dashboardData?: a
     chart: { toolbar: { show: false }, fontFamily: 'inherit' },
     legend: { show: false },
     dataLabels: { enabled: false },
-    stroke: { colors: ['#fff'], width: 2 },
+    stroke: { colors: ['#fff'], width: 5 },
     plotOptions: {
       pie: {
         donut: {
-          size: '66%',
+          size: '60%',
           labels: {
             show: true,
             total: {
               show: true,
-              label: 'TOTAL UNITS',
+              label: 'Total Units',
               formatter: () => total.toLocaleString(),
             },
           },

@@ -78,6 +78,7 @@ function getDateRange(
       break;
     case "This Month":
       start.startOf("month");
+      end.endOf("month");
       break;
     case "Last Month":
       start.subtract(1, "month").startOf("month");
@@ -85,12 +86,15 @@ function getDateRange(
       break;
     case "Last 3 Months":
       start.subtract(3, "months");
+      end.endOf("month");
       break;
     case "Last 6 Month":
       start.subtract(6, "months");
+      end.endOf("month");
       break;
     case "This Year":
       start.startOf("year");
+      end.endOf("year");
       break;
     default:
       return { start: "", end: "" };
@@ -114,21 +118,6 @@ const DATE_RANGES: any = {
   "Last 6 Month": "last_6_months",
   "This Year": "this_year",
 };
-
-const API_DATE_RANGES: Record<string, { start: string; end: string }> = {
-  Today: { start: "25-08-2025", end: "25-08-2025" },
-  "This Week": { start: "18-08-2025", end: "25-08-2025" },
-  "This Month": { start: "01-08-2025", end: "25-08-2025" },
-  "This Quarter": { start: "01-07-2025", end: "25-08-2025" },
-  "This Year": { start: "01-01-2025", end: "25-08-2025" },
-  "Last 30 Days": { start: "26-07-2025", end: "25-08-2025" },
-};
-
-// const NO_API_CARDS: MetricCardId[] = [
-//   'conversion_rate',
-//   'high_demand_projects',
-//   'low_demand_projects',
-// ];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DASHBOARD PAGE
@@ -190,16 +179,16 @@ export default function Dashboard() {
   useEffect(() => {
     getLeadStatusIds();
     getBannerData(); // no date filter — always shows all-time values in the banner
-    loadFilterOptions();
+    projectList(1);
+    categoryList(1);
+    cityList(1);
+    leadStatusList();
+    leadSourceList();
   }, []);
 
   useEffect(() => {
     if (state.propertyCity?.value) {
-      Models.area
-        .list(1, { location: state.propertyCity.value })
-        .then((res: any) =>
-          setState({ areaOptions: Dropdown(res?.results, "name") }),
-        );
+      areaList(1);
     } else {
       setState({ areaOptions: [] });
     }
@@ -214,7 +203,7 @@ export default function Dashboard() {
     setState({
       developerId: developerId,
     });
-  });
+  }, []);
 
   // dashboard api call
 
@@ -264,25 +253,185 @@ export default function Dashboard() {
     }
   };
 
-  const loadFilterOptions = async () => {
+  // Filter dropdown's api --------------------------------
+
+  const projectList = async (page) => {
     try {
-      const [projects, categories, cities, sources, statuses]: any[] =
-        await Promise.all([
-          Models.project.list(1, { pagination: "No" }),
-          Models.category.list(1, { pagination: "No" }),
-          Models.city.list(1, { pagination: "No" }),
-          Models.leadSource.list(1, { pagination: "No" }),
-          Models.leadStatus.list(1, { pagination: "No" }),
-        ]);
+      const userId = localStorage.getItem("userId");
+      const body = {
+        developer: userId,
+      };
+      const res: any = await Models.project.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
       setState({
-        projectOptions: Dropdown(projects?.results, "name"),
-        categoryOptions: Dropdown(categories?.results, "name"),
-        cityOptions: Dropdown(cities?.results, "name"),
-        leadSourceOptions: Dropdown(sources?.results, "name"),
-        leadStatusOptions: Dropdown(statuses?.results, "name"),
+        projectOptions: droprdown,
+        projectPage: page,
+        projectNext: res.next,
       });
     } catch (error) {
-      console.log("dashboard filter options error:", error);
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const projectListLoadMore = async () => {
+    try {
+      if (state.projectNext) {
+        const res: any = await Models.project.list(state.projectPage + 1, {
+          developer: localStorage.getItem("userId"),
+        });
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          projectOptions: [...state.projectOptions, ...newOptions],
+          projectNext: res.next,
+          projectPage: state.projectPage + 1,
+        });
+      } else {
+        setState({
+          projectOptions: state.projectOptions,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
+  const categoryList = async (page) => {
+    try {
+      const res: any = await Models.category.list(page, {});
+      const droprdown = Dropdown(res?.results, "name");
+      setState({
+        categoryOptions: droprdown,
+        categoryPage: page,
+        categoryNext: res.next,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const catListLoadMore = async () => {
+    try {
+      if (state.categoryNext) {
+        const res: any = await Models.category.list(state.categoryPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          categoryOptions: [...state.categoryOptions, ...newOptions],
+          categoryNext: res.next,
+          categoryPage: state.categoryPage + 1,
+        });
+      } else {
+        setState({
+          categoryOptions: state.categoryOptions,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
+  const cityList = async (page) => {
+    try {
+      const body: any = {};
+      if (state.search) body.search = state.search;
+      const res: any = await Models.city.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+
+      setState({
+        cityOptions: droprdown,
+        total: res?.count,
+        page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+      });
+    } catch (error) {
+      console.log("error -->", error);
+    }
+  };
+
+  const cityLoadMore = async () => {
+    try {
+      if (state.cityNext) {
+        const res: any = await Models.city.list(state.cityPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          cityOptions: [...state.cityOptions, ...newOptions],
+          cityNext: res.next,
+          cityPage: state.cityPage + 1,
+        });
+      } else {
+        setState({
+          cityOptions: state.cityOptions,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
+  const areaList = async (page) => {
+    try {
+      const body: any = {
+        location: state.propertyCity?.value,
+      };
+      if (state.search) body.search = state.search;
+      const res: any = await Models.area.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+
+      setState({
+        areaOptions: droprdown,
+        total: res?.count,
+        page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+      });
+    } catch (error) {
+      console.log("error -->", error);
+    }
+  };
+
+  const areaLoadMore = async () => {
+    try {
+      if (state.areaNext) {
+        const res: any = await Models.area.list(state.areaPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          areaOptions: [...state.areaOptions, ...newOptions],
+          areaNext: res.next,
+          areaPage: state.areaPage + 1,
+        });
+      } else {
+        setState({
+          areaOptions: state.areaOptions,
+        });
+      }
+    } catch (error) {
+      console.log("error: ", error);
+    }
+  };
+
+  const leadStatusList = async () => {
+    try {
+      const res: any = await Models.leadStatus.list(1, { pagination: "No" });
+      const dropdownList = Dropdown(res.results, "name");
+      setState({
+        leadStatusOptions: dropdownList,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
+    }
+  };
+
+  const leadSourceList = async () => {
+    try {
+      const res: any = await Models.leadSource.list(1, { pagination: "No" });
+      const dropdownList = Dropdown(res.results, "name");
+      setState({
+        leadSourceOptions: dropdownList,
+      });
+    } catch (error) {
+      console.log("✌️error --->", error);
     }
   };
 
@@ -932,6 +1081,16 @@ export default function Dashboard() {
       const body = {
         developer: state.developerId,
         ...getCardFilterBody("deal_won"),
+        from_opportunity_status_date: getDateRange(
+          state.activeDateTab,
+          state.startDate,
+          state.endDate,
+        ).start,
+        to_opportunity_status_date: getDateRange(
+          state.activeDateTab,
+          state.startDate,
+          state.endDate,
+        ).end,
         // Use the ID fetched from Models.leadStatus.list (same pattern as lead/list.tsx)
         // Status name in the API is "Won"
         ...(state.wonStatusId != null
@@ -991,6 +1150,16 @@ export default function Dashboard() {
       const body = {
         developer: state.developerId,
         ...getCardFilterBody("deal_lost"),
+        from_opportunity_status_date: getDateRange(
+          state.activeDateTab,
+          state.startDate,
+          state.endDate,
+        ).start,
+        to_opportunity_status_date: getDateRange(
+          state.activeDateTab,
+          state.startDate,
+          state.endDate,
+        ).end,
         // Status name in the API is "Lose" (as used in lead/list.tsx opp_status.lose)
         ...(state.lostStatusId != null
           ? { status: state.lostStatusId }
@@ -1049,6 +1218,16 @@ export default function Dashboard() {
       const body = {
         developer: state.developerId,
         ...getCardFilterBody("follow_ups"),
+        from_opportunity_status_date: getDateRange(
+          state.activeDateTab,
+          state.startDate,
+          state.endDate,
+        ).start,
+        to_opportunity_status_date: getDateRange(
+          state.activeDateTab,
+          state.startDate,
+          state.endDate,
+        ).end,
         // Status name in the API is "Follow Up" (as used in lead/list.tsx opp_status.follow_up)
         ...(state.followUpStatusId != null
           ? { status: state.followUpStatusId }
@@ -2188,9 +2367,26 @@ export default function Dashboard() {
   // EVENT HANDLERS
   // ───────────────────────────────────────────────────────────────────────────
 
+  function clearCardFilters() {
+    setState({
+      propertySearch: '',
+      propertyProject: null,
+      propertyType: [],
+      propertyOfferType: null,
+      propertyStatus: null,
+      propertyCity: null,
+      propertyArea: null,
+      leadSearch: '',
+      leadSource: null,
+      leadStatus: null,
+      leadType: null,
+      inquirySearch: '',
+    });
+  }
+
   function handleCardSelect(id: MetricCardId) {
+    clearCardFilters();
     setState({ selectedMetricId: id, page: 1 });
-    loadTableData(id, 1);
   }
 
   function handleDrillDownClose() {
@@ -2285,6 +2481,7 @@ export default function Dashboard() {
               value={state.propertyProject}
               onChange={(value: any) => setState({ propertyProject: value })}
               options={state.projectOptions}
+              loadMore={() => projectListLoadMore()}
               isClearable
             />
             <CustomSelect
@@ -2294,6 +2491,7 @@ export default function Dashboard() {
               options={state.categoryOptions}
               isMulti
               isClearable
+              loadMore={() => catListLoadMore()}
             />
             {/* {(state.selectedMetricId == "total_properties" || state.selectedMetricId == "approved_properties" || state.selectedMetricId == "pending_properties" ) &&
              <CustomSelect
@@ -2324,6 +2522,7 @@ export default function Dashboard() {
                 setState({ propertyCity: value, propertyArea: null })
               }
               options={state.cityOptions}
+              loadMore={() => cityLoadMore()}
               isClearable
             />
             <CustomSelect
@@ -2333,6 +2532,7 @@ export default function Dashboard() {
               options={state.areaOptions}
               isClearable
               disabled={!state.propertyCity}
+              loadMore={() => areaLoadMore()}
             />
           </>
         )}
@@ -2343,8 +2543,8 @@ export default function Dashboard() {
               placeholder="Search leads"
               value={state.leadSearch}
               onChange={(e: any) => setState({ leadSearch: e.target.value })}
-              className = "w-[500px]"
-              parentClass = "w-[500px]"
+              className="w-[500px]"
+              parentClass="w-[500px]"
             />
             <CustomSelect
               placeholder="Lead Source"
@@ -2352,18 +2552,18 @@ export default function Dashboard() {
               onChange={(value: any) => setState({ leadSource: value })}
               options={state.leadSourceOptions}
               isClearable
-              className = "w-[600px]"
-              
+              className="w-[600px]"
             />
-           { state.selectedMetricId == "total_lead_list" && <CustomSelect
-              placeholder="Status"
-              value={state.leadStatus}
-              onChange={(value: any) => setState({ leadStatus: value })}
-              options={state.leadStatusOptions}
-              isClearable
-              className = "w-[600px]"
-
-            />}
+            {state.selectedMetricId == "total_lead_list" && (
+              <CustomSelect
+                placeholder="Status"
+                value={state.leadStatus}
+                onChange={(value: any) => setState({ leadStatus: value })}
+                options={state.leadStatusOptions}
+                isClearable
+                className="w-[600px]"
+              />
+            )}
             {/* <CustomSelect
               placeholder="Lead Type"
               value={state.leadType}
@@ -2387,8 +2587,8 @@ export default function Dashboard() {
             } inquiries`}
             value={state.inquirySearch}
             onChange={(e: any) => setState({ inquirySearch: e.target.value })}
-             className = "w-[600px]"
-              parentClass = "w-[600px]"
+            className="w-[600px]"
+            parentClass="w-[600px]"
           />
         )}
       </div>
@@ -2405,6 +2605,7 @@ export default function Dashboard() {
       <HeroBanner bannerData={state.bannerData} />
 
       {/* 2 — Date Filter Bar */}
+      <div className="sticky top-14 z-40 shadow-lg rounded-xl">
       <DateFilterBar
         activeDateTab={state.activeDateTab}
         startDate={state.startDate}
@@ -2412,6 +2613,7 @@ export default function Dashboard() {
         onTabClick={handleDateTabClick}
         onCustomDateChange={handleCustomDateChange}
       />
+      </div>
 
       {/* 3 — Metric Cards */}
 
@@ -2437,6 +2639,7 @@ export default function Dashboard() {
           onClose={handleDrillDownClose}
           activeFilters={getActiveFilters(state.selectedMetricId)}
           filterList={renderCardFilters}
+          onClearFilters={clearCardFilters}
         />
       )}
 

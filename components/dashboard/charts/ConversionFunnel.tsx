@@ -21,10 +21,10 @@ export default function ConversionFunnel({ dashboardData }: { dashboardData?: an
           <h4 className="text-base font-bold text-[#000]">8. Full Lead Conversion Funnel</h4>
           <p className="mt-0.5 text-xs text-slate-600">Step-by-step pipeline velocity and retention rate</p>
         </div>
-        <div className="text-right">
+        {/* <div className="text-right">
           <div className="text-[10px] font-bold uppercase tracking-wider text-slate-600">Deal Won</div>
           <div className="text-sm font-extrabold text-emerald-600">{wonCount}</div>
-        </div>
+        </div> */}
       </div>
 
       {!hasData ? (
@@ -34,7 +34,7 @@ export default function ConversionFunnel({ dashboardData }: { dashboardData?: an
           <span className="text-xs text-slate-400">No funnel data for the selected period</span>
         </div>
       ) : (
-        <div className="my-2 space-y-3">
+        <div className="my-2 space-y-5">
           {steps.map((step, index) => (
             <div key={step.name} className="group">
               <div className="mb-1 flex items-start justify-between gap-2 text-xs">
@@ -45,9 +45,9 @@ export default function ConversionFunnel({ dashboardData }: { dashboardData?: an
                   >
                     {index + 1}
                   </span>
-                  <span className="font-bold leading-tight text-slate-900">{step.name}</span>
+                  <span className="font-bold leading-tight text-[#000]">{step.name}</span>
                 </div>
-                <span className="text-xs font-black text-slate-900">
+                <span className="text-base font-bold text-[#000]">
                   {Number(step.count || 0).toLocaleString()}
                 </span>
               </div>

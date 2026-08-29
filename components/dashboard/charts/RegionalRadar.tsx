@@ -2,7 +2,7 @@ import React from 'react';
 import DashboardApexChart from './DashboardApexChart';
 import { Activity } from 'lucide-react';
 
-const COLORS = ['#8b181b', '#2563eb', '#d97706', '#16a34a', '#9333ea', '#0d9488'];
+const COLORS = ['#8b181b', '#2563eb', '#d97706', '#074e21', '#9333ea', '#0d9488'];
 
 export default function RegionalRadar({ dashboardData }: { dashboardData?: any }) {
   const items: any[] = dashboardData?.charts?.project_locations ?? [];

@@ -76,7 +76,7 @@ export default function MetricCards({ selectedMetricId, onSelect, dashboardData 
         </span>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4  xl:grid-cols-6 gap-3">
         {cards.map((card) => {
           const isSelected = selectedMetricId === card.id;
           const isHighlightCard = card.highlight;
@@ -86,12 +86,12 @@ export default function MetricCards({ selectedMetricId, onSelect, dashboardData 
               key={card.id}
               id={`metric-card-${card.id}`}
               onClick={() => onSelect(card.id)}
-              className={`relative rounded-xl p-3.5 transition-all duration-200 cursor-pointer flex flex-col justify-between select-none ${
+              className={`relative rounded-xl border-2 p-3.5 transition-none cursor-pointer flex flex-col justify-between select-none ${
                 isSelected
-                  ? 'bg-red-50/40 border-2 border-[#8b181b] shadow-md ring-2 ring-red-600/20'
+                  ? 'bg-red-50/40 border-[#8b181b] shadow-md ring-2 ring-red-600/20'
                   : isHighlightCard
-                  ? 'bg-white border-2 border-red-300 hover:border-red-500 hover:shadow-sm'
-                  : 'bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50/50 hover:shadow-sm'
+                  ? 'bg-white border-red-300 hover:border-red-500 hover:shadow-sm'
+                  : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50 hover:shadow-sm'
               }`}
             >
               {/* Category & Icon */}
@@ -127,7 +127,7 @@ export default function MetricCards({ selectedMetricId, onSelect, dashboardData 
               </div>
 
               {isSelected && (
-                  <span className="-mt-3 bg-[#8b181b] text-white text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wide animate-pulse">
+                  <span className="-mt-3 bg-[#8b181b] text-white text-[9px] font-bold px-1.5 py-0.5 rounded tracking-wide">
                     Active Table ↓
                   </span>
                 )}

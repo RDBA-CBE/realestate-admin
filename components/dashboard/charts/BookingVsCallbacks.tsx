@@ -11,10 +11,10 @@ export default function BookingVsCallbacks({ dashboardData }: { dashboardData?: 
 
   const options = {
     chart: { toolbar: { show: false }, fontFamily: 'inherit' },
-    colors: ['#d97706', '#0284c7'],
+    colors: ['#d97706', '#2563eb'],
     stroke: { width: [0, 2.5], curve: 'straight' as const },
     plotOptions: { bar: { borderRadius: 3, columnWidth: '28%' } },
-    markers: { size: [0, 4], colors: ['#fff'], strokeColors: ['#0284c7'], strokeWidth: 2 },
+    markers: { size: [0, 4], colors: ['#fff'], strokeColors: ['#2563eb'], strokeWidth: 2 },
     dataLabels: { enabled: false },
     xaxis: {
       categories: items.map((item) => item.date),

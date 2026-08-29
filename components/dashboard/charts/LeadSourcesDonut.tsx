@@ -3,8 +3,8 @@ import DashboardApexChart from './DashboardApexChart';
 import { Users } from 'lucide-react';
 
 const COLORS = [
-  '#8b181b', '#16a34a', '#d97706', '#2563eb',
-  '#9333ea', '#0d9488', '#0284c7', '#db2777',
+  '#8b6318', '#074e21', '#d97706', '#0134a1',
+  '#9333ea', '#0d9488', '#0284c7', '#8b181b',
 ];
 
 export default function LeadSourcesDonut({ dashboardData }: { dashboardData?: any }) {
@@ -24,16 +24,16 @@ export default function LeadSourcesDonut({ dashboardData }: { dashboardData?: an
     chart: { toolbar: { show: false }, fontFamily: 'inherit' },
     legend: { show: false },
     dataLabels: { enabled: false },
-    stroke: { colors: ['#fff'], width: 2 },
+    stroke: { colors: ['#fff'], width: 5 },
     plotOptions: {
       pie: {
         donut: {
-          size: '66%',
+          size: '60%',
           labels: {
             show: true,
             total: {
               show: true,
-              label: 'SOURCES',
+              label: 'Sources',
               formatter: () => total.toLocaleString(),
             },
           },

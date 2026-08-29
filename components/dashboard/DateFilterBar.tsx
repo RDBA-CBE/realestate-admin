@@ -37,8 +37,9 @@ function formatDateForPill(date: Date): string {
 }
 
 function getPresetDateRange(tab: string): [string, string] | null {
-  const end = new Date();
-  const start = new Date(end);
+  const now = new Date();
+  const start = new Date(now);
+  const end = new Date(now);
 
   switch (tab) {
     case 'Today':
@@ -48,19 +49,23 @@ function getPresetDateRange(tab: string): [string, string] | null {
       break;
     case 'This Month':
       start.setDate(1);
+      end.setMonth(end.getMonth() + 1, 0); // last day of current month
       break;
     case 'Last Month':
       start.setMonth(start.getMonth() - 1, 1);
-      end.setDate(0);
+      end.setDate(0); // last day of previous month
       break;
     case 'Last 3 Months':
       start.setMonth(start.getMonth() - 3);
+      end.setMonth(end.getMonth() + 1, 0); // last day of current month
       break;
     case 'Last 6 Month':
       start.setMonth(start.getMonth() - 6);
+      end.setMonth(end.getMonth() + 1, 0); // last day of current month
       break;
     case 'This Year':
       start.setMonth(0, 1);
+      end.setMonth(11, 31); // 31 Dec of current year
       break;
     default:
       return null;
@@ -86,6 +91,10 @@ export default function DateFilterBar({
 }: DateFilterBarProps) {
   const isCustom = activeDateTab === 'Custom';
 
+  function handleDateInputClick() {
+    if (!isCustom) onTabClick('Custom');
+  }
+
   // Preset tabs show their computed date range; Custom shows the selected dates.
   const presetDateRange = getPresetDateRange(activeDateTab);
   const pillStart = presetDateRange?.[0] ?? ddmmyyyyToIso(startDate);
@@ -104,7 +113,7 @@ export default function DateFilterBar({
             <button
               key={tab}
               onClick={() => onTabClick(tab)}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 cursor-pointer whitespace-nowrap ${
+              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-none cursor-pointer whitespace-nowrap ${
                 isActive
                   ? 'bg-[#8b181b] text-white shadow-sm '
                   : 'text-[#000] bg-slate-100'
@@ -131,17 +140,13 @@ export default function DateFilterBar({
             <input
               type="date"
               value={ddmmyyyyToIso(startDate)}
-              disabled={!isCustom}
+              onClick={handleDateInputClick}
               onChange={(e) => {
-                if (isCustom && onCustomDateChange) {
+                if (onCustomDateChange) {
                   onCustomDateChange(isoToDdmmyyyy(e.target.value), endDate);
                 }
               }}
-              className={`text-xs font-semibold rounded-md border px-2 py-1 transition-colors focus:outline-none focus:ring-2 focus:ring-[#8b181b]/30 focus:border-[#8b181b] ${
-                isCustom
-                  ? 'bg-white border-slate-300 text-slate-800 cursor-pointer'
-                  : 'bg-slate-50 border-slate-200 text-slate-600 cursor-default'
-              }`}
+              className="text-xs font-semibold rounded-md border px-2 py-1 transition-colors focus:outline-none focus:ring-2 focus:ring-[#8b181b]/30 focus:border-[#8b181b] bg-white border-slate-300 text-slate-800 cursor-pointer"
             />
           </div>
 
@@ -156,17 +161,13 @@ export default function DateFilterBar({
             <input
               type="date"
               value={ddmmyyyyToIso(endDate)}
-              disabled={!isCustom}
+              onClick={handleDateInputClick}
               onChange={(e) => {
-                if (isCustom && onCustomDateChange) {
+                if (onCustomDateChange) {
                   onCustomDateChange(startDate, isoToDdmmyyyy(e.target.value));
                 }
               }}
-              className={`text-xs font-semibold rounded-md border px-2 py-1 transition-colors focus:outline-none focus:ring-2 focus:ring-[#8b181b]/30 focus:border-[#8b181b] ${
-                isCustom
-                  ? 'bg-white border-slate-300 text-slate-800 cursor-pointer'
-                  : 'bg-slate-50 border-slate-200 text-slate-600 cursor-default'
-              }`}
+              className="text-xs font-semibold rounded-md border px-2 py-1 transition-colors focus:outline-none focus:ring-2 focus:ring-[#8b181b]/30 focus:border-[#8b181b] bg-white border-slate-300 text-slate-800 cursor-pointer"
             />
           </div>
 

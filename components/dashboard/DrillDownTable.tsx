@@ -16,6 +16,7 @@ interface DrillDownTableProps {
   onClose: () => void;
   activeFilters: { label: string; onRemove: () => void }[];
   filterList: () => JSX.Element;
+  onClearFilters: () => void;
 }
 
 export default function DrillDownTable({
@@ -31,6 +32,7 @@ export default function DrillDownTable({
   onClose,
   activeFilters,
   filterList,
+  onClearFilters,
 }: DrillDownTableProps) {
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
@@ -104,6 +106,13 @@ export default function DrillDownTable({
                 </button>
               </span>
             ))}
+            <button
+              type="button"
+              onClick={onClearFilters}
+              className="inline-flex items-center gap-1 rounded-full  px-2.5 py-0.5 text-[11px] font-semibold text-red-500 "
+            >
+              <X className="h-3 w-3" /> Clear all
+            </button>
           </div>
         )}
 
@@ -129,7 +138,7 @@ export default function DrillDownTable({
 
       {/* ── DataTable ───────────────────────────────────────────────────────── */}
       {!error && columns.length > 0 && (
-        <div className="mt-2 datatables pagination-padding [&_.mantine-datatable-table-container]:overflow-visible [&_table]:overflow-visible">
+        <div className="!mt-5 datatables pagination-padding [&_.mantine-datatable-table-container]:overflow-visible [&_table]:overflow-visible">
           <DataTable
             className="table-responsive !border-none"
             records={records}

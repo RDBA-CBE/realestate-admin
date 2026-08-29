@@ -15,12 +15,12 @@ export default function PropertyMatrix({
   );
   const options = {
     chart: { toolbar: { show: false }, fontFamily: "inherit" },
-    colors: ["#8b181b", "#d97706", "#1e293b"],
+    colors: ["#8b181b", "#d97706", "#2563eb"],
     stroke: { curve: "smooth", width: [2.5, 2.5, 2] },
     markers: {
       size: 3,
       colors: ["#fff"],
-      strokeColors: ["#8b181b", "#d97706", "#1e293b"],
+      strokeColors: ["#8b181b", "#d97706", "#2563eb"],
       strokeWidth: 2,
     },
     dataLabels: { enabled: false },
