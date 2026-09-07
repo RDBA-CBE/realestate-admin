@@ -259,7 +259,7 @@ const Header = () => {
           <div className="horizontal-logo flex items-center justify-between ltr:mr-2 rtl:ml-2">
             <Link href="/" className="main-logo flex shrink-0 items-center">
               <img
-                className="inline w-40 ltr:-ml-1 rtl:-mr-1"
+                className="inline w-44 ltr:-ml-1 rtl:-mr-1"
                 src="/assets/images/boom-logo.png"
                 alt="logo"
               />

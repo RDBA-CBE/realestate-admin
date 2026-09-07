@@ -159,7 +159,7 @@ const SidebarDynamic = () => {
           <div className="block flex items-center justify-between px-2 py-3 lg:hidden">
             <Link href="/" className="main-logo flex shrink-0 items-center ">
               <img
-                className="ml-[5px] w-40 flex-none"
+                className="ml-[5px] w-44 flex-none"
                 src="/assets/images/boom-logo.png"
                 alt="logo"
               />
