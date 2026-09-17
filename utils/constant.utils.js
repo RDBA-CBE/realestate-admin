@@ -1199,10 +1199,9 @@ export const FLOOR_FLAN = [
   { value: "plots", label: "Plots" },
   { value: "1bhk", label: "1 BHK" },
   { value: "2bhk", label: "2 BHK" },
-  { value: "2.5bhk", label: "2.5 BHK" },
   { value: "3bhk", label: "3 BHK" },
-  { value: "3.5bhk", label: "3.5 BHK" },
   { value: "4bhk", label: "4 BHK" },
+  { value: "1rk", label: "4 RK"}
 ];
 
 export const PROPERTY_IMG = [
