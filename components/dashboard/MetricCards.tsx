@@ -19,15 +19,18 @@ import {
   ArrowDownRight,
 } from 'lucide-react';
 import { METRIC_CARDS } from './data';
-import type { MetricCardId } from './types';
+import type { MetricCardId, MetricCardItem } from './types';
 
 interface MetricCardsProps {
   selectedMetricId: MetricCardId;
   onSelect: (id: MetricCardId) => void;
   dashboardData?: any;
+  cards?: MetricCardItem[];
 }
 
-function getMetricIcon(index: number) {
+function getMetricIcon(index: number, cardId?: string) {
+  if (cardId === 'total_developers') return <Building2 className="w-3.5 h-3.5 text-red-700" />;
+  if (cardId === 'total_buyers') return <Users className="w-3.5 h-3.5 text-red-700" />;
   switch (index) {
     case 1:  return <Building2 className="w-3.5 h-3.5 text-red-700" />;
     case 2:  return <Tag className="w-3.5 h-3.5 text-red-700" />;
@@ -44,20 +47,26 @@ function getMetricIcon(index: number) {
     case 13: return <TrendingUp className="w-3.5 h-3.5 text-red-700" />;
     case 14: return <Flame className="w-3.5 h-3.5 text-red-500" />;
     case 15: return <AlertTriangle className="w-3.5 h-3.5 text-red-700" />;
+    case 16: return <Building2 className="w-3.5 h-3.5 text-red-700" />;
+    case 17: return <Users className="w-3.5 h-3.5 text-red-700" />;
     default: return <Tag className="w-3.5 h-3.5 text-red-700" />;
   }
 }
 
-export default function MetricCards({ selectedMetricId, onSelect, dashboardData }: MetricCardsProps) {
+export default function MetricCards({ selectedMetricId, onSelect, dashboardData, cards: customCards }: MetricCardsProps) {
   const apiCardCounts = Object.fromEntries(
     (dashboardData?.cards ?? []).map((item: any) => [item.key, item.count]),
   );
-  const cards = METRIC_CARDS.map((card) => {
+  const baseCards = customCards ?? METRIC_CARDS;
+  const cards = baseCards.map((card) => {
     const apiKey = card.id === 'pending_properties' ? 'unapproved_properties'
       : card.id === 'total_lead_list' ? 'total_leads'
       : card.id === 'conversion_rate' ? 'lead_conversion_rate'
+      : card.id === 'total_developers' ? 'developers'
+      : card.id === 'total_buyers' ? 'buyers'
       : card.id;
-    return { ...card, value: apiCardCounts[apiKey] ?? card.value };
+    const val = apiCardCounts[apiKey] ?? (apiCardCounts[card.id] ?? card.value);
+    return { ...card, value: val };
   });
   return (
     <div
@@ -68,7 +77,7 @@ export default function MetricCards({ selectedMetricId, onSelect, dashboardData 
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-dred"></span>
           <h2 className="text-sm sm:text-base font-bold text-[#000] tracking-tight">
-            Operational Metrics (15 Core Cards)
+            Operational Metrics ({cards.length} Core Cards)
           </h2>
         </div>
         <span className="text-xs text-slate-600 hidden sm:inline">
@@ -99,7 +108,7 @@ export default function MetricCards({ selectedMetricId, onSelect, dashboardData 
                 <span className={isSelected || isHighlightCard ? 'text-red-700' : ''}>
                   {/* {card.index} {card.category} */} {card.label}
                 </span>
-                <span className='p-2 bg-red-100 rounded-md'>{getMetricIcon(card.index)}</span>
+                <span className='p-2 bg-red-100 rounded-md'>{getMetricIcon(card.index, card.id)}</span>
               </div>
 
               {/* Title */}

@@ -173,6 +173,32 @@ export const METRIC_CARDS: MetricCardItem[] = [
   },
 ];
 
+export const ADMIN_METRIC_CARDS: MetricCardItem[] = [
+  ...METRIC_CARDS,
+  {
+    id: 'total_developers',
+    index: 16,
+    category: 'USERS',
+    label: 'Total Developer',
+    value: 0,
+    sub: 'Approved Developers',
+    change: '12%',
+    isPositive: true,
+    filterDescription: 'All verified real estate developers registered on the platform',
+  },
+  {
+    id: 'total_buyers',
+    index: 17,
+    category: 'USERS',
+    label: 'Total registered Buyers',
+    value: 0,
+    sub: 'Registered Buyers',
+    change: '18%',
+    isPositive: true,
+    filterDescription: 'All registered property buyers and prospective investors in the database',
+  },
+];
+
 // =========================================================================
 // DRILL DOWN DATASETS
 // =========================================================================

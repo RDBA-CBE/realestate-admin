@@ -24,7 +24,6 @@ import {
 import { ROLES } from "@/utils/constant.utils";
 import FilterChips from "@/components/FilterChips/FilterChips.component";
 import moment from "moment";
-import Calendar from "@/pages/apps/calendar";
 import Paginations from "@/pages/elements/paginations";
 
 const List = () => {
@@ -59,7 +58,6 @@ const List = () => {
     datePreset: "",
     custom_from: "",
     custom_to: "",
-    calendarEvents: [],
   });
 
   const debouncedSearch = useDebounce(state.search, 500);
@@ -84,17 +82,15 @@ const List = () => {
     propertyDropdownList(1);
   }, [state.project]);
 
-  // Fetch list and calendar events when filters change
+  // Fetch list when filters change
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       leadList(1);
-      calenderList(1);
       return;
     }
     setState({ page: 1 });
     leadList(1);
-    calenderList(1);
   }, [
     debouncedSearch,
     state.developer,
@@ -286,7 +282,7 @@ const List = () => {
         body.ordering = sortOrder === "desc" ? `-${sortBy}` : sortBy;
       }
 
-      const response: any = await Models.inquiry.booking_inquiry(page, body);
+      const response: any = await Models.inquiry.callback(page, body);
 
       let results = response?.results || [];
 
@@ -299,62 +295,67 @@ const List = () => {
 
       const tableData = results.map((item: any) => {
         const devObj =
-          item?.developer_user_details ||
-          item?.developer_details ||
-          item?.property_details?.developer_details ||
-          (typeof item?.developer === "object" ? item?.developer : null);
+          (typeof item?.developer_user_details === "object" && item?.developer_user_details !== null
+            ? item.developer_user_details
+            : null) ||
+          (typeof item?.developer_details === "object" && item?.developer_details !== null
+            ? item.developer_details
+            : null) ||
+          (typeof item?.property_details?.developer_details === "object" && item?.property_details?.developer_details !== null
+            ? item.property_details.developer_details
+            : null) ||
+          (typeof item?.developer === "object" && item?.developer !== null
+            ? item.developer
+            : null);
+
         const devCompany =
-          devObj?.industry ||
-          item?.property_details?.developer?.industry ||
-          item?.industry_name ||
+          (devObj && typeof devObj.industry === "string" && devObj.industry) ||
+          (item && typeof item.industry_name === "string" && item.industry_name) ||
           "";
+
         const devPerson =
-          devObj?.first_name || devObj?.last_name
-            ? `${devObj?.first_name || ""} ${devObj?.last_name || ""}`.trim()
+          devObj && (devObj.first_name || devObj.last_name)
+            ? `${devObj.first_name || ""} ${devObj.last_name || ""}`.trim()
             : "";
-        const devEmail = devObj?.email || "";
+
+        const devEmail =
+          (devObj && typeof devObj.email === "string" && devObj.email) || "";
+
         const developerDisplay =
           devCompany ||
           devPerson ||
-          (typeof item?.developer === "string" ? item.developer : "-");
-
-        const customerName =
-          item?.user_details
-            ? `${item.user_details.first_name || ""} ${item.user_details.last_name || ""}`.trim()
-            : item?.first_name
-            ? `${item.first_name} ${item.last_name || ""}`.trim()
-            : item?.name || "";
+          (typeof item?.developer === "string" ? item.property_details?.developer?.industry : "-");
 
         return {
           id: item?.id,
-          email: item?.email || item?.user_details?.email || "-",
-          phone: item?.phone_number || item?.phone || item?.user_details?.phone || "-",
-          customer_name: customerName,
-          message: item?.message,
-          property_title: item?.property_details?.title ??  null,
-          project:
-            item?.property_details?.project?.name ||
-            item?.property_details?.project_name ||
-            item?.project_name ||
+          email: typeof item?.email === "string" ? item.email : "-",
+          phone:
+            typeof item?.phone_number === "string"
+              ? item.phone_number
+              : typeof item?.phone === "string"
+              ? item.phone
+              : "-",
+          message: typeof item?.message === "string" ? item.message : "-",
+          property: item?.property_details ?? null,
+          property_id:
+            item?.property_details?.id ||
+            (typeof item?.property === "number" || typeof item?.property === "string"
+              ? item.property
+              : null),
+          property_title:
+            (item?.property_details &&
+              typeof item.property_details.title === "string" &&
+              item.property_details.title) ||
             "-",
-          city:
-            item?.property_details?.city?.name ||
-            (typeof item?.property_details?.city === "string"
-              ? item?.property_details?.city
-              : null) ||
-            item?.search ||
-            "-",
-          developer_name: developerDisplay,
+          developer_name: item?.property_details?.developer?.industry || '-',
           developer_email: devEmail,
           developer_user_details: devObj,
           created_at: commonDateFormat(item?.created_at),
-          interested_area: item?.search,
-          schedule_date_time: item?.schedule_date_time
-            ? moment(item?.schedule_date_time).format("DD-MM-YYYY hh:mm A")
-            : null,
           created_date: item?.created_at
-            ? moment(item?.created_at).format("DD-MM-YYYY")
+            ? moment(item.created_at).format("DD-MM-YYYY")
             : null,
+          interested_area:
+            typeof item?.search === "string" ? item.search : "-",
           ...item,
         };
       });
@@ -375,59 +376,6 @@ const List = () => {
     } catch (error) {
       setState({ loading: false });
       console.log("error in leadList --->", error);
-    }
-  };
-
-  const calenderList = async (page: number = 1) => {
-    try {
-      const body: any = {
-        pagination: "No",
-      };
-
-      if (state.developer?.value) {
-        body.developer_user = state.developer.value;
-        body.developer = state.developer.value;
-      }
-      if (state.project?.value) {
-        body.project = state.project.value;
-      }
-      if (state.property?.value) {
-        body.property = state.property.value;
-      }
-      if (state.search) {
-        body.search = state.search;
-      }
-      if (state.from_date) {
-        body.from_date = state.from_date;
-      }
-      if (state.to_date) {
-        body.to_date = state.to_date;
-      }
-
-      const response: any = await Models.inquiry.booking_inquiry(page, body);
-
-      const calendarEvents = response?.results
-        ?.filter((item: any) => item?.schedule_date_time)
-        ?.map((item: any) => ({
-          id: item?.id,
-          title: item?.property_details?.title || item?.email || "Booking",
-          property_name: item?.property_details?.title
-            ? item?.property_details?.title
-            : null,
-          start: item?.schedule_date_time,
-          end: item?.schedule_date_time,
-          className: "primary",
-          description: capitalizeFLetter(item?.message) || "",
-          email: item?.email || "",
-          phone: item?.phone_number || "",
-          created_at: item?.created_at || "",
-        }));
-
-      setState({
-        calendarEvents: calendarEvents || [],
-      });
-    } catch (error) {
-      console.log("error in calenderList --->", error);
     }
   };
 
@@ -471,27 +419,19 @@ const List = () => {
     const headers = [
       "Created Date",
       "Type",
-      "Customer Name",
       "Email",
       "Phone",
       "Developer",
       "Property",
-      "Project",
-      "Location / City",
-      "Schedule Date",
       "Message",
     ];
     const rows = state.tableList.map((row: any) => [
       row.created_at || row.created_date || "",
       row.property ? "Property" : "General",
-      row.customer_name || "",
       row.email || "",
       row.phone || "",
-      row.developer_name || row?.developer_user_details?.industry || "",
-      row.property?.title || "",
-      row.project || "",
-      row.city || row.interested_area || "",
-      row.schedule_date_time || "",
+      row.developer_name || "",
+      row.property_title || row?.property?.title || "",
       row.message || "",
     ]);
     const csvContent = [headers, ...rows]
@@ -503,82 +443,26 @@ const List = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `booking_inquiries_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.download = `call_inquiries_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
 
   const columns = [
-    // {
-    //   accessor: "created_at",
-    //   title: "Date",
-    //   visible: true,
-    //   toggleable: true,
-    //   sortable: true,
-    //   render: (row: any) => (
-    //     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-    //       {row?.created_at || row?.created_date || "-"}
-    //     </span>
-    //   ),
-    // },
     {
       accessor: "type",
       title: "Type",
       visible: true,
       toggleable: true,
-      sortable: false,
+      sortable: true,
       render: (row: any) => (
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-            row?.property
-              ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-              : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
-          }`}
+        <div
+          onClick={() => {
+            router.push(`/real-estate/inquiry/view_call_inquiry/${row?.id}`);
+          }}
+          className="cursor-pointer"
         >
-          {row?.property ? "Property" : "General"}
-        </span>
-      ),
-    },
-    {
-      accessor: "phone",
-      title: "Phone",
-      visible: true,
-      toggleable: true,
-      sortable: true,
-    },
-
-    {
-      accessor: "email",
-      title: "Email",
-      visible: true,
-      toggleable: true,
-      sortable: true,
-    },
-  
-    {
-      accessor: "developer_name",
-      title: "Developer",
-      visible: true,
-      toggleable: true,
-      sortable: false,
-      render: (row: any) => (
-        <div className="flex flex-col">
-          <span
-            className="text-sm font-medium text-gray-800 dark:text-gray-200"
-            title={row?.developer_name || row?.developer_user_details?.industry}
-          >
-            {row?.developer_name ||
-              row?.developer_user_details?.industry ||
-              "-"}
-          </span>
-          {row?.developer_email && (
-            <span
-              className="max-w-[170px] truncate text-[11px] text-gray-400"
-              title={row.developer_email}
-            >
-              {row.developer_email}
-            </span>
-          )}
+          <div>{row?.property ? "Property" : "General"}</div>
         </div>
       ),
     },
@@ -588,97 +472,126 @@ const List = () => {
       visible: true,
       toggleable: true,
       sortable: true,
+      render: (row: any) => {
+        const propTitle =
+          (typeof row?.property_title === "string" && row.property_title) ||
+          (typeof row?.property?.title === "string" && row.property.title) ||
+          "-";
+        const propId =
+          row?.property_id ||
+          (typeof row?.property?.id === "number" || typeof row?.property?.id === "string"
+            ? row.property.id
+            : null);
+
+        return (
+          <div
+            className="cursor-pointer text-sm font-medium text-[#9b0f09] hover:underline"
+            onClick={() => {
+              if (propId) {
+                router.push(`/real-estate/property/detail/${propId}`);
+              }
+            }}
+            title={propTitle}
+          >
+            {propTitle}
+          </div>
+        );
+      },
+    },
+    {
+      accessor: "phone",
+      title: "Phone",
+      visible: true,
+      toggleable: true,
+      sortable: true,
       render: (row: any) => (
-        <div
-          className="cursor-pointer text-sm font-medium text-[#9b0f09] hover:underline"
-          onClick={() => {
-            if (row?.property) {
-              router.push(`/real-estate/property/detail/${row.property}`);
-            }
-          }}
-          title={row?.property_title || "-"}
-        >
-          {row?.property_title ? row?.property_title : "-"}
-        </div>
+        <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+          {typeof row?.phone === "string" || typeof row?.phone === "number"
+            ? String(row.phone)
+            : "-"}
+        </span>
       ),
     },
     {
-      accessor: "project",
-      title: "Project",
+      accessor: "email",
+      title: "Email",
       visible: true,
       toggleable: true,
       sortable: true,
       render: (row: any) => (
         <span className="text-sm text-gray-700 dark:text-gray-300">
-          {row?.project || "-"}
+          {typeof row?.email === "string" ? row.email : "-"}
         </span>
       ),
     },
     {
-      accessor: "city",
-      title: "City / Area",
+      accessor: "developer_name",
+      title: "Developer",
       visible: true,
       toggleable: true,
-      sortable: true,
-      render: (row: any) => (
-        <span className="text-sm text-gray-700 dark:text-gray-300">
-          {row?.city || row?.interested_area || "-"}
-        </span>
-      ),
-    },
-   {
-         accessor: "schedule_date_time",
-         title: "Schedule Date",
-         visible: true,
-         toggleable: true,
-         sortable: true,
-         render: (row) => (
-           <div
-             className="w-fit cursor-pointer"
-             
-           >
-             <div>{moment(row?.schedule_date_time).format("DD-MM-YYYY")}</div>
-           </div>
-         ),
-       },
-     {
-          accessor: "created_date",
-          title: "Created Date",
-          visible: true,
-          toggleable: true,
-          sortable: true,
-          width: 150,
-          render: (row) => (
-            <div
-              className="w-fit cursor-pointer"
-              onClick={(e) => {
-                router.push(`/real-estate/lead/view/${row?.id}`);
-              }}
+      sortable: false,
+      render: (row: any) => {
+       
+        return (
+          <div className="flex flex-col">
+            <span
+              className="text-sm font-medium text-gray-800 dark:text-gray-200"
+              title={row.developer_name}
             >
-              <div>{moment(row?.created_at).format("DD-MM-YYYY")}</div>
-            </div>
-          ),
-        },
+              {row.developer_name}
+            </span>
+
+          </div>
+        );
+      },
+    },
+    {
+      accessor: "created_at",
+      title: "Created Date",
+      visible: true,
+      toggleable: true,
+      sortable: true,
+      width: 150,
+      render: (row: any) => {
+        const dateDisplay =
+          (typeof row?.created_at === "string" && row.created_at) ||
+          (typeof row?.created_date === "string" && row.created_date) ||
+          "-";
+        return (
+          <div
+            className="w-fit cursor-pointer"
+            onClick={() => {
+              router.push(`/real-estate/inquiry/view_call_inquiry/${row?.id}`);
+            }}
+          >
+            <div>{moment(dateDisplay).format('DD/MM/YYYY')}</div>
+          </div>
+        );
+      },
+    },
     {
       accessor: "message",
       title: "Message",
       visible: true,
       toggleable: true,
       sortable: true,
-      width: 180,
-      render: (row: any) => (
-        <Tippy
-          content={row?.message || "-"}
-          placement="top"
-          className="rounded-lg bg-black p-1 text-sm text-white"
-        >
-          <div className="cursor-default text-sm text-gray-600 dark:text-gray-400">
-            {row?.message?.length > 25
-              ? `${capitalizeFLetter(row.message.slice(0, 25))}...`
-              : capitalizeFLetter(row?.message) || "-"}
-          </div>
-        </Tippy>
-      ),
+      width: 150,
+      render: (row: any) => {
+        const msg = typeof row?.message === "string" ? row.message : "-";
+        return (
+          <Tippy
+            content={msg}
+            placement="top"
+            className="rounded-lg bg-black p-1 text-sm text-white"
+          >
+            <div className="cursor-default">
+              {msg.length > 20
+                ? `${capitalizeFLetter(msg.slice(0, 15))}...`
+                : capitalizeFLetter(msg) || "-"}
+            </div>
+          </Tippy>
+        );
+      },
     },
     {
       accessor: "action",
@@ -692,9 +605,9 @@ const List = () => {
           <button
             className="flex text-dred hover:opacity-80"
             onClick={() => {
-              router.push(`/real-estate/inquiry/view_booking_inquiry/${row?.id}`);
+              router.push(`/real-estate/inquiry/view_call_inquiry/${row?.id}`);
             }}
-            title="View Booking Inquiry"
+            title="View"
           >
             <Eye className="h-4 w-4" />
           </button>
@@ -717,10 +630,10 @@ const List = () => {
       <div className="mb-3 flex flex-col justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h5 className="text-lg font-semibold dark:text-white-light">
-            Booking Inquiry Management
+            Call Inquiry Management
           </h5>
           <p className="text-gray-600 dark:text-gray-400">
-            Access, filter, and manage all booking appointments across all developers, projects, and properties
+            Access, filter, and manage all call inquiries across all developers, projects, and properties
           </p>
         </div>
         <div className="flex gap-3">
@@ -795,7 +708,7 @@ const List = () => {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 items-center">
           <TextInput
             type="text"
-            placeholder="Search inquiry, customer, phone..."
+            placeholder="Search inquiry, phone, email..."
             value={state.search}
             onChange={(e: any) => setState({ search: e.target.value })}
           />
@@ -850,8 +763,8 @@ const List = () => {
             onChange={(e: any) => setState({ inquiryType: e, page: 1 })}
             placeholder="All Inquiry Types"
             options={[
-              { value: "property", label: "Property Booking" },
-              { value: "general", label: "General Booking" },
+              { value: "property", label: "Property Inquiry" },
+              { value: "general", label: "General Inquiry" },
             ]}
             isClearable={true}
           /> */}
@@ -1010,11 +923,6 @@ const List = () => {
             />
           </div>
         )}
-
-        {/* Booking Inquiry Calendar Component */}
-        <div className="mt-6">
-          <Calendar events={state.calendarEvents || []} />
-        </div>
       </div>
     </>
   );

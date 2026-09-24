@@ -17,12 +17,14 @@ export type MetricCardId =
   | 'follow_ups'
   | 'conversion_rate'
   | 'high_demand_projects'
-  | 'low_demand_projects';
+  | 'low_demand_projects'
+  | 'total_developers'
+  | 'total_buyers';
 
 export interface MetricCardItem {
   id: MetricCardId;
   index: number;
-  category: 'PROPERTIES' | 'PROJECTS' | 'LEADS' | 'DEALS' | 'DEMAND';
+  category: 'PROPERTIES' | 'PROJECTS' | 'LEADS' | 'DEALS' | 'DEMAND' | 'USERS';
   label: string;
   value: string | number;
   sub: string;

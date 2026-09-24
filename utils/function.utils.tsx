@@ -35,18 +35,85 @@ export const Success = (message: string) => {
   });
 };
 
-export const Failure = (message: string) => {
+export const extractErrorMessage = (error: any): string => {
+  if (!error) return "Something went wrong. Please check your inputs and try again.";
+
+  // If already a non-empty string
+  if (typeof error === "string") {
+    const trimmed = error.trim();
+    return trimmed.length > 0
+      ? trimmed
+      : "Something went wrong. Please check your inputs and try again.";
+  }
+
+  // If error has error property
+  if (typeof error.error === "string" && error.error.trim().length > 0) {
+    return error.error.trim();
+  }
+
+  // If error has a message property
+  if (typeof error.message === "string" && error.message.trim().length > 0) {
+    return error.message.trim();
+  }
+
+  // If error has detail property
+  if (typeof error.detail === "string" && error.detail.trim().length > 0) {
+    return error.detail.trim();
+  }
+
+  // If error is an object with field-level errors
+  if (typeof error === "object") {
+    try {
+      const errorMessages = Object.entries(error)
+        .map(([field, messages]: [string, any]) => {
+          let msg = "";
+          if (Array.isArray(messages)) {
+            msg = messages.filter(Boolean).map(String).join(", ");
+          } else if (typeof messages === "string") {
+            msg = messages;
+          } else if (messages && typeof messages === "object") {
+            msg = Object.values(messages).flat().filter(Boolean).map(String).join(", ");
+          }
+          msg = msg.trim();
+          if (!msg || msg === '""' || msg === "''") return null;
+          if (field === "non_field_errors" || field === "detail" || field === "error" || field === "message") {
+            return msg;
+          }
+          return `${field}: ${msg}`;
+        })
+        .filter(Boolean)
+        .join("; ");
+
+      if (errorMessages && errorMessages.trim().length > 0) {
+        return errorMessages;
+      }
+    } catch {
+      // Fallback
+    }
+  }
+
+  return "Something went wrong. Please check your inputs and try again.";
+};
+
+export const Failure = (message: any) => {
+  let displayMessage = "Something went wrong. Please try again.";
+
+  if (typeof message === "string" && message.trim().length > 0) {
+    displayMessage = message.trim();
+  } else if (message) {
+    displayMessage = extractErrorMessage(message);
+  }
+
   const toast = Swal.mixin({
     toast: true,
     position: "top-end",
-
     showConfirmButton: false,
-    timer: 3000,
+    timer: 4000,
   });
 
   toast.fire({
     icon: "error",
-    title: message,
+    title: displayMessage || "Something went wrong. Please try again.",
     padding: "10px 20px",
   });
 };

@@ -549,7 +549,7 @@ const List = () => {
                 title: "Email",
                 sortable:true,
                 render: (row) => (
-                  <span title={row.email}>{truncateText(row.email)}</span>
+                  <span title={row.email}>{row.email}</span>
                 ),
               },
               { accessor: "date", title: "Date" },

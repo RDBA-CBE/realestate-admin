@@ -18,6 +18,7 @@ import {
   buildFormData,
   convertUrlToFile,
   Dropdown,
+  extractErrorMessage,
   Failure,
   formatNumber,
   getDropdownObject,
@@ -789,13 +790,13 @@ const AddPropertyPage = () => {
       });
 
       if (state.listing_type?.label == LISTING_TYPE.SALE) {
-        createSaleProperty(type);
+        await createSaleProperty(type);
       } else if (state.listing_type?.label == LISTING_TYPE.LEASE) {
-        createLeaseProperty(type);
+        await createLeaseProperty(type);
       }
 
       // else if (state.listing_type?.label == LISTING_TYPE.RENT) {
-      //   createRentProperty();
+      //   await createRentProperty();
       // }
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -803,12 +804,10 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
-        // const errorMessages = error.inner.map((err) => `${err.message}`).join("\n");
-        // Failure(errorMessages || "Please fill all required fields");
         Failure("Please fill all required fields");
-        setState({ error: validationErrors, btnLoading: false });
+        setState({ error: validationErrors, btnLoading: false, btnLoading1: false });
       } else {
-        Failure(error?.error);
+        Failure(extractErrorMessage(error));
         setState({ btnLoading: false, btnLoading1: false });
       }
     }
@@ -945,23 +944,13 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
-        // const errorMessages = error.inner.map((err) => `• ${err.message}`).join("\n");
-        // Failure(errorMessages || "Please fill all required fields");
         Failure("Please fill all required fields");
         console.log("✌️validationErrors --->", validationErrors);
-        setState({ error: validationErrors, btnLoading: false });
+        setState({ error: validationErrors, btnLoading: false, btnLoading1: false });
       } else {
-        if (error && typeof error === "object") {
-          console.log(error);
-          // const errorMessages = Object.entries(error)
-          //   .map(([field, messages]: any) => `${field}: ${messages?.join(", ")}`)
-          //   .join("; ");
-          Failure( error.error);
-        } else {
-          Failure(error.error || "Something went wrong");
-        }
+        Failure(extractErrorMessage(error));
         setState({ btnLoading: false, btnLoading1: false });
-      } 
+      }
     }
   }
     const createLeaseProperty  = async (type: string) => {
@@ -1093,21 +1082,11 @@ const AddPropertyPage = () => {
         error.inner.forEach((err) => {
           validationErrors[err.path] = err?.message;
         });
-        // const errorMessages = error.inner.map((err) => `• ${err.message}`).join("\n");
-        // Failure(errorMessages || "Please fill all required fields");
         Failure("Please fill all required fields");
         console.log("✌️validationErrors --->", validationErrors);
-        setState({ error: validationErrors, btnLoading: false });
+        setState({ error: validationErrors, btnLoading: false, btnLoading1: false });
       } else {
-        if (error && typeof error === "object") {
-          console.log(error);
-          const errorMessages = Object.entries(error)
-            .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
-            .join("; ");
-          Failure(errorMessages);
-        } else {
-          Failure(error || "Something went wrong");
-        }
+        Failure(extractErrorMessage(error));
         setState({ btnLoading: false, btnLoading1: false });
       }
     }
@@ -1230,20 +1209,10 @@ const AddPropertyPage = () => {
         Failure("Please Fill all the required fields");
         console.log("✌️validationErrors --->", validationErrors);
 
-        setState({ error: validationErrors, btnLoading: false });
+        setState({ error: validationErrors, btnLoading: false, btnLoading1: false });
       } else {
-        if (error && typeof error === "object") {
-          console.log(error);
-
-          const errorMessages = Object.entries(error)
-            .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
-            .join("; ");
-
-          Failure(errorMessages);
-        } else {
-          Failure(error || "Something went wrong");
-        }
-        setState({ btnLoading: false });
+        Failure(extractErrorMessage(error));
+        setState({ btnLoading: false, btnLoading1: false });
       }
     }
   };

@@ -277,6 +277,14 @@ const lead = {
         url += `&developer_user=${encodeURIComponent(body.developer)}`;
       }
 
+      if (body?.property) {
+        url += `&property=${encodeURIComponent(body.property)}`;
+      }
+
+      if (body?.project) {
+        url += `&project=${encodeURIComponent(body.project)}`;
+      }
+
       if (body?.group) {
         url += `&group=${encodeURIComponent(body.group)}`;
       }

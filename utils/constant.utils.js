@@ -20,7 +20,7 @@ export const menuConfig = {
       type: "link",
       icon: "IconMenuWidgets",
       label: "dashboard",
-      href: "/",
+      href: "/real-estate/admin_dashboard",
     },
 
     {
@@ -64,19 +64,18 @@ export const menuConfig = {
       href: "/real-estate/lead/admin_list",
     },
 
-    {
-      type: "link",
-      icon: "IconMenuScrumboard",
-      label: "Bookings List",
-      href: "/real-estate/inquiry/admin_booking_list",
-    },
+    
 
     {
-      type: "link",
-      icon: "IconMenuScrumboard",
-      label: "Inquiry List",
-      href: "/real-estate/inquiry/admin_booking_list",
-    },
+      type: "submenu",
+      icon: "IconMenuDashboard",
+      label: "Inquiry",
+      key: "Inquiry",
+      children: [
+        { type: "link", label: "Booking Inquiry", href: "/real-estate/inquiry/admin_booking_list" },
+        { type: "link", label: "Call Back", href: "/real-estate/inquiry/admin_inquiry_list" },
+      ]
+},
 
     {
       type: "submenu",
@@ -152,7 +151,7 @@ export const menuConfig = {
       type: "link",
       icon: "IconMenuWidgets",
       label: "dashboard",
-      href: "/",
+      href: "/real-estate/dashboard",
     },
 
     {
@@ -1275,14 +1274,14 @@ export const FILTER_ADMINROLES = [
     value: "developer",
     label: "Developer Records",
   },
-  {
-    value: "agent",
-    label: "Agent Records",
-  },
-  {
-    value: "seller",
-    label: "Seller Records",
-  },
+  // {
+  //   value: "agent",
+  //   label: "Agent Records",
+  // },
+  // {
+  //   value: "seller",
+  //   label: "Seller Records",
+  // },
 ];
 
 export const GENDER_LIST = [

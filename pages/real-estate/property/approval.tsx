@@ -56,6 +56,8 @@ import {
   Briefcase,
   Clock,
   CircleCheck,
+  Globe,
+  Building2,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
@@ -78,28 +80,43 @@ const List = () => {
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => (
+      render: (row: any) => (
         <div className="relative">
           <div
-            className="flex gap-3"
+            className="flex gap-3 "
             onClick={() => handleView(row)}
             onMouseEnter={(e) => {
-              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+              const rect = (
+                e.currentTarget as HTMLElement
+              ).getBoundingClientRect();
               setTooltip({ row, x: rect.left, y: rect.top });
             }}
             onMouseLeave={() => setTooltip(null)}
           >
             <div className="flex flex-col justify-between">
-              <div className="flex cursor-pointer gap-3 text-sm">
-                {row.title}
-                {row.is_approved ? (
-                  <CheckCircle className="mt-0.5 h-3.5 w-3.5 text-green-500" />
-                ) : (
-                  <Clock className="mt-0.5 h-3.5 w-3.5 text-yellow-500" />
-                )}
+              <div>
+                <div className="flex cursor-pointer gap-3 text-sm font-semibold hover:text-primary">
+                  {row.title}
+                  {row.is_approved ? (
+                    <CheckCircle className="mt-0.5 h-3.5 w-3.5 text-green-500" />
+                  ) : (
+                    <Clock className="mt-0.5 h-3.5 w-3.5 text-yellow-500" />
+                  )}
+                </div>
               </div>
             </div>
           </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDuplicate(row);
+            }}
+            title="Duplicate Property"
+            className="mt-1 w-fit text-xs text-blue-600 underline hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={state.duplicatingId === row?.id}
+          >
+            {state.duplicatingId === row?.id ? "Duplicating..." : "Duplicate"}
+          </button>
         </div>
       ),
     },
@@ -110,8 +127,29 @@ const List = () => {
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => <span title={row.project}>{row.project}</span>,
+      render: (row: any) => <span title={row.project}>{row.project || "-"}</span>,
     },
+
+    // {
+    //   accessor: "developer",
+    //   title: "Developer Details",
+    //   visible: true,
+    //   toggleable: true,
+    //   sortable: true,
+    //   render: (row: any) => (
+    //     <div className="flex flex-col gap-0.5 py-0.5">
+    //       <div className="flex items-center gap-1.5  dark:text-white">
+    //         {/* <Building2 className="h-3.5 w-3.5 shrink-0 text-primary" /> */}
+    //         <span
+    //           className="max-w-[170px] truncate"
+    //           title={row.devCompany || row.developer}
+    //         >
+    //           {row.devCompany || row.developer || "-"}
+    //         </span>
+    //       </div>
+    //     </div>
+    //   ),
+    // },
 
     {
       accessor: "price",
@@ -147,9 +185,13 @@ const List = () => {
 
         return (
           <div className="flex items-center gap-2">
-            <span title={firstType} className="text-sm text-gray-700 dark:text-gray-300">
+            <span
+              title={firstType}
+              className="text-sm text-gray-700 dark:text-gray-300"
+            >
               {truncateText(firstType)}
             </span>
+
             <div className="flex items-center -space-x-2">
               {visibleTypes?.map((type: string, index: number) => (
                 <div key={index} className="group relative z-10">
@@ -180,13 +222,46 @@ const List = () => {
     {
       accessor: "city",
       sortable: true,
-      render: (row: any) => <span>{row.city?.name || "-"}</span>,
+      render: (row: any) => (
+        <span>{row.city?.name || (typeof row.city === "string" ? row.city : "-")}</span>
+      ),
     },
     {
       accessor: "area",
       sortable: true,
-      render: (row: any) => <span>{row.area?.name || "-"}</span>,
+      render: (row: any) => (
+        <span>{row.area?.name || (typeof row.area === "string" ? row.area : "-")}</span>
+      ),
     },
+
+    // {
+    //   accessor: "role",
+    //   title: "Offer Type",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => (
+    //     <span className={`badge badge-outline-${row?.listing_type?.color} `}>
+    //       {row?.listing_type?.type || "-"}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   accessor: "publish",
+    //   title: "Publish",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => (
+    //     <span
+    //       className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+    //         row?.publish === "Published"
+    //           ? "bg-green-100 text-green-700"
+    //           : "bg-gray-200 text-gray-700"
+    //       }`}
+    //     >
+    //       {row?.publish || "Draft"}
+    //     </span>
+    //   ),
+    // },
 
     {
       accessor: "action",
@@ -199,25 +274,50 @@ const List = () => {
         <div className="mx-auto flex w-max items-center gap-4">
           <button
             className="text-dred flex"
-            onClick={() => handleView(row)}
+            onClick={(e) => {
+              handleView(row);
+            }}
             title="View Details"
           >
             <Eye className="h-3.5 w-3.5" />
           </button>
+
+          <button
+            className="flex text-primary"
+            onClick={(e) => {
+              handleEdit(row);
+            }}
+            title="Edit Property"
+          >
+            <IconEdit className="h-3.5 w-3.5 " />
+          </button>
+
+          <button
+            className="flex text-success hover:text-success"
+            onClick={() => handleStatus(row)}
+            title={row?.is_approved ? "Mark Pending" : "Approve"}
+          >
+            <CircleCheck className="h-3.5 w-3.5 " />
+          </button>
+
           <button
             type="button"
-            className="flex text-success hover:text-success"
-            onClick={() => handleApprove(row)}
-            title="Change Approval Status"
+            className={`flex ${
+              row?.publish === "Published" ? "text-warning" : "text-info"
+            }`}
+            onClick={() => handlePublish(row)}
+            title={row?.publish === "Published" ? "Unpublish" : "Publish"}
           >
-            <CircleCheck className="h-3.5 w-3.5" />
+            <Globe className="h-3.5 w-3.5" />
           </button>
+
           <button
             type="button"
             className="flex text-danger"
-            onClick={() => handleDelete(row)}
+            onClick={(e) => handleDelete(row)}
+            title="Delete Property"
           >
-            <IconTrashLines className="h-4 w-4" />
+            <IconTrashLines className="h-4 w-4 " />
           </button>
         </div>
       ),
@@ -231,55 +331,103 @@ const List = () => {
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => (
-        <Link
-          className="flex gap-3 font-semibold"
-          href={`${FRONTEND_URL}/property-detail/${row?.id}`}
-          target="__blank"
-        >
-          <div className="h-20 w-20 rounded-md bg-white-dark/30  ltr:mr-2 rtl:ml-2">
-            <img
-              className="h-full w-full cursor-pointer rounded-md object-cover"
-              src={row.image}
-              alt=""
-            />
-          </div>
-          <div className="flex flex-col justify-between">
-            <div>
-              <div className="flex gap-1 ">
-                {" "}
-                <IconMapPin className="h-3 w-3" />
-                <span className="mt-[-2px] text-xs">{row.location}</span>
+      render: (row: any) => {
+        const group = localStorage.getItem("group");
+
+        return (
+          <Link
+            className="flex gap-3 font-semibold"
+            href={`${FRONTEND_URL}/property-detail/${row?.id}`}
+            target="_blank"
+          >
+            <div className="h-20 w-20 rounded-md bg-white-dark/30 ltr:mr-2 rtl:ml-2">
+              <img
+                className="h-full w-full cursor-pointer rounded-md object-cover"
+                src={row.image}
+                alt=""
+              />
+            </div>
+            <div className="flex flex-col justify-between">
+              <div>
+                <div className="flex gap-1">
+                  <IconMapPin className="h-3 w-3" />
+                  <span className="mt-[-2px] text-xs">{row.location}</span>
+                </div>
+                <div
+                  className="text-md cursor-pointer font-bold"
+                  title={row.title}
+                >
+                  {truncateText(row.title)}
+                </div>
+                <div className="mt-1 flex items-center gap-2">
+                  {row.listing_type?.type && (
+                    <span
+                      title={`${row.listing_type?.type || ""}${
+                        row.total_unit ? " · " + row.total_unit + " units" : ""
+                      }${row.publish ? " · " + row.publish : ""}`}
+                      className={`cursor-default text-[10px] font-bold uppercase ${
+                        row.listing_type.type?.toLowerCase() === "sale"
+                          ? "text-blue-500"
+                          : "text-purple-500"
+                      }`}
+                    >
+                      {row.listing_type.type?.charAt(0)}
+                    </span>
+                  )}
+                  {row.is_approved ? (
+                    <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+                  ) : (
+                    <Clock className="mt-0.5 h-3.5 w-3.5 text-yellow-500" />
+                  )}
+                </div>
               </div>
-              <div
-                className="text-md cursor-pointer font-bold"
-                title={row.title}
-              >
-                {truncateText(row.title)}
+              {group == "Seller" ? (
+                <div className="flex items-center justify-center gap-2">
+                  <span
+                    className={`badge  ${
+                      row?.is_approved
+                        ? "badge-outline-success w-[70px]"
+                        : "badge-outline-warning w-[140px]"
+                    }`}
+                  >
+                    {row?.is_approved ? "Approved" : "Waiting For Approval"}
+                  </span>
+
+                  <div
+                    className={`inline-block w-fit rounded-full px-2 text-xs font-semibold ${
+                      row?.publish == "Published"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-200 text-gray-700"
+                    }`}
+                  >
+                    {row?.publish}
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className={`inline-block w-fit rounded-full px-2 text-xs font-semibold ${
+                    row?.publish == "Published"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  {row?.publish}
+                </div>
+              )}
+              <div>
+                <Link
+                  className="flex gap-1 text-primary"
+                  href={`${FRONTEND_URL}/property-detail/${row?.id}`}
+                  target="_blank"
+                >
+                  <LucideHome className="h-3 w-3 text-black" />
+                  <span className="mt-[-2px] text-xs">View Details</span>
+                </Link>
               </div>
             </div>
-            <div
-              className={`inline-block w-fit rounded-full px-2 text-xs font-semibold ${
-                row?.publish == "Published"
-                  ? "bg-green-100 text-green-700"
-                  : "bg-gray-200 text-gray-700"
-              }`}
-            >
-              {row?.publish}
-            </div>
-            <div>
-              <Link
-                className="flex gap-1 pt-2 text-primary"
-                href={`${FRONTEND_URL}/property-detail/${row?.id}`}
-                target="_blank"
-              >
-                <LucideHome className="h-3 w-3 text-black " />
-                <span className="mt-[-2px] text-xs">View Details</span>
-              </Link>
-            </div>
-          </div>
-        </Link>
-      ),
+          </Link>
+        );
+      },
     },
 
     {
@@ -294,26 +442,47 @@ const List = () => {
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => (
+      render: (row: any) => (
         <span title={row.project}>{truncateText(row.project)}</span>
       ),
     },
+
     {
       accessor: "created_by",
       title: "Created By",
       visible: true,
       toggleable: true,
-      render: (row) => (
+      render: (row: any) => (
         <span title={row.created_by}>{truncateText(row.created_by)}</span>
       ),
     },
     {
       accessor: "developer",
-      title: "Developer",
+      title: "Developer Details",
       visible: true,
       toggleable: true,
-      render: (row) => (
-        <span title={row.developer}>{truncateText(row.developer)}</span>
+      render: (row: any) => (
+        <div className="flex flex-col gap-0.5 py-0.5">
+          <div className="flex items-center gap-1 font-semibold text-gray-900 dark:text-white">
+            <Building2 className="h-3 w-3 shrink-0 text-primary" />
+            <span
+              className="max-w-[150px] truncate"
+              title={row.devCompany || row.developer}
+            >
+              {row.devCompany || row.developer || "-"}
+            </span>
+          </div>
+          {row.devCompany && row.devPerson && row.devPerson !== "-" && (
+            <span className="text-[10px] text-gray-500">
+              {row.devPerson}
+            </span>
+          )}
+          {row.developer_email && row.developer_email !== "-" && (
+            <span className="max-w-[140px] truncate text-[10px] text-gray-400">
+              {row.developer_email}
+            </span>
+          )}
+        </div>
       ),
     },
     {
@@ -321,7 +490,7 @@ const List = () => {
       title: "Agent",
       visible: true,
       toggleable: true,
-      render: (row) => <span title={row.agent}>{truncateText(row.agent)}</span>,
+      render: (row: any) => <span title={row.agent}>{truncateText(row.agent)}</span>,
     },
     {
       accessor: "property_type",
@@ -343,7 +512,6 @@ const List = () => {
 
         return (
           <div className="flex items-center gap-2">
-            {/* First type text */}
             <span
               title={firstType}
               className="text-sm text-gray-700 dark:text-gray-300"
@@ -351,14 +519,12 @@ const List = () => {
               {truncateText(firstType)}
             </span>
 
-            {/* Avatars */}
             <div className="flex items-center -space-x-2">
               {visibleTypes?.map((type: string, index: number) => (
                 <div key={index} className="group relative z-10">
                   <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
                     {type?.slice(0, 2)?.toUpperCase()}
                   </div>
-                  {/* Tooltip */}
                   <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
                     {type}
                   </div>
@@ -369,7 +535,6 @@ const List = () => {
                   <div className="flex h-7 w-7  items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
                     +{remaining}
                   </div>
-                  {/* Remaining tooltip */}
                   <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
                     {hiddenTypes.join(", ")}
                   </div>
@@ -403,22 +568,55 @@ const List = () => {
       visible: true,
       toggleable: true,
     },
-
     {
       accessor: "action",
       title: "Actions",
       visible: true,
-      toggleable: false, // Actions column cannot be hidden
+      toggleable: false,
       sortable: false,
       textAlignment: "center",
       render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
           <button
-            type="button"
-            className="btn btn-outline-primary w-full px-3 py-1 md:mb-0 md:w-auto"
-            onClick={() => handleApprove(row)}
+            className="text-dred flex"
+            onClick={(e) => {
+              handleView(row);
+            }}
+            title="View Details"
           >
-            Approve
+            <Eye className="h-3.5 w-3.5" />
+          </button>
+
+          <button
+            className="flex text-primary"
+            onClick={() => handleEdit(row)}
+            title="Edit Property"
+          >
+            <IconEdit className="h-3.5 w-3.5 " />
+          </button>
+          <button
+            className="flex text-success hover:text-success"
+            onClick={() => handleStatus(row)}
+            title={row?.is_approved ? "Mark Pending" : "Approve"}
+          >
+            <CircleCheck className="h-3.5 w-3.5 " />
+          </button>
+          <button
+            type="button"
+            className={`flex ${
+              row?.publish === "Published" ? "text-warning" : "text-info"
+            }`}
+            onClick={() => handlePublish(row)}
+            title={row?.publish === "Published" ? "Unpublish" : "Publish"}
+          >
+            <Globe className="h-3.5 w-3.5" />
+          </button>
+          <button
+            className="flex text-danger hover:text-danger"
+            onClick={() => handleDelete(row)}
+            title="Delete Property"
+          >
+            <IconTrashLines className="h-3.5 w-3.5" />
           </button>
         </div>
       ),
@@ -438,11 +636,12 @@ const List = () => {
     search: "",
     error: {},
     loading: false,
-    visibleColumns: allColumns,
+    visibleColumns: tableColumns,
     viewMode: "table",
     sortBy: "",
     sortOrder: "asc",
     selectedRecords: [],
+    duplicatingId: null,
   });
 
   const visibleCount = state.visibleColumns.filter((col) => col.visible).length;
@@ -513,47 +712,88 @@ const List = () => {
 
       console.log("✌️body --->", body);
       const res: any = await Models.property.list(page, body);
-      const data = res?.results?.map((item) => ({
-        title: capitalizeFLetter(item?.title),
-        status: capitalizeFLetter(item?.status),
-        id: item?.id,
-        total_area: item?.total_area,
-        property_type:
-          item?.property_type?.map((pt: any) => capitalizeFLetter(pt?.name)) ||
-          [],
-        listing_type: {
-          type: capitalizeFLetter(item?.listing_type),
-          color:
-            item?.listing_type == LISTING_TYPE_LIST.RENT
-              ? "warning"
-              : item?.listing_type == LISTING_TYPE_LIST.SALE
-              ? "secondary"
-              : item?.listing_type == LISTING_TYPE_LIST.LEASE
-              ? "info"
-              : "success",
-        },
+      const data =
+        res?.results?.map((item: any) => {
+          const devObj =
+            typeof item?.developer === "object" && item?.developer !== null
+              ? item.developer
+              : null;
+          const devIndustry = devObj?.industry?.trim() || "";
+          const devFirstName = devObj?.first_name || "";
+          const devLastName = devObj?.last_name || "";
+          const devFullName = `${devFirstName} ${devLastName}`.trim();
+          const devEmail = devObj?.email || item?.developer_email || "-";
+          const devPhone =
+            devObj?.phone || devObj?.mobile || item?.developer_phone || "-";
 
-        date: commonDateFormat(item?.created_at),
-        location: capitalizeFLetter(item?.city),
-        developer: `${capitalizeFLetter(
-          item?.developer?.first_name,
-        )} ${capitalizeFLetter(item?.developer?.last_name)}`,
-        project: capitalizeFLetter(item?.project?.name),
-        publish: item?.publish ? "Published" : "Draft",
-        agent: false,
+          const devCompany = devIndustry;
+          const devPerson =
+            devFullName ||
+            (typeof item?.developer === "string" ? item.developer : "-");
+          const developerDisplay = devCompany || devPerson || "-";
 
-        price: formatPriceRange(item?.minimum_price, item?.maximum_price),
-        created_by: `${capitalizeFLetter(item?.created_by?.first_name)} ${
-          item?.created_by?.last_name
-        }`,
-        image:
-          item?.primary_image ??
-          "/assets/images/real-estate/property-info-img1.png",
-        is_approved: item?.is_approved,
-        built_up_area: item?.built_up_area,
-        city: item?.location || "-",
-        area: item?.area || "-",
-      }));
+          return {
+            publish: item?.publish == true ? "Published" : "Draft",
+            title: capitalizeFLetter(item?.title),
+            status: capitalizeFLetter(item?.status),
+            id: item?.id,
+            total_area: item?.total_area,
+            property_type:
+              item?.property_type?.map((pt: any) =>
+                capitalizeFLetter(pt?.name),
+              ) || [],
+            listing_type: {
+              type: capitalizeFLetter(item?.listing_type),
+              color:
+                item?.listing_type == LISTING_TYPE_LIST.RENT
+                  ? "warning"
+                  : item?.listing_type == LISTING_TYPE_LIST.SALE
+                  ? "secondary"
+                  : item?.listing_type == LISTING_TYPE_LIST.LEASE
+                  ? "info"
+                  : "success",
+            },
+
+            date: commonDateFormat(item?.created_at),
+            location: capitalizeFLetter(item?.city),
+            developer: developerDisplay,
+            devCompany: devCompany,
+            devPerson: devPerson,
+            developer_id:
+              devObj?.id ||
+              item?.developer?.id ||
+              (typeof item?.developer === "number" ? item.developer : null),
+            developer_email: devEmail,
+            developer_phone: devPhone,
+            created_by:
+              item.created_by?.first_name || item.created_by?.last_name
+                ? `${item.created_by?.first_name || ""} ${
+                    item.created_by?.last_name || ""
+                  }`.trim()
+                : item.created_by || "-",
+            agent:
+              item.agent?.first_name || item.agent?.last_name
+                ? `${capitalizeFLetter(
+                    item.agent?.first_name || "",
+                  )} ${capitalizeFLetter(item.agent?.last_name || "")}`.trim()
+                : item.agent || "-",
+            project: capitalizeFLetter(item?.project?.name),
+
+            price: formatPriceRange(
+              item?.price_range?.minimum_price || item?.minimum_price,
+              item?.price_range?.maximum_price || item?.maximum_price,
+            ),
+            built_up_area: item?.built_up_area,
+            is_approved: item?.is_approved,
+            image:
+              item?.primary_image ??
+              "/assets/images/real-estate/property-info-img1.png",
+            industry_name: item?.developer?.industry,
+            total_unit: item?.total_unit,
+            city: item?.location || "-",
+            area: item?.area || "-",
+          };
+        }) || [];
       console.log("✌️data --->", data);
 
       setState({
@@ -681,13 +921,13 @@ const List = () => {
     window.open(`${FRONTEND_URL}/property-detail/${row?.id}`, "_blank");
   };
 
-  const handleApprove = async (row: any) => {
+  const handleStatus = async (row: any) => {
     const result = await Swal.fire({
       title: "Are you sure?",
-      text: "Do you want to approve this property?",
+      text: `Do you want to ${row?.is_approved ? "mark pending" : "approve"} this property?`,
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Yes, approve it!",
+      confirmButtonText: "Yes, change it!",
       cancelButtonText: "Cancel",
       padding: "2em",
     });
@@ -697,16 +937,94 @@ const List = () => {
     try {
       setState({ btnLoading: true });
       const body = {
-        is_approved: true,
+        is_approved: !row.is_approved,
       };
       await Models.property.update(body, row?.id);
       propertyList(state.page);
-      Success("Property Approved successfully");
+      Success("Approval status updated successfully");
     } catch (error) {
       console.error("Approval error:", error);
-      Failure("Something went wrong while approving the property.");
+      Failure("Something went wrong while updating approval status.");
     } finally {
       setState({ btnLoading: false });
+    }
+  };
+
+  const handleApprove = handleStatus;
+
+  const handlePublish = async (row: any) => {
+    const isPublished = row?.publish === "Published";
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `Do you want to ${
+        isPublished ? "unpublish" : "publish"
+      } this property?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, do it!",
+      cancelButtonText: "Cancel",
+      padding: "2em",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setState({ btnLoading: true });
+      const formData = new FormData();
+      formData.append("publish", isPublished ? "false" : "true");
+      await Models.property.update(formData, row?.id);
+      propertyList(state.page);
+      Success(
+        `Property ${isPublished ? "unpublished" : "published"} successfully`,
+      );
+    } catch (error) {
+      console.error("Publish error:", error);
+      Failure("Failed to update publish status");
+    } finally {
+      setState({ btnLoading: false });
+    }
+  };
+
+  const handleDuplicate = async (row: any) => {
+    try {
+      setState({ duplicatingId: row?.id });
+
+      const res: any = await Models.property.details(row?.id);
+
+      const body: any = {
+        title: `${res.title} (Copy)`,
+        description: res.description,
+        listing_type: res.listing_type,
+        status: res.status,
+        address: res.address,
+        city: res.city,
+        state: res.state,
+        country: res.country,
+        postal_code: res.postal_code,
+        minimum_price: res.minimum_price,
+        maximum_price: res.maximum_price,
+        built_up_area: res.built_up_area,
+        total_unit: res.total_unit,
+        available_unit: res.available_unit,
+        property_type: res.property_type?.map((pt: any) => pt.id) || [],
+        amenities: res.amenities?.map((a: any) => a.id) || [],
+        features: res.features?.map((f: any) => f.id) || [],
+        specifications: res.specifications || [],
+        project: res.project?.id || res.project || null,
+        developer: res.developer?.id || res.developer || null,
+        primary_image: res.primary_image || null,
+        publish: false,
+        is_approved: false,
+      };
+
+      await Models.property.create(body);
+      Success("Property duplicated successfully");
+      propertyList(state.page);
+    } catch (error) {
+      console.error("Duplicate error:", error);
+      Failure("Failed to duplicate property");
+    } finally {
+      setState({ duplicatingId: null });
     }
   };
 
@@ -1114,26 +1432,96 @@ const List = () => {
       {/* Fixed tooltip rendered outside table */}
       {tooltip && (
         <div
-          className="pointer-events-none fixed z-[99999] w-56 rounded-lg border border-dred bg-lred p-3 shadow-lg dark:bg-gray-800"
-          style={{ top: tooltip.y - 8, left: tooltip.x, transform: "translateY(40%)" }}
+          className="border-dred bg-lred pointer-events-none fixed z-[99999] w-80 rounded-lg border p-3 shadow-lg dark:bg-gray-800"
+          style={{
+            top: tooltip.y - 8,
+            left: tooltip.x,
+            transform: "translateY(40%)",
+          }}
         >
-          <div className="mb-1 font-semibold text-[#000]">{tooltip.row.title}</div>
+          <div className="mb-1 font-semibold text-[#000]">
+            {tooltip.row.title}
+          </div>
+          {/* Unit Count Highlight */}
+          <div className="bg-dred mb-3 mt-2 flex w-fit items-center justify-between gap-3 rounded-2xl px-3 py-1">
+            <span className="text-sm text-white/80">Total Units</span>
+            <span className="text-md text-white">
+              {tooltip.row.total_unit ?? "—"}
+            </span>
+          </div>
+
+          {tooltip.row?.developer && (
+            <div className="mb-1.5 flex flex-col text-xs">
+              <div className="flex items-center gap-1 text-gray-800 dark:text-white">
+                <span className="shrink-0 font-semibold text-gray-500">
+                  Developer:
+                </span>
+                <span className="font-semibold">
+                  {tooltip.row.devCompany || tooltip.row.developer}
+                </span>
+              </div>
+              {tooltip.row.devPerson && tooltip.row.devPerson !== "-" && (
+                <div className="text-[11px] text-gray-600 dark:text-gray-300">
+                  Contact: {tooltip.row.devPerson}
+                </div>
+              )}
+              {tooltip.row.developer_email &&
+                tooltip.row.developer_email !== "-" && (
+                  <div className="text-[11px] text-gray-500 dark:text-gray-400">
+                    Email: {tooltip.row.developer_email}
+                  </div>
+                )}
+              {tooltip.row.developer_phone &&
+                tooltip.row.developer_phone !== "-" && (
+                  <div className="text-[11px] text-gray-500 dark:text-gray-400">
+                    Phone: {tooltip.row.developer_phone}
+                  </div>
+                )}
+            </div>
+          )}
+
+          {tooltip.row?.listing_type?.type && (
+            <div className="mb-1 flex items-start gap-2 text-xs">
+              <span className="shrink-0 font-semibold text-gray-500">
+                Offer Type:
+              </span>
+              <span
+                className={`font-semibold ${
+                  tooltip.row.listing_type.type?.toLowerCase() === "sale"
+                    ? "text-blue-500"
+                    : "text-purple-500"
+                }`}
+              >
+                {tooltip.row.listing_type.type}
+              </span>
+            </div>
+          )}
+
+          {tooltip.row?.publish && (
+            <div className="mb-1 flex items-start gap-2 text-xs">
+              <span className="shrink-0 font-semibold text-gray-500">
+                Publish:
+              </span>
+              <span
+                className={`font-semibold ${
+                  tooltip.row.publish === "Published"
+                    ? "text-green-600"
+                    : "text-gray-500"
+                }`}
+              >
+                {tooltip.row.publish}
+              </span>
+            </div>
+          )}
+
           {tooltip.row?.created_by && (
             <div className="mb-1 flex items-start gap-2 text-xs">
-              <span className="shrink-0 font-semibold text-gray-500">Created By:</span>
-              <span className="text-gray-800 dark:text-white">{tooltip.row.created_by}</span>
-            </div>
-          )}
-          {tooltip.row?.developer && (
-            <div className="mb-1 flex items-start gap-2 text-xs">
-              <span className="shrink-0 font-semibold text-gray-500">Developer:</span>
-              <span className="text-gray-800 dark:text-white">{tooltip.row.developer}</span>
-            </div>
-          )}
-          {tooltip.row?.agent && (
-            <div className="flex items-start gap-2 text-xs">
-              <span className="shrink-0 font-semibold text-gray-500">Agent:</span>
-              <span className="text-gray-800 dark:text-white">{tooltip.row.agent ?? "-"}</span>
+              <span className="shrink-0 font-semibold text-gray-500">
+                Created By:
+              </span>
+              <span className="text-gray-800 dark:text-white">
+                {tooltip.row.created_by}
+              </span>
             </div>
           )}
         </div>

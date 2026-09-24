@@ -17,6 +17,7 @@ import PrimaryButton from "@/components/FormFields/PrimaryButton.component";
 import {
   buildFormData,
   Dropdown,
+  extractErrorMessage,
   Failure,
   Success,
   useSetState,
@@ -522,12 +523,12 @@ const AddPropertyPage = () => {
       });
 
       if (state.listing_type?.label == LISTING_TYPE.SALE) {
-        createSaleProperty(type);
+        await createSaleProperty(type);
       } else if (state.listing_type?.label == LISTING_TYPE.LEASE) {
-        createLeaseProperty(type);
+        await createLeaseProperty(type);
       }
       // else if (state.listing_type?.label == LISTING_TYPE.RENT) {
-      //   createRentProperty();
+      //   await createRentProperty(type);
       // }
     } catch (error) {
       if (error instanceof Yup.ValidationError) {
@@ -536,11 +537,11 @@ const AddPropertyPage = () => {
           validationErrors[err.path] = err?.message;
         });
         console.log("error", error);
-        
+
         Failure("Please Fill all the required fields");
-        setState({ error: validationErrors, btnLoading: false });
+        setState({ error: validationErrors, btnLoading: false, btnLoading1: false });
       } else {
-        Failure(error?.error);
+        Failure(extractErrorMessage(error));
         setState({ btnLoading: false, btnLoading1: false });
       }
     }
@@ -664,22 +665,12 @@ const AddPropertyPage = () => {
           validationErrors[err.path] = err?.message;
         });
         console.log("error", error);
-        
+
         Failure("Please Fill all the required fields");
-
-        setState({ error: validationErrors, btnLoading: false });
+        setState({ error: validationErrors, btnLoading: false, btnLoading1: false });
       } else {
-        if (error && typeof error === "object") {
-          console.log(error);
-
-          const errorMessages = Object.entries(error)
-            .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
-            .join("; ");
-
-          Failure(errorMessages);
-        } else {
-          Failure(error || "Something went wrong");
-        }
+        const errorMsg = extractErrorMessage(error);
+        Failure(errorMsg);
         setState({ btnLoading: false, btnLoading1: false });
       }
     }
@@ -803,20 +794,10 @@ const AddPropertyPage = () => {
           validationErrors[err.path] = err?.message;
         });
         Failure("Please Fill all the required fields");
-
-        setState({ error: validationErrors, btnLoading: false });
+        setState({ error: validationErrors, btnLoading: false, btnLoading1: false });
       } else {
-        if (error && typeof error === "object") {
-          console.log(error);
-
-          const errorMessages = Object.entries(error)
-            .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
-            .join("; ");
-
-          Failure(errorMessages);
-        } else {
-          Failure(error || "Something went wrong");
-        }
+        const errorMsg = extractErrorMessage(error);
+        Failure(errorMsg);
         setState({ btnLoading: false, btnLoading1: false });
       }
     }
@@ -926,19 +907,11 @@ const AddPropertyPage = () => {
           validationErrors[err.path] = err?.message;
         });
         Failure("Please Fill all the required fields");
-
-        setState({ error: validationErrors, btnLoading: false });
+        setState({ error: validationErrors, btnLoading: false, btnLoading1: false });
       } else {
-        if (error && typeof error === "object") {
-          const errorMessages = Object.entries(error)
-            .map(([field, messages]: any) => `${field}: ${messages.join(", ")}`)
-            .join("; ");
-
-          Failure(errorMessages);
-        } else {
-          Failure(error || "Something went wrong");
-        }
-        setState({ btnLoading: false });
+        const errorMsg = extractErrorMessage(error);
+        Failure(errorMsg);
+        setState({ btnLoading: false, btnLoading1: false });
       }
     }
   };

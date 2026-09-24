@@ -1,4 +1,6 @@
 import React from 'react';
+import { Building2, X } from 'lucide-react';
+import CustomSelect from '@/components/FormFields/CustomSelect.component';
 
 const DATE_TABS = [
 
@@ -80,6 +82,11 @@ interface DateFilterBarProps {
   endDate: string;   // stored as DD-MM-YYYY
   onTabClick: (tab: string) => void;
   onCustomDateChange?: (start: string, end: string) => void; // emits DD-MM-YYYY
+  showDeveloperFilter?: boolean;
+  selectedDeveloper?: any;
+  onDeveloperChange?: (developer: any) => void;
+  developerOptions?: any[];
+  onDeveloperLoadMore?: () => void;
 }
 
 export default function DateFilterBar({
@@ -88,6 +95,11 @@ export default function DateFilterBar({
   endDate,
   onTabClick,
   onCustomDateChange,
+  showDeveloperFilter,
+  selectedDeveloper,
+  onDeveloperChange,
+  developerOptions,
+  onDeveloperLoadMore,
 }: DateFilterBarProps) {
   const isCustom = activeDateTab === 'Custom';
 
@@ -103,32 +115,52 @@ export default function DateFilterBar({
   return (
     <div
       id="date-filter-bar"
-      className="w-full bg-white rounded-xl shadow-sm border border-slate-200/90 overflow-hidden"
+      className="w-full bg-white rounded-xl shadow-sm border border-slate-200/90"
     >
-      {/* ── Row 1: period tabs ── */}
-      <div className="flex items-center gap-1.5 px-4 pt-3 pb-2.5 flex-wrap">
-        {DATE_TABS.map((tab) => {
-          const isActive = activeDateTab === tab;
-          return (
-            <button
-              key={tab}
-              onClick={() => onTabClick(tab)}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-none cursor-pointer whitespace-nowrap ${
-                isActive
-                  ? 'bg-[#8b181b] text-white shadow-sm '
-                  : 'text-[#000] bg-slate-100'
-              }`}
-            >
-              {tab}
-            </button>
-          );
-        })}
+      {/* ── Row 1: period tabs + optional developer filter ── */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2.5 px-4 pt-3 pb-2.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          {DATE_TABS.map((tab) => {
+            const isActive = activeDateTab === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => onTabClick(tab)}
+                className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-none cursor-pointer whitespace-nowrap ${
+                  isActive
+                    ? 'bg-[#8b181b] text-white shadow-sm '
+                    : 'text-[#000] bg-slate-100'
+                }`}
+              >
+                {tab}
+              </button>
+            );
+          })}
+        </div>
+
+        {showDeveloperFilter && (
+          <div className="flex items-center gap-2 w-full lg:w-72 shrink-0">
+            <Building2 className="w-4 h-4 text-[#8b181b] shrink-0" />
+            <div className="flex-1">
+              <CustomSelect
+                placeholder="All Developers"
+                value={selectedDeveloper}
+                onChange={(dev: any) => onDeveloperChange?.(dev)}
+                options={developerOptions || []}
+                loadMore={onDeveloperLoadMore}
+                isClearable
+                menuPortalTarget={typeof document !== 'undefined' ? document.body : null}
+                menuPosition="fixed"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ── Divider ── */}
       <div className="border-t border-slate-100" />
 
-      {/* ── Row 2: date inputs + active-period pill ── */}
+      {/* ── Row 2: date inputs + active-period pill & active developer pill ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-4 py-2.5">
         {/* Left: date pickers */}
         <div className="flex flex-wrap items-center gap-4">
@@ -179,13 +211,39 @@ export default function DateFilterBar({
           )}
         </div>
 
-        {/* Right: active period pill */}
-        <div className="flex items-center gap-1.5 shrink-0 bg-red-100 px-2 py-0.5 rounded-full">
-          <span className="h-2 w-2 rounded-full bg-[#8b181b] shrink-0" />
-          <span className="text-[11px] font-bold text-[#8b181b]">{activeDateTab}:</span>
-          <span className="text-[11px] font-semibold text-black">
-            {pillStart} → {pillEnd}
-          </span>
+        {/* Right: active period pill + active developer pill */}
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          {showDeveloperFilter && (
+            selectedDeveloper?.value ? (
+              <div className="flex items-center gap-1.5 bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-full text-xs font-semibold text-[#8b181b]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#8b181b] shrink-0" />
+                <span className="max-w-[180px] truncate" title={selectedDeveloper.label}>
+                  Developer: {selectedDeveloper.label}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => onDeveloperChange?.(null)}
+                  className="ml-1 rounded-full p-0.5 hover:bg-red-200 text-[#8b181b] cursor-pointer"
+                  title="Clear developer"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full text-[11px] font-medium text-slate-600">
+                <span className="h-1.5 w-1.5 rounded-full bg-slate-400 shrink-0" />
+                <span>All Developers (Platform View)</span>
+              </div>
+            )
+          )}
+
+          <div className="flex items-center gap-1.5 shrink-0 bg-red-100 px-2 py-0.5 rounded-full">
+            <span className="h-2 w-2 rounded-full bg-[#8b181b] shrink-0" />
+            <span className="text-[11px] font-bold text-[#8b181b]">{activeDateTab}:</span>
+            <span className="text-[11px] font-semibold text-black">
+              {pillStart} → {pillEnd}
+            </span>
+          </div>
         </div>
       </div>
     </div>

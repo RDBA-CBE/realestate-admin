@@ -10,6 +10,7 @@ import {
   Failure,
   formatPriceRange,
   formatToINR,
+  buildFormData,
   showDeleteAlert,
   Success,
   truncateText,
@@ -34,6 +35,7 @@ import Link from "next/link";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
 import FilterChips from "@/components/FilterChips/FilterChips.component";
 import {
+  APPROVED_STATUS,
   FILTER_ADMINROLES,
   FILTER_ROLES,
   FRONTEND_URL,
@@ -62,12 +64,22 @@ import {
   X,
   SlidersHorizontal,
   Globe,
+  Download,
+  Tag,
+  Key,
   Clock,
+  Verified,
+  Copy,
+  XCircle,
+  Building2,
+  Mail,
+  Phone,
 } from "lucide-react";
 import { Checkbox, Popover, Text } from "@mantine/core";
 import moment from "moment";
 import { clear } from "console";
 import PrivateRouter from "@/hook/privateRouter";
+import Paginations from "@/pages/elements/paginations";
 
 const List = () => {
   const router = useRouter();
@@ -77,15 +89,6 @@ const List = () => {
     y: number;
   } | null>(null);
 
-  // const [group, setGroup] = useState(null);
-
-  // console.log("group", group);
-
-  // useEffect(() => {
-  //   const usergroup = localStorage.getItem("group") || "";
-  //   setGroup(usergroup);
-  // }, []);
-
   const tableColumns = [
     {
       accessor: "title",
@@ -93,28 +96,43 @@ const List = () => {
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => (
+      render: (row: any) => (
         <div className="relative">
           <div
-            className="flex gap-3"
+            className="flex gap-3 "
             onClick={() => handleView(row)}
             onMouseEnter={(e) => {
-              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+              const rect = (
+                e.currentTarget as HTMLElement
+              ).getBoundingClientRect();
               setTooltip({ row, x: rect.left, y: rect.top });
             }}
             onMouseLeave={() => setTooltip(null)}
           >
             <div className="flex flex-col justify-between">
-              <div className="flex cursor-pointer gap-3 text-sm">
-                {row.title}
-                {row.is_approved ? (
-                  <CheckCircle className="mt-0.5 h-3.5 w-3.5 text-green-500" />
-                ) : (
-                  <Clock className="mt-0.5 h-3.5 w-3.5 text-yellow-500" />
-                )}
+              <div>
+                <div className="flex cursor-pointer gap-3 text-sm font-semibold hover:text-primary">
+                  {row.title}
+                  {row.is_approved ? (
+                    <CheckCircle className="mt-0.5 h-3.5 w-3.5 text-green-500" />
+                  ) : (
+                    <Clock className="mt-0.5 h-3.5 w-3.5 text-yellow-500" />
+                  )}
+                </div>
               </div>
             </div>
           </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDuplicate(row);
+            }}
+            title="Duplicate Property"
+            className="mt-1 w-fit text-xs text-blue-600 underline hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={state.duplicatingId === row?.id}
+          >
+            {state.duplicatingId === row?.id ? "Duplicating..." : "Duplicate"}
+          </button>
         </div>
       ),
     },
@@ -125,8 +143,31 @@ const List = () => {
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => <span title={row.project}>{row.project}</span>,
+      render: (row: any) => <span title={row.project}>{row.project || "-"}</span>,
     },
+
+    // {
+    //   accessor: "developer",
+    //   title: "Developer Details",
+    //   visible: true,
+    //   toggleable: true,
+    //   sortable: true,
+    //   render: (row: any) => (
+    //     <div className="flex flex-col gap-0.5 py-0.5">
+    //       <div className="flex items-center gap-1.5  dark:text-white">
+    //         {/* <Building2 className="h-3.5 w-3.5 shrink-0 text-primary" /> */}
+    //         <span
+    //           className="max-w-[170px] truncate"
+    //           title={row.devCompany || row.developer}
+    //         >
+    //           {row.devCompany || row.developer || "-"}
+    //         </span>
+    //       </div>
+          
+        
+    //     </div>
+    //   ),
+    // },
 
     {
       accessor: "price",
@@ -162,9 +203,13 @@ const List = () => {
 
         return (
           <div className="flex items-center gap-2">
-            <span title={firstType} className="text-sm text-gray-700 dark:text-gray-300">
+            <span
+              title={firstType}
+              className="text-sm text-gray-700 dark:text-gray-300"
+            >
               {truncateText(firstType)}
             </span>
+
             <div className="flex items-center -space-x-2">
               {visibleTypes?.map((type: string, index: number) => (
                 <div key={index} className="group relative z-10">
@@ -195,13 +240,46 @@ const List = () => {
     {
       accessor: "city",
       sortable: true,
-      render: (row: any) => <span>{row.city?.name || "-"}</span>,
+      render: (row: any) => (
+        <span>{row.city?.name || (typeof row.city === "string" ? row.city : "-")}</span>
+      ),
     },
     {
       accessor: "area",
       sortable: true,
-      render: (row: any) => <span>{row.area?.name || "-"}</span>,
+      render: (row: any) => (
+        <span>{row.area?.name || (typeof row.area === "string" ? row.area : "-")}</span>
+      ),
     },
+
+    // {
+    //   accessor: "role",
+    //   title: "Offer Type",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => (
+    //     <span className={`badge badge-outline-${row?.listing_type?.color} `}>
+    //       {row?.listing_type?.type || "-"}
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   accessor: "publish",
+    //   title: "Publish",
+    //   visible: true,
+    //   toggleable: true,
+    //   render: (row: any) => (
+    //     <span
+    //       className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
+    //         row?.publish === "Published"
+    //           ? "bg-green-100 text-green-700"
+    //           : "bg-gray-200 text-gray-700"
+    //       }`}
+    //     >
+    //       {row?.publish || "Draft"}
+    //     </span>
+    //   ),
+    // },
 
     {
       accessor: "action",
@@ -214,19 +292,32 @@ const List = () => {
         <div className="mx-auto flex w-max items-center gap-4">
           <button
             className="text-dred flex"
-            onClick={(e) => { handleView(row); }}
+            onClick={(e) => {
+              handleView(row);
+            }}
+            title="View Details"
           >
             <Eye className="h-3.5 w-3.5" />
           </button>
-          <button className="flex text-primary" onClick={() => handleEdit(row)}>
-            <IconEdit className="h-3.5 w-3.5" />
+
+          <button
+            className="flex text-primary"
+            onClick={(e) => {
+              handleEdit(row);
+            }}
+            title="Edit Property"
+          >
+            <IconEdit className="h-3.5 w-3.5 " />
           </button>
+
           <button
             className="flex text-success hover:text-success"
             onClick={() => handleStatus(row)}
+            title={row?.is_approved ? "Mark Pending" : "Approve"}
           >
-            <CircleCheck className="h-3.5 w-3.5" />
+            <CircleCheck className="h-3.5 w-3.5 " />
           </button>
+
           <button
             type="button"
             className={`flex ${
@@ -237,11 +328,14 @@ const List = () => {
           >
             <Globe className="h-3.5 w-3.5" />
           </button>
+
           <button
-            className="flex text-danger hover:text-danger"
-            onClick={() => handleDelete(row)}
+            type="button"
+            className="flex text-danger"
+            onClick={(e) => handleDelete(row)}
+            title="Delete Property"
           >
-            <IconTrashLines className="h-3.5 w-3.5" />
+            <IconTrashLines className="h-4 w-4 " />
           </button>
         </div>
       ),
@@ -255,7 +349,7 @@ const List = () => {
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => {
+      render: (row: any) => {
         const group = localStorage.getItem("group");
 
         return (
@@ -282,6 +376,27 @@ const List = () => {
                   title={row.title}
                 >
                   {truncateText(row.title)}
+                </div>
+                <div className="mt-1 flex items-center gap-2">
+                  {row.listing_type?.type && (
+                    <span
+                      title={`${row.listing_type?.type || ""}${
+                        row.total_unit ? " · " + row.total_unit + " units" : ""
+                      }${row.publish ? " · " + row.publish : ""}`}
+                      className={`cursor-default text-[10px] font-bold uppercase ${
+                        row.listing_type.type?.toLowerCase() === "sale"
+                          ? "text-blue-500"
+                          : "text-purple-500"
+                      }`}
+                    >
+                      {row.listing_type.type?.charAt(0)}
+                    </span>
+                  )}
+                  {row.is_approved ? (
+                    <CheckCircle className="h-3.5 w-3.5 text-green-500" />
+                  ) : (
+                    <Clock className="mt-0.5 h-3.5 w-3.5 text-yellow-500" />
+                  )}
                 </div>
               </div>
               {group == "Seller" ? (
@@ -345,7 +460,7 @@ const List = () => {
       visible: true,
       toggleable: true,
       sortable: true,
-      render: (row) => (
+      render: (row: any) => (
         <span title={row.project}>{truncateText(row.project)}</span>
       ),
     },
@@ -355,17 +470,37 @@ const List = () => {
       title: "Created By",
       visible: true,
       toggleable: true,
-      render: (row) => (
+      render: (row: any) => (
         <span title={row.created_by}>{truncateText(row.created_by)}</span>
       ),
     },
     {
       accessor: "developer",
-      title: "Developer",
+      title: "Developer Details",
       visible: true,
       toggleable: true,
-      render: (row) => (
-        <span title={row.developer}>{truncateText(row.developer)}</span>
+      render: (row: any) => (
+        <div className="flex flex-col gap-0.5 py-0.5">
+          <div className="flex items-center gap-1 font-semibold text-gray-900 dark:text-white">
+            <Building2 className="h-3 w-3 shrink-0 text-primary" />
+            <span
+              className="max-w-[150px] truncate"
+              title={row.devCompany || row.developer}
+            >
+              {row.devCompany || row.developer || "-"}
+            </span>
+          </div>
+          {row.devCompany && row.devPerson && row.devPerson !== "-" && (
+            <span className="text-[10px] text-gray-500">
+              {row.devPerson}
+            </span>
+          )}
+          {row.developer_email && row.developer_email !== "-" && (
+            <span className="max-w-[140px] truncate text-[10px] text-gray-400">
+              {row.developer_email}
+            </span>
+          )}
+        </div>
       ),
     },
     {
@@ -373,7 +508,7 @@ const List = () => {
       title: "Agent",
       visible: true,
       toggleable: true,
-      render: (row) => <span title={row.agent}>{truncateText(row.agent)}</span>,
+      render: (row: any) => <span title={row.agent}>{truncateText(row.agent)}</span>,
     },
     {
       accessor: "property_type",
@@ -395,7 +530,6 @@ const List = () => {
 
         return (
           <div className="flex items-center gap-2">
-            {/* First type text */}
             <span
               title={firstType}
               className="text-sm text-gray-700 dark:text-gray-300"
@@ -403,14 +537,12 @@ const List = () => {
               {truncateText(firstType)}
             </span>
 
-            {/* Avatars */}
             <div className="flex items-center -space-x-2">
               {visibleTypes?.map((type: string, index: number) => (
                 <div key={index} className="group relative z-10">
                   <div className="bg-dred flex h-7 w-7 items-center justify-center rounded-full border-2 border-white text-[10px] font-bold text-white dark:border-gray-900">
                     {type?.slice(0, 2)?.toUpperCase()}
                   </div>
-                  {/* Tooltip */}
                   <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
                     {type}
                   </div>
@@ -421,7 +553,6 @@ const List = () => {
                   <div className="flex h-7 w-7  items-center justify-center rounded-full border-2 border-white bg-gray-400 text-[10px] font-bold text-white dark:border-gray-900">
                     +{remaining}
                   </div>
-                  {/* Remaining tooltip */}
                   <div className="absolute bottom-full left-1/2 z-[100] mb-2 -translate-x-1/2 whitespace-nowrap rounded bg-black px-2 py-1 text-[10px] text-white opacity-0 transition group-hover:opacity-100">
                     {hiddenTypes.join(", ")}
                   </div>
@@ -455,22 +586,6 @@ const List = () => {
       visible: true,
       toggleable: true,
     },
-    // {
-    //   accessor: "publish",
-    //   title: "Publish",
-    //   visible: true,
-    //   toggleable: true,
-    //   render: (row: any) => (
-    //     <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-semibold ${
-    //       row?.publish === "Published" ? "bg-green-100 text-green-700" : "bg-gray-200 text-gray-700"
-    //     }`}>
-    //       {row?.publish}
-    //     </span>
-    //   ),
-    // },
-
-    // ...(group == "Admin" || group == "Seller"
-    //   ? [
     {
       accessor: "action",
       title: "Actions",
@@ -478,23 +593,29 @@ const List = () => {
       toggleable: false,
       sortable: false,
       textAlignment: "center",
-      render: (row) => (
+      render: (row: any) => (
         <div className="mx-auto flex w-max items-center gap-4">
           <button
             className="text-dred flex"
             onClick={(e) => {
               handleView(row);
             }}
+            title="View Details"
           >
             <Eye className="h-3.5 w-3.5" />
           </button>
 
-          <button className="flex text-primary" onClick={() => handleEdit(row)}>
+          <button
+            className="flex text-primary"
+            onClick={() => handleEdit(row)}
+            title="Edit Property"
+          >
             <IconEdit className="h-3.5 w-3.5 " />
           </button>
           <button
             className="flex text-success hover:text-success"
             onClick={() => handleStatus(row)}
+            title={row?.is_approved ? "Mark Pending" : "Approve"}
           >
             <CircleCheck className="h-3.5 w-3.5 " />
           </button>
@@ -511,14 +632,13 @@ const List = () => {
           <button
             className="flex text-danger hover:text-danger"
             onClick={() => handleDelete(row)}
+            title="Delete Property"
           >
             <IconTrashLines className="h-3.5 w-3.5" />
           </button>
         </div>
       ),
     },
-    //       ]
-    //     : []),
   ];
 
   const [state, setState] = useSetState({
@@ -530,6 +650,9 @@ const List = () => {
     tableList: [],
     agentList: [],
     developerList: [],
+    developer: null,
+    developerPage: 1,
+    developerNext: null,
     userList: [],
     editId: null,
     name: "",
@@ -538,53 +661,81 @@ const List = () => {
     search: "",
     error: {},
     loading: false,
-    visibleColumns: allColumns,
+    visibleColumns: tableColumns,
     viewMode: "table",
     role: null,
     showFilterModal: false,
     sortBy: "",
     sortOrder: "asc",
     selectedRecords: [],
-    recordType :{value: "created", label: "Created Records"}
+    project: null,
+    projectList: [],
+    projectPage: 1,
+    projectNext: null,
+    cityList: [],
+    cityPage: 1,
+    cityNext: null,
+    areaList: [],
+    areaPage: 1,
+    areaNext: null,
+    categoryPage: 1,
+    categoryNext: null,
+    recordType: null,
+    duplicatingId: null,
+    userId: null,
+    total: 0,
+    totalRecords: 0,
+    next: null,
+    previous: null,
   });
 
-  const visibleCount = state.visibleColumns.filter((col) => col.visible).length;
+  const visibleCount = state.visibleColumns.filter((col: any) => col.visible).length;
   const totalToggleable = state.visibleColumns.filter(
-    (col) => col.toggleable !== false,
+    (col: any) => col.toggleable !== false,
   ).length;
 
   const debouncedSearch = useDebounce(state.search, 500);
+  const debouncedMinBuiltUpArea = useDebounce(state.min_built_up_area, 500);
+  const debouncedMaxBuiltUpArea = useDebounce(state.max_built_up_area, 500);
+  const debouncedMinPrice = useDebounce(state.min_price, 500);
+  const debouncedMaxPrice = useDebounce(state.max_price, 500);
 
   useEffect(() => {
     const group = localStorage.getItem("group") || "";
+    const userId = localStorage.getItem("userId");
 
     setState({
       group: group,
-      // role: group == "Admin" && {
-      //   value: "developer",
-      //   label: "Developer",
-      // },
+      userId: userId,
     });
-  }, [state.group]);
+  }, []);
 
   useEffect(() => {
     categoryList(1);
     developerList(1);
-    statCount();
+    projectList(1);
+    cityList(1);
   }, []);
 
   useEffect(() => {
-    const group = localStorage.getItem("group");
-    if (group == "Admin") {
-      // if (state.role != null) {
-      //   propertyList(1);
-      // }
-      propertyList(1);
-    } else {
-      propertyList(1);
+    projectList(1);
+  }, [state.developer]);
+
+  useEffect(() => {
+    if (state.filterLocation) {
+      areaList(1);
     }
+  }, [state.filterLocation]);
+
+  useEffect(() => {
+    propertyList(1);
+    statCount();
   }, [
     debouncedSearch,
+    debouncedMinBuiltUpArea,
+    debouncedMaxBuiltUpArea,
+    debouncedMinPrice,
+    debouncedMaxPrice,
     state.property_type,
     state.offer_type,
     state.status,
@@ -593,6 +744,12 @@ const List = () => {
     state.role,
     state.user,
     state.publish,
+    state.recordType,
+    state.team,
+    state.project,
+    state.approvedStatus,
+    state.filterLocation,
+    state.filterArea,
   ]);
 
   useEffect(() => {
@@ -610,20 +767,19 @@ const List = () => {
   const statCount = async () => {
     try {
       const body = bodyData();
-      const res: any = await Models.property.count(body);
-      console.log("count res", res);
 
+      const res: any = await Models.property.count(body);
       setState({
         statCount: res,
       });
     } catch (error) {
-      console.log("✌️error --->", error);
+      console.log("error fetching stat count --->", error);
       setState({ loading: false });
     }
   };
 
   const propertyList = async (
-    page,
+    page: number = 1,
     sortBy = state.sortBy,
     sortOrder = state.sortOrder,
   ) => {
@@ -637,75 +793,104 @@ const List = () => {
       }
 
       const res: any = await Models.property.list(page, body);
-      const data = res?.results?.map((item) => ({
-        publish: item?.publish == true ? "Published" : "Draft",
-        title: capitalizeFLetter(item?.title),
-        status: capitalizeFLetter(item?.status),
-        id: item?.id,
-        total_area: item?.total_area,
-        // property_type: item?.property_type?.name,
-        property_type:
-          item?.property_type?.map((pt) => capitalizeFLetter(pt?.name)) || [],
-        listing_type: {
-          type: capitalizeFLetter(item?.listing_type),
-          color:
-            item?.listing_type == LISTING_TYPE_LIST.RENT
-              ? "warning"
-              : item?.listing_type == LISTING_TYPE_LIST.SALE
-              ? "secondary"
-              : item?.listing_type == LISTING_TYPE_LIST.LEASE
-              ? "info"
-              : "success",
-        },
+      const data =
+        res?.results?.map((item: any) => {
+          const devObj =
+            typeof item?.developer === "object" && item?.developer !== null
+              ? item.developer
+              : null;
+          const devIndustry = devObj?.industry?.trim() || "";
+          const devFirstName = devObj?.first_name || "";
+          const devLastName = devObj?.last_name || "";
+          const devFullName = `${devFirstName} ${devLastName}`.trim();
+          const devEmail = devObj?.email || item?.developer_email || "-";
+          const devPhone =
+            devObj?.phone || devObj?.mobile || item?.developer_phone || "-";
 
-        date: commonDateFormat(item?.created_at),
-        location: capitalizeFLetter(item?.city),
-        developer: `${capitalizeFLetter(
-          item?.developer?.first_name,
-        )} ${capitalizeFLetter(item?.developer?.last_name)}`,
-        created_by:
-          item.created_by?.first_name || item.created_by?.last_name
-            ? `${item.created_by?.first_name || ""} ${
-                item.created_by?.last_name || ""
-              }`.trim()
-            : item.created_by || "-",
-        agent:
-          item.agent?.first_name || item.agent?.last_name
-            ? `${capitalizeFLetter(
-                item.agent?.first_name || "",
-              )} ${capitalizeFLetter(item.agent?.last_name || "")}`.trim()
-            : item.agent || "-",
-        project: capitalizeFLetter(item?.project?.name),
+          const devCompany = devIndustry;
+          const devPerson =
+            devFullName ||
+            (typeof item?.developer === "string" ? item.developer : "-");
+          const developerDisplay = devCompany || devPerson || "-";
 
-        price: formatPriceRange(
-          item?.price_range?.minimum_price,
-          item?.price_range?.maximum_price,
-        ),
-        is_approved: item?.is_approved,
-        image:
-          item?.primary_image ??
-          "/assets/images/real-estate/property-info-img1.png",
-        built_up_area: item?.built_up_area,
-        city: item?.location || "-",
-        area: item?.area || "-",
-      }));
+          return {
+            publish: item?.publish == true ? "Published" : "Draft",
+            title: capitalizeFLetter(item?.title),
+            status: capitalizeFLetter(item?.status),
+            id: item?.id,
+            total_area: item?.total_area,
+            property_type:
+              item?.property_type?.map((pt: any) =>
+                capitalizeFLetter(pt?.name),
+              ) || [],
+            listing_type: {
+              type: capitalizeFLetter(item?.listing_type),
+              color:
+                item?.listing_type == LISTING_TYPE_LIST.RENT
+                  ? "warning"
+                  : item?.listing_type == LISTING_TYPE_LIST.SALE
+                  ? "secondary"
+                  : item?.listing_type == LISTING_TYPE_LIST.LEASE
+                  ? "info"
+                  : "success",
+            },
+
+            date: commonDateFormat(item?.created_at),
+            location: capitalizeFLetter(item?.city),
+            developer: developerDisplay,
+            devCompany: devCompany,
+            devPerson: devPerson,
+            developer_id:
+              devObj?.id ||
+              item?.developer?.id ||
+              (typeof item?.developer === "number" ? item.developer : null),
+            developer_email: devEmail,
+            developer_phone: devPhone,
+            created_by:
+              item.created_by?.first_name || item.created_by?.last_name
+                ? `${item.created_by?.first_name || ""} ${
+                    item.created_by?.last_name || ""
+                  }`.trim()
+                : item.created_by || "-",
+            agent:
+              item.agent?.first_name || item.agent?.last_name
+                ? `${capitalizeFLetter(
+                    item.agent?.first_name || "",
+                  )} ${capitalizeFLetter(item.agent?.last_name || "")}`.trim()
+                : item.agent || "-",
+            project: capitalizeFLetter(item?.project?.name),
+
+            price: formatPriceRange(
+              item?.price_range?.minimum_price,
+              item?.price_range?.maximum_price,
+            ),
+            built_up_area: item?.built_up_area,
+            is_approved: item?.is_approved,
+            image:
+              item?.primary_image ??
+              "/assets/images/real-estate/property-info-img1.png",
+            industry_name: item?.developer?.industry,
+            total_unit: item?.total_unit,
+            city: item?.location || "-",
+            area: item?.area || "-",
+          };
+        }) || [];
 
       setState({
         tableList: data,
-        total: res?.count,
+        total: res?.count || 0,
         page: page,
-        next: res.next,
-        previous: res.previous,
-        totalRecords: res.count,
+        next: res?.next,
+        previous: res?.previous,
+        totalRecords: res?.count || 0,
         loading: false,
+        selectedRecords: [],
       });
     } catch (error) {
-      console.log("✌️error --->", error);
+      console.log("error fetching property list --->", error);
       setState({ loading: false });
     }
   };
-
-  console.log("tableList", state?.tableList);
 
   const handleApprove = async (row: any) => {
     const result = await Swal.fire({
@@ -745,12 +930,51 @@ const List = () => {
       search: "",
       role: { value: "developer", label: "Developer" },
       user: "",
-      developer: "",
+      developer: null,
       agent: "",
     });
   };
 
-  const categoryList = async (page) => {
+  const projectList = async (page: number = 1) => {
+    try {
+      const body: any = {};
+      if (state.developer?.value) {
+        body.developer = state.developer.value;
+      }
+      const res: any = await Models.project.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+      setState({
+        projectList:
+          page === 1 ? droprdown : [...state.projectList, ...droprdown],
+        projectPage: page,
+        projectNext: res.next,
+      });
+    } catch (error) {
+      console.log("error fetching project list: ", error);
+    }
+  };
+
+  const projectListLoadMore = async () => {
+    try {
+      if (state.projectNext) {
+        const body: any = {};
+        if (state.developer?.value) {
+          body.developer = state.developer.value;
+        }
+        const res: any = await Models.project.list(state.projectPage + 1, body);
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          projectList: [...state.projectList, ...newOptions],
+          projectNext: res.next,
+          projectPage: state.projectPage + 1,
+        });
+      }
+    } catch (error) {
+      console.log("error loading more projects: ", error);
+    }
+  };
+
+  const categoryList = async (page: number) => {
     try {
       const res: any = await Models.category.list(page, {});
       const droprdown = Dropdown(res?.results, "name");
@@ -760,7 +984,7 @@ const List = () => {
         categoryNext: res.next,
       });
     } catch (error) {
-      console.log("✌️error --->", error);
+      console.log("error fetching categories --->", error);
     }
   };
 
@@ -774,105 +998,145 @@ const List = () => {
           categoryNext: res.next,
           categoryPage: state.categoryPage + 1,
         });
-      } else {
+      }
+    } catch (error) {
+      console.log("error loading more categories: ", error);
+    }
+  };
+
+  const cityList = async (page: number) => {
+    try {
+      const body: any = {};
+      if (state.search) body.search = state.search;
+      const res: any = await Models.city.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+
+      setState({
+        cityList: droprdown,
+        total: res?.count,
+        page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
+      });
+    } catch (error) {
+      console.log("error fetching cities -->", error);
+    }
+  };
+
+  const cityLoadMore = async () => {
+    try {
+      if (state.cityNext) {
+        const res: any = await Models.city.list(state.cityPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
         setState({
-          categoryList: state.categoryList,
+          cityList: [...state.cityList, ...newOptions],
+          cityNext: res.next,
+          cityPage: state.cityPage + 1,
         });
       }
     } catch (error) {
-      console.log("error: ", error);
+      console.log("error loading more cities: ", error);
     }
   };
 
-  const agentList = async (page) => {
+  const areaList = async (page: number) => {
     try {
-      const body = {
-        user_type: ROLES.AGENT,
+      const body: any = {
+        location: state.location?.value || state.filterLocation?.value,
       };
-      const res: any = await Models.user.list(page, body);
-      const dropdown = res?.results?.map((item) => ({
-        value: item?.id,
-        label: `${item?.first_name} ${item?.last_name}`,
-      }));
+      if (state.search) body.search = state.search;
+      const res: any = await Models.area.list(page, body);
+      const droprdown = Dropdown(res?.results, "name");
+
       setState({
-        userList: dropdown,
+        areaList: droprdown,
+        total: res?.count,
+        page,
+        next: res.next,
+        previous: res.previous,
+        totalRecords: res.count,
       });
     } catch (error) {
-      console.log("✌️error --->", error);
+      console.log("error fetching areas -->", error);
     }
   };
 
-  const developerList = async (page) => {
+  const areaLoadMore = async () => {
+    try {
+      if (state.areaNext) {
+        const res: any = await Models.area.list(state.areaPage + 1, {});
+        const newOptions = Dropdown(res?.results, "name");
+        setState({
+          areaList: [...state.areaList, ...newOptions],
+          areaNext: res.next,
+          areaPage: state.areaPage + 1,
+        });
+      }
+    } catch (error) {
+      console.log("error loading more areas: ", error);
+    }
+  };
+
+  const developerList = async (page: number = 1) => {
     try {
       const body = {
         user_type: ROLES.DEVELOPER,
       };
       const res: any = await Models.user.list(page, body);
-      const dropdown = res?.results?.map((item) => ({
-        value: item?.id,
-        label: `${item?.first_name} ${item?.last_name}`,
-      }));
+      const dropdown =
+        res?.results?.map((item: any) => ({
+          value: item?.id,
+          label: item?.industry
+            ? `${item.industry} (${item.first_name} ${item.last_name})`
+            : `${item?.first_name} ${item?.last_name}`,
+        })) || [];
       setState({
-        userList: dropdown,
+        developerList:
+          page === 1 ? dropdown : [...state.developerList, ...dropdown],
+        developerPage: page,
+        developerNext: res?.next,
       });
     } catch (error) {
-      console.log("✌️error --->", error);
+      console.log("error fetching developers --->", error);
     }
   };
 
-  const sellerList = async (page) => {
+  const developerLoadMore = async () => {
     try {
-      const body = {
-        user_type: ROLES.SELLER,
-      };
-      const res: any = await Models.user.list(page, body);
-      const dropdown = res?.results?.map((item) => ({
-        value: item?.id,
-        label: `${item?.first_name} ${item?.last_name}`,
-      }));
-      setState({
-        userList: dropdown,
-      });
+      if (state.developerNext) {
+        await developerList(state.developerPage + 1);
+      }
     } catch (error) {
-      console.log("✌️error --->", error);
+      console.log("error loading more developers: ", error);
     }
   };
 
-  const getRecordTypeList = (e) => {
-    setState({ recordType: e, user: null, userList: [] });
-
-    if (e?.value == "created") {
-      setState({createdRecords : true, assignedRecords : false})
-    } 
-    if (e?.value == "assigned") {
-      setState({assignedRecords : true , createdRecords : false})
-    }
-  };
-
-  const getuserList = (e) => {
-    setState({ role: e, user: null, userList: [] });
-
-    if (e?.value == "developer") {
-      developerList(1);
-    } else if (e?.value == "agent") {
-      agentList(1);
-    } else if (e?.value == "seller") {
-      sellerList(1);
+  const getuserList = (e: any) => {
+    setState({ recordType: e });
+    if (e?.value === "own") {
+      setState({ team: false });
+    } else if (e?.value === "admin") {
+      setState({ team: true });
+    } else {
+      setState({ team: null });
     }
   };
 
   const deleteDecord = async (row: any) => {
     try {
       setState({ btnLoading: true });
-      const res = await Models.property.delete(row?.id);
+      await Models.property.delete(row?.id);
       clearData();
       setState({ btnLoading: false });
       propertyList(state.page);
-      Success("Property deleted succssfully");
-    } catch (error) {}
+      Success("Property deleted successfully");
+    } catch (error) {
+      setState({ btnLoading: false });
+    }
   };
 
-  const handleDelete = (row) => {
+  const handleDelete = (row: any) => {
     showDeleteAlert(
       () => {
         deleteDecord(row);
@@ -914,54 +1178,43 @@ const List = () => {
     );
   };
 
-  const handleBulkPublish = () => {
-    showDeleteAlert(
-      async () => {
-        try {
-          setState({ btnLoading: true });
-          await Promise.all(
-            state.selectedRecords.map(async (row: any) => {
-              const formData = new FormData();
-              formData.append(
-                "publish",
-                row?.publish === "Published" ? "false" : "true",
-              );
-              await Models.property.update(formData, row?.id);
-            }),
-          );
-          setState({ selectedRecords: [], btnLoading: false });
-          propertyList(state.page);
-          Success(
-            `Publish status changed for ${state.selectedRecords.length} selected propert${
-              state.selectedRecords.length > 1 ? "ies" : "y"
-            }`,
-          );
-        } catch (error) {
-          setState({ btnLoading: false });
-        }
-      },
-      () => {
-        Swal.fire("Cancelled", "Your Records are safe :)", "info");
-      },
-      `Are you sure want to change publish status for ${
-        state.selectedRecords.length
-      } selected propert${state.selectedRecords.length > 1 ? "ies" : "y"}?`,
-    );
-  };
-
   const bodyData = () => {
-    const group = localStorage.getItem("group");
+    const userId = localStorage.getItem("userId");
     let body: any = {};
-
-    // Common
-
-    body.is_approved = "Yes";
-
+     body.is_approved = "Yes";
     if (state.search) {
       body.search = debouncedSearch;
     }
+    if (state.min_built_up_area) {
+      body.min_built_up_area = debouncedMinBuiltUpArea;
+    }
+    if (state.max_built_up_area) {
+      body.max_built_up_area = debouncedMaxBuiltUpArea;
+    }
+    if (state.min_price) {
+      body.min_price = debouncedMinPrice;
+    }
+    if (state.max_price) {
+      body.max_price = debouncedMaxPrice;
+    }
+
+    if (state.project) {
+      body.project = state.project.value;
+    }
+
+    if (state.developer?.value) {
+      body.developer = state.developer.value;
+    }
+
     if (state.property_type?.length > 0) {
-      body.property_type = state.property_type?.map((item) => item?.value);
+      body.property_type = state.property_type?.map((item: any) => item?.value);
+    }
+
+    if (state.filterLocation) {
+      body.city = state.filterLocation.value;
+    }
+    if (state.filterArea) {
+      body.area = state.filterArea.value;
     }
 
     if (state.offer_type) {
@@ -975,46 +1228,21 @@ const List = () => {
       body.publish = state.publish?.value == "Publish" ? "Yes" : "No";
     }
 
-    // if (group == capitalizeFLetter(ROLES.ADMIN)) {
-    //   body = { ...body, ...adminBody() };
-    // } else if (group == capitalizeFLetter(ROLES.DEVELOPER)) {
-    //   body = { ...body, ...developerBody() };
-    // } else if (group == capitalizeFLetter(ROLES.AGENT)) {
-    //   body = { ...body, ...agentBody() };
-    // } else if (group == capitalizeFLetter(ROLES.SELLER)) {
-    //   body = { ...body, ...sellerBody() };
-    // }
-
-    if(state.createdRecords){
-      const userId = localStorage.getItem("userId");
-      if (state.role?.value == "own") {
-        body.created_by = userId
-      }
-      if (state.role?.value == "developer") {
-        body.created_by = state.user?.value
-      }
-      if (state.role?.value == "agent") {
-        body.created_by = state.user?.value
-      }
-      if (state.role?.value == "seller") {
-        body.created_by = state.user?.value
-      }
-    }
-    if(state.assignedRecords){
-      const userId = localStorage.getItem("userId");
-
-      if (state.role?.value == "own") {
-        body.assigned_to = userId
-      }
-      if (state.role?.value == "developer") {
-        body.assigned_to_developer = state.user?.value
-      }
-      if (state.role?.value == "agent") {
-        body.assigned_to_agent = state.user?.value
-      }
-      
+    if (state.approvedStatus) {
+      body.is_approved =
+        state.approvedStatus?.value == "Approved" ? true : false;
     }
 
+    if (state?.team == true) {
+      body.team = state?.team;
+    }
+    if (state?.team == false) {
+      body.team = state?.team;
+    }
+
+    if (state.recordType?.value === "own" && userId) {
+      body.created_by = userId;
+    }
 
     if (state.sortBy) {
       body.ordering =
@@ -1024,59 +1252,71 @@ const List = () => {
     return body;
   };
 
-  const adminBody = () => {
-    let body: any = {};
+  const handleDuplicate = async (row: any) => {
+    try {
+      setState({ duplicatingId: row?.id });
 
-    if (state.user) {
-      if (state.role?.value == "developer") {
-        body.assigned_to_developer = state.user?.value;
-        // body.created_by = state.user?.value;
-      } else if (state.role?.value == "agent") {
-        body.assigned_to_agent = state.user?.value;
-        // body.created_by = state.user?.value;
-      } else if (state.role?.value == "seller") {
-        body.created_by = state.user?.value;
-      }
-    } else {
-      if (state.role) {
-        body.group = state.role?.value;
-      }
+      const res: any = await Models.property.details(row?.id);
+
+      const body: any = {
+        title: `${res.title} (Copy)`,
+        description: res.description,
+        listing_type: res.listing_type,
+        status: res.status,
+        address: res.address,
+        city: res.city,
+        state: res.state,
+        country: res.country,
+        postal_code: res.postal_code,
+        latitude: res.latitude,
+        longitude: res.longitude,
+        total_area: res.total_area,
+        built_up_area: res.built_up_area,
+        carpet_area: res.carpet_area,
+        bedrooms: res.bedrooms,
+        bathrooms: res.bathrooms,
+        balconies: res.balconies,
+        floor_number: res.floor_number,
+        total_floors: res.total_floors,
+        built_year: res.built_year,
+        furnishing: res.furnishing,
+        parking: res.parking,
+        facing_direction: res.facing_direction,
+        minimum_price: res.minimum_price,
+        maximum_price: res.maximum_price,
+        publish: false,
+        is_approved: false,
+        project: res.project?.id,
+        developer: res.developer?.id,
+        agent: res.agent?.id,
+        amenities: res.amenities?.map((a: any) => a.id),
+        property_type: res.property_type?.map((t: any) => t.id),
+      };
+
+      Object.keys(body).forEach((k) => {
+        if (body[k] === null || body[k] === undefined) delete body[k];
+      });
+
+      const formData = buildFormData(body);
+      await Models.property.create(formData);
+      propertyList(state.page);
+      Success("Property duplicated successfully");
+    } catch (error) {
+      Failure("Failed to duplicate property");
+    } finally {
+      setState({ duplicatingId: null });
     }
-    return body;
   };
 
-  const developerBody = () => {
-    const userId = localStorage.getItem("userId");
-    const body: any = {};
-    body.is_approved = "Yes";
-    body.developer = userId;
-    return body;
-  };
-  const agentBody = () => {
-    const userId = localStorage.getItem("userId");
-    const body: any = {};
-    body.is_approved = "Yes";
-    body.agent = userId;
-    return body;
-  };
-
-  const sellerBody = () => {
-    const userId = localStorage.getItem("userId");
-    const body: any = {};
-    body.created_by = userId;
-    return body;
-  };
-
-  const handleEdit = async (row) => {
+  const handleEdit = async (row: any) => {
     router.push(`/real-estate/property/update/${row?.id}`);
   };
 
-  const handleView = async (row) => {
-    // window.open(`${FRONTEND_URL}/property-detail/${row?.id}`, "_blank");
+  const handleView = async (row: any) => {
     router.push(`/real-estate/property/detail/${row?.id}`);
   };
 
-  const handleStatus = async (row) => {
+  const handleStatus = async (row: any) => {
     const isPublished = row?.publish === "Published";
 
     if (!isPublished) {
@@ -1103,10 +1343,12 @@ const List = () => {
       await Models.property.update(body, row?.id);
       propertyList(state.page);
       Success("Property Approved successfully");
-    } catch (error) {}
+    } catch (error) {
+      setState({ btnLoading: false });
+    }
   };
 
-  const handlePublish = async (row) => {
+  const handlePublish = async (row: any) => {
     const isPublished = row?.publish === "Published";
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -1126,9 +1368,6 @@ const List = () => {
       setState({ btnLoading: true });
       const formData = new FormData();
       formData.append("publish", isPublished ? "false" : "true");
-      // if (isPublished) {
-      //   formData.append("is_approved", "false");
-      // }
       await Models.property.update(formData, row?.id);
       propertyList(state.page);
       Success(
@@ -1164,16 +1403,39 @@ const List = () => {
     }
   };
 
+  const clearAllFilters = () => {
+    setState({
+      search: "",
+      developer: null,
+      property_type: null,
+      offer_type: null,
+      status: null,
+      publish: null,
+      role: null,
+      user: null,
+      approvedStatus: null,
+      recordType: null,
+      project: null,
+      team: null,
+      filterLocation: null,
+      filterArea: null,
+      max_price: "",
+      min_price: "",
+      max_built_up_area: "",
+      min_built_up_area: "",
+    });
+  };
+
   const clearFilter = async () => {
     setState({
       search: "",
+      developer: null,
       property_type: "",
       offer_type: "",
       status: "",
       role: null,
       user: "",
-      // developer: "",
-      // agent: "",
+      showFilterModal: false,
     });
   };
 
@@ -1183,14 +1445,14 @@ const List = () => {
   ];
 
   const toggleColumn = (accessor: string) => {
-    const updatedColumns = state.visibleColumns?.map((col) =>
+    const updatedColumns = state.visibleColumns?.map((col: any) =>
       col.accessor === accessor ? { ...col, visible: !col.visible } : col,
     );
     setState({ visibleColumns: updatedColumns });
   };
 
   const toggleAllColumns = (visible: boolean) => {
-    const updatedColumns = state.visibleColumns?.map((col) => ({
+    const updatedColumns = state.visibleColumns?.map((col: any) => ({
       ...col,
       visible: col.toggleable === false ? col.visible : visible,
     }));
@@ -1198,37 +1460,86 @@ const List = () => {
   };
 
   const filteredColumns = state.visibleColumns
-    ?.filter((col) => col.visible !== false)
-    ?.map(({ visible, toggleable, ...col }) => col);
+    ?.filter((col: any) => col.visible !== false)
+    ?.map(({ visible, toggleable, ...col }: any) => col);
 
-  const activeFilterCount = [
-    state.group == "Admin" && state.role,
-    state.group == "Admin" && state.user,
-    state.publish,
-  ].filter(Boolean).length;
+  const exportToExcel = () => {
+    const headers = [
+      "Title",
+      "Project",
+      "Developer",
+      "Developer Email",
+      "Agent",
+      "Price",
+      "Status",
+      "Offer Type",
+      "Property Type",
+      "Location",
+      "Publish",
+      "Total Units",
+      "Date",
+    ];
+    const rows = state.tableList.map((row: any) => [
+      row.title || "",
+      row.project || "",
+      row.developer || "",
+      row.developer_email !== "-" ? row.developer_email : "",
+      row.agent || "",
+      row.price || "",
+      row.status || "",
+      row.listing_type?.type || "",
+      Array.isArray(row.property_type)
+        ? row.property_type.join(", ")
+        : row.property_type || "",
+      row.location || "",
+      row.publish || "",
+      row.total_unit || "",
+      row.date || "",
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map((r) =>
+        r.map((cell: any) => `"${String(cell).replace(/"/g, '""')}"`).join(","),
+      )
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Properties_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handlePageChange = (page: number) => {
+    propertyList(page);
+  };
 
   return (
     <>
       <div className="mb-3 flex items-center justify-between gap-5">
         <div className=" items-center gap-5">
           <h5 className="text-lg font-semibold dark:text-white-light">
-            {state.group == "Admin"
-              ? "Properties List"
-              : state.group == "Developer" || state.group == "Agent"
-              ? "Assigned Properties"
-              : state.group == "Seller"
-              ? "My Properties"
-              : "Properties List"}
+            {"Properties List"}
           </h5>
 
           <p className="text-gray-600 dark:text-gray-400">
-            Manage property listings and status
+            Super Admin property listings & status management
           </p>
         </div>
-        <div className="flex gap-5">
+        <div className="flex gap-3">
           <button
             type="button"
-            className="btn btn-dred w-full  border-none md:mb-0 md:w-auto"
+            className="flex items-center gap-2 rounded-lg border border-green-600 px-3 py-2 text-sm font-semibold text-green-600 transition hover:bg-green-600 hover:text-white"
+            onClick={exportToExcel}
+          >
+            <Download className="h-4 w-4" />
+            Export
+          </button>
+          <button
+            type="button"
+            className="btn btn-dred w-full border-none md:mb-0 md:w-auto"
             onClick={() => router.push("/real-estate/property/create")}
           >
             + Create
@@ -1238,18 +1549,16 @@ const List = () => {
 
       <div className="mb-6 flex gap-4">
         <div
-          onClick={() => {
-            setState({ offer_type: null });
-          }}
+          onClick={clearAllFilters}
           className="cursor-pointer rounded-lg border border-gray-200 bg-blue-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
           <div className="flex items-center gap-5">
-            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
+            <div className="flex items-center justify-center rounded-lg dark:border-gray-700">
               <Briefcase className="text-dblue h-10 w-10" />
             </div>
 
             <div className="flex flex-col">
-              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+              <p className="text-2xl leading-none text-gray-900 dark:text-white">
                 {state.statCount?.total || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -1260,17 +1569,20 @@ const List = () => {
         </div>
         <div
           onClick={() =>
-            setState({ offer_type: { value: "sale", label: "Sale" } })
+            setState({
+              offer_type: { value: "sale", label: "Sale" },
+              approvedStatus: "",
+            })
           }
-          className="cursor-pointer rounded-lg border border-gray-200 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+          className="cursor-pointer rounded-lg border border-purple-200 bg-purple-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
           <div className="flex items-center gap-5 ">
-            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
-              <CheckCircle className="h-10 w-10 text-green-600" />
+            <div className="flex items-center justify-center rounded-lg dark:border-gray-700">
+              <Tag className="h-10 w-10 text-purple-600" />
             </div>
 
             <div className="flex flex-col">
-              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+              <p className="text-2xl leading-none text-gray-900 dark:text-white">
                 {state.statCount?.sale_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -1281,17 +1593,20 @@ const List = () => {
         </div>
         <div
           onClick={() =>
-            setState({ offer_type: { value: "lease", label: "Lease" } })
+            setState({
+              offer_type: { value: "lease", label: "Lease" },
+              approvedStatus: "",
+            })
           }
-          className="cursor-pointer  rounded-lg border border-gray-200 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+          className="cursor-pointer rounded-lg border border-sky-200 bg-sky-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
         >
           <div className="flex items-center gap-5">
-            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
-              <Hourglass className="h-10 w-10 text-yellow-600" />
+            <div className="flex items-center justify-center rounded-lg dark:border-gray-700">
+              <Key className="h-10 w-10 text-sky-600" />
             </div>
 
             <div className="flex flex-col">
-              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
+              <p className="text-2xl leading-none text-gray-900 dark:text-white">
                 {state.statCount?.lease_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -1300,19 +1615,51 @@ const List = () => {
             </div>
           </div>
         </div>
-        {/* <div className="rounded-lg border border-gray-200 bg-red-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700">
+        <div
+          className="cursor-pointer rounded-lg border border-green-300 bg-green-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+          onClick={() =>
+            setState({
+              approvedStatus: { value: "Approved", label: "Approved" },
+              offer_type: "",
+            })
+          }
+        >
           <div className="flex items-center gap-5">
-            <div className="flex  items-center justify-center rounded-lg dark:border-gray-700">
-              <Clock className="h-10 w-10 text-red-600" />
+            <div className="flex items-center justify-center rounded-lg dark:border-gray-700">
+              <Verified className="h-10 w-10 text-green-600" />
             </div>
 
             <div className="flex flex-col">
-              <p className="text-2xl  leading-none text-gray-900 dark:text-white">
-                {state.jobList?.filter((job) => job.priority == "0 - 30 Days")
-                  ?.length || 0}
+              <p className="text-2xl leading-none text-gray-900 dark:text-white">
+                {state.statCount?.approved_count || 0}
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Urgent Job
+                Approved Properties
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* <div
+          className="cursor-pointer rounded-lg border border-yellow-300 bg-yellow-100 px-4 py-3 shadow-sm transition hover:shadow-md dark:border-gray-700"
+          onClick={() =>
+            setState({
+              approvedStatus: { value: "Pending", label: "Pending" },
+              offer_type: "",
+            })
+          }
+        >
+          <div className="flex items-center gap-5">
+            <div className="flex items-center justify-center rounded-lg dark:border-gray-700">
+              <Clock className="h-10 w-10 text-yellow-600" />
+            </div>
+
+            <div className="flex flex-col">
+              <p className="text-2xl leading-none text-gray-900 dark:text-white">
+                {state.statCount?.pending_count || 0}
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Pending Properties
               </p>
             </div>
           </div>
@@ -1321,13 +1668,32 @@ const List = () => {
 
       {/* Filter section */}
       <div className="mb-5 rounded-2xl">
-        <div className="flex  items-center justify-between gap-5">
+        <div className="flex  items-center justify-between gap-3 md:gap-5">
           <TextInput
             type="text"
             placeholder="Search..."
             value={state.search}
             onChange={(e) => setState({ search: e.target.value })}
           />
+
+          <CustomSelect
+            placeholder="Developer"
+            value={state.developer}
+            onChange={(e) => setState({ developer: e, project: null })}
+            options={state?.developerList}
+            isClearable={true}
+            loadMore={() => developerLoadMore()}
+          />
+
+          <CustomSelect
+            placeholder="Project"
+            value={state.project}
+            onChange={(e) => setState({ project: e })}
+            options={state?.projectList}
+            isClearable={true}
+            loadMore={() => projectListLoadMore()}
+          />
+
           <CustomSelect
             placeholder="Property Type"
             value={state.property_type}
@@ -1337,32 +1703,27 @@ const List = () => {
             isMulti
             loadMore={() => catListLoadMore()}
           />
-          <CustomSelect
-                   
-                    value={state.recordType}
-                    onChange={(e) => getRecordTypeList(e)}
-                    options={RECORDS_TYPE}
-                    isClearable={false}
-                  />
 
-         {state.group == "Admin" && (
-                <>
-                  <CustomSelect
-                    placeholder="Select User's Role"
-                    value={state.role}
-                    onChange={(e) => getuserList(e)}
-                    options={FILTER_ADMINROLES}
-                    // isClearable={false}
-                  />
-                  <CustomSelect
-                    placeholder="Select User"
-                    value={state.user}
-                    onChange={(e) => setState({ user: e })}
-                    options={state.userList}
-                    disabled={!state.role}
-                  />
-                </>
-              )}
+          <TextInput
+            type="text"
+            placeholder="Minimum Sq.ft."
+            value={state.min_built_up_area}
+            onChange={(e) => setState({ min_built_up_area: e.target.value })}
+          />
+          <TextInput
+            type="text"
+            placeholder="Maximum Sq.ft."
+            value={state.max_built_up_area}
+            onChange={(e) => setState({ max_built_up_area: e.target.value })}
+          />
+
+          <CustomSelect
+            placeholder="All Records"
+            value={state.recordType}
+            onChange={getuserList}
+            options={FILTER_ADMINROLES}
+          />
+
           <button
             onClick={() => setState({ showFilterModal: true })}
             className="flex items-center gap-4 rounded-lg border bg-white p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 "
@@ -1373,373 +1734,221 @@ const List = () => {
         </div>
       </div>
 
-      <div className=" border-white-light px-0 dark:border-[#1b2e4b]">
+      <div className="border-white-light px-0 dark:border-[#1b2e4b]">
         <div className="datatables pagination-padding [&_.mantine-datatable-table-container]:overflow-visible [&_table]:overflow-visible">
-          {
-            state?.loading ? (
-              <div className="flex h-[400px] items-center justify-center">
-                <RotatingLines
-                  visible={true}
-                  strokeColor="gray"
-                  strokeWidth="5"
-                  animationDuration="0.75"
-                  width="40"
-                  ariaLabel="rotating-lines-loading"
-                />
-              </div>
-            ) : (
-              <>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "16px",
-                    gap: "10px",
-                  }}
-                >
-                  <FilterChips
-                    chips={[
-                      ...(state.search
-                        ? [
-                            {
-                              label: `Search: ${state.search}`,
-                              onRemove: () => setState({ search: "" }),
-                            },
-                          ]
-                        : []),
-                      ...(state.property_type?.length > 0
-                        ? state.property_type.map((pt: any) => ({
-                            label: `Type: ${pt.label}`,
+          {state?.loading ? (
+            <div className="flex h-[400px] items-center justify-center">
+              <RotatingLines
+                visible={true}
+                strokeColor="gray"
+                strokeWidth="5"
+                animationDuration="0.75"
+                width="40"
+                ariaLabel="rotating-lines-loading"
+              />
+            </div>
+          ) : (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "16px",
+                  gap: "10px",
+                }}
+              >
+                <FilterChips
+                  chips={[
+                    ...(state.search
+                      ? [
+                          {
+                            label: `Search: ${state.search}`,
+                            onRemove: () => setState({ search: "" }),
+                          },
+                        ]
+                      : []),
+                    ...(state.developer
+                      ? [
+                          {
+                            label: `Developer: ${state.developer.label}`,
+                            onRemove: () => setState({ developer: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.project
+                      ? [
+                          {
+                            label: `Project: ${state.project.label}`,
+                            onRemove: () => setState({ project: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.property_type?.length > 0
+                      ? state.property_type.map((pt: any) => ({
+                          label: `Type: ${pt.label}`,
+                          onRemove: () =>
+                            setState({
+                              property_type: state.property_type.filter(
+                                (t: any) => t.value !== pt.value,
+                              ),
+                            }),
+                        }))
+                      : []),
+                    ...(state.min_built_up_area
+                      ? [
+                          {
+                            label: `Min Sq.ft: ${state.min_built_up_area}`,
+                            onRemove: () => setState({ min_built_up_area: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.max_built_up_area
+                      ? [
+                          {
+                            label: `Max Sq.ft: ${state.max_built_up_area}`,
+                            onRemove: () => setState({ max_built_up_area: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.recordType
+                      ? [
+                          {
+                            label: `Records: ${state.recordType.label}`,
+                            onRemove: () => setState({ recordType: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.filterLocation
+                      ? [
+                          {
+                            label: `City: ${state.filterLocation.label}`,
                             onRemove: () =>
-                              setState({
-                                property_type: state.property_type.filter(
-                                  (t: any) => t.value !== pt.value,
-                                ),
-                              }),
-                          }))
-                        : []),
-                      ...(state.offer_type
-                        ? [
-                            {
-                              label: `Offer: ${state.offer_type.label}`,
-                              onRemove: () => setState({ offer_type: null }),
-                            },
-                          ]
-                        : []),
-                      ...(state.status
-                        ? [
-                            {
-                              label: `Status: ${state.status.label}`,
-                              onRemove: () => setState({ status: null }),
-                            },
-                          ]
-                        : []),
-                      ...(state.publish
-                        ? [
-                            {
-                              label: `Publish: ${state.publish.label}`,
-                              onRemove: () => setState({ publish: null }),
-                            },
-                          ]
-                        : []),
-                      ...(state.role && state.group === "Admin"
-                        ? [
-                            {
-                              label: `Role: ${state.role.label}`,
-                              onRemove: () =>
-                                setState({
-                                  role: {
-                                    value: "developer",
-                                    label: "Developer",
-                                  },
-                                  user: null,
-                                }),
-                            },
-                          ]
-                        : []),
-                      ...(state.user
-                        ? [
-                            {
-                              label: `User: ${state.user.label}`,
-                              onRemove: () => setState({ user: null }),
-                            },
-                          ]
-                        : []),
-                    ]}
-                    onClearAll={() =>
-                      setState({
-                        search: "",
-                        property_type: null,
-                        offer_type: null,
-                        status: null,
-                        publish: null,
-                        role: null,
-                        user: null,
-                      })
-                    }
-                  />
+                              setState({ filterLocation: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.filterArea
+                      ? [
+                          {
+                            label: `Area: ${state.filterArea.label}`,
+                            onRemove: () => setState({ filterArea: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.offer_type
+                      ? [
+                          {
+                            label: `Offer: ${state.offer_type.label}`,
+                            onRemove: () => setState({ offer_type: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.status
+                      ? [
+                          {
+                            label: `Status: ${state.status.label}`,
+                            onRemove: () => setState({ status: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.min_price
+                      ? [
+                          {
+                            label: `Min Price: ${state.min_price}`,
+                            onRemove: () => setState({ min_price: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.max_price
+                      ? [
+                          {
+                            label: `Max Price: ${state.max_price}`,
+                            onRemove: () => setState({ max_price: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.publish
+                      ? [
+                          {
+                            label: `Publish: ${state.publish.label}`,
+                            onRemove: () => setState({ publish: null }),
+                          },
+                        ]
+                      : []),
+                    ...(state.approvedStatus
+                      ? [
+                          {
+                            label: `Approved Status: ${state.approvedStatus.label}`,
+                            onRemove: () =>
+                              setState({ approvedStatus: null }),
+                          },
+                        ]
+                      : []),
+                  ]}
+                  onClearAll={clearAllFilters}
+                />
 
-                  <div className="ml-auto flex items-center gap-3">
-                    {state.selectedRecords?.length > 0 && (
-                      <>
-                        <button
-                          type="button"
-                          className="flex items-center gap-2 rounded-lg border border-blue-600 bg-blue-50 px-3 py-1.5 text-sm text-blue-600"
-                          onClick={handleBulkPublish}
-                        >
-                          <Globe className="h-4 w-4" />
-                          Change Publish ({state.selectedRecords.length})
-                        </button>
-                        <button
-                          type="button"
-                          className="flex items-center gap-2 rounded-lg border border-red-600 px-3 py-1.5 text-sm text-red-600"
-                          onClick={handleBulkDelete}
-                        >
-                          <IconTrashLines className="h-4 w-4" />
-                          Delete ({state.selectedRecords.length})
-                        </button>
-                      </>
-                    )}
-                    <div className="text-sm text-black">
-                      {state.total} Properties found
-                    </div>
-
-                    {/* <Popover
-                  position="bottom-end"
-                  withArrow
-                  shadow="md"
-                  width={220}
-                >
-                  <Popover.Target>
-                    <div
-                      style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        padding: "8px 16px",
-                        backgroundColor: "white",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        fontWeight: 500,
-                        color: "#475569",
-                        transition: "all 0.2s ease",
-                        boxShadow: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-                      }}
-                      className="hover:border-gray-400 hover:shadow-sm"
+                <div className="ml-auto flex items-center gap-3">
+                  {state.selectedRecords?.length > 0 && (
+                    <button
+                      type="button"
+                      className="flex items-center gap-2 rounded-lg border border-red-600 px-3 py-1.5 text-sm text-red-600 "
+                      onClick={handleBulkDelete}
                     >
-                      <Columns size={16} color="#64748b" />
-                      <span>Show Columns</span>
-                      <div
-                        style={{
-                          width: "20px",
-                          height: "20px",
-                          backgroundColor: "#3b82f6",
-                          borderRadius: "50%",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "12px",
-                          fontWeight: 600,
-                          color: "white",
-                        }}
-                      >
-                        {visibleCount}
-                      </div>
-                    </div>
-                  </Popover.Target>
-
-                  <Popover.Dropdown
-                    style={{
-                      padding: "16px",
-                      border: "1px solid #e2e8f0",
-                      borderRadius: "8px",
-                    }}
-                  >
-                    <div style={{ marginBottom: "16px" }}>
-                      <Text
-                        size="sm"
-                        fw={600}
-                        style={{ color: "#1e293b", marginBottom: "12px" }}
-                      >
-                        Show Columns
-                      </Text>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "8px",
-                          marginBottom: "16px",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            padding: "6px 12px",
-                            backgroundColor: "#f8fafc",
-                            border: "1px solid #e2e8f0",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            color: "#475569",
-                            transition: "all 0.2s ease",
-                          }}
-                          className="hover:border-gray-300 hover:bg-gray-50"
-                          onClick={() => toggleAllColumns(true)}
-                        >
-                          <Eye size={14} color="#475569" />
-                          <span>All</span>
-                        </div>
-                        <div
-                          style={{
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "6px",
-                            padding: "6px 12px",
-                            backgroundColor: "#f8fafc",
-                            border: "1px solid #e2e8f0",
-                            borderRadius: "6px",
-                            cursor: "pointer",
-                            fontSize: "13px",
-                            color: "#475569",
-                            transition: "all 0.2s ease",
-                          }}
-                          className="hover:border-gray-300 hover:bg-gray-50"
-                          onClick={() => toggleAllColumns(false)}
-                        >
-                          <EyeOff size={14} color="#475569" />
-                          <span>None</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        maxHeight: "200px",
-                        overflowY: "auto",
-                        marginBottom: "12px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "12px",
-                        }}
-                      >
-                        {state.visibleColumns?.map((column) => (
-                          <div
-                            key={column.accessor}
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px",
-                            }}
-                          >
-                            <Checkbox
-                              checked={column.visible ?? true}
-                              onChange={() => toggleColumn(column.accessor)}
-                              disabled={column.toggleable === false}
-                              size="sm"
-                              style={{ flexShrink: 0 }}
-                            />
-                            <Text
-                              size="sm"
-                              style={{
-                                color:
-                                  column.toggleable === false
-                                    ? "#94a3b8"
-                                    : "#475569",
-                                cursor:
-                                  column.toggleable === false
-                                    ? "not-allowed"
-                                    : "pointer",
-                              }}
-                              onClick={() =>
-                                column.toggleable !== false &&
-                                toggleColumn(column.accessor)
-                              }
-                            >
-                              {column.title}
-                            </Text>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        borderTop: "1px solid #f1f5f9",
-                        paddingTop: "12px",
-                        fontSize: "12px",
-                        color: "#64748b",
-                        textAlign: "center",
-                      }}
-                    >
-                      {visibleCount} of {totalToggleable} columns visible
-                    </div>
-                  </Popover.Dropdown>
-                </Popover> */}
+                      <IconTrashLines className="h-4 w-4" />
+                      Delete ({state.selectedRecords.length})
+                    </button>
+                  )}
+                  <div className="text-sm text-black">
+                    {state.total} Properties found
                   </div>
                 </div>
+              </div>
 
-                <DataTable
-                  className="table-responsive"
-                  records={state.tableList || []}
-                  columns={filteredColumns}
-                  highlightOnHover
-                  minHeight={200}
-                  selectedRecords={state.selectedRecords}
-                  onSelectedRecordsChange={(records) =>
-                    setState({ selectedRecords: records })
-                  }
-                  sortStatus={{
-                    columnAccessor: state.sortBy,
-                    direction: state.sortOrder as "asc" | "desc",
-                  }}
-                  onSortStatusChange={({ columnAccessor, direction }) => {
-                    setState({
-                      sortBy: columnAccessor,
-                      sortOrder: direction,
-                      page: 1,
-                    });
-                    propertyList(1, columnAccessor, direction);
-                  }}
-                />
-              </>
-            )
-            // : (
-            //   <div className="mt-5 flex h-[400px] items-center justify-center">
-            //     <p>No Records Found</p>
-            //   </div>
-            // )
-          }
+              <DataTable
+                className="table-responsive"
+                records={state.tableList || []}
+                columns={filteredColumns}
+                highlightOnHover
+                minHeight={200}
+                selectedRecords={state.selectedRecords}
+                onSelectedRecordsChange={(records) =>
+                  setState({ selectedRecords: records })
+                }
+                sortStatus={{
+                  columnAccessor: state.sortBy,
+                  direction: state.sortOrder as "asc" | "desc",
+                }}
+                onSortStatusChange={({ columnAccessor, direction }) => {
+                  setState({
+                    sortBy: columnAccessor,
+                    sortOrder: direction,
+                    page: 1,
+                  });
+                  propertyList(1, columnAccessor, direction);
+                }}
+              />
+            </>
+          )}
         </div>
-
-        <div className="me-2 mt-5 flex justify-end gap-3">
-          <button
-            disabled={!state?.previous}
-            onClick={handlePreviousPage}
-            className={`btn border-none p-2 ${
-              !state?.previous ? "btn-disabled" : "btn-dred"
-            }`}
+        {state.tableList?.length > 0 && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              paddingTop: "10px",
+            }}
           >
-            <IconArrowBackward />
-          </button>
-          <button
-            disabled={!state?.next}
-            onClick={handleNextPage}
-            className={`btn border-none p-2 ${
-              !state?.next ? "btn-disabled" : "btn-dred"
-            }`}
-          >
-            <IconArrowForward />
-          </button>
-        </div>
+            <Paginations
+              totalPage={state.total}
+              itemsPerPage={10}
+              currentPages={state.page}
+              activeNumber={handlePageChange}
+            />
+          </div>
+        )}
       </div>
 
       <Modal
@@ -1770,16 +1979,47 @@ const List = () => {
                 onChange={(e) => setState({ status: e })}
                 options={Property_status}
               />
+
               <CustomSelect
-                placeholder="Publish or Draft"
-                value={state.publish}
-                onChange={(e) => setState({ publish: e })}
-                options={PROPERTY_STATUS}
+                placeholder="Select city"
+                options={state.cityList}
+                value={state.filterLocation}
+                onChange={(selectedOption) =>
+                  setState({ filterLocation: selectedOption, filterArea: null })
+                }
+                isClearable
+                loadMore={() => cityLoadMore()}
+              />
+
+              <CustomSelect
+                placeholder="Select Area"
+                options={state.areaList}
+                value={state.filterArea}
+                onChange={(selectedOption) =>
+                  setState({ filterArea: selectedOption })
+                }
+                isClearable
+                loadMore={() => areaLoadMore()}
+                disabled={!state.filterLocation}
+              />
+
+              <TextInput
+                type="text"
+                placeholder="Minimum Price."
+                value={state.min_price}
+                onChange={(e) => setState({ min_price: e.target.value })}
+              />
+
+              <TextInput
+                type="text"
+                placeholder="Maximum Price."
+                value={state.max_price}
+                onChange={(e) => setState({ max_price: e.target.value })}
               />
             </div>
             <div className="flex items-center justify-between py-3">
               <button
-                onClick={clearFilter}
+                onClick={clearAllFilters}
                 className="rounded px-3 py-2 text-sm text-red-500 hover:bg-gray-100 dark:hover:bg-gray-700"
               >
                 Clear All
@@ -1798,7 +2038,7 @@ const List = () => {
       {/* Fixed tooltip rendered outside table */}
       {tooltip && (
         <div
-          className="border-dred bg-lred pointer-events-none fixed z-[99999] w-56 rounded-lg border p-3 shadow-lg dark:bg-gray-800"
+          className="border-dred bg-lred pointer-events-none fixed z-[99999] w-80 rounded-lg border p-3 shadow-lg dark:bg-gray-800"
           style={{
             top: tooltip.y - 8,
             left: tooltip.x,
@@ -1808,6 +2048,72 @@ const List = () => {
           <div className="mb-1 font-semibold text-[#000]">
             {tooltip.row.title}
           </div>
+          {/* Unit Count Highlight */}
+          <div className="bg-dred mb-3 mt-2 flex w-fit items-center justify-between gap-3 rounded-2xl px-3 py-1">
+            <span className="text-sm text-white/80">Total Units</span>
+            <span className="text-md text-white">
+              {tooltip.row.total_unit ?? "—"}
+            </span>
+          </div>
+
+          {tooltip.row?.developer && (
+            <div className="mb-1.5 flex flex-col text-xs">
+              <div className="flex items-center gap-1 text-gray-800 dark:text-white">
+                <span className="shrink-0 font-semibold text-gray-500">Developer:</span>
+                <span className="font-semibold">{tooltip.row.devCompany || tooltip.row.developer}</span>
+              </div>
+              {tooltip.row.devPerson && tooltip.row.devPerson !== "-" && (
+                <div className="text-[11px] text-gray-600 dark:text-gray-300">
+                  Contact: {tooltip.row.devPerson}
+                </div>
+              )}
+              {tooltip.row.developer_email && tooltip.row.developer_email !== "-" && (
+                <div className="text-[11px] text-gray-500 dark:text-gray-400">
+                  Email: {tooltip.row.developer_email}
+                </div>
+              )}
+              {tooltip.row.developer_phone && tooltip.row.developer_phone !== "-" && (
+                <div className="text-[11px] text-gray-500 dark:text-gray-400">
+                  Phone: {tooltip.row.developer_phone}
+                </div>
+              )}
+            </div>
+          )}
+
+          {tooltip.row?.listing_type?.type && (
+            <div className="mb-1 flex items-start gap-2 text-xs">
+              <span className="shrink-0 font-semibold text-gray-500">
+                Offer Type:
+              </span>
+              <span
+                className={`font-semibold ${
+                  tooltip.row.listing_type.type?.toLowerCase() === "sale"
+                    ? "text-blue-500"
+                    : "text-purple-500"
+                }`}
+              >
+                {tooltip.row.listing_type.type}
+              </span>
+            </div>
+          )}
+
+          {tooltip.row?.publish && (
+            <div className="mb-1 flex items-start gap-2 text-xs">
+              <span className="shrink-0 font-semibold text-gray-500">
+                Publish:
+              </span>
+              <span
+                className={`font-semibold ${
+                  tooltip.row.publish === "Published"
+                    ? "text-green-600"
+                    : "text-gray-500"
+                }`}
+              >
+                {tooltip.row.publish}
+              </span>
+            </div>
+          )}
+
           {tooltip.row?.created_by && (
             <div className="mb-1 flex items-start gap-2 text-xs">
               <span className="shrink-0 font-semibold text-gray-500">
@@ -1815,26 +2121,6 @@ const List = () => {
               </span>
               <span className="text-gray-800 dark:text-white">
                 {tooltip.row.created_by}
-              </span>
-            </div>
-          )}
-          {tooltip.row?.developer && (
-            <div className="mb-1 flex items-start gap-2 text-xs">
-              <span className="shrink-0 font-semibold text-gray-500">
-                Developer:
-              </span>
-              <span className="text-gray-800 dark:text-white">
-                {tooltip.row.developer}
-              </span>
-            </div>
-          )}
-          {tooltip.row?.agent && (
-            <div className="flex items-start gap-2 text-xs">
-              <span className="shrink-0 font-semibold text-gray-500">
-                Agent:
-              </span>
-              <span className="text-gray-800 dark:text-white">
-                {tooltip.row.agent ?? "-"}
               </span>
             </div>
           )}

@@ -8,6 +8,8 @@ import {
   Globe,
   Search,
   X,
+  Building2,
+  Users,
 } from "lucide-react";
 import Tippy from "@tippyjs/react";
 import moment from "moment";
@@ -20,7 +22,7 @@ import {
   formatPriceRange,
   truncateText,
 } from "@/utils/function.utils";
-import { statusChipConfig, LISTING_TYPE_LIST } from "@/utils/constant.utils";
+import { statusChipConfig, LISTING_TYPE_LIST, ROLES } from "@/utils/constant.utils";
 import Models from "@/imports/models.import";
 import IconEdit from "@/components/Icon/IconEdit";
 import IconTrashLines from "@/components/Icon/IconTrashLines";
@@ -43,7 +45,7 @@ import BookingVsCallbacks from "../../components/dashboard/charts/BookingVsCallb
 import BuyerWishlist from "../../components/dashboard/charts/BuyerWishlist";
 import PropertyMatrix from "../../components/dashboard/charts/PropertyMatrix";
 
-import { METRIC_CARDS } from "../../components/dashboard/data";
+import { ADMIN_METRIC_CARDS } from "../../components/dashboard/data";
 import type { MetricCardId } from "../../components/dashboard/types";
 import PrivateRouter from "@/hook/privateRouter";
 
@@ -124,7 +126,7 @@ const DATE_RANGES: any = {
 // DASHBOARD PAGE
 // ─────────────────────────────────────────────────────────────────────────────
 
-const  Dashboard = () => {
+const  page = () => {
   const router = useRouter();
 
   // Tooltip state for property name hover modal (same as property/list.tsx)
@@ -151,7 +153,12 @@ const  Dashboard = () => {
     followUpStatusId: null as number | null,
     // banner stats — fetched once without any date filter
     bannerData: null as any,
-    // developerId : null
+    selectedDeveloper: null as any,
+    developerOptions: [] as any[],
+    developerPage: 1,
+    developerNext: null as any,
+    userCountData: null as any,
+    userSearch: "",
     propertySearch: "",
     propertyProject: null as any,
     propertyType: [] as any[],
@@ -173,8 +180,8 @@ const  Dashboard = () => {
   });
 
   const selectedMetric =
-    METRIC_CARDS.find((m) => m.id === state.selectedMetricId) ??
-    METRIC_CARDS[13];
+    ADMIN_METRIC_CARDS.find((m) => m.id === state.selectedMetricId) ??
+    ADMIN_METRIC_CARDS[13];
 
   // Fetch opportunity status IDs once on mount (same pattern as lead/list.tsx leadStatusList)
   useEffect(() => {
@@ -185,6 +192,8 @@ const  Dashboard = () => {
     cityList(1);
     leadStatusList();
     leadSourceList();
+    developerList(1);
+    getUserCounts();
   }, []);
 
   useEffect(() => {
@@ -197,14 +206,12 @@ const  Dashboard = () => {
 
   useEffect(() => {
     getDashboradData();
-  }, [state.activeDateTab, state.startDate, state.endDate]);
+  }, [state.activeDateTab, state.startDate, state.endDate, state.selectedDeveloper]);
 
   useEffect(() => {
-    const developerId = localStorage.getItem("userId");
-    setState({
-      developerId: developerId,
-    });
-  }, []);
+    projectList(1);
+    getBannerData(state.selectedDeveloper?.value);
+  }, [state.selectedDeveloper]);
 
   // dashboard api call
 
@@ -243,11 +250,14 @@ const  Dashboard = () => {
     }
   };
 
-  // Fetch banner stats without any date filter so the KPI tiles always show
-  // all-time values regardless of the selected date tab
-  const getBannerData = async () => {
+  // Fetch banner stats
+  const getBannerData = async (devId?: any) => {
     try {
-      const res: any = await Models.dashboard.dashboard({});
+      const body: any = {};
+      if (devId) {
+        body.developer = devId;
+      }
+      const res: any = await Models.dashboard.dashboard(body);
       setState({ bannerData: res });
     } catch (error) {
       console.log("getBannerData error:", error);
@@ -256,18 +266,65 @@ const  Dashboard = () => {
 
   // Filter dropdown's api --------------------------------
 
-  const projectList = async (page) => {
+  const developerList = async (page = 1) => {
     try {
-      const userId = localStorage.getItem("userId");
       const body = {
-        developer: userId,
+        user_type: ROLES.DEVELOPER,
       };
+      const res: any = await Models.user.list(page, body);
+      const dropdown =
+        res?.results?.map((item: any) => ({
+          value: item?.id,
+          label: item?.industry
+            ? `${item.industry} (${item.first_name || ""} ${item.last_name || ""})`.trim()
+            : `${item?.first_name || ""} ${item?.last_name || ""}`.trim() || item?.email,
+        })) || [];
+
+      setState({
+        developerOptions:
+          page === 1 ? dropdown : [...state.developerOptions, ...dropdown],
+        developerPage: page,
+        developerNext: res?.next,
+      });
+    } catch (error) {
+      console.log("error fetching developer list --->", error);
+    }
+  };
+
+  const developerLoadMore = async () => {
+    try {
+      if (state.developerNext) {
+        await developerList(state.developerPage + 1);
+      }
+    } catch (error) {
+      console.log("error loading more developers: ", error);
+    }
+  };
+
+  const getUserCounts = async () => {
+    try {
+      const res: any = await Models.user.count({ account_status: "approved" });
+      setState({
+        userCountData: res,
+      });
+    } catch (error) {
+      console.log("getUserCounts error:", error);
+    }
+  };
+
+  const projectList = async (page: number) => {
+    try {
+      const body: any = {};
+      if (state.selectedDeveloper?.value) {
+        body.developer = state.selectedDeveloper.value;
+      }
       const res: any = await Models.project.list(page, body);
       const droprdown = Dropdown(res?.results, "name");
       setState({
         projectOptions: droprdown,
         projectPage: page,
         projectNext: res.next,
+        propertyProject: null,
       });
     } catch (error) {
       console.log("✌️error --->", error);
@@ -277,9 +334,11 @@ const  Dashboard = () => {
   const projectListLoadMore = async () => {
     try {
       if (state.projectNext) {
-        const res: any = await Models.project.list(state.projectPage + 1, {
-          developer: localStorage.getItem("userId"),
-        });
+        const body: any = {};
+        if (state.selectedDeveloper?.value) {
+          body.developer = state.selectedDeveloper.value;
+        }
+        const res: any = await Models.project.list(state.projectPage + 1, body);
         const newOptions = Dropdown(res?.results, "name");
         setState({
           projectOptions: [...state.projectOptions, ...newOptions],
@@ -441,6 +500,10 @@ const  Dashboard = () => {
   const bodydata = () => {
     const body: any = {};
 
+    if (state.selectedDeveloper?.value) {
+      body.developer = state.selectedDeveloper.value;
+    }
+
     if (state.activeDateTab === "Custom") {
       if (state.startDate) {
         body.from_date = getDateRange(
@@ -497,6 +560,7 @@ const  Dashboard = () => {
     const inquiryMetric = ["booking_inquiries", "call_inquiries"].includes(
       metricId,
     );
+    const userMetric = ["total_developers", "total_buyers"].includes(metricId);
 
     if (propertyMetric) {
       if (state.propertySearch) body.search = state.propertySearch;
@@ -513,11 +577,12 @@ const  Dashboard = () => {
       if (state.leadSearch) body.search = state.leadSearch;
       if (state.leadSource) body.lead_source = state.leadSource.value;
       if (state.leadStatus) body.status = state.leadStatus.value;
-      if (state.leadType?.value === "own") body.created_by = state.developerId;
+      if (state.leadType?.value === "own") body.created_by = localStorage.getItem("userId");
       if (state.leadType?.value === "admin") body.team = true;
       if (state.leadType?.value === "website") body.website = true;
     }
     if (inquiryMetric && state.inquirySearch) body.search = state.inquirySearch;
+    if (userMetric && state.userSearch) body.search = state.userSearch;
     return body;
   }
 
@@ -596,6 +661,14 @@ const  Dashboard = () => {
         setState({ inquirySearch: "" }),
       );
     }
+    if (
+      ["total_developers", "total_buyers"].includes(metricId) &&
+      state.userSearch
+    ) {
+      add(`Search: ${state.userSearch}`, () =>
+        setState({ userSearch: "" }),
+      );
+    }
     return filters;
   }
 
@@ -642,6 +715,10 @@ const  Dashboard = () => {
         result = await getHighDemandPro(page);
       else if (metricId === "low_demand_projects")
         result = await getLowDemandPro(page);
+      else if (metricId === "total_developers")
+        result = await getTotalDevelopers(page);
+      else if (metricId === "total_buyers")
+        result = await getTotalBuyers(page);
 
       setState({
         tableRecords: result.results,
@@ -670,7 +747,9 @@ const  Dashboard = () => {
   async function getTotalProperties(page: number) {
     try {
       const body = {
-        developer: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer: state.selectedDeveloper.value }
+          : {}),
         ...getCardFilterBody("total_properties"),
         from_created_date: getDateRange(
           state.activeDateTab,
@@ -747,7 +826,9 @@ const  Dashboard = () => {
   async function getSaleProperties(page: number) {
     try {
       const body = {
-        developer: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer: state.selectedDeveloper.value }
+          : {}),
         ...getCardFilterBody("sale_properties"),
         listing_type: "sale",
         from_created_date: getDateRange(
@@ -804,7 +885,9 @@ const  Dashboard = () => {
   async function getLeaseProperties(page: number) {
     try {
       const body = {
-        developer: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer: state.selectedDeveloper.value }
+          : {}),
         ...getCardFilterBody("lease_properties"),
         listing_type: "lease",
         from_created_date: getDateRange(
@@ -862,7 +945,9 @@ const  Dashboard = () => {
   async function getApprovedProperties(page: number) {
     try {
       const body = {
-        developer: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer: state.selectedDeveloper.value }
+          : {}),
         ...getCardFilterBody("approved_properties"),
         is_approved: "Yes",
         from_created_date: getDateRange(
@@ -920,7 +1005,9 @@ const  Dashboard = () => {
   async function getPendingProperties(page: number) {
     try {
       const body = {
-        developer: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer: state.selectedDeveloper.value }
+          : {}),
         ...getCardFilterBody("pending_properties"),
         is_approved: "No",
         from_created_date: getDateRange(
@@ -979,7 +1066,9 @@ const  Dashboard = () => {
   async function getTotalProjects(page: number) {
     try {
       const body = {
-        developer: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer: state.selectedDeveloper.value }
+          : {}),
         from_date: getDateRange(
           state.activeDateTab,
           state.startDate,
@@ -1017,7 +1106,9 @@ const  Dashboard = () => {
   async function getTotalLeads(page: number) {
     try {
       const body = {
-        developer: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer: state.selectedDeveloper.value }
+          : {}),
         ...getCardFilterBody("total_lead_list"),
         created_after: getDateRange(
           state.activeDateTab,
@@ -1080,7 +1171,9 @@ const  Dashboard = () => {
   async function getDealWon(page: number) {
     try {
       const body = {
-        developer: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer: state.selectedDeveloper.value }
+          : {}),
         ...getCardFilterBody("deal_won"),
         from_opportunity_status_date: getDateRange(
           state.activeDateTab,
@@ -1149,7 +1242,9 @@ const  Dashboard = () => {
   async function getDealLost(page: number) {
     try {
       const body = {
-        developer: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer: state.selectedDeveloper.value }
+          : {}),
         ...getCardFilterBody("deal_lost"),
         from_opportunity_status_date: getDateRange(
           state.activeDateTab,
@@ -1217,7 +1312,9 @@ const  Dashboard = () => {
   async function getFollowUps(page: number) {
     try {
       const body = {
-        developer: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer: state.selectedDeveloper.value }
+          : {}),
         ...getCardFilterBody("follow_ups"),
         from_opportunity_status_date: getDateRange(
           state.activeDateTab,
@@ -1286,7 +1383,9 @@ const  Dashboard = () => {
   async function getBookingInquiries(page: number) {
     try {
       const body = {
-        developer_user: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer_user: state.selectedDeveloper.value }
+          : {}),
         ...getCardFilterBody("booking_inquiries"),
         from_date: getDateRange(
           state.activeDateTab,
@@ -1327,7 +1426,9 @@ const  Dashboard = () => {
   async function getCallInquiries(page: number) {
     try {
       const body = {
-        developer_user: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer_user: state.selectedDeveloper.value }
+          : {}),
         ...getCardFilterBody("call_inquiries"),
         from_date: getDateRange(
           state.activeDateTab,
@@ -1357,12 +1458,13 @@ const  Dashboard = () => {
     }
   }
 
-  // 6. Total Projects
-  // Source: project/list.tsx → projectList() .map()
+  // 13. Conversion Rate
   async function getConversionRate(page: number) {
     try {
       const body = {
-        developer: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer: state.selectedDeveloper.value }
+          : {}),
         from_date: getDateRange(
           state.activeDateTab,
           state.startDate,
@@ -1394,15 +1496,18 @@ const  Dashboard = () => {
       }));
       return { count: res?.count ?? 0, results: data ?? [] };
     } catch (error) {
-      console.log("getTotalProjects error:", error);
+      console.log("getConversionRate error:", error);
       throw error;
     }
   }
 
+  // 14. High Demand Projects
   async function getHighDemandPro(page: number) {
     try {
       const body = {
-        developer: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer: state.selectedDeveloper.value }
+          : {}),
         from_date: getDateRange(
           state.activeDateTab,
           state.startDate,
@@ -1437,15 +1542,18 @@ const  Dashboard = () => {
       }));
       return { count: res?.count ?? 0, results: data ?? [] };
     } catch (error) {
-      console.log("getTotalProjects error:", error);
+      console.log("getHighDemandPro error:", error);
       throw error;
     }
   }
 
+  // 15. Low Demand Projects
   async function getLowDemandPro(page: number) {
     try {
       const body = {
-        developer: state.developerId,
+        ...(state.selectedDeveloper?.value
+          ? { developer: state.selectedDeveloper.value }
+          : {}),
         from_date: getDateRange(
           state.activeDateTab,
           state.startDate,
@@ -1480,7 +1588,65 @@ const  Dashboard = () => {
       }));
       return { count: res?.count ?? 0, results: data ?? [] };
     } catch (error) {
-      console.log("getTotalProjects error:", error);
+      console.log("getLowDemandPro error:", error);
+      throw error;
+    }
+  }
+
+  // 16. Total Developers
+  async function getTotalDevelopers(page: number) {
+    try {
+      const body: any = {
+        user_type: ROLES.DEVELOPER,
+        account_status: "approved",
+        ...getCardFilterBody("total_developers"),
+      };
+      const res: any = await Models.user.list(page, body);
+      const data = (res?.results ?? []).map((item: any) => ({
+        id: item?.id,
+        first_name: item?.first_name,
+        last_name: item?.last_name,
+        name: `${item?.first_name || ""} ${item?.last_name || ""}`.trim() || item?.email || "-",
+        email: item?.email || "-",
+        phone: item?.phone || item?.mobile || "-",
+        industry: item?.industry || "-",
+        date: commonDateFormat(item?.created_at),
+        account_status: item?.account_status || "Approved",
+        ...item,
+      }));
+      return { count: res?.count ?? 0, results: data };
+    } catch (error) {
+      console.log("getTotalDevelopers error:", error);
+      throw error;
+    }
+  }
+
+  // 17. Total Buyers
+  async function getTotalBuyers(page: number) {
+    try {
+      const body: any = {
+        user_type: ROLES.BUYER,
+        account_status: "approved",
+        ...getCardFilterBody("total_buyers"),
+      };
+      if (state.selectedDeveloper?.value) {
+        body.developer_property_users = state.selectedDeveloper.value;
+      }
+      const res: any = await Models.user.list(page, body);
+      const data = (res?.results ?? []).map((item: any) => ({
+        id: item?.id,
+        first_name: item?.first_name,
+        last_name: item?.last_name,
+        name: `${item?.first_name || ""} ${item?.last_name || ""}`.trim() || item?.email || "-",
+        email: item?.email || "-",
+        phone: item?.phone || item?.mobile || "-",
+        date: commonDateFormat(item?.created_at),
+        account_status: item?.account_status || "Approved",
+        ...item,
+      }));
+      return { count: res?.count ?? 0, results: data };
+    } catch (error) {
+      console.log("getTotalBuyers error:", error);
       throw error;
     }
   }
@@ -1522,6 +1688,12 @@ const  Dashboard = () => {
     }
     if (metricId === "low_demand_projects") {
       return getLowDemandColumns();
+    }
+    if (metricId === "total_developers") {
+      return getDeveloperColumns();
+    }
+    if (metricId === "total_buyers") {
+      return getBuyerColumns();
     }
     return [];
   }
@@ -2364,6 +2536,155 @@ const  Dashboard = () => {
     ];
   }
 
+  // ── 9. DEVELOPER COLUMNS ──────────────────────────────────────────────────
+  function getDeveloperColumns() {
+    return [
+      {
+        accessor: "industry",
+        title: "Company / Industry",
+        sortable: true,
+        render: (row: any) => (
+          <span className="font-semibold text-slate-800" title={row.industry}>
+            {row.industry || "-"}
+          </span>
+        ),
+      },
+      {
+        accessor: "name",
+        title: "Developer Name",
+        sortable: true,
+        render: (row: any) => (
+          <div
+            className="flex w-fit items-center font-semibold cursor-pointer"
+            onClick={() => router.push(`/real-estate/users/view/${row.id}`)}
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#8b181b] text-sm text-white shadow mr-2">
+              {row?.first_name?.charAt(0)?.toUpperCase() || "D"}
+            </div>
+            <div className="hover:text-[#8b181b] transition-colors" title={row.name}>
+              {truncateText(row.name)}
+            </div>
+          </div>
+        ),
+      },
+      {
+        accessor: "email",
+        title: "Email",
+        sortable: true,
+        render: (row: any) => <span title={row.email}>{row.email}</span>,
+      },
+      {
+        accessor: "phone",
+        title: "Phone",
+        render: (row: any) => <span>{row.phone || "-"}</span>,
+      },
+      {
+        accessor: "date",
+        title: "Registered Date",
+        render: (row: any) => <span>{row.date || "-"}</span>,
+      },
+      {
+        accessor: "status",
+        title: "Status",
+        render: (row: any) => (
+          <span className="badge badge-outline-success">
+            {capitalizeFLetter(row.account_status || "Approved")}
+          </span>
+        ),
+      },
+      {
+        accessor: "action",
+        title: "Actions",
+        textAlignment: "center",
+        render: (row: any) => (
+          <div className="mx-auto flex w-max items-center gap-3">
+            <button
+              type="button"
+              className="flex items-center justify-center rounded p-1 text-slate-600 hover:text-[#8b181b] hover:bg-red-50 transition cursor-pointer"
+              title="View Profile"
+              onClick={() => router.push(`/real-estate/users/view/${row.id}`)}
+            >
+              <Eye className="h-4 w-4" />
+            </button>
+          </div>
+        ),
+      },
+    ];
+  }
+
+  // ── 10. BUYER COLUMNS ─────────────────────────────────────────────────────
+  function getBuyerColumns() {
+    return [
+      {
+        accessor: "name",
+        title: "Buyer Name",
+        sortable: true,
+        render: (row: any) => (
+          <div
+            className="flex w-fit items-center font-semibold cursor-pointer"
+            onClick={() => router.push(`/real-estate/users/view/${row.id}`)}
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#8b181b] text-sm text-white shadow mr-2">
+              {row?.first_name?.charAt(0)?.toUpperCase() || "B"}
+            </div>
+            <div className="hover:text-[#8b181b] transition-colors" title={row.name}>
+              {truncateText(row.name)}
+            </div>
+          </div>
+        ),
+      },
+      {
+        accessor: "email",
+        title: "Email",
+        sortable: true,
+        render: (row: any) => <span title={row.email}>{row.email}</span>,
+      },
+      {
+        accessor: "phone",
+        title: "Phone",
+        render: (row: any) => <span>{row.phone || "-"}</span>,
+      },
+      {
+        accessor: "date",
+        title: "Registered Date",
+        render: (row: any) => <span>{row.date || "-"}</span>,
+      },
+      {
+        accessor: "role",
+        title: "Role",
+        render: () => (
+          <span className="badge badge-outline-primary">Buyer</span>
+        ),
+      },
+      {
+        accessor: "status",
+        title: "Status",
+        render: (row: any) => (
+          <span className="badge badge-outline-success">
+            {capitalizeFLetter(row.account_status || "Approved")}
+          </span>
+        ),
+      },
+      {
+        accessor: "action",
+        title: "Actions",
+        textAlignment: "center",
+        render: (row: any) => (
+          <div className="mx-auto flex w-max items-center gap-3">
+            <button
+              type="button"
+              className="flex items-center justify-center rounded p-1 text-slate-600 hover:text-[#8b181b] hover:bg-red-50 transition cursor-pointer"
+              title="View Profile"
+              onClick={() => router.push(`/real-estate/users/view/${row.id}`)}
+            >
+              <Eye className="h-4 w-4" />
+            </button>
+          </div>
+        ),
+      },
+    ];
+  }
+
   // ───────────────────────────────────────────────────────────────────────────
   // EVENT HANDLERS
   // ───────────────────────────────────────────────────────────────────────────
@@ -2382,6 +2703,7 @@ const  Dashboard = () => {
       leadStatus: null,
       leadType: null,
       inquirySearch: '',
+      userSearch: '',
     });
   }
 
@@ -2432,6 +2754,8 @@ const  Dashboard = () => {
     state.endDate,
     state.activeDateTab,
     state.selectedMetricId,
+    state.selectedDeveloper,
+    state.userSearch,
     state.propertySearch,
     state.propertyProject,
     state.propertyType,
@@ -2463,10 +2787,13 @@ const  Dashboard = () => {
     const inquiryMetric = ["booking_inquiries", "call_inquiries"].includes(
       state.selectedMetricId,
     );
-    if (!propertyMetric && !leadMetric && !inquiryMetric) return null;
+    const userMetric = ["total_developers", "total_buyers"].includes(
+      state.selectedMetricId,
+    );
+    if (!propertyMetric && !leadMetric && !inquiryMetric && !userMetric) return null;
 
     return (
-      <div className="mb-3  flex items-center justify-start gap-5">
+      <div className="mb-3 flex items-center justify-start gap-5">
         {propertyMetric && (
           <>
             <TextInput
@@ -2494,28 +2821,6 @@ const  Dashboard = () => {
               isClearable
               loadMore={() => catListLoadMore()}
             />
-            {/* {(state.selectedMetricId == "total_properties" || state.selectedMetricId == "approved_properties" || state.selectedMetricId == "pending_properties" ) &&
-             <CustomSelect
-              placeholder="Offer Type"
-              value={state.propertyOfferType}
-              onChange={(value: any) => setState({ propertyOfferType: value })}
-              options={[
-                { value: "sale", label: "Sale" },
-                { value: "lease", label: "Lease" },
-                { value: "rent", label: "Rent" },
-              ]}
-              isClearable
-            />}
-           { (state.selectedMetricId == "total_properties" || state.selectedMetricId == "sale_properties" || state.selectedMetricId == "lease_properties" ) && <CustomSelect
-              placeholder="Property Status"
-              value={state.propertyStatus}
-              onChange={(value: any) => setState({ propertyStatus: value })}
-              options={[
-                { value: "active", label: "Active" },
-                { value: "inactive", label: "Inactive" },
-              ]}
-              isClearable
-            />} */}
             <CustomSelect
               placeholder="City"
               value={state.propertyCity}
@@ -2565,17 +2870,6 @@ const  Dashboard = () => {
                 className="w-[600px]"
               />
             )}
-            {/* <CustomSelect
-              placeholder="Lead Type"
-              value={state.leadType}
-              onChange={(value: any) => setState({ leadType: value })}
-              options={[
-                { value: "own", label: "Own Records" },
-                { value: "admin", label: "Admin Records" },
-                { value: "website", label: "Website Leads" },
-              ]}
-              isClearable
-            /> */}
           </>
         )}
         {inquiryMetric && (
@@ -2592,6 +2886,20 @@ const  Dashboard = () => {
             parentClass="w-[600px]"
           />
         )}
+        {userMetric && (
+          <TextInput
+            type="text"
+            placeholder={
+              state.selectedMetricId === "total_developers"
+                ? "Search developers (name, email, industry)..."
+                : "Search buyers (name, email, phone)..."
+            }
+            value={state.userSearch}
+            onChange={(e: any) => setState({ userSearch: e.target.value })}
+            className="w-[500px]"
+            parentClass="w-[500px]"
+          />
+        )}
       </div>
     );
   }
@@ -2600,25 +2908,46 @@ const  Dashboard = () => {
   // RENDER
   // ───────────────────────────────────────────────────────────────────────────
 
+  const adminCards = ADMIN_METRIC_CARDS.map((card) => {
+    if (card.id === "total_developers") {
+      return {
+        ...card,
+        value: state.userCountData?.developers ?? 0,
+      };
+    }
+    if (card.id === "total_buyers") {
+      return {
+        ...card,
+        value: state.userCountData?.buyers ?? 0,
+      };
+    }
+    return card;
+  });
+
   return (
     <main className="space-y-4">
       {/* 1 — Hero Banner */}
       <HeroBanner bannerData={state.bannerData} />
 
-      {/* 2 — Date Filter Bar */}
+      {/* 2 — Date Filter Bar with Developer Filter */}
       <div className="sticky top-14 z-40 shadow-lg rounded-xl">
-      <DateFilterBar
-        activeDateTab={state.activeDateTab}
-        startDate={state.startDate}
-        endDate={state.endDate}
-        onTabClick={handleDateTabClick}
-        onCustomDateChange={handleCustomDateChange}
-      />
+        <DateFilterBar
+          activeDateTab={state.activeDateTab}
+          startDate={state.startDate}
+          endDate={state.endDate}
+          onTabClick={handleDateTabClick}
+          onCustomDateChange={handleCustomDateChange}
+          showDeveloperFilter={true}
+          selectedDeveloper={state.selectedDeveloper}
+          onDeveloperChange={(dev: any) => setState({ selectedDeveloper: dev })}
+          developerOptions={state.developerOptions}
+          onDeveloperLoadMore={() => developerLoadMore()}
+        />
       </div>
 
       {/* 3 — Metric Cards */}
-
       <MetricCards
+        cards={adminCards}
         selectedMetricId={state.selectedMetricId}
         onSelect={handleCardSelect}
         dashboardData={state.dashboardData}
@@ -2765,5 +3094,4 @@ const  Dashboard = () => {
   );
 }
 
-
-export default PrivateRouter(Dashboard)
+export default PrivateRouter(page)

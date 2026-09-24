@@ -380,7 +380,7 @@ const List = () => {
                 sortable:true, 
                 render: (row) => (
                   <span title={row.email}>
-                    {truncateLowerText(row.email)}
+                    {row.email}
                   </span>
                 )
               },

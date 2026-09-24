@@ -171,8 +171,10 @@ const properties = {
           console.log("✌️error --->", error);
           if (error.response?.data) {
             reject(error.response.data);
-          } else if (error.response) {
-            reject(error.response.data.message);
+          } else if (error.response?.statusText) {
+            reject(error.response.statusText);
+          } else if (error.message) {
+            reject(error.message);
           } else {
             reject(error);
           }
@@ -195,8 +197,12 @@ const properties = {
           resolve(res.data);
         })
         .catch((error) => {
-          if (error.response) {
+          if (error.response?.data) {
             reject(error.response.data);
+          } else if (error.response?.statusText) {
+            reject(error.response.statusText);
+          } else if (error.message) {
+            reject(error.message);
           } else {
             reject(error);
           }

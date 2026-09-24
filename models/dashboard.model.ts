@@ -20,6 +20,11 @@ const dashboard = {
       params.append("to_date", body.to_date);
     }
 
+    if (body?.developer || body?.developer_id) {
+      params.append("developer_id", body.developer || body.developer_id);
+      // params.append("developer", body.developer || body.developer_id);
+    }
+
     if (params.toString()) {
       url += `?${params.toString()}`;
     }

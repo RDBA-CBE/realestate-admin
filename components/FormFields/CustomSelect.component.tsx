@@ -24,6 +24,8 @@ interface SelectProps {
   disabled?: boolean;
   isClearable?: boolean;
   leftIcon?: React.ReactNode;
+  menuPortalTarget?: any;
+  menuPosition?: "fixed" | "absolute";
 }
 
 const CustomSelect = (props: SelectProps) => {
@@ -44,6 +46,8 @@ const CustomSelect = (props: SelectProps) => {
     menuOpen,
     isClearable,
     leftIcon,
+    menuPortalTarget,
+    menuPosition,
   } = props;
 
   const customStyles = {
@@ -62,8 +66,8 @@ const CustomSelect = (props: SelectProps) => {
       ...provided,
       paddingLeft: "0px",
     }),
-    menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
-    menu: (base: any) => ({ ...base, zIndex: 9999 }),
+    menuPortal: (base: any) => ({ ...base, zIndex: 99999 }),
+    menu: (base: any) => ({ ...base, zIndex: 99999 }),
     menuList: (base: any) => ({
       ...base,
       maxHeight: 160, 
@@ -125,6 +129,8 @@ const CustomSelect = (props: SelectProps) => {
           }}
           classNamePrefix="react-select"
           onMenuScrollToBottom={loadMore}
+          menuPortalTarget={menuPortalTarget}
+          menuPosition={menuPosition}
         />
         {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
       </div>
