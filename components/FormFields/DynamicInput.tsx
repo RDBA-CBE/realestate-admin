@@ -37,6 +37,7 @@ export default function DynamicInput({
     setItems(updated);
     onChange && onChange(updated);
   };
+  
 
   return (
     <div>

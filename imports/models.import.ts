@@ -22,6 +22,7 @@ import area from "@/models/area.model";
 import employmentType from "@/models/employmentType.model";
 import inquiry from "@/models/inquiry.model";
 import dashboard from "@/models/dashboard.model";
+import more_info from "@/models/more_info.model";
 
 export const Models = {
   auth,
@@ -45,7 +46,8 @@ export const Models = {
   area,
   employmentType,
   inquiry,
-  dashboard
+  dashboard,
+  more_info
   
 };
 

@@ -234,6 +234,8 @@ export default function Profile() {
     }
   };
 
+  console.log("state.specialization", state.specialization);
+
   console.log("state.developer_image", state.developer_image);
   
 

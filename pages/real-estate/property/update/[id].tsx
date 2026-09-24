@@ -59,6 +59,9 @@ import VideoUpload from "@/components/videoUpload/videoUpload.compoent";
 import PrivateRouter from "@/hook/privateRouter";
 import UpdatePropertyImagePreview from "@/components/ImageUploadWithPreview/UpdatePropertyImagePreview.component";
 import { isString } from "lodash";
+import dynamic from "next/dynamic";
+import DynamicInput from "@/components/FormFields/DynamicInput";
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 const AddPropertyPage = () => {
   const router = useRouter();
@@ -84,6 +87,9 @@ const AddPropertyPage = () => {
     description: "",
     virtual_tour: "",
     virtual_tourList: [],
+    rera_number: "",
+    rera_expiry_date: "",
+    nearby_places: "",
     //Buy,
     built_up_area: null,
     carpet_area: null,
@@ -97,9 +103,12 @@ const AddPropertyPage = () => {
     facing_direction: null,
     furnishing_type: null,
     price: null,
+    
 
     //Media
     images: [],
+    more_info: [],
+    newMoreInfo: [],
     video: null,
     unit_plans: [],
     master_plans: [],
@@ -148,11 +157,13 @@ const AddPropertyPage = () => {
         price: "",
         reraId: "",
         floorNo: "",
+        cent: "",
         image: null,
       },
     ],
     location_url: "",
     deleteFloorPlan: null,
+    specialization: [] ,
   });
 
   useEffect(() => {
@@ -170,6 +181,7 @@ const AddPropertyPage = () => {
     if (id) {
       propertyDetails();
       imageList();
+      moreInfoList();
     }
   }, [id]);
 
@@ -272,9 +284,16 @@ const AddPropertyPage = () => {
         country: res?.country,
         postal_code: res?.postal_code,
         total_area: res?.total_area,
+        total_acres: res?.total_acres,
         built_up_area: res?.built_up_area,
+        plot_area: res?.plot_area,
         location_url: res?.location_url || "",
         voucher_url: res?.voucher_url || null,
+        rera_number: res?.rera_number || "",
+        rera_expiry_date: res?.rera_expiry_date || "",
+        nearby_places: res?.nearby_places || "",
+        specialization: res?.specialization || [],
+        price_per_cent:res?.price_per_cent,
         // ...(res?.total_area && { total_area: formatNumber(res.total_area) }),
         // ...(res?.built_up_area && {
         //   built_up_area: formatNumber(res.built_up_area),
@@ -401,8 +420,9 @@ const AddPropertyPage = () => {
           category: getDropdownObject(plan?.category, FLOORPLANS_CATEGORY),
           squareFeet: plan?.square_feet,
           price: plan?.price,
-          reraId: plan?.rera_id, // Fixed: changed from reraId to rera_id
+          reraId: plan?.rera_id,
           floorNo: plan?.floor_no,
+          cent: plan?.total_cent || "",
           image: plan?.image,
           type: plan?.type ? { value: plan?.type, label: plan?.type } : null,
         }));
@@ -426,6 +446,8 @@ const AddPropertyPage = () => {
     } catch (error) {
       console.log("✌️error --->", error);
     }
+
+    
   };
 
   const agentList = async (page) => {
@@ -471,6 +493,15 @@ const AddPropertyPage = () => {
       });
     } catch (error) {
       console.log("✌️error --->", error);
+    }
+  };
+
+  const moreInfoList = async () => {
+    try {
+      const res: any = await Models.more_info.list(1, { property: id });
+      setState({ more_info: res?.results || res || [] });
+    } catch (error) {
+      console.log("more info list error --->", error);
     }
   };
 
@@ -757,6 +788,7 @@ const AddPropertyPage = () => {
       const body = {
         // property_type: state.property_type?.value,
         property_type: state.property_type?.map((item) => item?.value),
+        validatePropertyType: state.property_type,
 
         listing_type: state.listing_type?.value,
         title: state.title,
@@ -783,6 +815,7 @@ const AddPropertyPage = () => {
         min_price: state.min_price,
         max_price: state.max_price,
         location_url: state.location_url,
+        
       };
 
       await Utils.Validation.property_type.validate(body, {
@@ -827,10 +860,12 @@ const AddPropertyPage = () => {
         developer: state.developer?.value,
         project: state.project?.value,
         amenities: state.amenities,
-        furnishing: state.furnishing?.value,
+        furnishing: state.furnishing?.value ?? null,
         built_up_area: state.built_up_area,
         total_area: state.total_area,
         carpet_area: state.carpet_area,
+        total_acres:state.total_acres,
+        plot_area: state.plot_area,
         total_unit: state.total_units,
         bedrooms: state.bedrooms,
         bathrooms: state.bathrooms,
@@ -852,9 +887,13 @@ const AddPropertyPage = () => {
         location_url: state.location_url,
         status: state.status?.value,
         price_per_sqft: state.price_per_sqft,
+        price_per_cent: state.price_per_cent,
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
+        rera_number: state.rera_number,
+        rera_expiry_date: state.rera_expiry_date,
+        specialization: JSON.stringify(state.specialization),
         // price: state.max_price,
       };
 
@@ -931,6 +970,14 @@ const AddPropertyPage = () => {
         });
       }
 
+      if (state.newMoreInfo?.length > 0) {
+        await Promise.all(
+          state.newMoreInfo.map((image, index) =>
+            createMoreInfo(id, image, index),
+          ),
+        );
+      }
+
       if (state.deleteFloorPlan) {
         deleteFloorPlans();
       }
@@ -970,10 +1017,12 @@ const AddPropertyPage = () => {
         project: state.project?.value,
 
         amenities: state.amenities,
-        furnishing: state.furnishing?.value,
+        furnishing: state.furnishing?.value ?? null,
         built_up_area: state.built_up_area,
         total_area: state.total_area,
         total_unit: state.total_units,
+        plot_area: state.plot_area,
+        total_acres:state.total_acres,
         carpet_area: state.carpet_area,
         bedrooms: state.bedrooms,
         bathrooms: state.bathrooms,
@@ -995,9 +1044,13 @@ const AddPropertyPage = () => {
         location_url: state.location_url,
         status: state.status?.value,
         price_per_sqft: state.price_per_sqft,
+        price_per_cent: state.price_per_cent,
         validatePropertyType: state.property_type,
         min_price: state.min_price,
         max_price: state.max_price,
+        rera_number: state.rera_number,
+        rera_expiry_date: state.rera_expiry_date,
+        specialization: JSON.stringify(state.specialization),
         // price: state.max_price,
       };
 
@@ -1069,6 +1122,14 @@ const AddPropertyPage = () => {
         });
       }
 
+      if (state.newMoreInfo?.length > 0) {
+        await Promise.all(
+          state.newMoreInfo.map((image, index) =>
+            createMoreInfo(id, image, index),
+          ),
+        );
+      }
+
       if (state.deleteFloorPlan) {
         deleteFloorPlans();
       }
@@ -1105,9 +1166,10 @@ const AddPropertyPage = () => {
         project: state.project?.value,
 
         amenities: state.amenities,
-        furnishing: state.furnishing?.value,
+        furnishing: state.furnishing?.value ?? null,
         built_up_area: state.built_up_area,
         total_area: state.total_area,
+        total_acres: state.total_acres,
         carpet_area: state.carpet_area,
         total_unit: state.total_units,
         bedrooms: state.bedrooms,
@@ -1248,6 +1310,48 @@ const AddPropertyPage = () => {
     }
   };
 
+  const createMoreInfo = async (
+    propertyId: number | string,
+    imageFile: File,
+    order: number,
+  ) => {
+    try {
+      const body = {
+        property: propertyId,
+        image: imageFile,
+        order,
+      };
+      const formData = buildFormData(body);
+
+      await Models.more_info.create(formData);
+      await moreInfoList();
+    } catch (error) {
+      console.log("more info create error --->", error);
+      throw error;
+    }
+  };
+
+  const deleteMoreInfo = async (moreInfoId: number) => {
+    try {
+      await Models.more_info.delete(moreInfoId);
+      await moreInfoList();
+    } catch (error) {
+      console.log("more info delete error --->", error);
+      throw error;
+    }
+  };
+
+  const updateMoreInfo = async (moreInfoId: number, order: number) => {
+    try {
+      const formData = buildFormData({ order });
+      await Models.more_info.update(moreInfoId, formData);
+      await moreInfoList();
+    } catch (error) {
+      console.log("more info update error --->", error);
+      throw error;
+    }
+  };
+
   const updateImageOrders = async (images: any) => {
     try {
       await Promise.all(
@@ -1351,6 +1455,7 @@ const AddPropertyPage = () => {
         price: plan.price,
         rera_id: plan.reraId,
         floor_no: plan.floorNo,
+        total_cent: plan.cent,
         type: plan?.type?.value,
         ...(!isString(plan.image) && { image: plan.image }),
       };
@@ -1372,6 +1477,7 @@ const AddPropertyPage = () => {
         price: plan.price,
         rera_id: plan.reraId,
         floor_no: plan.floorNo,
+        total_cent: plan.cent,
         image: plan.image,
         type: plan?.type?.value,
       };
@@ -1403,6 +1509,10 @@ const AddPropertyPage = () => {
     });
   };
 
+  const isPlot = state.property_type?.some((pt) =>
+    pt.label?.toLowerCase().includes("plot"),
+  );
+
   const steps = [
     { id: 1, title: "Basic Detail", icon: MapPin },
     { id: 2, title: "Property Information", icon: Info },
@@ -1412,6 +1522,7 @@ const AddPropertyPage = () => {
     { id: 7, title: "Media", icon: File },
     { id: 3, title: "Location", icon: MapPin },
     { id: 4, title: "Amenities", icon: Home },
+    { id: 8, title: "More Info", icon: Camera },
     // { id: 6, title: "Contact Information", icon: Phone },
   ];
 
@@ -1427,6 +1538,7 @@ const AddPropertyPage = () => {
           reraId: "",
           floorNo: "",
           image: null,
+          cent:"",
         },
       ],
     });
@@ -1460,6 +1572,9 @@ const AddPropertyPage = () => {
       });
     }
   };
+
+  console.log("state.specialization", state.specialization);
+  
 
   const updateFloorPlan = (index, field, value) => {
     setState({
@@ -1668,6 +1783,25 @@ const AddPropertyPage = () => {
                       error={state.error?.description}
                     />
                   </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-4">
+                    <TextInput
+                      name="rera_number"
+                      title="RERA Number"
+                      placeholder="Enter RERA registration number"
+                      value={state.rera_number}
+                      onChange={handleInputChange}
+                      error={state.error?.rera_number}
+                    />
+                    <TextInput
+                      name="rera_expiry_date"
+                      title="RERA Expiry Date"
+                      type="date"
+                      value={state.rera_expiry_date}
+                      onChange={handleInputChange}
+                      error={state.error?.rera_expiry_date}
+                    />
+                  </div>
                 </div>
               )}
 
@@ -1740,22 +1874,43 @@ const AddPropertyPage = () => {
                         placeholder="Enter total area"
                         value={state.total_area}
                         onChange={handleInputChange}
-                        required
+                        // required
                         error={state.error?.total_area}
                       />
 
-                      {state.property_type?.label !==
-                        PROPERTY_TYPE.AGRICULTURAL && (
+                      
+                      <TextInput
+                        name="total_acres"
+                        title="Total Area (acres)"
+                        placeholder="Enter total area"
+                        value={state.total_acres}
+                        onChange={handleInputChange}
+                        error={state.error?.total_acres}
+                      />                     
+
+                     
+                        <TextInput
+                          name="plot_area"
+                          title="Total Area (cent)"
+                          placeholder="Enter total area in cents"
+                          value={state.plot_area}
+                          onChange={handleInputChange}
+                          error={state.error?.plot_area}
+                        />
+                    
+
+                      {/* {state.property_type?.label !==
+                        PROPERTY_TYPE.AGRICULTURAL && ( */}
                         <TextInput
                           name="built_up_area"
                           title="Built-up Area (sq.ft.)"
                           placeholder="Enter total built-up area"
                           value={state.built_up_area}
                           onChange={handleInputChange}
-                          required
+                          // required={!isPlot}
                           error={state.error?.built_up_area}
                         />
-                      )}
+                      {/* )} */}
 
                       <TextInput
                         name="total_units"
@@ -1763,7 +1918,7 @@ const AddPropertyPage = () => {
                         placeholder="Enter total number of units"
                         value={state.total_units}
                         onChange={handleInputChange}
-                        required
+                        // required
                         error={state.error?.total_units}
                       />
 
@@ -1837,7 +1992,7 @@ const AddPropertyPage = () => {
                             error: { ...state.error, furnishing: "" },
                           })
                         }
-                        required
+                        // required
                         isClearable
                         error={state.error?.furnishing}
                       />
@@ -1902,9 +2057,20 @@ const AddPropertyPage = () => {
                             placeholder="Enter Price Per Sq.ft"
                             value={state.price_per_sqft}
                             onChange={handleInputChange}
-                            required
                             error={state.error?.price_per_sqft}
                           />
+
+                          {isPlot && (
+                            <NumberInput
+                              name="price_per_cent"
+                              title="Price Per Cent"
+                              placeholder="Enter Price Per Cent"
+                              value={state.price_per_cent}
+                              onChange={handleInputChange}
+                              error={state.error?.price_per_cent}
+                            />
+                          )}
+
                           <NumberInput
                             name="min_price"
                             title="Minimum Price"
@@ -1970,6 +2136,17 @@ const AddPropertyPage = () => {
                     </>
                     {/* )} */}
                   </div>
+
+                  <div className="col-span-2 mt-4">
+                                    <DynamicInput
+                                                  title="Specialization"
+                                                  placeholder="Enter Specialization"
+                                                  defaultValue={state.specialization}
+                                                  onChange={(data: any) => setState({ specialization: data })}
+                                                />
+                                            </div>
+
+              
                 </div>
               )}
 
@@ -2074,7 +2251,6 @@ const AddPropertyPage = () => {
                                   name={`squareFeet-${index}`}
                                   title="Square Feet"
                                   placeholder="Enter Square Feet"
-                                  type="number"
                                   value={plan.squareFeet}
                                   onChange={(e) =>
                                     updateFloorPlan(
@@ -2083,14 +2259,30 @@ const AddPropertyPage = () => {
                                       e.target.value,
                                     )
                                   }
-                                  required={plan.category ? true : false}
+                                  // required={plan.category ? true : false}
                                 />
+
+                                 {isPlot && (
+                                  <TextInput
+                                    name={`cent-${index}`}
+                                    title="Cent"
+                                    placeholder="Enter Cent"
+                                    value={plan.cent}
+                                    onChange={(e) =>
+                                      updateFloorPlan(
+                                        index,
+                                        "cent",
+                                        e.target.value,
+                                      )
+                                    }
+                                  />
+                                )}
 
                                 <TextInput
                                   name={`price-${index}`}
                                   title="Price"
                                   placeholder="Enter Price"
-                                  type="number"
+                                  // type="number"
                                   value={plan.price}
                                   onChange={(e) =>
                                     updateFloorPlan(
@@ -2129,8 +2321,9 @@ const AddPropertyPage = () => {
                                       e.target.value,
                                     )
                                   }
-                                  required={plan.category ? true : false}
                                 />
+
+                               
                               </div>
 
                               <h5 className="text-md mt-5 font-bold">
@@ -2266,7 +2459,7 @@ const AddPropertyPage = () => {
                         existingImages={state.imageList}
                         onImageCreate={createImage}
                         onImageDelete={deleteImage}
-                        maxFiles={10}
+                        maxFiles={20}
                         propertyId={id}
                         onImageReorder={updateImageOrders}
                       />
@@ -2663,6 +2856,64 @@ const AddPropertyPage = () => {
                   )}
                 </div>
               )}
+
+              {step.id === 8 && (
+                              <div className="panel rounded-lg border p-6 shadow-none">
+                                <h2 className="text-lg font-semibold">More Info</h2>
+                                <p className="mt-1 text-sm text-gray-500">
+                                  Add reference images such as QR codes, brochures, or other
+                                  property information.
+                                </p>
+              
+                                <div className="mt-4">
+                                  <label className="mb-2 block text-sm font-medium text-gray-700">
+                                    Add images like QR codes
+                                  </label>
+                                  <ImageUploadWithPreview
+                                    maxFiles={10}
+                                    acceptedFormats={["image/jpeg", "image/png", "image/webp"]}
+                                    onImagesChange={(images) =>
+                                      setState({
+                                        newMoreInfo: images,
+                                        error: { ...state.error, more_info: "" },
+                                      })
+                                    }
+                                  />
+                                  {state.more_info?.length > 0 && (
+                                    <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+                                      {state.more_info.map((item) => {
+                                        const imageUrl = item?.url || item?.image_url;
+                                        return (
+                                          <div
+                                            key={item.id}
+                                            className="relative overflow-hidden rounded-lg border bg-gray-50"
+                                          >
+                                            <img
+                                              src={imageUrl}
+                                              alt="More info"
+                                              className="h-28 w-full object-cover"
+                                            />
+                                            <button
+                                              type="button"
+                                              onClick={() => deleteMoreInfo(item.id)}
+                                              className="absolute right-1 top-1 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
+                                              title="Remove image"
+                                            >
+                                              <Trash2 className="h-3 w-3" />
+                                            </button>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  )}
+                                  {state.error?.more_info && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                      {state.error.more_info}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            )}
 
               {/* Step 6: Contact Information */}
               {/* {step.id === 6 && (
