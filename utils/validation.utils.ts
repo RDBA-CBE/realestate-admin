@@ -191,7 +191,7 @@ export const propertySaleCreate = Yup.object().shape({
   images: Yup.array()
     .required("Property image is required")
     .min(1, "At least one image is required")
-    .max(7, "Maximum 7 images allowed"),
+    .max(20, "Maximum 20 images allowed"),
 
   amenities: Yup.array()
     .required("Amenities is required")
@@ -245,7 +245,7 @@ export const propertyLeaseCreate = Yup.object().shape({
   images: Yup.array()
     .required("Property image is required")
     .min(1, "At least one image is required")
-    .max(7, "Maximum 7 images allowed"),
+    .max(20, "Maximum 20 images allowed"),
 
   amenities: Yup.array()
     .required("Amenities is required")
@@ -317,7 +317,7 @@ export const propertyRentCreate = Yup.object().shape({
   images: Yup.array()
     .required("Property image is required")
     .min(1, "At least one image is required")
-    .max(7, "Maximum 7 images allowed"),
+    .max(20, "Maximum 20 images allowed"),
 
   amenities: Yup.array()
     .required("Amenities is required")
