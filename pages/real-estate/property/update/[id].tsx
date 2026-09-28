@@ -484,15 +484,26 @@ const AddPropertyPage = () => {
 
   const imageList = async () => {
     try {
-      const body = {
-        property: id,
-      };
-      const res: any = await Models.image.list(1, body);
-      setState({
-        imageList: res?.results,
-      });
+      let allImages: any[] = [];
+      let page = 1;
+
+      // Keep fetching pages until there is no next page
+      while (true) {
+        const body = { property: id };
+        const res: any = await Models.image.list(page, body);
+
+        const results = Array.isArray(res) ? res : (res?.results ?? []);
+        allImages = [...allImages, ...results];
+
+        // If there is no next page, stop
+        if (!res?.next) break;
+
+        page++;
+      }
+
+      setState({ imageList: allImages });
     } catch (error) {
-      console.log("✌️error --->", error);
+      console.log('✌️error --->', error);
     }
   };
 
@@ -2459,7 +2470,6 @@ const AddPropertyPage = () => {
                         existingImages={state.imageList}
                         onImageCreate={createImage}
                         onImageDelete={deleteImage}
-                        maxFiles={20}
                         propertyId={id}
                         onImageReorder={updateImageOrders}
                       />

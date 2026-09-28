@@ -60,17 +60,36 @@ const UpdatePropertyImagePreview: React.FC<ImageUploadProps> = ({
   const scrollRef = useRef<HTMLDivElement>(null);
   const dragItem = useRef<number | null>(null);
   const dragOverItem = useRef<number | null>(null);
+  // Tracks the highest order value used so far — avoids duplicate order errors
+  // when multiple batches are uploaded in the same session
+  const nextOrderRef = useRef<number>(0);
 
   useEffect(() => {
-    const existingImageItems: ImageItem[] = existingImages.map((img) => ({
-      id: `existing-${img.id}`,
-      preview: img.image,
-      isExisting: true,
-      dbId: img.id,
-      order: img.order,
-    }));
+    // Only initialise from existingImages when local state is empty (first load).
+    // After that the component manages its own image list — re-running this on
+    // every existingImages change would discard locally added images and reset
+    // the preview back to what the DB returned (only 10 from page 1).
+    if (images.length === 0 && existingImages.length > 0) {
+      const existingImageItems: ImageItem[] = existingImages.map((img) => ({
+        id: `existing-${img.id}`,
+        preview: img.image,
+        isExisting: true,
+        dbId: img.id,
+        order: img.order,
+      }));
+      setImages(existingImageItems);
+    }
 
-    setImages(existingImageItems);
+    // Seed the order counter from existing images only if it would give a higher
+    // value — never go backwards to avoid duplicate order errors on next upload
+    const maxFromDB =
+      existingImages.length > 0
+        ? Math.max(...existingImages.map((img) => img.order)) + 1
+        : 0;
+
+    if (maxFromDB > nextOrderRef.current) {
+      nextOrderRef.current = maxFromDB;
+    }
   }, [existingImages]);
 
   const validateImage = (file: File): Promise<boolean> => {
@@ -90,17 +109,7 @@ const UpdatePropertyImagePreview: React.FC<ImageUploadProps> = ({
     const newImages: ImageItem[] = [];
     setError("");
 
-    const currentImageCount = images.length;
-    const availableSlots = maxFiles - currentImageCount;
-
-    if (availableSlots <= 0) {
-      setError(
-        `Maximum ${maxFiles} images allowed. Remove some images to add new ones.`
-      );
-      return;
-    }
-
-    const filesToProcess = Array.from(files).slice(0, availableSlots);
+    const filesToProcess = Array.from(files);
 
     for (let i = 0; i < filesToProcess.length; i++) {
       const file = filesToProcess[i];
@@ -134,7 +143,7 @@ const UpdatePropertyImagePreview: React.FC<ImageUploadProps> = ({
     }
 
     if (newImages.length > 0) {
-      const updatedImages = [...images, ...newImages].slice(0, maxFiles);
+      const updatedImages = [...images, ...newImages];
       setImages(updatedImages);
 
       await uploadNewImagesToAPI(newImages);
@@ -149,17 +158,12 @@ const UpdatePropertyImagePreview: React.FC<ImageUploadProps> = ({
 
     setIsLoading(true);
     try {
-      const maxExistingOrder =
-        existingImages.length > 0
-          ? Math.max(...existingImages.map((img) => img.order))
-          : -1;
-
-      let currentOrder = maxExistingOrder;
-
       for (const imageItem of newImages) {
         if (imageItem.file) {
-          currentOrder++;
-          await onImageCreate(propertyId, imageItem.file, currentOrder);
+          // nextOrderRef always holds the next safe unique order value
+          const order = nextOrderRef.current;
+          nextOrderRef.current++;  // increment before next upload
+          await onImageCreate(propertyId, imageItem.file, order);
         }
       }
     } catch (error) {
@@ -237,14 +241,16 @@ const UpdatePropertyImagePreview: React.FC<ImageUploadProps> = ({
     if (!onImageReorder) return;
 
     try {
+      // Use the order value already assigned by handleReorderDrop (position in full list),
+      // NOT the filter-local index which resets to 0 and causes duplicate order errors
       const existingImagesToUpdate: ExistingImage[] = reorderedImages
         .filter((img) => img.isExisting && img.dbId)
-        .map((img, index) => ({
+        .map((img) => ({
           id: img.dbId!,
           property: propertyId,
           image: img.preview,
           is_primary: false,
-          order: index,
+          order: img.order ?? 0,
         }));
 
       await onImageReorder(existingImagesToUpdate);
@@ -320,8 +326,6 @@ const UpdatePropertyImagePreview: React.FC<ImageUploadProps> = ({
     }
   };
 
-  const availableSlots = maxFiles - images.length;
-
   return (
     <div className="w-full">
       {(isLoading || isReordering) && (
@@ -337,33 +341,19 @@ const UpdatePropertyImagePreview: React.FC<ImageUploadProps> = ({
       <div
         className={`
           cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-all duration-200
-          ${
-            isDragging
-              ? "border-blue-500 bg-blue-50"
-              : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
-          }
+          ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"}
           ${error ? "border-red-300" : ""}
-          ${availableSlots <= 0 ? "cursor-not-allowed opacity-50" : ""}
           ${isLoading ? "cursor-not-allowed opacity-50" : ""}
         `}
-        onDrop={
-          availableSlots > 0 && !isLoading ? handleDropForUpload : undefined
-        }
-        onDragOver={(e) => {
-          if (availableSlots > 0 && !isLoading) {
-            e.preventDefault();
-            setIsDragging(true);
-          }
-        }}
+        onDrop={!isLoading ? handleDropForUpload : undefined}
+        onDragOver={(e) => { if (!isLoading) { e.preventDefault(); setIsDragging(true); } }}
         onDragLeave={(e) => {
-          if (availableSlots > 0 && !isLoading) {
+          if (!isLoading) {
             e.preventDefault();
-            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
-              setIsDragging(false);
-            }
+            if (!e.currentTarget.contains(e.relatedTarget as Node)) setIsDragging(false);
           }
         }}
-        onClick={availableSlots > 0 && !isLoading ? openFileDialog : undefined}
+        onClick={!isLoading ? openFileDialog : undefined}
       >
         <input
           ref={fileInputRef}
@@ -372,53 +362,25 @@ const UpdatePropertyImagePreview: React.FC<ImageUploadProps> = ({
           accept={acceptedFormats.join(",")}
           onChange={handleFileInput}
           className="hidden"
-          disabled={availableSlots <= 0 || isLoading}
+          disabled={isLoading}
         />
 
-        <Upload
-          className={`mx-auto mb-4 h-12 w-12 ${
-            availableSlots <= 0 || isLoading ? "text-gray-300" : "text-gray-400"
-          }`}
-        />
+        <Upload className={`mx-auto mb-4 h-12 w-12 ${isLoading ? "text-gray-300" : "text-gray-400"}`} />
 
         <div className="space-y-2">
-          <p
-            className={`text-lg font-semibold ${
-              availableSlots <= 0 || isLoading
-                ? "text-gray-400"
-                : "text-gray-700"
-            }`}
-          >
-            {availableSlots <= 0
-              ? "Maximum images reached"
-              : isLoading
-              ? "Processing images..."
-              : "Upload/Drag photos of your property"}
+          <p className={`text-lg font-semibold ${isLoading ? "text-gray-400" : "text-gray-700"}`}>
+            {isLoading ? "Processing images..." : "Upload/Drag photos of your property"}
           </p>
           <p className="text-sm text-gray-500">
-            Photos must be WebP format and
-            Maximum file size 5MB
-             at least {minWidth}x
-            {minHeight}
+            Photos must be WebP format · Maximum file size 5MB
             <br />
-            <strong>
-              {availableSlots > 0 && !isLoading
-                ? `${availableSlots} slot${
-                    availableSlots !== 1 ? "s" : ""
-                  } available`
-                : isLoading
-                ? "Processing..."
-                : "No slots available"}
-            </strong>
+            <strong>{images.length} image{images.length !== 1 ? "s" : ""} uploaded</strong>
           </p>
-          {availableSlots > 0 && !isLoading && (
+          {!isLoading && (
             <button
               type="button"
               className="inline-flex items-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                openFileDialog();
-              }}
+              onClick={(e) => { e.stopPropagation(); openFileDialog(); }}
             >
               Browse Files
             </button>

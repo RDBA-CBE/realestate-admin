@@ -1980,7 +1980,6 @@ const AddPropertyPage = () => {
                   <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                       <ImageUploadWithPreview
-                        maxFiles={20}
                         onImagesChange={(image) => {
                           setState({
                             images: image,

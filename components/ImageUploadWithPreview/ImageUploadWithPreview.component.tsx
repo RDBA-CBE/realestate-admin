@@ -101,7 +101,7 @@ const ImageUploadWithPreview: React.FC<ImageUploadProps> = ({
 
     if (newImages.length > 0) {
       const updatedImages = allowMultiple
-        ? [...images, ...newImages].slice(0, maxFiles)
+        ? [...images, ...newImages]
         : [newImages[0]];
       setImages(updatedImages);
       onImagesChange(updatedImages.map((img) => img.file));
