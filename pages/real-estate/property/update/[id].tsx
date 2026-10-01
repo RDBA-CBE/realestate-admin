@@ -55,6 +55,7 @@ import Models from "@/imports/models.import";
 import Modal from "@/components/modal/modal.component";
 import IconLoader from "@/components/Icon/IconLoader";
 import ImageUploadWithPreview from "@/components/ImageUploadWithPreview/ImageUploadWithPreview.component";
+import MoreInfoUploadWithCaption from "@/components/ImageUploadWithPreview/MoreInfoUploadWithCaption.component";
 import VideoUpload from "@/components/videoUpload/videoUpload.compoent";
 import PrivateRouter from "@/hook/privateRouter";
 import UpdatePropertyImagePreview from "@/components/ImageUploadWithPreview/UpdatePropertyImagePreview.component";
@@ -510,7 +511,11 @@ const AddPropertyPage = () => {
   const moreInfoList = async () => {
     try {
       const res: any = await Models.more_info.list(1, { property: id });
-      setState({ more_info: res?.results || res || [] });
+      const items = (res?.results || res || []).map((item: any) => ({
+        ...item,
+        caption: item?.caption || "",
+      }));
+      setState({ more_info: items });
     } catch (error) {
       console.log("more info list error --->", error);
     }
@@ -981,10 +986,23 @@ const AddPropertyPage = () => {
         });
       }
 
+      if (state.more_info?.length > 0) {
+        await Promise.all(
+          state.more_info.map((item, index) =>
+            updateMoreInfo(item.id, item?.caption || "", item.order ?? index),
+          ),
+        );
+      }
+
       if (state.newMoreInfo?.length > 0) {
         await Promise.all(
-          state.newMoreInfo.map((image, index) =>
-            createMoreInfo(id, image, index),
+          state.newMoreInfo.map((item, index) =>
+            createMoreInfo(
+              id,
+              item?.file || item,
+              (state.more_info?.length || 0) + index,
+              item?.caption || "",
+            ),
           ),
         );
       }
@@ -1133,10 +1151,23 @@ const AddPropertyPage = () => {
         });
       }
 
+      if (state.more_info?.length > 0) {
+        await Promise.all(
+          state.more_info.map((item, index) =>
+            updateMoreInfo(item.id, item?.caption || "", item.order ?? index),
+          ),
+        );
+      }
+
       if (state.newMoreInfo?.length > 0) {
         await Promise.all(
-          state.newMoreInfo.map((image, index) =>
-            createMoreInfo(id, image, index),
+          state.newMoreInfo.map((item, index) =>
+            createMoreInfo(
+              id,
+              item?.file || item,
+              (state.more_info?.length || 0) + index,
+              item?.caption || "",
+            ),
           ),
         );
       }
@@ -1269,6 +1300,27 @@ const AddPropertyPage = () => {
         deleteFloorPlans();
       }
 
+      if (state.more_info?.length > 0) {
+        await Promise.all(
+          state.more_info.map((item, index) =>
+            updateMoreInfo(item.id, item?.caption || "", item.order ?? index),
+          ),
+        );
+      }
+
+      if (state.newMoreInfo?.length > 0) {
+        await Promise.all(
+          state.newMoreInfo.map((item, index) =>
+            createMoreInfo(
+              id,
+              item?.file || item,
+              (state.more_info?.length || 0) + index,
+              item?.caption || "",
+            ),
+          ),
+        );
+      }
+
       Success("Property Updated Successfully");
       router.back();
 
@@ -1325,17 +1377,18 @@ const AddPropertyPage = () => {
     propertyId: number | string,
     imageFile: File,
     order: number,
+    caption: string = "",
   ) => {
     try {
       const body = {
         property: propertyId,
         image: imageFile,
         order,
+        caption: caption || "",
       };
       const formData = buildFormData(body);
 
       await Models.more_info.create(formData);
-      await moreInfoList();
     } catch (error) {
       console.log("more info create error --->", error);
       throw error;
@@ -1352,11 +1405,20 @@ const AddPropertyPage = () => {
     }
   };
 
-  const updateMoreInfo = async (moreInfoId: number, order: number) => {
+  const updateMoreInfo = async (
+    moreInfoId: number,
+    caption: string = "",
+    order?: number,
+  ) => {
     try {
-      const formData = buildFormData({ order });
+      const body: any = {
+        caption: caption || "",
+      };
+      if (order !== undefined) {
+        body.order = order;
+      }
+      const formData = buildFormData(body);
       await Models.more_info.update(moreInfoId, formData);
-      await moreInfoList();
     } catch (error) {
       console.log("more info update error --->", error);
       throw error;
@@ -2879,48 +2941,23 @@ const AddPropertyPage = () => {
                                   <label className="mb-2 block text-sm font-medium text-gray-700">
                                     Add images like QR codes
                                   </label>
-                                  <ImageUploadWithPreview
-                                    maxFiles={10}
-                                    acceptedFormats={["image/jpeg", "image/png", "image/webp"]}
-                                    onImagesChange={(images) =>
+                                  <MoreInfoUploadWithCaption
+                                    newImages={state.newMoreInfo}
+                                    onNewImagesChange={(images) =>
                                       setState({
                                         newMoreInfo: images,
                                         error: { ...state.error, more_info: "" },
                                       })
                                     }
+                                    existingImages={state.more_info}
+                                    onExistingImagesChange={(images) =>
+                                      setState({ more_info: images })
+                                    }
+                                    onExistingImageDelete={deleteMoreInfo}
+                                    maxFiles={10}
+                                    acceptedFormats={["image/jpeg", "image/png", "image/webp"]}
+                                    error={state.error?.more_info}
                                   />
-                                  {state.more_info?.length > 0 && (
-                                    <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-                                      {state.more_info.map((item) => {
-                                        const imageUrl = item?.url || item?.image_url;
-                                        return (
-                                          <div
-                                            key={item.id}
-                                            className="relative overflow-hidden rounded-lg border bg-gray-50"
-                                          >
-                                            <img
-                                              src={imageUrl}
-                                              alt="More info"
-                                              className="h-28 w-full object-cover"
-                                            />
-                                            <button
-                                              type="button"
-                                              onClick={() => deleteMoreInfo(item.id)}
-                                              className="absolute right-1 top-1 rounded-full bg-red-500 p-1 text-white hover:bg-red-600"
-                                              title="Remove image"
-                                            >
-                                              <Trash2 className="h-3 w-3" />
-                                            </button>
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  )}
-                                  {state.error?.more_info && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                      {state.error.more_info}
-                                    </p>
-                                  )}
                                 </div>
                               </div>
                             )}

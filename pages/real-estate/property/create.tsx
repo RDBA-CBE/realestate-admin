@@ -48,6 +48,7 @@ import Models from "@/imports/models.import";
 import Modal from "@/components/modal/modal.component";
 import IconLoader from "@/components/Icon/IconLoader";
 import ImageUploadWithPreview from "@/components/ImageUploadWithPreview/ImageUploadWithPreview.component";
+import MoreInfoUploadWithCaption from "@/components/ImageUploadWithPreview/MoreInfoUploadWithCaption.component";
 import VideoUpload from "@/components/videoUpload/videoUpload.compoent";
 import PrivateRouter from "@/hook/privateRouter";
 import { property } from "lodash";
@@ -960,12 +961,13 @@ const AddPropertyPage = () => {
     }
   };
 
-  const createMoreInfo = async (property, image, order) => {
+  const createMoreInfo = async (property, item, order) => {
     try {
       const body = {
         property,
-        image,
+        image: item?.file || item,
         order,
+        caption: item?.caption || "",
       };
       const formData = buildFormData(body);
 
@@ -2366,21 +2368,18 @@ const AddPropertyPage = () => {
                     <label className="mb-2 block text-sm font-medium text-gray-700">
                       Add images like QR codes
                     </label>
-                    <ImageUploadWithPreview
-                      maxFiles={10}
-                      acceptedFormats={["image/jpeg", "image/png", "image/webp"]}
-                      onImagesChange={(images) =>
+                    <MoreInfoUploadWithCaption
+                      newImages={state.more_info}
+                      onNewImagesChange={(images) =>
                         setState({
                           more_info: images,
                           error: { ...state.error, more_info: "" },
                         })
                       }
+                      maxFiles={10}
+                      acceptedFormats={["image/jpeg", "image/png", "image/webp"]}
+                      error={state.error?.more_info}
                     />
-                    {state.error?.more_info && (
-                      <p className="mt-1 text-sm text-red-600">
-                        {state.error.more_info}
-                      </p>
-                    )}
                   </div>
                 </div>
               )}
