@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Plus,
   Camera,
+  Mail,
 } from "lucide-react";
 import TextInput from "@/components/FormFields/TextInput.component";
 import PrimaryButton from "@/components/FormFields/PrimaryButton.component";
@@ -132,6 +133,10 @@ const AddPropertyPage = () => {
     ],
     urlfromProject: false,
     cent: "",
+    // Enquiry Info
+    enquiry_email:       '',
+    enquiry_both_emails: false,
+    developerEmail:      '',
   });
 
   useEffect(() => {
@@ -145,6 +150,20 @@ const AddPropertyPage = () => {
     });
   }, [state.group]);
 
+  const getDeveloperEmail = async (devId: string | number) => {
+    try {
+      const res: any = await Models.user.details(devId);
+      if (res?.email) {
+        setState({ developerEmail: res.email });
+      } else {
+        setState({ developerEmail: "" });
+      }
+    } catch (error) {
+      console.log("Error fetching developer email:", error);
+      setState({ developerEmail: "" });
+    }
+  };
+
   useEffect(() => {
     amenityList();
     categoryList(1);
@@ -157,6 +176,14 @@ const AddPropertyPage = () => {
   useEffect(() => {
     if (state.developer) {
       projectList(1);
+      const devId = state.developer?.value || state.developer;
+      if (state.developer?.email) {
+        setState({ developerEmail: state.developer.email });
+      } else if (devId) {
+        getDeveloperEmail(devId);
+      }
+    } else {
+      setState({ developerEmail: "" });
     }
   }, [state.developer]);
 
@@ -246,6 +273,7 @@ const AddPropertyPage = () => {
       const dropdown = res?.results?.map((item) => ({
         value: item?.id,
         label: item?.industry,
+        email: item?.email,
       }));
       setState({
         developerList: dropdown,
@@ -507,6 +535,7 @@ const AddPropertyPage = () => {
         status: state.status?.value,
         // total_area: state.total_area,
         // built_up_area: state.built_up_area,
+        carpet_area: state.carpet_area,
         total_unit: state.total_units,
         longitude: state.longitude,
         latitude: state.latitude,
@@ -612,6 +641,8 @@ const AddPropertyPage = () => {
         rera_number: state.rera_number,
         rera_expiry_date: state.rera_expiry_date,
         specialization: JSON.stringify(state.specialization),
+        enquiry_email: state.enquiry_email,
+        enquiry_both_emails: state.enquiry_both_emails,
       };
 
       // if (state.group !== "Developer") {
@@ -757,6 +788,8 @@ const AddPropertyPage = () => {
         rera_number: state.rera_number,
         rera_expiry_date: state.rera_expiry_date,
         specialization: JSON.stringify(state.specialization),
+        enquiry_email: state.enquiry_email,
+        enquiry_both_emails: state.enquiry_both_emails,
       };
 
       // if (state.group !== "Developer") {
@@ -884,6 +917,8 @@ const AddPropertyPage = () => {
         max_price: state.max_price,
         price_per_sqft:state.price_per_sqft,
         price: state.max_price,
+        enquiry_email: state.enquiry_email,
+        enquiry_both_emails: state.enquiry_both_emails,
       };
 
       if (state.group !== "Developer") {
@@ -1067,6 +1102,7 @@ const AddPropertyPage = () => {
     { id: 3, title: "Location", icon: MapPin },
     { id: 4, title: "Amenities", icon: Home },
     { id: 8, title: "More Info", icon: Camera },
+    { id: 9, title: "Enquiry Info", icon: Mail },
     // { id: 5, title: "Extra Facilities", icon: Star },
     // { id: 6, title: "Contact Information", icon: Phone },
   ];
@@ -1455,6 +1491,15 @@ const AddPropertyPage = () => {
                         error={state.error?.built_up_area}
                       />
                       {/* )} */}
+
+                      <TextInput
+                        name="carpet_area"
+                        title="Carpet Area (sq.ft.)"
+                        placeholder="Enter carpet area"
+                        value={state.carpet_area}
+                        onChange={handleInputChange}
+                        error={state.error?.carpet_area}
+                      />
 
                       <TextInput
                         name="total_units"
@@ -2383,6 +2428,51 @@ const AddPropertyPage = () => {
                   </div>
                 </div>
               )}
+
+              {/* {step.id === 9 && (
+                <div className="panel rounded-lg border p-6 shadow-none">
+                  <h2 className="text-lg font-semibold">Enquiry Info</h2>
+                  <p className="mt-1 text-sm text-gray-500">
+                    Configure email preferences for receiving enquiries on this property.
+                  </p>
+
+                  <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                    <TextInput
+                      type="email"
+                      name="enquiry_email"
+                      title="Receive Property Enquiry mail to"
+                      placeholder="Enter email address"
+                      value={state.enquiry_email}
+                      onChange={(e) =>
+                        setState({
+                          enquiry_email: e.target.value,
+                          error: { ...state.error, enquiry_email: "" },
+                        })
+                      }
+                      error={state.error?.enquiry_email}
+                    />
+                  </div>
+
+                  <div className="mt-4">
+                    <CheckboxInput
+                      type="checkbox"
+                      name="enquiry_both_emails"
+                      label="receive enquiry to both, developer email and entered email"
+                      checked={Boolean(state.enquiry_both_emails)}
+                      onChange={(checked) =>
+                        setState({
+                          enquiry_both_emails: checked,
+                        })
+                      }
+                    />
+                    {state.developerEmail && (
+                      <p className="mt-1 pl-6 text-xs text-gray-500">
+                        Developer email: <span className="font-medium text-gray-700">{state.developerEmail}</span>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )} */}
 
               {/* Step 6: Contact Information */}
               {/* {step.id === 6 && (

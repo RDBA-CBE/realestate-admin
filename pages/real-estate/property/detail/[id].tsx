@@ -82,6 +82,7 @@ const PropertyDetail = () => {
     { icon: <Home className="h-4 w-4" />, label: "Balconies", value: p.balconies ?? "-" },
     { icon: <Maximize2 className="h-4 w-4" />, label: "Total Area", value: p.total_area ? `${p.total_area} sq.ft` : "-" },
     { icon: <Maximize2 className="h-4 w-4" />, label: "Built-up Area", value: p.built_up_area ? `${p.built_up_area} sq.ft` : "-" },
+    { icon: <Maximize2 className="h-4 w-4" />, label: "Carpet Area", value: p.carpet_area ? `${p.carpet_area} sq.ft` : "-" },
     { icon: <Layers className="h-4 w-4" />, label: "Floor No.", value: p.floor_number ?? "-" },
     { icon: <Layers className="h-4 w-4" />, label: "Total Floors", value: p.total_floors ?? "-" },
     { icon: <Wind className="h-4 w-4" />, label: "Furnishing", value: capitalizeFLetter(p.furnishing ?? "-") },

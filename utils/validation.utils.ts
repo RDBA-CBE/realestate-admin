@@ -64,6 +64,7 @@ export const property_type = Yup.object().shape({
   //     then: (schema) => schema.required("Build up area is required"),
   //     otherwise: (schema) => schema.nullable(),
   //   }),
+  // carpet_area: Yup.string().nullable(),
   min_price: Yup.string().required("Minimum is required").nullable(),
   max_price: Yup.string()
     .required("Maximum is required")
@@ -154,6 +155,7 @@ export const propertySaleCreate = Yup.object().shape({
   //   }),
   // plot_area: Yup.string().nullable(),
   // price_per_cent: Yup.string().nullable(),
+  carpet_area: Yup.string().nullable(),
   project: Yup.string().required("Project is required").nullable(),
   min_price: Yup.string().required("Min Price is required").nullable(),
   max_price: Yup.string()
@@ -213,6 +215,14 @@ export const propertySaleCreate = Yup.object().shape({
       then: (schema) => schema.required("Agent is required"),
       otherwise: (schema) => schema.nullable(),
     }),
+  enquiry_email: Yup.string()
+    .nullable()
+    .test(
+      "is-valid-email",
+      "Please enter a valid email address",
+      (val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())
+    ),
+  enquiry_both_emails: Yup.boolean().nullable(),
 });
 
 export const propertyLeaseCreate = Yup.object().shape({
@@ -236,6 +246,7 @@ export const propertyLeaseCreate = Yup.object().shape({
   //     then: (schema) => schema.required("Built-up Area is required"),
   //     otherwise: (schema) => schema.nullable(),
   //   }),
+  carpet_area: Yup.string().nullable(),
   project: Yup.string().required("Project is required").nullable(),
   location_url: Yup.string().required("Location URL is required").nullable(),
 
@@ -282,6 +293,14 @@ export const propertyLeaseCreate = Yup.object().shape({
       then: (schema) => schema.required("Agent is required"),
       otherwise: (schema) => schema.nullable(),
     }),
+  enquiry_email: Yup.string()
+    .nullable()
+    .test(
+      "is-valid-email",
+      "Please enter a valid email address",
+      (val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())
+    ),
+  enquiry_both_emails: Yup.boolean().nullable(),
 });
 
 export const propertyRentCreate = Yup.object().shape({
@@ -309,6 +328,7 @@ export const propertyRentCreate = Yup.object().shape({
       then: (schema) => schema.required("Built-up Area is required"),
       otherwise: (schema) => schema.nullable(),
     }),
+  carpet_area: Yup.string().nullable(),
   project: Yup.string().required("Project is required").nullable(),
 
   longitude: Yup.string().required("Longitude is required").nullable(),
@@ -352,6 +372,14 @@ export const propertyRentCreate = Yup.object().shape({
       then: (schema) => schema.required("Agent is required"),
       otherwise: (schema) => schema.nullable(),
     }),
+  enquiry_email: Yup.string()
+    .nullable()
+    .test(
+      "is-valid-email",
+      "Please enter a valid email address",
+      (val) => !val || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim())
+    ),
+  enquiry_both_emails: Yup.boolean().nullable(),
 });
 
 export const category = Yup.object().shape({
