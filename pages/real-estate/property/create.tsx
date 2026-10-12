@@ -1668,7 +1668,7 @@ const AddPropertyPage = () => {
                             placeholder="Enter Max Price"
                             value={state.max_price}
                             onChange={handleInputChange}
-                            required
+                            
                             error={state.error?.max_price}
                           />
                         </>
@@ -1690,7 +1690,7 @@ const AddPropertyPage = () => {
                             placeholder="Enter Lease Max Price"
                             value={state.max_price}
                             onChange={handleInputChange}
-                            required
+                            
                             error={state.error?.max_price}
                           />
                           <NumberInput

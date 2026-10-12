@@ -656,32 +656,65 @@ export const formatToINRS = (price: number | string): string => {
   }
 };
 
+
 export const formatPriceRange = (
-  minPrice: number | string | null,
-  maxPrice: number | string | null
+  minPrice?: number | string | null,
+  maxPrice?: number | string | null
 ): string => {
-  if (minPrice === null && maxPrice === null) {
+  if (
+    (minPrice === null || minPrice === undefined || minPrice === "") &&
+    (maxPrice === null || maxPrice === undefined || maxPrice === "")
+  ) {
     return "Price on request";
   }
-  
-  if (minPrice === null) {
-    return `Max: ${formatToINRS(maxPrice)}`;
+
+  const formatExactPrice = (price: number | string): string => {
+    const value = typeof price === "string" ? parseFloat(price) : price;
+
+    if (isNaN(value)) return "";
+
+    if (value >= 10000000) {
+      return `${(value / 10000000).toFixed(2).replace(/\.?0+$/, "")} Cr`;
+    }
+
+    if (value >= 100000) {
+      return `${(value / 100000).toFixed(2).replace(/\.?0+$/, "")} L`;
+    }
+
+    if (value >= 1000) {
+      return `${(value / 1000).toFixed(2).replace(/\.?0+$/, "")} K`;
+    }
+
+    return `${value}`;
+  };
+
+  const hasMin =
+    minPrice !== null && minPrice !== undefined && minPrice !== "";
+  const hasMax =
+    maxPrice !== null && maxPrice !== undefined && maxPrice !== "";
+
+  if (hasMin && !hasMax) {
+    return formatExactPrice(minPrice);
   }
-  
-  if (maxPrice === null) {
-    return `Min: ${formatToINRS(minPrice)}`;
+
+  if (!hasMin && hasMax) {
+    return `Max: ${formatExactPrice(maxPrice)}`;
   }
 
-  const numericMin = typeof minPrice === "string" ? parseFloat(minPrice) : minPrice;
-  const numericMax = typeof maxPrice === "string" ? parseFloat(maxPrice) : maxPrice;
+  const numericMin = Number(minPrice);
+  const numericMax = Number(maxPrice);
 
-  if (isNaN(numericMin) || isNaN(numericMax)) return "Contact for price";
+  if (isNaN(numericMin) || isNaN(numericMax)) {
+    return "Contact for price";
+  }
 
-  const formattedMin = formatToINRS(numericMin).replace("₹", "");
-  const formattedMax = formatToINRS(numericMax).replace("₹", "");
+  if (numericMin === numericMax) {
+    return formatExactPrice(numericMin);
+  }
 
-  return `${formattedMin} - ${formattedMax}`;
+  return `${formatExactPrice(numericMin)} - ${formatExactPrice(numericMax)}`;
 };
+
 
 
 export const truncateText = (text: string, maxLength: number = 10) => {

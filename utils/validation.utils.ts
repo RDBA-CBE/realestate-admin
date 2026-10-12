@@ -67,7 +67,7 @@ export const property_type = Yup.object().shape({
   // carpet_area: Yup.string().nullable(),
   min_price: Yup.string().required("Minimum is required").nullable(),
   max_price: Yup.string()
-    .required("Maximum is required")
+    // .required("Maximum is required")
     .nullable()
     .test(
       "max-greater-than-min",
@@ -159,7 +159,7 @@ export const propertySaleCreate = Yup.object().shape({
   project: Yup.string().required("Project is required").nullable(),
   min_price: Yup.string().required("Min Price is required").nullable(),
   max_price: Yup.string()
-    .required("Max Price is required")
+    // .required("Max Price is required")
     .nullable()
     .test(
       "max-greater-than-min",
@@ -263,7 +263,7 @@ export const propertyLeaseCreate = Yup.object().shape({
     .min(1, "At least one amenities is required"),
   min_price: Yup.string().required("Min Price is required").nullable(),
   max_price: Yup.string()
-    .required("Max Price is required")
+    // .required("Max Price is required")
     .nullable()
     .test(
       "max-greater-than-min",
@@ -344,7 +344,7 @@ export const propertyRentCreate = Yup.object().shape({
     .min(1, "At least one amenities is required"),
   min_price: Yup.string().required("Min Price is required").nullable(),
   max_price: Yup.string()
-    .required("Max Price is required")
+    // .required("Max Price is required")
     .nullable()
     .test(
       "max-greater-than-min",
