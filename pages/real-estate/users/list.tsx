@@ -167,47 +167,46 @@ const List = () => {
   };
 
   const createUser = async () => {
-    try {
-      setState({ btnLoading: true });
-      const body = {
-        first_name: state?.first_name,
-        last_name: state?.last_name,
-        email: state?.email,
-        password: state?.password,
-        phone: state?.phone,
-        groups: [state?.userRole?.value],
-        // groups: state?.role?.map((item) => item?.value),
-        address: state?.address,
-        account_status: "approved",
-        approved_by: state.userId,
-        industry: state.industry,
-      };
+  try {
+    setState({ btnLoading: true });
+    const body = {
+      first_name: state?.first_name,
+      last_name: state?.last_name,
+      email: state?.email,
+      password: state?.password,
+      phone: state?.phone,
+      groups: state?.userRole?.value?.[0],
+      address: state?.address,
+      account_status: "approved",
+      approved_by: state.userId,
+      industry: state.industry,
+    };
 
-      console.log("create body", body);
+    console.log("create body", body);
 
       await Utils.Validation.user.validate(body, { abortEarly: false });
 
       const res = await Models.user.create(body);
-      clearData();
-      setState({ btnLoading: false });
-      usersList(1);
-      Success("User created succssfully");
-    } catch (error: any) {
-      if (error instanceof Yup.ValidationError) {
-        const validationErrors = {};
-        error.inner.forEach((err) => {
-          validationErrors[err.path] = err?.message;
-        });
-        console.log("✌️validationErrors --->", validationErrors);
+    clearData();
+    setState({ btnLoading: false });
+    usersList(1);
+    Success("User created successfully");
+  } catch (error: any) {
+    if (error instanceof Yup.ValidationError) {
+      const validationErrors = {};
+      error.inner.forEach((err) => {
+        validationErrors[err.path] = err.message;
+      });
+      console.log("✌️validationErrors --->", validationErrors);
 
-        setState({ error: validationErrors, btnLoading: false });
-      } else {
-        console.log("error", error);
-        Failure(error);
-        setState({ btnLoading: false });
-      }
+      setState({ error: validationErrors, btnLoading: false });
+    } else {
+      console.log("error", error);
+      Failure(error);
+      setState({ btnLoading: false });
     }
-  };
+  }
+};
 
   const updateUsers = async () => {
     try {
@@ -217,7 +216,7 @@ const List = () => {
         last_name: state?.last_name,
         email: state?.email,
         phone: state?.phone,
-        groups: [state?.userRole?.value],
+        groups: [state?.userRole?.value?.[0]],
         address: state?.address,
         industry: state.industry,
       };

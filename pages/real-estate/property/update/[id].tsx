@@ -371,7 +371,10 @@ const AddPropertyPage = () => {
       if (res?.price_range && res?.price_range?.minimum_price) {
         setState({
           min_price: formatNumber(res?.price_range?.minimum_price),
-          max_price: formatNumber(res?.price_range?.maximum_price),
+          max_price:
+            res?.price_range?.maximum_price != null
+              ? formatNumber(res.price_range.maximum_price)
+              : "",
         });
       }
 
